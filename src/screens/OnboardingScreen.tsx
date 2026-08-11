@@ -90,8 +90,7 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onFinishOnbo
         totalSlides={slides.length}
         onNext={handleNext}
         onPrev={handlePrev}
-        onRegister={() => handleComplete('Register')}
-        onLogin={() => handleComplete('Login')}
+        onStart={() => handleComplete('AuthWelcome')}
       />
     </SafeAreaView>
   );

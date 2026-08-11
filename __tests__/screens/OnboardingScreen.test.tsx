@@ -34,6 +34,6 @@ describe('OnboardingScreen Component', () => {
     });
 
     expect(AsyncStorage.setItem).toHaveBeenCalledWith('@startup_app/onboarding_completed', 'true');
-    expect(mockFinish).toHaveBeenCalledWith('Login');
+    expect(mockFinish).toHaveBeenCalledWith('AuthWelcome');
   });
 });

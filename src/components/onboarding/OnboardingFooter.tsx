@@ -10,8 +10,7 @@ export const OnboardingFooter: React.FC<OnboardingFooterProps> = ({
   totalSlides,
   onNext,
   onPrev,
-  onRegister,
-  onLogin,
+  onStart,
 }) => {
   const isLastSlide = currentIndex === totalSlides - 1;
   const isFirstSlide = currentIndex === 0;
@@ -20,28 +19,18 @@ export const OnboardingFooter: React.FC<OnboardingFooterProps> = ({
     return (
       <View style={styles.container}>
         <PaginationDots total={totalSlides} currentIndex={currentIndex} />
-        
+
         <View style={styles.ctaContainer}>
           <TouchableOpacity
-            onPress={onRegister}
+            onPress={onStart}
             activeOpacity={0.8}
             accessibilityRole="button"
-            accessibilityLabel={onboardingUIStrings.register}
-            accessibilityHint={onboardingUIStrings.accessibility.registerHint}
+            accessibilityLabel="Comenzar"
+            accessibilityHint="Completa la presentación e inicia en la aplicación"
             style={[styles.button, styles.primaryButton]}
+            testID="btn-onboarding-start"
           >
-            <Text style={styles.primaryButtonText}>{onboardingUIStrings.register}</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={onLogin}
-            activeOpacity={0.8}
-            accessibilityRole="button"
-            accessibilityLabel={onboardingUIStrings.login}
-            accessibilityHint={onboardingUIStrings.accessibility.loginHint}
-            style={[styles.button, styles.secondaryButton]}
-          >
-            <Text style={styles.secondaryButtonText}>{onboardingUIStrings.login}</Text>
+            <Text style={styles.primaryButtonText}>Comenzar</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -125,7 +114,6 @@ const styles = StyleSheet.create({
     fontWeight: typography.fontWeights.bold,
   },
   ctaContainer: {
-    gap: spacing.sm,
     marginTop: spacing.sm,
   },
   button: {
@@ -143,15 +131,5 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: typography.fontSizes.md,
     fontWeight: typography.fontWeights.bold,
-  },
-  secondaryButton: {
-    backgroundColor: 'transparent',
-    borderWidth: 1.5,
-    borderColor: colors.border,
-  },
-  secondaryButtonText: {
-    color: colors.textPrimary,
-    fontSize: typography.fontSizes.md,
-    fontWeight: typography.fontWeights.semibold,
   },
 });

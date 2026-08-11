@@ -57,7 +57,7 @@ describe('useOnboarding Hook', () => {
     });
 
     expect(AsyncStorage.setItem).toHaveBeenCalledWith(ASYNC_STORAGE_ONBOARDING_KEY, 'true');
-    expect(mockOnFinish).toHaveBeenCalledWith('Login');
+    expect(mockOnFinish).toHaveBeenCalledWith('AuthWelcome');
   });
 
   it('should save onboarding_completed = "true" on handleComplete', async () => {
@@ -70,10 +70,10 @@ describe('useOnboarding Hook', () => {
     });
 
     await act(async () => {
-      await result.current.handleComplete('Register');
+      await result.current.handleComplete('AuthWelcome');
     });
 
     expect(AsyncStorage.setItem).toHaveBeenCalledWith(ASYNC_STORAGE_ONBOARDING_KEY, 'true');
-    expect(mockOnFinish).toHaveBeenCalledWith('Register');
+    expect(mockOnFinish).toHaveBeenCalledWith('AuthWelcome');
   });
 });
