@@ -4,36 +4,15 @@ import { UseOnboardingReturn } from '../types/onboarding';
 import { onboardingSlidesEs, ASYNC_STORAGE_ONBOARDING_KEY } from '../i18n/onboardingContent';
 
 export const useOnboarding = (
-  onFinish?: (route: 'Register' | 'Login' | 'Main') => void
+  onFinish?: (route: 'AuthWelcome' | 'Register' | 'Login' | 'Main') => void
 ): UseOnboardingReturn => {
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Check on mount if onboarding was already completed
+  // Initialize loading state on mount if needed
   useEffect(() => {
-    let isMounted = true;
-    const checkOnboardingStatus = async () => {
-      try {
-        const completed = await AsyncStorage.getItem(ASYNC_STORAGE_ONBOARDING_KEY);
-        if (isMounted && completed === 'true') {
-          if (onFinish) {
-            onFinish('Login');
-          }
-        }
-      } catch (error) {
-        console.error('Error reading onboarding status from AsyncStorage:', error);
-      } finally {
-        if (isMounted) {
-          setIsLoading(false);
-        }
-      }
-    };
-
-    checkOnboardingStatus();
-    return () => {
-      isMounted = false;
-    };
-  }, [onFinish]);
+    setIsLoading(false);
+  }, []);
 
   const totalSlides = onboardingSlidesEs.length;
   const isLastSlide = currentIndex === totalSlides - 1;
@@ -62,12 +41,12 @@ export const useOnboarding = (
   const handleSkip = useCallback(async () => {
     await markOnboardingCompleted();
     if (onFinish) {
-      onFinish('Login');
+      onFinish('AuthWelcome');
     }
   }, [onFinish]);
 
   const handleComplete = useCallback(
-    async (targetRoute: 'Register' | 'Login' = 'Login') => {
+    async (targetRoute: 'AuthWelcome' | 'Register' | 'Login' = 'AuthWelcome') => {
       await markOnboardingCompleted();
       if (onFinish) {
         onFinish(targetRoute);
