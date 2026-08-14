@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { OnboardingScreen } from '../screens/OnboardingScreen';
 import { AuthWelcomeScreen } from '../screens/AuthWelcomeScreen';
 import { RegisterScreen } from '../screens/RegisterScreen';
+import { OtpVerificationScreen } from '../screens/OtpVerificationScreen';
 import { ASYNC_STORAGE_ONBOARDING_KEY } from '../i18n/onboardingContent';
 import { colors, typography } from '../theme/tokens';
 
@@ -12,6 +13,8 @@ export type AppRoute = 'Onboarding' | 'AuthWelcome' | 'Register' | 'Login' | 'Ve
 export const AppNavigator: React.FC = () => {
   const [currentRoute, setCurrentRoute] = useState<AppRoute>('Onboarding');
   const [isCheckingStatus, setIsCheckingStatus] = useState<boolean>(true);
+  /** Contact (email/phone) passed from RegisterScreen to OtpVerificationScreen */
+  const [registeredContact, setRegisteredContact] = useState<string>('');
 
   useEffect(() => {
     const checkInitialRoute = async () => {
@@ -62,7 +65,10 @@ export const AppNavigator: React.FC = () => {
     return (
       <RegisterScreen
         onNavigateBack={() => setCurrentRoute('AuthWelcome')}
-        onNavigateToOtp={() => setCurrentRoute('VerifyOTP')}
+        onNavigateToOtp={(contact?: string) => {
+          if (contact) setRegisteredContact(contact);
+          setCurrentRoute('VerifyOTP');
+        }}
         onNavigateToLogin={() => setCurrentRoute('Login')}
       />
     );
@@ -70,13 +76,11 @@ export const AppNavigator: React.FC = () => {
 
   if (currentRoute === 'VerifyOTP') {
     return (
-      <View style={styles.centerContainer}>
-        <Text style={styles.welcomeText}>🔐 Pantalla de Verificación de OTP</Text>
-        <Text style={styles.subText}>Se envió un código a tu correo/teléfono.</Text>
-        <TouchableOpacity style={styles.resetButton} onPress={() => setCurrentRoute('Register')}>
-          <Text style={styles.resetText}>← Volver a Registro</Text>
-        </TouchableOpacity>
-      </View>
+      <OtpVerificationScreen
+        contact={registeredContact}
+        onVerificationSuccess={() => setCurrentRoute('Main')}
+        onNavigateBackToRegister={() => setCurrentRoute('Register')}
+      />
     );
   }
 

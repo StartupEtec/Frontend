@@ -21,7 +21,8 @@ export class ApiError extends Error {
 }
 
 export const API_CONFIG = {
-  BASE_URL: 'http://localhost:3000/api/v1',
+  BASE_URL:
+    process.env.EXPO_PUBLIC_API_URL ?? 'http://10.0.2.2:3000/api/v1',
   DEFAULT_TIMEOUT: 10000, // 10s
   MAX_RETRIES: 2,
   INITIAL_RETRY_DELAY: 500, // ms

@@ -12,7 +12,7 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_REGEX = /^\+?[0-9]{8,15}$/;
 
 export const useRegisterForm = (
-  onNavigateToOtp: () => void,
+  onNavigateToOtp: (contact?: string) => void,
   onNavigateToLogin: () => void
 ) => {
   const [formData, setFormData] = useState<RegisterFormData>({
@@ -147,14 +147,12 @@ export const useRegisterForm = (
 
     try {
       await authService.register({
-        firstName: formData.firstName.trim(),
-        lastName: formData.lastName.trim(),
         email: formData.email.trim(),
         phone: formData.phone.replace(/\s+/g, ''),
         password: formData.password,
       });
 
-      onNavigateToOtp();
+      onNavigateToOtp(formData.email.trim());
     } catch (err: any) {
       if (err instanceof ApiError) {
         if (err.statusCode === 409) {
