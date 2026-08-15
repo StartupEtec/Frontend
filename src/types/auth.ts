@@ -34,8 +34,6 @@ export interface PasswordCriteriaStatus {
 }
 
 export interface RegisterApiPayload {
-  firstName: string;
-  lastName: string;
   email: string;
   phone: string;
   password: string;
@@ -49,7 +47,7 @@ export interface RegisterApiResponse {
 }
 
 export interface RegisterScreenProps {
-  onNavigateToOtp: () => void;
+  onNavigateToOtp: (contact?: string) => void;
   onNavigateToLogin: () => void;
   onNavigateBack: () => void;
 }
@@ -58,4 +56,13 @@ export interface AuthWelcomeScreenProps {
   onNavigateToRegister: () => void;
   onNavigateToLogin: () => void;
   onNavigateToOnboarding: () => void;
+}
+
+export interface OtpVerificationScreenProps {
+  /** The email or phone number that received the OTP */
+  contact: string;
+  /** Navigate to role-selection screen after successful verification */
+  onVerificationSuccess: () => void;
+  /** Return to registration to change email/phone */
+  onNavigateBackToRegister: () => void;
 }
