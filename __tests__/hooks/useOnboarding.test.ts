@@ -1,19 +1,19 @@
-import { renderHook, act, waitFor } from '@testing-library/react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useOnboarding } from '../../src/hooks/useOnboarding';
-import { ASYNC_STORAGE_ONBOARDING_KEY } from '../../src/i18n/onboardingContent';
+import { renderHook, act, waitFor } from "@testing-library/react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useOnboarding } from "../../src/hooks/useOnboarding";
+import { ASYNC_STORAGE_ONBOARDING_KEY } from "../../src/i18n/onboardingContent";
 
-jest.mock('@react-native-async-storage/async-storage', () => ({
+jest.mock("@react-native-async-storage/async-storage", () => ({
   getItem: jest.fn(),
   setItem: jest.fn(),
 }));
 
-describe('useOnboarding Hook', () => {
+describe("useOnboarding Hook", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it('should initialize at index 0 and with 4 slides', async () => {
+  it("should initialize at index 0 and with 4 slides", async () => {
     (AsyncStorage.getItem as jest.Mock).mockResolvedValue(null);
     const { result } = renderHook(() => useOnboarding());
 
@@ -27,7 +27,7 @@ describe('useOnboarding Hook', () => {
     expect(result.current.isLastSlide).toBe(false);
   });
 
-  it('should advance to next slide when handleNext is called', async () => {
+  it("should advance to next slide when handleNext is called", async () => {
     (AsyncStorage.getItem as jest.Mock).mockResolvedValue(null);
     const { result } = renderHook(() => useOnboarding());
 
@@ -56,8 +56,11 @@ describe('useOnboarding Hook', () => {
       await result.current.handleSkip();
     });
 
-    expect(AsyncStorage.setItem).toHaveBeenCalledWith(ASYNC_STORAGE_ONBOARDING_KEY, 'true');
-    expect(mockOnFinish).toHaveBeenCalledWith('AuthWelcome');
+    expect(AsyncStorage.setItem).toHaveBeenCalledWith(
+      ASYNC_STORAGE_ONBOARDING_KEY,
+      "true",
+    );
+    expect(mockOnFinish).toHaveBeenCalledWith("AuthWelcome");
   });
 
   it('should save onboarding_completed = "true" on handleComplete', async () => {
@@ -70,10 +73,13 @@ describe('useOnboarding Hook', () => {
     });
 
     await act(async () => {
-      await result.current.handleComplete('AuthWelcome');
+      await result.current.handleComplete("AuthWelcome");
     });
 
-    expect(AsyncStorage.setItem).toHaveBeenCalledWith(ASYNC_STORAGE_ONBOARDING_KEY, 'true');
-    expect(mockOnFinish).toHaveBeenCalledWith('AuthWelcome');
+    expect(AsyncStorage.setItem).toHaveBeenCalledWith(
+      ASYNC_STORAGE_ONBOARDING_KEY,
+      "true",
+    );
+    expect(mockOnFinish).toHaveBeenCalledWith("AuthWelcome");
   });
 });

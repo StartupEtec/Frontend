@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect } from "react";
 import {
   View,
   FlatList,
@@ -7,18 +7,23 @@ import {
   ActivityIndicator,
   NativeSyntheticEvent,
   NativeScrollEvent,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { StatusBar } from 'expo-status-bar';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { StatusBar } from "expo-status-bar";
 
-import { useOnboarding } from '../hooks/useOnboarding';
-import { OnboardingSlide } from '../components/onboarding/OnboardingSlide';
-import { OnboardingHeader } from '../components/onboarding/OnboardingHeader';
-import { OnboardingFooter } from '../components/onboarding/OnboardingFooter';
-import { OnboardingScreenProps, OnboardingSlideData } from '../types/onboarding';
-import { colors } from '../theme/tokens';
+import { useOnboarding } from "../hooks/useOnboarding";
+import { OnboardingSlide } from "../components/onboarding/OnboardingSlide";
+import { OnboardingHeader } from "../components/onboarding/OnboardingHeader";
+import { OnboardingFooter } from "../components/onboarding/OnboardingFooter";
+import {
+  OnboardingScreenProps,
+  OnboardingSlideData,
+} from "../types/onboarding";
+import { colors } from "../theme/tokens";
 
-export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onFinishOnboarding }) => {
+export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({
+  onFinishOnboarding,
+}) => {
   const { width, height } = useWindowDimensions();
   const flatListRef = useRef<FlatList<OnboardingSlideData>>(null);
 
@@ -44,7 +49,9 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onFinishOnbo
     }
   }, [currentIndex, isLoading]);
 
-  const onMomentumScrollEnd = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+  const onMomentumScrollEnd = (
+    event: NativeSyntheticEvent<NativeScrollEvent>,
+  ) => {
     const contentOffsetX = event.nativeEvent.contentOffset.x;
     const index = Math.round(contentOffsetX / width);
     handleScrollEnd(index);
@@ -90,7 +97,7 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onFinishOnbo
         totalSlides={slides.length}
         onNext={handleNext}
         onPrev={handlePrev}
-        onStart={() => handleComplete('AuthWelcome')}
+        onStart={() => handleComplete("AuthWelcome")}
       />
     </SafeAreaView>
   );
@@ -104,8 +111,8 @@ const styles = StyleSheet.create({
   loadingContainer: {
     flex: 1,
     backgroundColor: colors.background,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 

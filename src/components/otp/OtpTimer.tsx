@@ -1,6 +1,6 @@
-import React from 'react';
-import { Text, StyleSheet } from 'react-native';
-import { colors, typography } from '../../theme/tokens';
+import React from "react";
+import { Text, StyleSheet } from "react-native";
+import { colors, typography } from "../../theme/tokens";
 
 interface OtpTimerProps {
   secondsRemaining: number;
@@ -13,7 +13,7 @@ interface OtpTimerProps {
 export const OtpTimer: React.FC<OtpTimerProps> = ({ secondsRemaining }) => {
   const minutes = Math.floor(secondsRemaining / 60);
   const seconds = secondsRemaining % 60;
-  const formatted = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+  const formatted = `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 
   const isUrgent = secondsRemaining <= 60 && secondsRemaining > 0;
   const isExpired = secondsRemaining === 0;
@@ -21,8 +21,8 @@ export const OtpTimer: React.FC<OtpTimerProps> = ({ secondsRemaining }) => {
   const textColor = isExpired
     ? colors.error
     : isUrgent
-    ? '#F97316' // orange-500
-    : colors.textSecondary;
+      ? "#F97316" // orange-500
+      : colors.textSecondary;
 
   return (
     <Text
@@ -30,7 +30,7 @@ export const OtpTimer: React.FC<OtpTimerProps> = ({ secondsRemaining }) => {
       testID="otp-timer"
       accessibilityLabel={`El código vence en ${formatted}`}
     >
-      {isExpired ? 'Código expirado' : `Código vence en ${formatted}`}
+      {isExpired ? "Código expirado" : `Código vence en ${formatted}`}
     </Text>
   );
 };
@@ -38,7 +38,7 @@ export const OtpTimer: React.FC<OtpTimerProps> = ({ secondsRemaining }) => {
 const styles = StyleSheet.create({
   timer: {
     fontSize: typography.fontSizes.sm,
-    fontWeight: '500',
-    textAlign: 'center',
+    fontWeight: "500",
+    textAlign: "center",
   },
 });

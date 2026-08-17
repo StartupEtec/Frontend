@@ -1,9 +1,15 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { OnboardingFooterProps } from '../../types/onboarding';
-import { PaginationDots } from './PaginationDots';
-import { onboardingUIStrings } from '../../i18n/onboardingContent';
-import { colors, spacing, borderRadius, typography, shadows } from '../../theme/tokens';
+import React from "react";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { OnboardingFooterProps } from "../../types/onboarding";
+import { PaginationDots } from "./PaginationDots";
+import { onboardingUIStrings } from "../../i18n/onboardingContent";
+import {
+  colors,
+  spacing,
+  borderRadius,
+  typography,
+  shadows,
+} from "../../theme/tokens";
 
 export const OnboardingFooter: React.FC<OnboardingFooterProps> = ({
   currentIndex,
@@ -51,7 +57,9 @@ export const OnboardingFooter: React.FC<OnboardingFooterProps> = ({
             accessibilityHint={onboardingUIStrings.accessibility.prevHint}
             style={[styles.navButton, styles.prevButton]}
           >
-            <Text style={styles.prevButtonText}>{onboardingUIStrings.prev}</Text>
+            <Text style={styles.prevButtonText}>
+              {onboardingUIStrings.prev}
+            </Text>
           </TouchableOpacity>
         ) : (
           <View style={styles.navButtonPlaceholder} />
@@ -76,12 +84,12 @@ const styles = StyleSheet.create({
   container: {
     paddingHorizontal: spacing.lg,
     paddingBottom: spacing.xl,
-    justifyContent: 'flex-end',
+    justifyContent: "flex-end",
   },
   navRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     marginTop: spacing.sm,
   },
   navButtonPlaceholder: {
@@ -92,10 +100,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     borderRadius: borderRadius.md,
     minWidth: 100,
-    alignItems: 'center',
+    alignItems: "center",
   },
   prevButton: {
-    backgroundColor: 'transparent',
+    backgroundColor: "transparent",
     borderWidth: 1,
     borderColor: colors.border,
   },
@@ -109,7 +117,7 @@ const styles = StyleSheet.create({
     ...shadows.button,
   },
   nextButtonText: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: typography.fontSizes.sm,
     fontWeight: typography.fontWeights.bold,
   },
@@ -119,16 +127,16 @@ const styles = StyleSheet.create({
   button: {
     paddingVertical: spacing.md,
     borderRadius: borderRadius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '100%',
+    alignItems: "center",
+    justifyContent: "center",
+    width: "100%",
   },
   primaryButton: {
     backgroundColor: colors.primary,
     ...shadows.button,
   },
   primaryButtonText: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: typography.fontSizes.md,
     fontWeight: typography.fontWeights.bold,
   },

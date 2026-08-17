@@ -12,6 +12,7 @@ import { AuthWelcomeScreen } from "../screens/AuthWelcomeScreen";
 import { RegisterScreen } from "../screens/RegisterScreen";
 import { OtpVerificationScreen } from "../screens/OtpVerificationScreen";
 import { RoleSelectionScreen } from "../screens/RoleSelectionScreen";
+import { CompleteProfileScreen } from "../screens/CompleteProfileScreen";
 import { ASYNC_STORAGE_ONBOARDING_KEY } from "../i18n/onboardingContent";
 import { colors, typography } from "../theme/tokens";
 import { UserRole } from "../types/role";
@@ -23,6 +24,7 @@ export type AppRoute =
   | "Login"
   | "VerifyOTP"
   | "RoleSelection"
+  | "CompleteProfile"
   | "Main";
 
 export const AppNavigator: React.FC = () => {
@@ -30,6 +32,8 @@ export const AppNavigator: React.FC = () => {
   const [isCheckingStatus, setIsCheckingStatus] = useState<boolean>(true);
   /** Contact (email/phone) passed from RegisterScreen to OtpVerificationScreen */
   const [registeredContact, setRegisteredContact] = useState<string>("");
+  /** Role selected on RoleSelectionScreen, passed to CompleteProfileScreen */
+  const [selectedRole, setSelectedRole] = useState<UserRole>("client");
 
   useEffect(() => {
     const checkInitialRoute = async () => {
@@ -104,7 +108,20 @@ export const AppNavigator: React.FC = () => {
   if (currentRoute === "RoleSelection") {
     return (
       <RoleSelectionScreen
-        onRoleSelected={(_role: UserRole) => setCurrentRoute("Main")}
+        onRoleSelected={(role: UserRole) => {
+          setSelectedRole(role);
+          setCurrentRoute("Main");
+        }}
+      />
+    );
+  }
+
+  if (currentRoute === "CompleteProfile") {
+    return (
+      <CompleteProfileScreen
+        role={selectedRole}
+        onProfileCompleted={() => setCurrentRoute("Main")}
+        onGoBack={() => setCurrentRoute("Main")}
       />
     );
   }
@@ -128,6 +145,12 @@ export const AppNavigator: React.FC = () => {
   return (
     <View style={styles.centerContainer}>
       <Text style={styles.welcomeText}>🏠 Pantalla Principal</Text>
+      <TouchableOpacity
+        style={styles.profileButton}
+        onPress={() => setCurrentRoute("CompleteProfile")}
+      >
+        <Text style={styles.profileButtonText}>Completar perfil</Text>
+      </TouchableOpacity>
       <TouchableOpacity
         style={styles.resetButton}
         onPress={async () => {
@@ -174,6 +197,18 @@ const styles = StyleSheet.create({
   resetText: {
     color: "#94A3B8",
     fontSize: 14,
+  },
+  profileButton: {
+    marginTop: 16,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    backgroundColor: colors.primary,
+    borderRadius: 8,
+  },
+  profileButtonText: {
+    color: "#FFFFFF",
+    fontSize: 14,
+    fontWeight: "600",
   },
 });
 

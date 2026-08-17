@@ -5,33 +5,34 @@
 
 export const colors = {
   // Backgrounds
-  background: '#0F172A', // Slate 900
-  cardBackground: '#1E293B', // Slate 800
-  overlayBackground: 'rgba(15, 23, 42, 0.75)',
+  background: "#0F172A", // Slate 900
+  cardBackground: "#1E293B", // Slate 800
+  surface: "#1E293B", // Slate 800 – input / picker backgrounds
+  overlayBackground: "rgba(15, 23, 42, 0.75)",
 
   // Accents & Brand
-  primary: '#6366F1', // Indigo 500
-  primaryHover: '#4F46E5', // Indigo 600
-  primaryLight: '#818CF8', // Indigo 400
-  secondary: '#10B981', // Emerald 500 (Worker Accent)
-  secondaryLight: '#34D399',
+  primary: "#6366F1", // Indigo 500
+  primaryHover: "#4F46E5", // Indigo 600
+  primaryLight: "#818CF8", // Indigo 400
+  secondary: "#10B981", // Emerald 500 (Worker Accent)
+  secondaryLight: "#34D399",
 
   // Client vs Worker Dual-Role Accents
-  clientAccent: '#3B82F6', // Blue 500
-  workerAccent: '#10B981', // Emerald 500
+  clientAccent: "#3B82F6", // Blue 500
+  workerAccent: "#10B981", // Emerald 500
 
   // Text Colors (High Contrast WCAG AA)
-  textPrimary: '#F8FAFC', // Slate 50
-  textSecondary: '#94A3B8', // Slate 400
-  textMuted: '#64748B', // Slate 500
-  textInverse: '#0F172A',
+  textPrimary: "#F8FAFC", // Slate 50
+  textSecondary: "#94A3B8", // Slate 400
+  textMuted: "#64748B", // Slate 500
+  textInverse: "#0F172A",
 
   // Interactive UI
-  border: '#334155', // Slate 700
-  dotInactive: '#334155',
-  dotActive: '#6366F1',
-  error: '#EF4444',
-  success: '#22C55E',
+  border: "#334155", // Slate 700
+  dotInactive: "#334155",
+  dotActive: "#6366F1",
+  error: "#EF4444",
+  success: "#22C55E",
 } as const;
 
 export const spacing = {
@@ -47,6 +48,7 @@ export const borderRadius = {
   sm: 6,
   md: 12,
   lg: 20,
+  xl: 24,
   pill: 9999,
 } as const;
 
@@ -60,10 +62,10 @@ export const typography = {
     xxl: 32,
   },
   fontWeights: {
-    regular: '400' as const,
-    medium: '500' as const,
-    semibold: '600' as const,
-    bold: '700' as const,
+    regular: "400" as const,
+    medium: "500" as const,
+    semibold: "600" as const,
+    bold: "700" as const,
   },
   lineHeights: {
     tight: 1.2,
@@ -74,14 +76,14 @@ export const typography = {
 
 export const shadows = {
   card: {
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.3,
     shadowRadius: 12,
     elevation: 8,
   },
   button: {
-    shadowColor: '#6366F1',
+    shadowColor: "#6366F1",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.4,
     shadowRadius: 8,

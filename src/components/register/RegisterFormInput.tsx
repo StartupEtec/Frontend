@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   View,
   Text,
@@ -6,8 +6,8 @@ import {
   TouchableOpacity,
   StyleSheet,
   KeyboardTypeOptions,
-} from 'react-native';
-import { colors, spacing, borderRadius, typography } from '../../theme/tokens';
+} from "react-native";
+import { colors, spacing, borderRadius, typography } from "../../theme/tokens";
 
 interface RegisterFormInputProps {
   label: string;
@@ -19,7 +19,7 @@ interface RegisterFormInputProps {
   secureTextEntry?: boolean;
   onToggleSecureTextEntry?: () => void;
   keyboardType?: KeyboardTypeOptions;
-  autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
+  autoCapitalize?: "none" | "sentences" | "words" | "characters";
   testID?: string;
   editable?: boolean;
 }
@@ -33,8 +33,8 @@ export const RegisterFormInput: React.FC<RegisterFormInputProps> = ({
   placeholder,
   secureTextEntry,
   onToggleSecureTextEntry,
-  keyboardType = 'default',
-  autoCapitalize = 'none',
+  keyboardType = "default",
+  autoCapitalize = "none",
   testID,
   editable = true,
 }) => {
@@ -62,11 +62,15 @@ export const RegisterFormInput: React.FC<RegisterFormInputProps> = ({
           <TouchableOpacity
             style={styles.toggleButton}
             onPress={onToggleSecureTextEntry}
-            accessibilityLabel={secureTextEntry ? 'Mostrar contraseña' : 'Ocultar contraseña'}
+            accessibilityLabel={
+              secureTextEntry ? "Mostrar contraseña" : "Ocultar contraseña"
+            }
             accessibilityRole="button"
             testID={`${testID}-toggle`}
           >
-            <Text style={styles.toggleText}>{secureTextEntry ? '👁️' : '🙈'}</Text>
+            <Text style={styles.toggleText}>
+              {secureTextEntry ? "👁️" : "🙈"}
+            </Text>
           </TouchableOpacity>
         )}
       </View>
@@ -86,8 +90,8 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs,
   },
   inputWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: colors.cardBackground,
     borderWidth: 1,
     borderColor: colors.border,

@@ -1,27 +1,27 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback } from "react";
 import {
   RegisterFormData,
   RegisterFormErrors,
   PasswordCriteriaStatus,
   FormFieldKey,
-} from '../types/auth';
-import { authService } from '../services/authService';
-import { ApiError } from '../services/api';
+} from "../types/auth";
+import { authService } from "../services/authService";
+import { ApiError } from "../services/api";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_REGEX = /^\+?[0-9]{8,15}$/;
 
 export const useRegisterForm = (
   onNavigateToOtp: (contact?: string) => void,
-  onNavigateToLogin: () => void
+  onNavigateToLogin: () => void,
 ) => {
   const [formData, setFormData] = useState<RegisterFormData>({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    password: '',
-    confirmPassword: '',
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    password: "",
+    confirmPassword: "",
     acceptedTerms: false,
   });
 
@@ -36,7 +36,8 @@ export const useRegisterForm = (
   });
 
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
+  const [showConfirmPassword, setShowConfirmPassword] =
+    useState<boolean>(false);
   const [isTermsModalOpen, setIsTermsModalOpen] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [serverError, setServerError] = useState<string | null>(null);
@@ -56,45 +57,46 @@ export const useRegisterForm = (
     const errs: RegisterFormErrors = {};
 
     if (!formData.firstName.trim()) {
-      errs.firstName = 'El nombre es obligatorio';
+      errs.firstName = "El nombre es obligatorio";
     } else if (formData.firstName.trim().length < 2) {
-      errs.firstName = 'El nombre debe tener al menos 2 caracteres';
+      errs.firstName = "El nombre debe tener al menos 2 caracteres";
     }
 
     if (!formData.lastName.trim()) {
-      errs.lastName = 'El apellido es obligatorio';
+      errs.lastName = "El apellido es obligatorio";
     } else if (formData.lastName.trim().length < 2) {
-      errs.lastName = 'El apellido debe tener al menos 2 caracteres';
+      errs.lastName = "El apellido debe tener al menos 2 caracteres";
     }
 
     if (!formData.email.trim()) {
-      errs.email = 'El correo electrónico es obligatorio';
+      errs.email = "El correo electrónico es obligatorio";
     } else if (!EMAIL_REGEX.test(formData.email.trim())) {
-      errs.email = 'Formato de correo electrónico inválido';
+      errs.email = "Formato de correo electrónico inválido";
     }
 
-    const cleanPhone = formData.phone.replace(/\s+/g, '');
+    const cleanPhone = formData.phone.replace(/\s+/g, "");
     if (!cleanPhone) {
-      errs.phone = 'El teléfono es obligatorio';
+      errs.phone = "El teléfono es obligatorio";
     } else if (!PHONE_REGEX.test(cleanPhone)) {
-      errs.phone = 'El teléfono debe contener entre 8 y 15 dígitos';
+      errs.phone = "El teléfono debe contener entre 8 y 15 dígitos";
     }
 
     const allCriteriaMet = Object.values(passwordCriteria).every(Boolean);
     if (!formData.password) {
-      errs.password = 'La contraseña es obligatoria';
+      errs.password = "La contraseña es obligatoria";
     } else if (!allCriteriaMet) {
-      errs.password = 'La contraseña no cumple con todos los requisitos de complejidad';
+      errs.password =
+        "La contraseña no cumple con todos los requisitos de complejidad";
     }
 
     if (!formData.confirmPassword) {
-      errs.confirmPassword = 'Debes confirmar la contraseña';
+      errs.confirmPassword = "Debes confirmar la contraseña";
     } else if (formData.confirmPassword !== formData.password) {
-      errs.confirmPassword = 'Las contraseñas no coinciden';
+      errs.confirmPassword = "Las contraseñas no coinciden";
     }
 
     if (!formData.acceptedTerms) {
-      errs.acceptedTerms = 'Debes aceptar los términos y condiciones';
+      errs.acceptedTerms = "Debes aceptar los términos y condiciones";
     }
 
     return errs;
@@ -104,10 +106,13 @@ export const useRegisterForm = (
     return Object.keys(errors).length === 0;
   }, [errors]);
 
-  const handleChange = useCallback((field: FormFieldKey, value: string | boolean) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-    setServerError(null);
-  }, []);
+  const handleChange = useCallback(
+    (field: FormFieldKey, value: string | boolean) => {
+      setFormData((prev) => ({ ...prev, [field]: value }));
+      setServerError(null);
+    },
+    [],
+  );
 
   const handleBlur = useCallback((field: FormFieldKey) => {
     setTouched((prev) => ({ ...prev, [field]: true }));
@@ -122,7 +127,7 @@ export const useRegisterForm = (
   }, []);
 
   const handleAcceptTerms = useCallback(() => {
-    handleChange('acceptedTerms', true);
+    handleChange("acceptedTerms", true);
     setTouched((prev) => ({ ...prev, acceptedTerms: true }));
   }, [handleChange]);
 
@@ -148,7 +153,7 @@ export const useRegisterForm = (
     try {
       await authService.register({
         email: formData.email.trim(),
-        phone: formData.phone.replace(/\s+/g, ''),
+        phone: formData.phone.replace(/\s+/g, ""),
         password: formData.password,
       });
 
@@ -156,12 +161,18 @@ export const useRegisterForm = (
     } catch (err: any) {
       if (err instanceof ApiError) {
         if (err.statusCode === 409) {
-          setServerError('El correo electrónico o número de teléfono ya se encuentra registrado.');
+          setServerError(
+            "El correo electrónico o número de teléfono ya se encuentra registrado.",
+          );
         } else {
-          setServerError(err.message || 'Ocurrió un error al procesar el registro.');
+          setServerError(
+            err.message || "Ocurrió un error al procesar el registro.",
+          );
         }
       } else {
-        setServerError('Error de conexión con el servidor. Por favor reintenta.');
+        setServerError(
+          "Error de conexión con el servidor. Por favor reintenta.",
+        );
       }
     } finally {
       setIsSubmitting(false);

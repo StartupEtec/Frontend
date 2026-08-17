@@ -1,6 +1,11 @@
-import { apiClient } from './api';
-import { RegisterApiPayload, RegisterApiResponse } from '../types/auth';
-import { OtpVerifyApiPayload, OtpVerifyApiResponse, OtpResendApiPayload, OtpResendApiResponse } from '../types/otp';
+import { apiClient } from "./api";
+import { RegisterApiPayload, RegisterApiResponse } from "../types/auth";
+import {
+  OtpVerifyApiPayload,
+  OtpVerifyApiResponse,
+  OtpResendApiPayload,
+  OtpResendApiResponse,
+} from "../types/otp";
 
 export const authService = {
   /**
@@ -8,8 +13,8 @@ export const authService = {
    * POST /auth/register
    */
   async register(payload: RegisterApiPayload): Promise<RegisterApiResponse> {
-    return apiClient<RegisterApiResponse>('/auth/register', {
-      method: 'POST',
+    return apiClient<RegisterApiResponse>("/auth/register", {
+      method: "POST",
       body: JSON.stringify(payload),
     });
   },
@@ -19,8 +24,8 @@ export const authService = {
    * POST /auth/verify-otp
    */
   async verifyOtp(payload: OtpVerifyApiPayload): Promise<OtpVerifyApiResponse> {
-    return apiClient<OtpVerifyApiResponse>('/auth/verify-otp', {
-      method: 'POST',
+    return apiClient<OtpVerifyApiResponse>("/auth/verify-otp", {
+      method: "POST",
       body: JSON.stringify(payload),
     });
   },
@@ -30,10 +35,9 @@ export const authService = {
    * POST /auth/resend-otp
    */
   async resendOtp(payload: OtpResendApiPayload): Promise<OtpResendApiResponse> {
-    return apiClient<OtpResendApiResponse>('/auth/resend-otp', {
-      method: 'POST',
+    return apiClient<OtpResendApiResponse>("/auth/resend-otp", {
+      method: "POST",
       body: JSON.stringify(payload),
     });
   },
 };
-
