@@ -47,7 +47,7 @@ const MONTH_NAMES = [
 ];
 const DAY_LABELS = ["Lu", "Ma", "Mi", "Ju", "Vi", "Sa", "Do"];
 
-const MIN_YEAR = 1920;
+const MIN_YEAR = new Date().getFullYear() - 100;
 const CELL_HEIGHT = 44;
 const GRID_ROWS = 7; // 1 header + 6 max week rows
 const GRID_FIXED_HEIGHT = GRID_ROWS * CELL_HEIGHT;
@@ -63,6 +63,16 @@ function getMaxDate(): Date {
   const now = new Date();
   now.setFullYear(now.getFullYear() - 13);
   return now;
+}
+
+function calculateAge(birthDate: Date): number {
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  return age;
 }
 
 function getDaysInMonth(year: number, month: number): number {
@@ -265,7 +275,7 @@ export const CompleteProfileScreen: React.FC<CompleteProfileScreenProps> = ({
         }),
       ]).start(() => {
         setShowSuccess(false);
-        onGoBack();
+        onProfileCompleted();
       });
     }
   }, [status, toastOpacity, onGoBack]);
@@ -388,6 +398,15 @@ export const CompleteProfileScreen: React.FC<CompleteProfileScreenProps> = ({
           {errors.dateOfBirth && (
             <Text style={styles.errorText}>{errors.dateOfBirth}</Text>
           )}
+          {selectedDate && (
+            <View style={[styles.ageInfo, calculateAge(selectedDate) >= 18 ? styles.ageInfoAdult : styles.ageInfoMinor]}>
+              <Text style={[styles.ageInfoText, calculateAge(selectedDate) >= 18 ? styles.ageInfoTextAdult : styles.ageInfoTextMinor]}>
+                {calculateAge(selectedDate) >= 18
+                  ? "Tenes toda la app desbloqueada"
+                  : "Solo podes usar la app en modo cliente"}
+              </Text>
+            </View>
+          )}
         </View>
 
         {/* Calendar modal */}
@@ -459,7 +478,7 @@ export const CompleteProfileScreen: React.FC<CompleteProfileScreenProps> = ({
             style={[styles.successToast, { opacity: toastOpacity }]}
           >
             <Text style={styles.successToastText}>
-              ✓ Perfil guardado correctamente
+              ¡Completaste el perfil! ¡Felicitaciones!
             </Text>
           </Animated.View>
         )}
@@ -728,5 +747,30 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: typography.fontSizes.md,
     fontWeight: typography.fontWeights.semibold,
+  },
+  ageInfo: {
+    marginTop: spacing.xs,
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.sm,
+    borderRadius: borderRadius.sm,
+    borderWidth: 1,
+  },
+  ageInfoAdult: {
+    backgroundColor: "rgba(34, 197, 94, 0.12)",
+    borderColor: colors.success,
+  },
+  ageInfoMinor: {
+    backgroundColor: "rgba(249, 115, 22, 0.12)",
+    borderColor: "#F97316",
+  },
+  ageInfoText: {
+    fontSize: typography.fontSizes.xs,
+    textAlign: "center",
+  },
+  ageInfoTextAdult: {
+    color: colors.success,
+  },
+  ageInfoTextMinor: {
+    color: "#F97316",
   },
 });
