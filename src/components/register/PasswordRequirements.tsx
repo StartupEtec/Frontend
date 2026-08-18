@@ -1,19 +1,37 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { PasswordCriteriaStatus } from '../../types/auth';
-import { colors, spacing, typography } from '../../theme/tokens';
+import React from "react";
+import { View, Text, StyleSheet } from "react-native";
+import { PasswordCriteriaStatus } from "../../types/auth";
+import { colors, spacing, typography } from "../../theme/tokens";
 
 interface PasswordRequirementsProps {
   status: PasswordCriteriaStatus;
 }
 
-export const PasswordRequirements: React.FC<PasswordRequirementsProps> = ({ status }) => {
+export const PasswordRequirements: React.FC<PasswordRequirementsProps> = ({
+  status,
+}) => {
   const criteriaList = [
-    { key: 'minLength', label: 'Mínimo 8 caracteres', isMet: status.minLength },
-    { key: 'hasUppercase', label: 'Al menos una mayúscula (A-Z)', isMet: status.hasUppercase },
-    { key: 'hasLowercase', label: 'Al menos una minúscula (a-z)', isMet: status.hasLowercase },
-    { key: 'hasNumber', label: 'Al menos un número (0-9)', isMet: status.hasNumber },
-    { key: 'hasSymbol', label: 'Al menos un símbolo (!@#$%^&*)', isMet: status.hasSymbol },
+    { key: "minLength", label: "Mínimo 8 caracteres", isMet: status.minLength },
+    {
+      key: "hasUppercase",
+      label: "Al menos una mayúscula (A-Z)",
+      isMet: status.hasUppercase,
+    },
+    {
+      key: "hasLowercase",
+      label: "Al menos una minúscula (a-z)",
+      isMet: status.hasLowercase,
+    },
+    {
+      key: "hasNumber",
+      label: "Al menos un número (0-9)",
+      isMet: status.hasNumber,
+    },
+    {
+      key: "hasSymbol",
+      label: "Al menos un símbolo (!@#$%^&*)",
+      isMet: status.hasSymbol,
+    },
   ];
 
   return (
@@ -21,10 +39,20 @@ export const PasswordRequirements: React.FC<PasswordRequirementsProps> = ({ stat
       <Text style={styles.title}>Requisitos de la contraseña:</Text>
       {criteriaList.map((item) => (
         <View key={item.key} style={styles.itemRow}>
-          <Text style={[styles.bullet, item.isMet ? styles.bulletMet : styles.bulletUnmet]}>
-            {item.isMet ? '✓' : '•'}
+          <Text
+            style={[
+              styles.bullet,
+              item.isMet ? styles.bulletMet : styles.bulletUnmet,
+            ]}
+          >
+            {item.isMet ? "✓" : "•"}
           </Text>
-          <Text style={[styles.itemText, item.isMet ? styles.textMet : styles.textUnmet]}>
+          <Text
+            style={[
+              styles.itemText,
+              item.isMet ? styles.textMet : styles.textUnmet,
+            ]}
+          >
             {item.label}
           </Text>
         </View>
@@ -35,7 +63,7 @@ export const PasswordRequirements: React.FC<PasswordRequirementsProps> = ({ stat
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#162032',
+    backgroundColor: "#162032",
     padding: spacing.md,
     borderRadius: 8,
     marginBottom: spacing.md,
@@ -49,8 +77,8 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs,
   },
   itemRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginTop: 2,
   },
   bullet: {

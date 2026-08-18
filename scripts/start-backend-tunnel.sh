@@ -1,15 +1,13 @@
 #!/bin/bash
 # Levanta cloudflared para el backend y actualiza el .env automaticamente
-# Ejecutar desde la carpeta raiz del proyecto (StartUp 6I) o desde Frontend/
+# Ejecutar desde Frontend/ o desde un subdirectorio
 # Uso: ./scripts/start-backend-tunnel.sh
 
 set -e
 
-# Detectar la carpeta Frontend relativa a donde se ejecuta el script
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 FRONTEND_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
-# Verificar que exista el .env en Frontend
 if [ ! -f "$FRONTEND_DIR/.env" ]; then
     echo "ERROR: No se encontro Frontend/.env"
     echo "Creando uno por defecto..."
@@ -19,7 +17,6 @@ fi
 CLOUDFLARED="cloudflared"
 LOG_FILE="/tmp/cloudflared-backend.log"
 
-# Verificar que cloudflared este instalado
 if ! command -v $CLOUDFLARED &> /dev/null; then
     echo "ERROR: cloudflared no esta instalado."
     echo "Instalarlo con:"
@@ -29,18 +26,15 @@ if ! command -v $CLOUDFLARED &> /dev/null; then
     exit 1
 fi
 
-# Matar cloudflared anterior si existe
 kill $(pgrep -f "cloudflared tunnel") 2>/dev/null || true
 sleep 1
 
 echo "=== Iniciando tunnel cloudflared para el backend (puerto 3000) ==="
 
-# Levantar cloudflared en background, logueando a archivo
 nohup $CLOUDFLARED tunnel --url http://localhost:3000 > "$LOG_FILE" 2>&1 &
 CF_PID=$!
 echo "cloudflared PID: $CF_PID"
 
-# Esperar a que aparezca la URL en el log (max 30 segundos)
 echo "Esperando URL del tunnel..."
 for i in $(seq 1 30); do
     if grep -q "trycloudflare.com" "$LOG_FILE" 2>/dev/null; then

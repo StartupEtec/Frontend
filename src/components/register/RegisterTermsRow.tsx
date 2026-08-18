@@ -1,6 +1,6 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { colors, spacing, borderRadius, typography } from '../../theme/tokens';
+import React from "react";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { colors, spacing, borderRadius, typography } from "../../theme/tokens";
 
 interface RegisterTermsRowProps {
   acceptedTerms: boolean;
@@ -44,8 +44,8 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs,
   },
   termsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginVertical: spacing.xs,
   },
   checkbox: {
@@ -54,8 +54,8 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.sm,
     borderWidth: 1,
     borderColor: colors.border,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginRight: spacing.xs,
   },
   checkboxActive: {
@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
   checkmark: {
     color: colors.textPrimary,
     fontSize: 12,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   termsText: {
     color: colors.textSecondary,

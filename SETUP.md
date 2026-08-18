@@ -61,7 +61,7 @@ npm install
 npm run start:tunnel
 ```
 
-Escanear el QR code con Expo Go (Android) o Cámara (iOS).
+Escanear el QR code con Expo Go (Android) o Camara (iOS).
 
 ## Verificar que funcione
 

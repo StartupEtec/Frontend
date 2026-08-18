@@ -1,16 +1,20 @@
-import React from 'react';
-import { OnboardingScreen } from '../../screens/OnboardingScreen';
-import { OnboardingSlide } from './OnboardingSlide';
-import { PaginationDots } from './PaginationDots';
-import { onboardingSlidesEs } from '../../i18n/onboardingContent';
+import React from "react";
+import { OnboardingScreen } from "../../screens/OnboardingScreen";
+import { OnboardingSlide } from "./OnboardingSlide";
+import { PaginationDots } from "./PaginationDots";
+import { onboardingSlidesEs } from "../../i18n/onboardingContent";
 
 export default {
-  title: 'Components/Onboarding',
+  title: "Components/Onboarding",
   component: OnboardingScreen,
 };
 
 export const FullOnboardingFlow = () => (
-  <OnboardingScreen onFinishOnboarding={(route) => console.log('Finished onboarding to:', route)} />
+  <OnboardingScreen
+    onFinishOnboarding={(route) =>
+      console.log("Finished onboarding to:", route)
+    }
+  />
 );
 
 export const SinglePlatformSlide = () => (

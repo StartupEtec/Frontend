@@ -1,17 +1,26 @@
-import React from 'react';
-import { View, Text, StyleSheet, ViewStyle } from 'react-native';
-import { OnboardingSlideProps } from '../../types/onboarding';
-import { colors, spacing, borderRadius, typography } from '../../theme/tokens';
+import React from "react";
+import { View, Text, StyleSheet, ViewStyle } from "react-native";
+import { OnboardingSlideProps } from "../../types/onboarding";
+import { colors, spacing, borderRadius, typography } from "../../theme/tokens";
 
-export const OnboardingSlide: React.FC<OnboardingSlideProps> = ({ item, width, height }) => {
+export const OnboardingSlide: React.FC<OnboardingSlideProps> = ({
+  item,
+  width,
+  height,
+}) => {
   // Render visual graphic badge according to slide type
   const renderGraphic = () => {
     switch (item.svgPlaceholderType) {
-      case 'platform':
+      case "platform":
         return (
           <View style={styles.graphicContainer}>
             <View style={[styles.outerCircle, { borderColor: colors.primary }]}>
-              <View style={[styles.innerCard, { backgroundColor: colors.cardBackground }]}>
+              <View
+                style={[
+                  styles.innerCard,
+                  { backgroundColor: colors.cardBackground },
+                ]}
+              >
                 <View style={styles.iconCircle}>
                   <Text style={styles.iconText}>⚡</Text>
                 </View>
@@ -21,11 +30,18 @@ export const OnboardingSlide: React.FC<OnboardingSlideProps> = ({ item, width, h
             </View>
           </View>
         );
-      case 'client':
+      case "client":
         return (
           <View style={styles.graphicContainer}>
-            <View style={[styles.outerCircle, { borderColor: colors.clientAccent }]}>
-              <View style={[styles.innerCard, { backgroundColor: colors.cardBackground }]}>
+            <View
+              style={[styles.outerCircle, { borderColor: colors.clientAccent }]}
+            >
+              <View
+                style={[
+                  styles.innerCard,
+                  { backgroundColor: colors.cardBackground },
+                ]}
+              >
                 <View style={styles.badgeTag}>
                   <Text style={styles.badgeTagText}>CLIENTE</Text>
                 </View>
@@ -40,12 +56,24 @@ export const OnboardingSlide: React.FC<OnboardingSlideProps> = ({ item, width, h
             </View>
           </View>
         );
-      case 'worker':
+      case "worker":
         return (
           <View style={styles.graphicContainer}>
-            <View style={[styles.outerCircle, { borderColor: colors.workerAccent }]}>
-              <View style={[styles.innerCard, { backgroundColor: colors.cardBackground }]}>
-                <View style={[styles.badgeTag, { backgroundColor: colors.workerAccent }]}>
+            <View
+              style={[styles.outerCircle, { borderColor: colors.workerAccent }]}
+            >
+              <View
+                style={[
+                  styles.innerCard,
+                  { backgroundColor: colors.cardBackground },
+                ]}
+              >
+                <View
+                  style={[
+                    styles.badgeTag,
+                    { backgroundColor: colors.workerAccent },
+                  ]}
+                >
                   <Text style={styles.badgeTagText}>PROVEEDOR</Text>
                 </View>
                 <View style={styles.iconCircleWorker}>
@@ -53,18 +81,27 @@ export const OnboardingSlide: React.FC<OnboardingSlideProps> = ({ item, width, h
                 </View>
                 <Text style={styles.cardTitleMock}>Monetizar Talento</Text>
                 <View style={styles.incomeBadge}>
-                  <Text style={styles.incomeText}>+100% Pagos Garantizados</Text>
+                  <Text style={styles.incomeText}>
+                    +100% Pagos Garantizados
+                  </Text>
                 </View>
               </View>
             </View>
           </View>
         );
-      case 'welcome':
+      case "welcome":
       default:
         return (
           <View style={styles.graphicContainer}>
-            <View style={[styles.outerCircle, { borderColor: colors.primaryLight }]}>
-              <View style={[styles.innerCard, { backgroundColor: colors.cardBackground }]}>
+            <View
+              style={[styles.outerCircle, { borderColor: colors.primaryLight }]}
+            >
+              <View
+                style={[
+                  styles.innerCard,
+                  { backgroundColor: colors.cardBackground },
+                ]}
+              >
                 <View style={styles.iconCircleWelcome}>
                   <Text style={styles.iconText}>🚀</Text>
                 </View>
@@ -100,15 +137,15 @@ export const OnboardingSlide: React.FC<OnboardingSlideProps> = ({ item, width, h
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     paddingHorizontal: spacing.lg,
   },
   graphicContainer: {
     height: 240,
-    width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: spacing.lg,
   },
   outerCircle: {
@@ -116,18 +153,18 @@ const styles = StyleSheet.create({
     height: 210,
     borderRadius: 105,
     borderWidth: 2,
-    borderStyle: 'dashed',
-    alignItems: 'center',
-    justifyContent: 'center',
+    borderStyle: "dashed",
+    alignItems: "center",
+    justifyContent: "center",
   },
   innerCard: {
     width: 170,
     height: 170,
     borderRadius: borderRadius.lg,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     padding: spacing.md,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.35,
     shadowRadius: 10,
@@ -139,36 +176,36 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: 'rgba(99, 102, 241, 0.2)',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "rgba(99, 102, 241, 0.2)",
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: spacing.xs,
   },
   iconCircleClient: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: 'rgba(59, 130, 246, 0.2)',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "rgba(59, 130, 246, 0.2)",
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: spacing.xs,
   },
   iconCircleWorker: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: 'rgba(16, 185, 129, 0.2)',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "rgba(16, 185, 129, 0.2)",
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: spacing.xs,
   },
   iconCircleWelcome: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: 'rgba(129, 140, 248, 0.2)',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "rgba(129, 140, 248, 0.2)",
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: spacing.xs,
   },
   iconText: {
@@ -189,7 +226,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.xs,
   },
   badgeTag: {
-    position: 'absolute',
+    position: "absolute",
     top: 8,
     paddingHorizontal: 8,
     paddingVertical: 2,
@@ -197,20 +234,20 @@ const styles = StyleSheet.create({
     backgroundColor: colors.clientAccent,
   },
   badgeTagText: {
-    color: '#FFF',
+    color: "#FFF",
     fontSize: 9,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   cardTitleMock: {
     color: colors.textPrimary,
     fontSize: 13,
-    fontWeight: '600',
+    fontWeight: "600",
     marginTop: 4,
-    textAlign: 'center',
+    textAlign: "center",
   },
   priceTag: {
     marginTop: 6,
-    backgroundColor: 'rgba(59, 130, 246, 0.15)',
+    backgroundColor: "rgba(59, 130, 246, 0.15)",
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: borderRadius.sm,
@@ -218,11 +255,11 @@ const styles = StyleSheet.create({
   priceTagText: {
     color: colors.clientAccent,
     fontSize: 11,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   incomeBadge: {
     marginTop: 6,
-    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    backgroundColor: "rgba(16, 185, 129, 0.15)",
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: borderRadius.sm,
@@ -230,11 +267,11 @@ const styles = StyleSheet.create({
   incomeText: {
     color: colors.workerAccent,
     fontSize: 11,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   dualPill: {
     marginTop: 6,
-    backgroundColor: 'rgba(99, 102, 241, 0.2)',
+    backgroundColor: "rgba(99, 102, 241, 0.2)",
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: borderRadius.pill,
@@ -242,12 +279,12 @@ const styles = StyleSheet.create({
   dualPillText: {
     color: colors.primaryLight,
     fontSize: 11,
-    fontWeight: '700',
+    fontWeight: "700",
   },
 
   // Text Box
   textContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     paddingHorizontal: spacing.md,
   },
   badge: {
@@ -257,17 +294,17 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   badgeText: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: typography.fontSizes.xs,
     fontWeight: typography.fontWeights.bold,
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
     letterSpacing: 1,
   },
   title: {
     color: colors.textPrimary,
     fontSize: typography.fontSizes.xl,
     fontWeight: typography.fontWeights.bold,
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: spacing.sm,
     lineHeight: 32,
   },
@@ -275,7 +312,7 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     fontSize: typography.fontSizes.md,
     fontWeight: typography.fontWeights.regular,
-    textAlign: 'center',
+    textAlign: "center",
     lineHeight: 24,
     paddingHorizontal: spacing.xs,
   },

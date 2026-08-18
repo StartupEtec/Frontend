@@ -5,6 +5,7 @@ import {
   StyleSheet,
   ActivityIndicator,
   TouchableOpacity,
+  SafeAreaView,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { OnboardingScreen } from "../screens/OnboardingScreen";
@@ -12,9 +13,12 @@ import { AuthWelcomeScreen } from "../screens/AuthWelcomeScreen";
 import { RegisterScreen } from "../screens/RegisterScreen";
 import { OtpVerificationScreen } from "../screens/OtpVerificationScreen";
 import { RoleSelectionScreen } from "../screens/RoleSelectionScreen";
+import { CompleteProfileScreen } from "../screens/CompleteProfileScreen";
 import { ASYNC_STORAGE_ONBOARDING_KEY } from "../i18n/onboardingContent";
 import { colors, typography } from "../theme/tokens";
 import { UserRole } from "../types/role";
+
+const PROFILE_COMPLETED_KEY = "@startup_app/profile_completed";
 
 export type AppRoute =
   | "Onboarding"
@@ -23,25 +27,31 @@ export type AppRoute =
   | "Login"
   | "VerifyOTP"
   | "RoleSelection"
+  | "CompleteProfile"
   | "Main";
 
 export const AppNavigator: React.FC = () => {
   const [currentRoute, setCurrentRoute] = useState<AppRoute>("Onboarding");
   const [isCheckingStatus, setIsCheckingStatus] = useState<boolean>(true);
-  /** Contact (email/phone) passed from RegisterScreen to OtpVerificationScreen */
   const [registeredContact, setRegisteredContact] = useState<string>("");
+  const [selectedRole, setSelectedRole] = useState<UserRole>("client");
+  const [profileCompleted, setProfileCompleted] = useState<boolean>(false);
+  /** Solo true después de completar el perfil en ESTA sesión */
+  const [justCompletedProfile, setJustCompletedProfile] = useState<boolean>(false);
 
   useEffect(() => {
     const checkInitialRoute = async () => {
       try {
-        const onboardingCompleted = await AsyncStorage.getItem(
-          ASYNC_STORAGE_ONBOARDING_KEY,
-        );
+        const [onboardingCompleted, profileDone] = await Promise.all([
+          AsyncStorage.getItem(ASYNC_STORAGE_ONBOARDING_KEY),
+          AsyncStorage.getItem(PROFILE_COMPLETED_KEY),
+        ]);
         if (onboardingCompleted === "true") {
           setCurrentRoute("AuthWelcome");
         } else {
           setCurrentRoute("Onboarding");
         }
+        setProfileCompleted(profileDone === "true");
       } catch (error) {
         console.error("Error checking initial route status:", error);
       } finally {
@@ -54,6 +64,19 @@ export const AppNavigator: React.FC = () => {
 
   const handleFinishOnboarding = () => {
     setCurrentRoute("AuthWelcome");
+  };
+
+  const handleProfileCompleted = async () => {
+    await AsyncStorage.setItem(PROFILE_COMPLETED_KEY, "true");
+    setProfileCompleted(true);
+    setJustCompletedProfile(true);
+    setCurrentRoute("Main");
+  };
+
+  const handleResetProfile = async () => {
+    await AsyncStorage.removeItem(PROFILE_COMPLETED_KEY);
+    setProfileCompleted(false);
+    setJustCompletedProfile(false);
   };
 
   if (isCheckingStatus) {
@@ -104,7 +127,20 @@ export const AppNavigator: React.FC = () => {
   if (currentRoute === "RoleSelection") {
     return (
       <RoleSelectionScreen
-        onRoleSelected={(_role: UserRole) => setCurrentRoute("Main")}
+        onRoleSelected={(role: UserRole) => {
+          setSelectedRole(role);
+          setCurrentRoute("Main");
+        }}
+      />
+    );
+  }
+
+  if (currentRoute === "CompleteProfile") {
+    return (
+      <CompleteProfileScreen
+        role={selectedRole}
+        onProfileCompleted={handleProfileCompleted}
+        onGoBack={() => setCurrentRoute("Main")}
       />
     );
   }
@@ -126,18 +162,40 @@ export const AppNavigator: React.FC = () => {
   }
 
   return (
-    <View style={styles.centerContainer}>
-      <Text style={styles.welcomeText}>🏠 Pantalla Principal</Text>
-      <TouchableOpacity
-        style={styles.resetButton}
-        onPress={async () => {
-          await AsyncStorage.removeItem(ASYNC_STORAGE_ONBOARDING_KEY);
-          setCurrentRoute("Onboarding");
-        }}
-      >
-        <Text style={styles.resetText}>🔄 Resetear Onboarding (Dev)</Text>
-      </TouchableOpacity>
-    </View>
+    <SafeAreaView style={styles.mainContainer}>
+      {justCompletedProfile && (
+        <View style={styles.devCorner}>
+          <TouchableOpacity
+            onPress={() => setCurrentRoute("CompleteProfile")}
+            style={styles.devButton}
+            testID="btn-dev-complete-profile"
+          >
+            <Text style={styles.devButtonText}>✏️</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      <View style={styles.centerContainer}>
+        <Text style={styles.welcomeText}>🏠 Pantalla Principal</Text>
+        {!profileCompleted && (
+          <TouchableOpacity
+            style={styles.profileButton}
+            onPress={() => setCurrentRoute("CompleteProfile")}
+          >
+            <Text style={styles.profileButtonText}>Terminar de completar perfil ahora</Text>
+          </TouchableOpacity>
+        )}
+        <TouchableOpacity
+          style={styles.resetButton}
+          onPress={async () => {
+            await AsyncStorage.removeItem(ASYNC_STORAGE_ONBOARDING_KEY);
+            setCurrentRoute("Onboarding");
+          }}
+        >
+          <Text style={styles.resetText}>🔄 Resetear Onboarding (Dev)</Text>
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
   );
 };
 
@@ -174,6 +232,41 @@ const styles = StyleSheet.create({
   resetText: {
     color: "#94A3B8",
     fontSize: 14,
+  },
+  profileButton: {
+    marginTop: 16,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    backgroundColor: colors.primary,
+    borderRadius: 8,
+  },
+  profileButtonText: {
+    color: "#FFFFFF",
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  mainContainer: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  devCorner: {
+    position: "absolute",
+    top: 40,
+    right: 16,
+    zIndex: 10,
+  },
+  devButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: "rgba(30, 41, 59, 0.7)",
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#334155",
+  },
+  devButtonText: {
+    fontSize: 16,
   },
 });
 

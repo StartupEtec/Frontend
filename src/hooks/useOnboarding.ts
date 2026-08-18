@@ -1,10 +1,13 @@
-import { useState, useEffect, useCallback } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { UseOnboardingReturn } from '../types/onboarding';
-import { onboardingSlidesEs, ASYNC_STORAGE_ONBOARDING_KEY } from '../i18n/onboardingContent';
+import { useState, useEffect, useCallback } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { UseOnboardingReturn } from "../types/onboarding";
+import {
+  onboardingSlidesEs,
+  ASYNC_STORAGE_ONBOARDING_KEY,
+} from "../i18n/onboardingContent";
 
 export const useOnboarding = (
-  onFinish?: (route: 'AuthWelcome' | 'Register' | 'Login' | 'Main') => void
+  onFinish?: (route: "AuthWelcome" | "Register" | "Login" | "Main") => void,
 ): UseOnboardingReturn => {
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -20,9 +23,9 @@ export const useOnboarding = (
 
   const markOnboardingCompleted = async () => {
     try {
-      await AsyncStorage.setItem(ASYNC_STORAGE_ONBOARDING_KEY, 'true');
+      await AsyncStorage.setItem(ASYNC_STORAGE_ONBOARDING_KEY, "true");
     } catch (error) {
-      console.error('Error saving onboarding status to AsyncStorage:', error);
+      console.error("Error saving onboarding status to AsyncStorage:", error);
     }
   };
 
@@ -41,25 +44,30 @@ export const useOnboarding = (
   const handleSkip = useCallback(async () => {
     await markOnboardingCompleted();
     if (onFinish) {
-      onFinish('AuthWelcome');
+      onFinish("AuthWelcome");
     }
   }, [onFinish]);
 
   const handleComplete = useCallback(
-    async (targetRoute: 'AuthWelcome' | 'Register' | 'Login' = 'AuthWelcome') => {
+    async (
+      targetRoute: "AuthWelcome" | "Register" | "Login" = "AuthWelcome",
+    ) => {
       await markOnboardingCompleted();
       if (onFinish) {
         onFinish(targetRoute);
       }
     },
-    [onFinish]
+    [onFinish],
   );
 
-  const handleScrollEnd = useCallback((index: number) => {
-    if (index >= 0 && index < totalSlides) {
-      setCurrentIndex(index);
-    }
-  }, [totalSlides]);
+  const handleScrollEnd = useCallback(
+    (index: number) => {
+      if (index >= 0 && index < totalSlides) {
+        setCurrentIndex(index);
+      }
+    },
+    [totalSlides],
+  );
 
   return {
     currentIndex,
