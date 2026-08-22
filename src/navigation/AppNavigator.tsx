@@ -5,8 +5,8 @@ import {
   StyleSheet,
   ActivityIndicator,
   TouchableOpacity,
-  SafeAreaView,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { OnboardingScreen } from "../screens/OnboardingScreen";
 import { AuthWelcomeScreen } from "../screens/AuthWelcomeScreen";
@@ -245,7 +245,7 @@ export const AppNavigator: React.FC = () => {
 
       <View style={styles.centerContainer}>
         <Text style={styles.welcomeText}>🏠 Pantalla Principal</Text>
-        {!profileCompleted && (
+        {!justCompletedProfile && (
           <TouchableOpacity
             style={styles.profileButton}
             onPress={() => setCurrentRoute("CompleteProfile")}
