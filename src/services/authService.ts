@@ -1,5 +1,10 @@
 import { apiClient } from "./api";
-import { RegisterApiPayload, RegisterApiResponse } from "../types/auth";
+import {
+  RegisterApiPayload,
+  RegisterApiResponse,
+  LoginApiPayload,
+  LoginApiResponse,
+} from "../types/auth";
 import {
   OtpVerifyApiPayload,
   OtpVerifyApiResponse,
@@ -36,6 +41,17 @@ export const authService = {
    */
   async resendOtp(payload: OtpResendApiPayload): Promise<OtpResendApiResponse> {
     return apiClient<OtpResendApiResponse>("/auth/resend-otp", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+  },
+
+  /**
+   * Login with email/phone + password (sends OTP for verification)
+   * POST /auth/login
+   */
+  async login(payload: LoginApiPayload): Promise<LoginApiResponse> {
+    return apiClient<LoginApiResponse>("/auth/login", {
       method: "POST",
       body: JSON.stringify(payload),
     });
