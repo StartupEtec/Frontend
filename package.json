@@ -5,6 +5,7 @@
   "scripts": {
     "start": "EXPO_NO_DOCTOR=1 expo start",
     "start:tunnel": "EXPO_NO_DOCTOR=1 expo start --tunnel",
+    "start:frontend-tunnel": "./scripts/start-frontend-tunnel.sh",
     "android": "EXPO_NO_DOCTOR=1 expo start --android",
     "ios": "EXPO_NO_DOCTOR=1 expo start --ios",
     "web": "EXPO_NO_DOCTOR=1 expo start --web",

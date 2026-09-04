@@ -26,6 +26,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
   onNavigateToOtp,
   onNavigateToRegister,
   onNavigateBack,
+  onNavigateToForgotPassword,
 }) => {
   const {
     formData,
@@ -124,6 +125,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
             <TouchableOpacity
               testID="btn-forgot-password"
               accessibilityRole="button"
+              onPress={onNavigateToForgotPassword}
             >
               <Text style={styles.forgotText}>¿Olvidaste tu contraseña?</Text>
             </TouchableOpacity>

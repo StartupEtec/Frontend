@@ -15,6 +15,7 @@ import { OtpVerificationScreen } from "../screens/OtpVerificationScreen";
 import { RoleSelectionScreen } from "../screens/RoleSelectionScreen";
 import { CompleteProfileScreen } from "../screens/CompleteProfileScreen";
 import { LoginScreen } from "../screens/LoginScreen";
+import { ForgotPasswordScreen } from "../screens/ForgotPasswordScreen";
 import { ASYNC_STORAGE_ONBOARDING_KEY } from "../i18n/onboardingContent";
 import { tokenStorage } from "../services/tokenStorage";
 import { colors, typography, borderRadius } from "../theme/tokens";
@@ -30,6 +31,7 @@ export type AppRoute =
   | "AuthWelcome"
   | "Register"
   | "Login"
+  | "ForgotPassword"
   | "VerifyOTP"
   | "RoleSelection"
   | "CompleteProfile"
@@ -204,6 +206,16 @@ export const AppNavigator: React.FC = () => {
           setCurrentRoute("VerifyOTP");
         }}
         onNavigateToRegister={() => setCurrentRoute("Register")}
+        onNavigateToForgotPassword={() => setCurrentRoute("ForgotPassword")}
+      />
+    );
+  }
+
+  if (currentRoute === "ForgotPassword") {
+    return (
+      <ForgotPasswordScreen
+        onNavigateToLogin={() => setCurrentRoute("Login")}
+        onNavigateBack={() => setCurrentRoute("Login")}
       />
     );
   }

@@ -102,4 +102,45 @@ export interface LoginScreenProps {
   onNavigateToOtp: (contact?: string) => void;
   onNavigateToRegister: () => void;
   onNavigateBack: () => void;
+  onNavigateToForgotPassword: () => void;
+}
+
+/**
+ * Password Recovery Types
+ */
+
+export type PasswordResetStep = 1 | 2 | 3;
+
+export interface ForgotPasswordApiPayload {
+  email?: string;
+  phone?: string;
+}
+
+export interface ForgotPasswordApiResponse {
+  message: string;
+}
+
+export interface VerifyResetCodeApiPayload {
+  email?: string;
+  phone?: string;
+  reset_code: string;
+}
+
+export interface VerifyResetCodeApiResponse {
+  message: string;
+  token: string;
+}
+
+export interface ResetPasswordApiPayload {
+  token: string;
+  password: string;
+}
+
+export interface ResetPasswordApiResponse {
+  message: string;
+}
+
+export interface ForgotPasswordScreenProps {
+  onNavigateToLogin: () => void;
+  onNavigateBack: () => void;
 }
