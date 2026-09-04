@@ -20,6 +20,7 @@ describe("LoginScreen Component", () => {
   const mockNavigateToOtp = jest.fn();
   const mockNavigateToRegister = jest.fn();
   const mockNavigateBack = jest.fn();
+  const mockNavigateToForgotPassword = jest.fn();
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -32,6 +33,7 @@ describe("LoginScreen Component", () => {
         onNavigateToOtp={mockNavigateToOtp}
         onNavigateToRegister={mockNavigateToRegister}
         onNavigateBack={mockNavigateBack}
+        onNavigateToForgotPassword={mockNavigateToForgotPassword}
       />,
     );
 
@@ -52,6 +54,7 @@ describe("LoginScreen Component", () => {
         onNavigateToOtp={mockNavigateToOtp}
         onNavigateToRegister={mockNavigateToRegister}
         onNavigateBack={mockNavigateBack}
+        onNavigateToForgotPassword={mockNavigateToForgotPassword}
       />,
     );
 
@@ -71,6 +74,7 @@ describe("LoginScreen Component", () => {
         onNavigateToOtp={mockNavigateToOtp}
         onNavigateToRegister={mockNavigateToRegister}
         onNavigateBack={mockNavigateBack}
+        onNavigateToForgotPassword={mockNavigateToForgotPassword}
       />,
     );
 
@@ -103,6 +107,7 @@ describe("LoginScreen Component", () => {
         onNavigateToOtp={mockNavigateToOtp}
         onNavigateToRegister={mockNavigateToRegister}
         onNavigateBack={mockNavigateBack}
+        onNavigateToForgotPassword={mockNavigateToForgotPassword}
       />,
     );
 
@@ -131,6 +136,7 @@ describe("LoginScreen Component", () => {
         onNavigateToOtp={mockNavigateToOtp}
         onNavigateToRegister={mockNavigateToRegister}
         onNavigateBack={mockNavigateBack}
+        onNavigateToForgotPassword={mockNavigateToForgotPassword}
       />,
     );
 
@@ -154,6 +160,7 @@ describe("LoginScreen Component", () => {
         onNavigateToOtp={mockNavigateToOtp}
         onNavigateToRegister={mockNavigateToRegister}
         onNavigateBack={mockNavigateBack}
+        onNavigateToForgotPassword={mockNavigateToForgotPassword}
       />,
     );
 
@@ -167,6 +174,7 @@ describe("LoginScreen Component", () => {
         onNavigateToOtp={mockNavigateToOtp}
         onNavigateToRegister={mockNavigateToRegister}
         onNavigateBack={mockNavigateBack}
+        onNavigateToForgotPassword={mockNavigateToForgotPassword}
       />,
     );
 
@@ -188,6 +196,7 @@ describe("LoginScreen Component", () => {
         onNavigateToOtp={mockNavigateToOtp}
         onNavigateToRegister={mockNavigateToRegister}
         onNavigateBack={mockNavigateBack}
+        onNavigateToForgotPassword={mockNavigateToForgotPassword}
       />,
     );
 
@@ -201,5 +210,19 @@ describe("LoginScreen Component", () => {
         getByText("La contraseña debe tener al menos 6 caracteres"),
       ).toBeTruthy();
     });
+  });
+
+  it("navigates to forgot password screen when link is pressed", () => {
+    const { getByTestId } = render(
+      <LoginScreen
+        onNavigateToOtp={mockNavigateToOtp}
+        onNavigateToRegister={mockNavigateToRegister}
+        onNavigateBack={mockNavigateBack}
+        onNavigateToForgotPassword={mockNavigateToForgotPassword}
+      />,
+    );
+
+    fireEvent.press(getByTestId("btn-forgot-password"));
+    expect(mockNavigateToForgotPassword).toHaveBeenCalled();
   });
 });
