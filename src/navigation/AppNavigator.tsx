@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from "react";
 import {
   View,
-  Text,
   StyleSheet,
   ActivityIndicator,
-  TouchableOpacity,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { OnboardingScreen } from "../screens/OnboardingScreen";
 import { AuthWelcomeScreen } from "../screens/AuthWelcomeScreen";
@@ -16,9 +13,11 @@ import { RoleSelectionScreen } from "../screens/RoleSelectionScreen";
 import { CompleteProfileScreen } from "../screens/CompleteProfileScreen";
 import { LoginScreen } from "../screens/LoginScreen";
 import { ForgotPasswordScreen } from "../screens/ForgotPasswordScreen";
+import { MainScreen } from "../screens/MainScreen";
+import { ProfileScreen } from "../screens/ProfileScreen";
 import { ASYNC_STORAGE_ONBOARDING_KEY } from "../i18n/onboardingContent";
 import { tokenStorage } from "../services/tokenStorage";
-import { colors, typography, borderRadius } from "../theme/tokens";
+import { colors } from "../theme/tokens";
 import { UserRole } from "../types/role";
 
 const profileKey = (userId: string) =>
@@ -35,6 +34,7 @@ export type AppRoute =
   | "VerifyOTP"
   | "RoleSelection"
   | "CompleteProfile"
+  | "ProfileMenu"
   | "Main";
 
 export const AppNavigator: React.FC = () => {
@@ -101,8 +101,7 @@ export const AppNavigator: React.FC = () => {
     setCurrentRoute("Main");
   };
 
-  const handleToggleRole = async () => {
-    const newRole: UserRole = selectedRole === "client" ? "worker" : "client";
+  const handleRoleChanged = async (newRole: UserRole, newToken: string) => {
     setSelectedRole(newRole);
     const userId = await tokenStorage.getUserId();
     if (userId) {
@@ -220,63 +219,32 @@ export const AppNavigator: React.FC = () => {
     );
   }
 
-  const isClient = selectedRole === "client";
+  if (currentRoute === "ProfileMenu") {
+    return (
+      <ProfileScreen
+        currentRole={selectedRole}
+        onRoleChanged={handleRoleChanged}
+        onGoBack={() => setCurrentRoute("Main")}
+        onLogout={() => setCurrentRoute("AuthWelcome")}
+      />
+    );
+  }
 
-  return (
-    <SafeAreaView style={styles.mainContainer}>
-      {/* Role toggle text — top-left */}
-      <TouchableOpacity
-        style={styles.roleToggle}
-        onPress={handleToggleRole}
-        testID="btn-role-toggle"
-        accessibilityLabel={`Modo ${isClient ? "Cliente" : "Trabajador"}. Tocá para cambiar.`}
-        accessibilityRole="button"
-      >
-        <Text
-          style={[
-            styles.roleToggleText,
-            { color: isClient ? colors.clientAccent : colors.workerAccent },
-          ]}
-        >
-          {isClient ? "Modo Cliente" : "Modo Trabajador"}
-        </Text>
-      </TouchableOpacity>
-
-      {/* Dev button — top-right, visible when profile is completed */}
-      {profileCompleted && (
-        <View style={styles.devCorner}>
-          <TouchableOpacity
-            onPress={() => setCurrentRoute("CompleteProfile")}
-            style={styles.devButton}
-            testID="btn-dev-complete-profile"
-          >
-            <Text style={styles.devButtonText}>✏️</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-
-      <View style={styles.centerContainer}>
-        <Text style={styles.welcomeText}>🏠 Pantalla Principal</Text>
-        {!justCompletedProfile && (
-          <TouchableOpacity
-            style={styles.profileButton}
-            onPress={() => setCurrentRoute("CompleteProfile")}
-          >
-            <Text style={styles.profileButtonText}>Terminar de completar perfil ahora</Text>
-          </TouchableOpacity>
-        )}
-        <TouchableOpacity
-          style={styles.resetButton}
-          onPress={async () => {
-            await AsyncStorage.removeItem(ASYNC_STORAGE_ONBOARDING_KEY);
-            setCurrentRoute("Onboarding");
-          }}
-        >
-          <Text style={styles.resetText}>🔄 Resetear Onboarding (Dev)</Text>
-        </TouchableOpacity>
-      </View>
-    </SafeAreaView>
-  );
+  if (currentRoute === "Main") {
+    return (
+      <MainScreen
+        selectedRole={selectedRole}
+        profileCompleted={profileCompleted}
+        justCompletedProfile={justCompletedProfile}
+        onNavigateToProfile={() => setCurrentRoute("ProfileMenu")}
+        onNavigateToCompleteProfile={() => setCurrentRoute("CompleteProfile")}
+        onResetOnboarding={async () => {
+          await AsyncStorage.removeItem(ASYNC_STORAGE_ONBOARDING_KEY);
+          setCurrentRoute("Onboarding");
+        }}
+      />
+    );
+  }
 };
 
 const styles = StyleSheet.create({
@@ -286,72 +254,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
-  },
-  welcomeText: {
-    color: colors.textPrimary,
-    fontSize: typography.fontSizes.lg,
-    fontWeight: typography.fontWeights.semibold,
-    marginBottom: 10,
-    textAlign: "center",
-  },
-  resetButton: {
-    marginTop: 20,
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    backgroundColor: "#1E293B",
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#334155",
-  },
-  resetText: {
-    color: "#94A3B8",
-    fontSize: 14,
-  },
-  profileButton: {
-    marginTop: 16,
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    backgroundColor: colors.primary,
-    borderRadius: 8,
-  },
-  profileButtonText: {
-    color: "#FFFFFF",
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  mainContainer: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  roleToggle: {
-    position: "absolute",
-    top: 44,
-    left: 16,
-    zIndex: 10,
-  },
-  roleToggleText: {
-    fontSize: typography.fontSizes.sm,
-    fontWeight: typography.fontWeights.bold,
-    textDecorationLine: "underline",
-  },
-  devCorner: {
-    position: "absolute",
-    top: 40,
-    right: 16,
-    zIndex: 10,
-  },
-  devButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: "rgba(30, 41, 59, 0.7)",
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#334155",
-  },
-  devButtonText: {
-    fontSize: 16,
   },
 });
 
