@@ -1,7 +1,17 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { Feather } from "@expo/vector-icons";
+import type { ComponentProps } from "react";
 import { RoleCardProps } from "../../types/role";
-import { spacing, borderRadius, typography, shadows } from "../../theme/tokens";
+import {
+  colors,
+  spacing,
+  borderRadius,
+  typography,
+  shadows,
+} from "../../theme/tokens";
+
+type FeatherName = ComponentProps<typeof Feather>["name"];
 
 export const RoleCard: React.FC<RoleCardProps> = ({
   title,
@@ -24,7 +34,7 @@ export const RoleCard: React.FC<RoleCardProps> = ({
       <View
         style={[styles.iconCircle, { backgroundColor: accentColor + "20" }]}
       >
-        <Text style={styles.iconText}>{iconName}</Text>
+        <Feather name={iconName as FeatherName} size={28} color={accentColor} />
       </View>
 
       <Text style={styles.title}>{title}</Text>
@@ -40,7 +50,7 @@ export const RoleCard: React.FC<RoleCardProps> = ({
 const styles = StyleSheet.create({
   card: {
     flex: 1,
-    backgroundColor: "#1E293B",
+    backgroundColor: colors.cardBackground,
     borderWidth: 1.5,
     borderRadius: borderRadius.lg,
     paddingVertical: spacing.lg,
@@ -58,18 +68,15 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginBottom: spacing.md,
   },
-  iconText: {
-    fontSize: 28,
-  },
   title: {
-    color: "#F8FAFC",
+    color: colors.textPrimary,
     fontSize: typography.fontSizes.lg,
     fontWeight: typography.fontWeights.bold,
     textAlign: "center",
     marginBottom: spacing.xs,
   },
   description: {
-    color: "#94A3B8",
+    color: colors.textSecondary,
     fontSize: typography.fontSizes.sm,
     textAlign: "center",
     lineHeight: 20,

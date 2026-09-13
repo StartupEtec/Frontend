@@ -7,6 +7,7 @@ import {
   StyleSheet,
   KeyboardTypeOptions,
 } from "react-native";
+import { Feather } from "@expo/vector-icons";
 import { colors, spacing, borderRadius, typography } from "../../theme/tokens";
 
 interface RegisterFormInputProps {
@@ -68,9 +69,12 @@ export const RegisterFormInput: React.FC<RegisterFormInputProps> = ({
             accessibilityRole="button"
             testID={`${testID}-toggle`}
           >
-            <Text style={styles.toggleText}>
-              {secureTextEntry ? "👁️" : "🙈"}
-            </Text>
+            <Feather
+              name={secureTextEntry ? "eye" : "eye-off"}
+              size={20}
+              color={colors.textMuted}
+              accessible={false}
+            />
           </TouchableOpacity>
         )}
       </View>
@@ -92,9 +96,9 @@ const styles = StyleSheet.create({
   inputWrapper: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: colors.cardBackground,
+    backgroundColor: colors.surfaceContainerLow,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.inputBorder,
     borderRadius: borderRadius.md,
     paddingHorizontal: spacing.md,
   },
@@ -109,9 +113,6 @@ const styles = StyleSheet.create({
   },
   toggleButton: {
     padding: spacing.xs,
-  },
-  toggleText: {
-    fontSize: 16,
   },
   errorText: {
     color: colors.error,

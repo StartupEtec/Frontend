@@ -103,12 +103,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   prevButton: {
-    backgroundColor: "transparent",
+    backgroundColor: colors.surfaceContainerLow,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.outline,
   },
   prevButtonText: {
-    color: colors.textSecondary,
+    color: colors.onSurfaceVariant,
     fontSize: typography.fontSizes.sm,
     fontWeight: typography.fontWeights.semibold,
   },
@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
     ...shadows.button,
   },
   nextButtonText: {
-    color: "#FFFFFF",
+    color: colors.onPrimary,
     fontSize: typography.fontSizes.sm,
     fontWeight: typography.fontWeights.bold,
   },
@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
     ...shadows.button,
   },
   primaryButtonText: {
-    color: "#FFFFFF",
+    color: colors.onPrimary,
     fontSize: typography.fontSizes.md,
     fontWeight: typography.fontWeights.bold,
   },

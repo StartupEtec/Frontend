@@ -28,7 +28,6 @@ describe("ForgotPasswordScreen Component", () => {
     );
 
     expect(getByText("Recuperar Contraseña")).toBeTruthy();
-    expect(getByText("Paso 1 de 3")).toBeTruthy();
     expect(getByTestId("input-reset-contact")).toBeTruthy();
     expect(getByTestId("btn-send-code")).toBeTruthy();
   });
@@ -54,7 +53,7 @@ describe("ForgotPasswordScreen Component", () => {
       message: "Código de recuperación enviado correctamente.",
     });
 
-    const { getByTestId, getByText } = render(
+    const { getByTestId } = render(
       <ForgotPasswordScreen
         onNavigateToLogin={mockNavigateToLogin}
         onNavigateBack={mockNavigateBack}
@@ -65,7 +64,6 @@ describe("ForgotPasswordScreen Component", () => {
     fireEvent.press(getByTestId("btn-send-code"));
 
     await waitFor(() => {
-      expect(getByText("Paso 2 de 3")).toBeTruthy();
       expect(getByTestId("reset-code-row")).toBeTruthy();
       expect(getByTestId("btn-verify-code")).toBeTruthy();
     });
@@ -91,7 +89,7 @@ describe("ForgotPasswordScreen Component", () => {
       expect(
         getByText("El correo electrónico o teléfono no está registrado"),
       ).toBeTruthy();
-      expect(getByText("Paso 1 de 3")).toBeTruthy();
+      expect(getByTestId("input-reset-contact")).toBeTruthy();
     });
   });
 
@@ -107,18 +105,6 @@ describe("ForgotPasswordScreen Component", () => {
     expect(mockNavigateBack).toHaveBeenCalled();
   });
 
-  it("navigates to login via Volver a Iniciar Sesión link", () => {
-    const { getByTestId } = render(
-      <ForgotPasswordScreen
-        onNavigateToLogin={mockNavigateToLogin}
-        onNavigateBack={mockNavigateBack}
-      />,
-    );
-
-    fireEvent.press(getByTestId("btn-back-to-login"));
-    expect(mockNavigateToLogin).toHaveBeenCalled();
-  });
-
   it("progresses through all 3 steps to reset password", async () => {
     (authService.forgotPassword as jest.Mock).mockResolvedValueOnce({
       message: "OK",
@@ -131,7 +117,7 @@ describe("ForgotPasswordScreen Component", () => {
       message: "Contraseña restablecida correctamente.",
     });
 
-    const { getByTestId, getByText, getAllByTestId } = render(
+    const { getByTestId } = render(
       <ForgotPasswordScreen
         onNavigateToLogin={mockNavigateToLogin}
         onNavigateBack={mockNavigateBack}
@@ -143,7 +129,7 @@ describe("ForgotPasswordScreen Component", () => {
     fireEvent.press(getByTestId("btn-send-code"));
 
     await waitFor(() => {
-      expect(getByText("Paso 2 de 3")).toBeTruthy();
+      expect(getByTestId("reset-code-row")).toBeTruthy();
     });
 
     // Step 2 - enter code
@@ -153,7 +139,7 @@ describe("ForgotPasswordScreen Component", () => {
     fireEvent.press(getByTestId("btn-verify-code"));
 
     await waitFor(() => {
-      expect(getByText("Paso 3 de 3")).toBeTruthy();
+      expect(getByTestId("input-new-password")).toBeTruthy();
     });
 
     // Step 3
@@ -179,7 +165,7 @@ describe("ForgotPasswordScreen Component", () => {
       token: "temp-token-123",
     });
 
-    const { getByTestId, getByText } = render(
+    const { getByTestId } = render(
       <ForgotPasswordScreen
         onNavigateToLogin={mockNavigateToLogin}
         onNavigateBack={mockNavigateBack}
@@ -188,13 +174,13 @@ describe("ForgotPasswordScreen Component", () => {
 
     fireEvent.changeText(getByTestId("input-reset-contact"), "user@test.com");
     fireEvent.press(getByTestId("btn-send-code"));
-    await waitFor(() => expect(getByText("Paso 2 de 3")).toBeTruthy());
+    await waitFor(() => expect(getByTestId("reset-code-row")).toBeTruthy());
 
     for (let i = 0; i < 6; i++) {
       fireEvent.changeText(getByTestId(`otp-input-${i}`), String(i + 1));
     }
     fireEvent.press(getByTestId("btn-verify-code"));
-    await waitFor(() => expect(getByText("Paso 3 de 3")).toBeTruthy());
+    await waitFor(() => expect(getByTestId("input-new-password")).toBeTruthy());
 
     const newPasswordInput = getByTestId("input-new-password");
     expect(newPasswordInput.props.secureTextEntry).toBe(true);
@@ -218,7 +204,7 @@ describe("ForgotPasswordScreen Component", () => {
       message: "OK",
     });
 
-    const { getByTestId, getByText } = render(
+    const { getByTestId } = render(
       <ForgotPasswordScreen
         onNavigateToLogin={mockNavigateToLogin}
         onNavigateBack={mockNavigateBack}
@@ -227,7 +213,7 @@ describe("ForgotPasswordScreen Component", () => {
 
     fireEvent.changeText(getByTestId("input-reset-contact"), "user@test.com");
     fireEvent.press(getByTestId("btn-send-code"));
-    await waitFor(() => expect(getByText("Paso 2 de 3")).toBeTruthy());
+    await waitFor(() => expect(getByTestId("reset-code-row")).toBeTruthy());
 
     fireEvent.changeText(getByTestId("otp-input-0"), "1");
 

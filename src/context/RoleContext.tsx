@@ -7,6 +7,7 @@ import React, {
 } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { UserRole } from "../types/role";
+import { roleAccent } from "../theme/tokens";
 
 const ASYNC_STORAGE_ROLE_KEY = "@startup_app/selected_role";
 
@@ -15,6 +16,8 @@ interface RoleContextValue {
   setRole: (role: UserRole) => Promise<void>;
   clearRole: () => Promise<void>;
   isLoading: boolean;
+  /** Acá se centraliza el color de acento según el rol activo */
+  accentColor: string;
 }
 
 const RoleContext = createContext<RoleContextValue | undefined>(undefined);
@@ -51,9 +54,11 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({
     setCurrentRole(null);
   }, []);
 
+  const accentColor = roleAccent(currentRole);
+
   return (
     <RoleContext.Provider
-      value={{ currentRole, setRole, clearRole, isLoading }}
+      value={{ currentRole, setRole, clearRole, isLoading, accentColor }}
     >
       {children}
     </RoleContext.Provider>

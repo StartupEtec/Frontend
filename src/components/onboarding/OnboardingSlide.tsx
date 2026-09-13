@@ -1,7 +1,8 @@
 import React from "react";
-import { View, Text, StyleSheet, ViewStyle } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
+import { Feather } from "@expo/vector-icons";
 import { OnboardingSlideProps } from "../../types/onboarding";
-import { colors, spacing, borderRadius, typography } from "../../theme/tokens";
+import { colors, spacing, borderRadius, typography, shadows } from "../../theme/tokens";
 
 export const OnboardingSlide: React.FC<OnboardingSlideProps> = ({
   item,
@@ -21,8 +22,8 @@ export const OnboardingSlide: React.FC<OnboardingSlideProps> = ({
                   { backgroundColor: colors.cardBackground },
                 ]}
               >
-                <View style={styles.iconCircle}>
-                  <Text style={styles.iconText}>⚡</Text>
+                <View style={[styles.iconCircle, styles.iconCirclePrimary]}>
+                  <Feather name="zap" size={24} color={colors.primary} />
                 </View>
                 <View style={styles.mockLineLong} />
                 <View style={styles.mockLineShort} />
@@ -42,15 +43,16 @@ export const OnboardingSlide: React.FC<OnboardingSlideProps> = ({
                   { backgroundColor: colors.cardBackground },
                 ]}
               >
-                <View style={styles.badgeTag}>
+                <View style={[styles.badgeTag, styles.badgeTagClient]}>
                   <Text style={styles.badgeTagText}>CLIENTE</Text>
                 </View>
-                <View style={styles.iconCircleClient}>
-                  <Text style={styles.iconText}>🔍</Text>
+                <View style={[styles.iconCircle, styles.iconCircleClient]}>
+                  <Feather name="search" size={24} color={colors.clientAccent} />
                 </View>
                 <Text style={styles.cardTitleMock}>Buscar Servicios</Text>
                 <View style={styles.priceTag}>
-                  <Text style={styles.priceTagText}>Escrow Protegido 🛡️</Text>
+                  <Feather name="shield" size={13} color={colors.primary} />
+                  <Text style={styles.priceTagText}> Escrow Protegido</Text>
                 </View>
               </View>
             </View>
@@ -69,21 +71,17 @@ export const OnboardingSlide: React.FC<OnboardingSlideProps> = ({
                 ]}
               >
                 <View
-                  style={[
-                    styles.badgeTag,
-                    { backgroundColor: colors.workerAccent },
-                  ]}
+                  style={[styles.badgeTag, { backgroundColor: colors.workerAccent }]}
                 >
                   <Text style={styles.badgeTagText}>PROVEEDOR</Text>
                 </View>
-                <View style={styles.iconCircleWorker}>
-                  <Text style={styles.iconText}>🛠️</Text>
+                <View style={[styles.iconCircle, styles.iconCircleWorker]}>
+                  <Feather name="tool" size={24} color={colors.workerAccent} />
                 </View>
                 <Text style={styles.cardTitleMock}>Monetizar Talento</Text>
                 <View style={styles.incomeBadge}>
-                  <Text style={styles.incomeText}>
-                    +100% Pagos Garantizados
-                  </Text>
+                  <Feather name="check-circle" size={13} color={colors.success} />
+                  <Text style={styles.incomeText}> Pagos Garantizados</Text>
                 </View>
               </View>
             </View>
@@ -94,7 +92,7 @@ export const OnboardingSlide: React.FC<OnboardingSlideProps> = ({
         return (
           <View style={styles.graphicContainer}>
             <View
-              style={[styles.outerCircle, { borderColor: colors.primaryLight }]}
+              style={[styles.outerCircle, { borderColor: colors.primary }]}
             >
               <View
                 style={[
@@ -102,12 +100,13 @@ export const OnboardingSlide: React.FC<OnboardingSlideProps> = ({
                   { backgroundColor: colors.cardBackground },
                 ]}
               >
-                <View style={styles.iconCircleWelcome}>
-                  <Text style={styles.iconText}>🚀</Text>
+                <View style={[styles.iconCircle, styles.iconCirclePrimary]}>
+                  <Feather name="repeat" size={24} color={colors.primary} />
                 </View>
                 <Text style={styles.cardTitleMock}>Rol Dual Activado</Text>
                 <View style={styles.dualPill}>
-                  <Text style={styles.dualPillText}>Cliente ⇆ Proveedor</Text>
+                  <Feather name="repeat" size={12} color={colors.primary} />
+                  <Text style={styles.dualPillText}> Cliente / Proveedor</Text>
                 </View>
               </View>
             </View>
@@ -164,58 +163,32 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     padding: spacing.md,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.35,
-    shadowRadius: 10,
-    elevation: 6,
+    ...shadows.card,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.cardStroke,
   },
   iconCircle: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: "rgba(99, 102, 241, 0.2)",
     alignItems: "center",
     justifyContent: "center",
     marginBottom: spacing.xs,
+  },
+  iconCirclePrimary: {
+    backgroundColor: colors.primaryFixed,
   },
   iconCircleClient: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: "rgba(59, 130, 246, 0.2)",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: spacing.xs,
+    backgroundColor: colors.primaryFixed,
   },
   iconCircleWorker: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: "rgba(16, 185, 129, 0.2)",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: spacing.xs,
-  },
-  iconCircleWelcome: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: "rgba(129, 140, 248, 0.2)",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: spacing.xs,
-  },
-  iconText: {
-    fontSize: 24,
+    backgroundColor: colors.successContainer,
   },
   mockLineLong: {
     width: 100,
     height: 8,
     borderRadius: 4,
-    backgroundColor: colors.border,
+    backgroundColor: colors.outlineVariant,
     marginTop: spacing.xs,
   },
   mockLineShort: {
@@ -231,6 +204,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 4,
+  },
+  badgeTagClient: {
     backgroundColor: colors.clientAccent,
   },
   badgeTagText: {
@@ -246,38 +221,44 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   priceTag: {
+    flexDirection: "row",
+    alignItems: "center",
     marginTop: 6,
-    backgroundColor: "rgba(59, 130, 246, 0.15)",
+    backgroundColor: colors.primaryFixed,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: borderRadius.sm,
   },
   priceTagText: {
-    color: colors.clientAccent,
+    color: colors.primary,
     fontSize: 11,
     fontWeight: "600",
   },
   incomeBadge: {
+    flexDirection: "row",
+    alignItems: "center",
     marginTop: 6,
-    backgroundColor: "rgba(16, 185, 129, 0.15)",
+    backgroundColor: colors.successContainer,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: borderRadius.sm,
   },
   incomeText: {
-    color: colors.workerAccent,
+    color: colors.success,
     fontSize: 11,
     fontWeight: "600",
   },
   dualPill: {
+    flexDirection: "row",
+    alignItems: "center",
     marginTop: 6,
-    backgroundColor: "rgba(99, 102, 241, 0.2)",
+    backgroundColor: colors.primaryFixed,
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: borderRadius.pill,
   },
   dualPillText: {
-    color: colors.primaryLight,
+    color: colors.primary,
     fontSize: 11,
     fontWeight: "700",
   },
@@ -306,7 +287,7 @@ const styles = StyleSheet.create({
     fontWeight: typography.fontWeights.bold,
     textAlign: "center",
     marginBottom: spacing.sm,
-    lineHeight: 32,
+    lineHeight: 28,
   },
   description: {
     color: colors.textSecondary,

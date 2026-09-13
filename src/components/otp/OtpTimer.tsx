@@ -21,7 +21,7 @@ export const OtpTimer: React.FC<OtpTimerProps> = ({ secondsRemaining }) => {
   const textColor = isExpired
     ? colors.error
     : isUrgent
-      ? "#F97316" // orange-500
+      ? colors.warning
       : colors.textSecondary;
 
   return (

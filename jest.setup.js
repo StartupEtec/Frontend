@@ -33,3 +33,12 @@ jest.mock('@react-native-community/datetimepicker', () => {
     default: (props) => React.createElement('DateTimePicker', props),
   };
 });
+
+jest.mock('@expo/vector-icons', () => {
+  const React = require('react');
+  const { Text } = require('react-native');
+  return {
+    Feather: ({ name, testID, ...props }) =>
+      React.createElement(Text, { ...props, testID }, name),
+  };
+});

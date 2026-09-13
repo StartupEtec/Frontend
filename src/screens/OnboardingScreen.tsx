@@ -67,7 +67,7 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar style="light" />
+      <StatusBar style="dark" />
 
       {/* Top Header with Skip action */}
       <OnboardingHeader onSkip={handleSkip} showSkip={!isLastSlide} />

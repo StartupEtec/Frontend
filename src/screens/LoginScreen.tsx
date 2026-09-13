@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
+import { Feather } from "@expo/vector-icons";
 import { useLoginForm } from "../hooks/useLoginForm";
 import { RegisterFormInput } from "../components/register/RegisterFormInput";
 import { LoginScreenProps } from "../types/auth";
@@ -46,7 +47,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar style="light" />
+      <StatusBar style="dark" />
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.container}
@@ -64,7 +65,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
                 accessibilityLabel="Volver atrás"
                 accessibilityRole="button"
               >
-                <Text style={styles.backArrow}>←</Text>
+                <Feather name="arrow-left" size={24} color={colors.textPrimary} accessible={false} />
               </TouchableOpacity>
               <Text style={styles.title}>Iniciar Sesión</Text>
             </View>
@@ -117,7 +118,9 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
                   rememberMe && styles.checkboxChecked,
                 ]}
               >
-                {rememberMe && <Text style={styles.checkmark}>✓</Text>}
+                {rememberMe && (
+                  <Feather name="check" size={14} color={colors.onPrimary} accessible={false} />
+                )}
               </View>
               <Text style={styles.rememberText}>Recordar email/teléfono</Text>
             </TouchableOpacity>
@@ -142,7 +145,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
           >
             {isSubmitting ? (
               <ActivityIndicator
-                color={colors.textPrimary}
+                color={colors.onPrimary}
                 testID="loading-spinner"
               />
             ) : (
@@ -175,7 +178,6 @@ const styles = StyleSheet.create({
     paddingRight: spacing.xs,
     paddingVertical: spacing.xs,
   },
-  backArrow: { color: colors.textPrimary, fontSize: 24, fontWeight: "bold" },
   title: {
     color: colors.textPrimary,
     fontSize: typography.fontSizes.xl,
@@ -187,14 +189,17 @@ const styles = StyleSheet.create({
     marginTop: spacing.xs,
   },
   serverErrorBox: {
-    backgroundColor: "rgba(239, 68, 68, 0.15)",
+    backgroundColor: colors.errorContainer,
     borderColor: colors.error,
     borderWidth: 1,
     padding: spacing.md,
     borderRadius: borderRadius.md,
     marginBottom: spacing.md,
   },
-  serverErrorText: { color: colors.error, fontSize: typography.fontSizes.sm },
+  serverErrorText: {
+    color: colors.onErrorContainer,
+    fontSize: typography.fontSizes.sm,
+  },
   optionsRow: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -211,8 +216,8 @@ const styles = StyleSheet.create({
     height: 20,
     borderRadius: 4,
     borderWidth: 1.5,
-    borderColor: colors.border,
-    backgroundColor: colors.cardBackground,
+    borderColor: colors.inputBorder,
+    backgroundColor: colors.surfaceContainerLow,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -220,17 +225,12 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
     borderColor: colors.primary,
   },
-  checkmark: {
-    color: "#FFFFFF",
-    fontSize: 12,
-    fontWeight: "bold",
-  },
   rememberText: {
     color: colors.textSecondary,
     fontSize: typography.fontSizes.xs,
   },
   forgotText: {
-    color: colors.primaryLight,
+    color: colors.primary,
     fontSize: typography.fontSizes.xs,
     fontWeight: "600",
   },
@@ -245,7 +245,7 @@ const styles = StyleSheet.create({
   },
   submitButtonDisabled: { opacity: 0.5 },
   submitButtonText: {
-    color: colors.textPrimary,
+    color: colors.onPrimary,
     fontSize: typography.fontSizes.md,
     fontWeight: "700",
   },
@@ -259,7 +259,7 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSizes.sm,
   },
   registerLink: {
-    color: colors.primaryLight,
+    color: colors.primary,
     fontSize: typography.fontSizes.sm,
     fontWeight: "700",
   },

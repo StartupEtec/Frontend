@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     maxHeight: "80%",
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.cardStroke,
   },
   title: {
     color: colors.textPrimary,
@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
   },
   sectionTitle: {
-    color: colors.primaryLight,
+    color: colors.primary,
     fontSize: typography.fontSizes.sm,
     fontWeight: typography.fontWeights.semibold,
     marginTop: spacing.sm,
@@ -128,7 +128,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.md,
     borderRadius: borderRadius.md,
-    backgroundColor: "#334155",
+    backgroundColor: colors.surfaceContainerHigh,
   },
   closeButtonText: {
     color: colors.textPrimary,
@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
   },
   acceptButtonText: {
-    color: colors.textPrimary,
+    color: colors.onPrimary,
     fontWeight: typography.fontWeights.bold,
   },
 });

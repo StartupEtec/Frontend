@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import * as DocumentPicker from "expo-document-picker";
+import { Feather } from "@expo/vector-icons";
 import { colors, spacing, borderRadius, typography } from "../../theme/tokens";
 
 const QUALITY = 0.7;
@@ -18,6 +19,7 @@ interface PhotoPickerProps {
   onPhotoSelected: (uri: string) => void;
   onPhotoRemoved: () => void;
   error?: string;
+  accentColor?: string;
 }
 
 export const PhotoPicker: React.FC<PhotoPickerProps> = ({
@@ -25,6 +27,7 @@ export const PhotoPicker: React.FC<PhotoPickerProps> = ({
   onPhotoSelected,
   onPhotoRemoved,
   error,
+  accentColor = colors.primary,
 }) => {
   const [visible, setVisible] = useState(false);
 
@@ -79,7 +82,7 @@ export const PhotoPicker: React.FC<PhotoPickerProps> = ({
           <Image source={{ uri }} style={styles.avatar} />
         ) : (
           <View style={styles.placeholder}>
-            <Text style={styles.placeholderIcon}>📷</Text>
+            <Feather name="camera" size={28} color={accentColor} accessible={false} />
             <Text style={styles.placeholderText}>Agregar foto</Text>
           </View>
         )}
@@ -100,18 +103,18 @@ export const PhotoPicker: React.FC<PhotoPickerProps> = ({
           <View style={styles.sheet}>
             <Text style={styles.sheetTitle}>Foto de perfil</Text>
             <TouchableOpacity style={styles.option} onPress={handleCamera}>
-              <Text style={styles.optionIcon}>📷</Text>
+              <Feather name="camera" size={20} color={accentColor} accessible={false} />
               <Text style={styles.optionText}>Cámara</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.option}
               onPress={handleGooglePhotos}
             >
-              <Text style={styles.optionIcon}>🖼️</Text>
+              <Feather name="image" size={20} color={accentColor} accessible={false} />
               <Text style={styles.optionText}>Google Fotos</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.option} onPress={handleGallery}>
-              <Text style={styles.optionIcon}>📁</Text>
+              <Feather name="folder" size={20} color={accentColor} accessible={false} />
               <Text style={styles.optionText}>Galería</Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -139,9 +142,9 @@ const styles = StyleSheet.create({
     height: 120,
     borderRadius: 60,
     overflow: "hidden",
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceContainerLow,
     borderWidth: 2,
-    borderColor: colors.border,
+    borderColor: colors.cardStroke,
     borderStyle: "dashed",
   },
   avatar: {
@@ -152,10 +155,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-  },
-  placeholderIcon: {
-    fontSize: 28,
-    marginBottom: 4,
+    gap: spacing.xs,
   },
   placeholderText: {
     fontSize: typography.fontSizes.xs,
@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
   },
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: colors.overlayBackground,
     justifyContent: "flex-end",
   },
   sheet: {
@@ -200,15 +200,12 @@ const styles = StyleSheet.create({
   option: {
     flexDirection: "row",
     alignItems: "center",
+    gap: spacing.md,
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.md,
     borderRadius: borderRadius.md,
     marginBottom: spacing.xs,
-    backgroundColor: colors.background,
-  },
-  optionIcon: {
-    fontSize: 20,
-    marginRight: spacing.md,
+    backgroundColor: colors.surfaceContainerLow,
   },
   optionText: {
     color: colors.textPrimary,
