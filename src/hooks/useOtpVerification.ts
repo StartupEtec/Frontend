@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { authService } from "../services/authService";
 import { ApiError } from "../services/api";
 import { tokenStorage } from "../services/tokenStorage";
+import { toContactIdentifier } from "../utils/contact";
 
 /** Duration of the full OTP validity window in seconds */
 const OTP_EXPIRY_SECONDS = 10 * 60; // 10 minutes
@@ -140,7 +141,10 @@ export const useOtpVerification = ({
     setErrorMessage(null);
 
     try {
-      const result = await authService.verifyOtp({ code: fullCode, contact });
+      const result = await authService.verifyOtp({
+        ...toContactIdentifier(contact),
+        otp_code: fullCode,
+      });
       if (result.accessToken) {
         await tokenStorage.setAccessToken(result.accessToken);
       }
@@ -155,6 +159,42 @@ export const useOtpVerification = ({
     } catch (err: any) {
       setStatus("idle");
 
+      if (err instanceof ApiError) {
+        const errorCode = err.errorCode;
+
+        if (errorCode === "VALIDATION_ERROR") {
+          setErrorMessage(
+            err.message ||
+              "Hay un error en los datos enviados. Verificá e intentá de nuevo.",
+          );
+          return;
+        }
+
+        if (errorCode === "EXPIRED_OTP" || err.statusCode === 410) {
+          setErrorMessage(
+            "El código ha expirado. Por favor solicitá uno nuevo.",
+          );
+          return;
+        }
+
+        if (errorCode === "OTP_ATTEMPTS_EXCEEDED") {
+          setAttemptsLeft(0);
+          setStatus("locked");
+          setErrorMessage(
+            "Demasiados intentos fallidos. Solicitá un nuevo código.",
+          );
+          return;
+        }
+
+        if (errorCode === "TOO_MANY_REQUESTS" || err.statusCode === 429) {
+          setErrorMessage(
+            err.message || "Demasiados intentos. Reintentá más tarde.",
+          );
+          return;
+        }
+      }
+
+      // Fallback: el fallo cuenta como intento fallido de código (400/INVALID_OTP back).
       const newAttemptsLeft = attemptsLeft - 1;
       setAttemptsLeft(newAttemptsLeft);
 
@@ -167,19 +207,12 @@ export const useOtpVerification = ({
       }
 
       if (err instanceof ApiError) {
-        if (err.statusCode === 400) {
-          setErrorMessage(
-            `Código incorrecto. Te quedan ${newAttemptsLeft} intento${newAttemptsLeft === 1 ? "" : "s"}.`,
-          );
-        } else if (err.statusCode === 410) {
-          setErrorMessage(
-            "El código ha expirado. Por favor solicitá uno nuevo.",
-          );
-        } else {
-          setErrorMessage(
-            err.message || "Error del servidor. Reintentá en unos instantes.",
-          );
-        }
+        setErrorMessage(
+          err.errorCode === "INVALID_OTP" || err.statusCode === 400
+            ? `Código incorrecto. Te quedan ${newAttemptsLeft} intento${newAttemptsLeft === 1 ? "" : "s"}.`
+            : err.message ||
+                "Error del servidor. Reintentá en unos instantes.",
+        );
       } else {
         setErrorMessage(
           "Error de conexión. Verificá tu internet e intentá de nuevo.",
@@ -204,7 +237,7 @@ export const useOtpVerification = ({
     setErrorMessage(null);
 
     try {
-      await authService.resendOtp({ contact });
+      await authService.resendOtp(toContactIdentifier(contact));
 
       // Reset timers and attempts
       setSecondsRemaining(OTP_EXPIRY_SECONDS);
