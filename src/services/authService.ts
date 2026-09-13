@@ -33,6 +33,9 @@ export const authService = {
   /**
    * Verify a 6-digit OTP code
    * POST /auth/verify-otp
+   * Payload contract (backend): `{ email | phone, otp_code }`.
+   * Contrato de errores: VALIDATION_ERROR (400), INVALID_OTP (400),
+   * EXPIRED_OTP (410), OTP_ATTEMPTS_EXCEEDED (429), TOO_MANY_REQUESTS (429).
    */
   async verifyOtp(payload: OtpVerifyApiPayload): Promise<OtpVerifyApiResponse> {
     return apiClient<OtpVerifyApiResponse>("/auth/verify-otp", {
@@ -44,6 +47,9 @@ export const authService = {
   /**
    * Request a new OTP code to be sent
    * POST /auth/resend-otp
+   * Payload contract (backend): `{ email | phone }`. Regenera el OTP e invalida
+   * el anterior (resetea el contador de intentos). Respuesta 200 idéntica aunque
+   * el usuario no exista (anti-enumeración).
    */
   async resendOtp(payload: OtpResendApiPayload): Promise<OtpResendApiResponse> {
     return apiClient<OtpResendApiResponse>("/auth/resend-otp", {

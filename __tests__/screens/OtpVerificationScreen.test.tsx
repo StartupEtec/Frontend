@@ -94,8 +94,14 @@ describe("OtpVerificationScreen", () => {
 
   it("calls verifyOtp and navigates on successful verification", async () => {
     (authService.verifyOtp as jest.Mock).mockResolvedValueOnce({
-      success: true,
-      message: "OK",
+      message: "Verificación exitosa",
+      accessToken: "access-token",
+      refreshToken: "refresh-token",
+      user: {
+        id: "u1",
+        email: "user@example.com",
+        phone: "+5491122334455",
+      },
     });
     const { getByTestId } = render(
       <OtpVerificationScreen {...DEFAULT_PROPS} />,
@@ -108,8 +114,8 @@ describe("OtpVerificationScreen", () => {
 
     await waitFor(() => {
       expect(authService.verifyOtp).toHaveBeenCalledWith({
-        code: "123456",
-        contact: DEFAULT_PROPS.contact,
+        email: DEFAULT_PROPS.contact,
+        otp_code: "123456",
       });
       expect(DEFAULT_PROPS.onVerificationSuccess).toHaveBeenCalled();
     });
@@ -120,7 +126,7 @@ describe("OtpVerificationScreen", () => {
   it("shows error message on invalid code (400) and decrements attempts", async () => {
     const { ApiError } = jest.requireActual("../../src/services/api");
     (authService.verifyOtp as jest.Mock).mockRejectedValueOnce(
-      new ApiError("Código incorrecto", 400, "INVALID_CODE"),
+      new ApiError("El código OTP es inválido", 400, "INVALID_OTP"),
     );
 
     const { getByTestId, getByText } = render(
@@ -141,7 +147,7 @@ describe("OtpVerificationScreen", () => {
   it("shows expiry error and disables verify when code is expired (410)", async () => {
     const { ApiError } = jest.requireActual("../../src/services/api");
     (authService.verifyOtp as jest.Mock).mockRejectedValueOnce(
-      new ApiError("Código expirado", 410, "CODE_EXPIRED"),
+      new ApiError("El código OTP ha expirado", 410, "EXPIRED_OTP"),
     );
 
     const { getByTestId, getByText } = render(
@@ -160,7 +166,7 @@ describe("OtpVerificationScreen", () => {
   it("locks the screen after 5 failed attempts", async () => {
     const { ApiError } = jest.requireActual("../../src/services/api");
     (authService.verifyOtp as jest.Mock).mockRejectedValue(
-      new ApiError("Incorrecto", 400, "INVALID_CODE"),
+      new ApiError("El código OTP es inválido", 400, "INVALID_OTP"),
     );
 
     const { getByTestId, getByText } = render(
@@ -227,8 +233,7 @@ describe("OtpVerificationScreen", () => {
 
   it("calls resendOtp, resets timer, and re-enables input after resend", async () => {
     (authService.resendOtp as jest.Mock).mockResolvedValueOnce({
-      success: true,
-      message: "Enviado",
+      message: "Se ha enviado un nuevo código OTP",
     });
 
     const { getByTestId } = render(
@@ -243,7 +248,7 @@ describe("OtpVerificationScreen", () => {
 
     await waitFor(() => {
       expect(authService.resendOtp).toHaveBeenCalledWith({
-        contact: DEFAULT_PROPS.contact,
+        email: DEFAULT_PROPS.contact,
       });
     });
   });
