@@ -114,7 +114,7 @@ export const useLoginForm = (
         await AsyncStorage.removeItem(REMEMBERED_CONTACT_KEY);
       }
 
-      const contact = isEmail ? value : payload.phone;
+      const contact = isEmail ? value : value.replace(/\s+/g, "");
       onNavigateToOtp(contact);
     } catch (err: any) {
       if (err instanceof ApiError) {

@@ -20,13 +20,6 @@ jest.mock('expo-file-system', () => ({
   ),
 }));
 
-jest.mock('expo-modules-core', () => ({
-  EventEmitter: class MockEventEmitter {},
-  requireNativeModule: () => ({}),
-  requireOptionalNativeModule: () => null,
-  Platform: { OS: 'android' },
-}));
-
 jest.mock('expo-document-picker', () => ({
   getDocumentAsync: jest.fn(() =>
     Promise.resolve({ canceled: true, assets: [] })
