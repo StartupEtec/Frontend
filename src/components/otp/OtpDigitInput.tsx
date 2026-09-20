@@ -21,12 +21,14 @@ export const OtpDigitInput = forwardRef<TextInput, OtpDigitInputProps>(
     const borderColor = hasError
       ? colors.error
       : isFocused
-        ? colors.primaryLight
+        ? colors.primary
         : value
           ? colors.primary
-          : colors.border;
+          : colors.inputBorder;
 
-    const backgroundColor = isFocused ? "#1a2744" : "#1E293B";
+    const backgroundColor = isFocused
+      ? colors.surfaceContainerLowest
+      : colors.surfaceContainerLow;
 
     return (
       <View
@@ -88,6 +90,6 @@ const styles = StyleSheet.create({
     width: 16,
     height: 3,
     borderRadius: 1.5,
-    backgroundColor: colors.primaryLight,
+    backgroundColor: colors.primary,
   },
 });

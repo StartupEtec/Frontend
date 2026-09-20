@@ -1,7 +1,8 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
+import { Feather } from "@expo/vector-icons";
 import { PasswordCriteriaStatus } from "../../types/auth";
-import { colors, spacing, typography } from "../../theme/tokens";
+import { colors, spacing, borderRadius, typography } from "../../theme/tokens";
 
 interface PasswordRequirementsProps {
   status: PasswordCriteriaStatus;
@@ -39,14 +40,12 @@ export const PasswordRequirements: React.FC<PasswordRequirementsProps> = ({
       <Text style={styles.title}>Requisitos de la contraseña:</Text>
       {criteriaList.map((item) => (
         <View key={item.key} style={styles.itemRow}>
-          <Text
-            style={[
-              styles.bullet,
-              item.isMet ? styles.bulletMet : styles.bulletUnmet,
-            ]}
-          >
-            {item.isMet ? "✓" : "•"}
-          </Text>
+          <Feather
+            name={item.isMet ? "check" : "circle"}
+            size={14}
+            color={item.isMet ? colors.success : colors.textMuted}
+            accessible={false}
+          />
           <Text
             style={[
               styles.itemText,
@@ -63,12 +62,12 @@ export const PasswordRequirements: React.FC<PasswordRequirementsProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#162032",
+    backgroundColor: colors.surfaceContainerLow,
     padding: spacing.md,
-    borderRadius: 8,
+    borderRadius: borderRadius.DEFAULT,
     marginBottom: spacing.md,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.outlineVariant,
   },
   title: {
     color: colors.textSecondary,
@@ -79,19 +78,8 @@ const styles = StyleSheet.create({
   itemRow: {
     flexDirection: "row",
     alignItems: "center",
+    gap: spacing.sm,
     marginTop: 2,
-  },
-  bullet: {
-    fontSize: typography.fontSizes.sm,
-    fontWeight: typography.fontWeights.bold,
-    marginRight: spacing.xs,
-    width: 16,
-  },
-  bulletMet: {
-    color: colors.success,
-  },
-  bulletUnmet: {
-    color: colors.textMuted,
   },
   itemText: {
     fontSize: typography.fontSizes.xs,

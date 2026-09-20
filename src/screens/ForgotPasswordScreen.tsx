@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
+import { Feather } from "@expo/vector-icons";
 import { useForgotPassword } from "../hooks/useForgotPassword";
 import { RegisterFormInput } from "../components/register/RegisterFormInput";
 import { OtpDigitInput } from "../components/otp/OtpDigitInput";
@@ -86,7 +87,7 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
           accessibilityLabel="Volver"
           accessibilityRole="button"
         >
-          <Text style={styles.backArrow}>←</Text>
+          <Feather name="arrow-left" size={24} color={colors.textPrimary} accessible={false} />
         </TouchableOpacity>
         <Text style={styles.title}>Recuperar Contraseña</Text>
       </View>
@@ -112,22 +113,23 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
                 isDone && styles.progressDotDone,
               ]}
             >
-              <Text
-                style={[
-                  styles.progressDotText,
-                  (isActive || isDone) && styles.progressDotTextActive,
-                ]}
-              >
-                {isDone ? "✓" : item.step}
-              </Text>
+              {isDone ? (
+                <Feather name="check" size={14} color="#FFFFFF" accessible={false} />
+              ) : (
+                <Text
+                  style={[
+                    styles.progressDotText,
+                    (isActive || isDone) && styles.progressDotTextActive,
+                  ]}
+                >
+                  {item.step}
+                </Text>
+              )}
             </View>
             <View style={styles.progressBar} />
           </View>
         );
       })}
-      <Text style={styles.progressLabel}>
-        Paso {step} de 3
-      </Text>
     </View>
   );
 
@@ -166,7 +168,7 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
         testID="btn-send-code"
       >
         {isSubmitting ? (
-          <ActivityIndicator color={colors.textPrimary} testID="loading-spinner" />
+          <ActivityIndicator color={colors.onPrimary} testID="loading-spinner" />
         ) : (
           <Text style={styles.actionButtonText}>Enviar Código</Text>
         )}
@@ -226,7 +228,7 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
         testID="btn-verify-code"
       >
         {isSubmitting ? (
-          <ActivityIndicator color={colors.textPrimary} testID="loading-spinner" />
+          <ActivityIndicator color={colors.onPrimary} testID="loading-spinner" />
         ) : (
           <Text style={styles.actionButtonText}>Verificar</Text>
         )}
@@ -293,7 +295,7 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
         testID="btn-reset-password"
       >
         {isSubmitting ? (
-          <ActivityIndicator color={colors.textPrimary} testID="loading-spinner" />
+          <ActivityIndicator color={colors.onPrimary} testID="loading-spinner" />
         ) : (
           <Text style={styles.actionButtonText}>Guardar Contraseña</Text>
         )}
@@ -303,7 +305,7 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar style="light" />
+      <StatusBar style="dark" />
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.container}
@@ -318,15 +320,6 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
           {step === 1 && renderStep1()}
           {step === 2 && renderStep2()}
           {step === 3 && renderStep3()}
-
-          <TouchableOpacity
-            style={styles.loginLinkRow}
-            onPress={onNavigateToLogin}
-            testID="btn-back-to-login"
-            accessibilityRole="button"
-          >
-            <Text style={styles.loginLinkText}>← Volver a Iniciar Sesión</Text>
-          </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -347,7 +340,6 @@ const styles = StyleSheet.create({
     paddingRight: spacing.sm,
     paddingVertical: spacing.xs,
   },
-  backArrow: { color: colors.textPrimary, fontSize: 24, fontWeight: "bold" },
   title: {
     color: colors.textPrimary,
     fontSize: typography.fontSizes.lg,
@@ -374,7 +366,7 @@ const styles = StyleSheet.create({
     height: 28,
     borderRadius: 14,
     borderWidth: 1.5,
-    borderColor: colors.border,
+    borderColor: colors.outlineVariant,
     backgroundColor: colors.cardBackground,
     justifyContent: "center",
     alignItems: "center",
@@ -397,15 +389,8 @@ const styles = StyleSheet.create({
   progressBar: {
     flex: 1,
     height: 2,
-    backgroundColor: colors.border,
+    backgroundColor: colors.outlineVariant,
     marginHorizontal: spacing.xs,
-  },
-  progressLabel: {
-    color: colors.textSecondary,
-    fontSize: typography.fontSizes.xs,
-    fontWeight: "600",
-    marginLeft: spacing.sm,
-    minWidth: 70,
   },
   stepTitle: {
     color: colors.textPrimary,
@@ -420,18 +405,21 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   contactHighlight: {
-    color: colors.primaryLight,
+    color: colors.primary,
     fontWeight: "600",
   },
   serverErrorBox: {
-    backgroundColor: "rgba(239, 68, 68, 0.15)",
+    backgroundColor: colors.errorContainer,
     borderColor: colors.error,
     borderWidth: 1,
     padding: spacing.md,
     borderRadius: borderRadius.md,
     marginBottom: spacing.md,
   },
-  serverErrorText: { color: colors.error, fontSize: typography.fontSizes.sm },
+  serverErrorText: {
+    color: colors.onErrorContainer,
+    fontSize: typography.fontSizes.sm,
+  },
   actionButton: {
     backgroundColor: colors.primary,
     height: 50,
@@ -443,7 +431,7 @@ const styles = StyleSheet.create({
   },
   actionButtonDisabled: { opacity: 0.5 },
   actionButtonText: {
-    color: colors.textPrimary,
+    color: colors.onPrimary,
     fontSize: typography.fontSizes.md,
     fontWeight: "700",
   },
@@ -458,16 +446,6 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSizes.xs,
     textAlign: "center",
     marginBottom: spacing.xs,
-  },
-  loginLinkRow: {
-    alignItems: "center",
-    marginTop: spacing.lg,
-    paddingVertical: spacing.xs,
-  },
-  loginLinkText: {
-    color: colors.primaryLight,
-    fontSize: typography.fontSizes.sm,
-    fontWeight: "600",
   },
 });
 

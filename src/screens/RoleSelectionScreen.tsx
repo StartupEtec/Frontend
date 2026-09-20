@@ -6,13 +6,13 @@ import { RoleCard } from "../components/role/RoleCard";
 import { RoleSelectionFooter } from "../components/role/RoleSelectionFooter";
 import { useRoleSelection } from "../hooks/useRoleSelection";
 import { RoleSelectionScreenProps } from "../types/role";
-import { colors, spacing, typography } from "../theme/tokens";
+import { colors, spacing, borderRadius, typography } from "../theme/tokens";
 
 const CLIENT_ROLE = {
   role: "client" as const,
   title: "Cliente",
   description: "Encontrá profesionales verificados para todo lo que necesités.",
-  iconName: "🔍",
+  iconName: "search",
   accentColor: colors.clientAccent,
 };
 
@@ -21,7 +21,7 @@ const WORKER_ROLE = {
   title: "Trabajador",
   description:
     "Publicá tus servicios, elegí tus horarios y cobrá con seguridad.",
-  iconName: "🛠️",
+  iconName: "tool",
   accentColor: colors.workerAccent,
 };
 
@@ -39,7 +39,7 @@ export const RoleSelectionScreen: React.FC<RoleSelectionScreenProps> = ({
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar style="light" />
+      <StatusBar style="dark" />
       <View style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.title}>Elegí tu Rol</Text>
@@ -107,24 +107,24 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   errorBox: {
-    backgroundColor: "rgba(239, 68, 68, 0.15)",
+    backgroundColor: colors.errorContainer,
     borderColor: colors.error,
     borderWidth: 1,
     padding: spacing.md,
-    borderRadius: 12,
+    borderRadius: borderRadius.md,
     marginBottom: spacing.md,
   },
   errorText: {
-    color: colors.error,
+    color: colors.onErrorContainer,
     fontSize: typography.fontSizes.sm,
     textAlign: "center",
   },
   savingOverlay: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: "rgba(15, 23, 42, 0.6)",
+    backgroundColor: colors.overlayBackground,
     justifyContent: "center",
     alignItems: "center",
-    borderRadius: 12,
+    borderRadius: borderRadius.md,
     marginTop: spacing.xl,
   },
 });

@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
+import { Feather } from "@expo/vector-icons";
 import { AuthWelcomeScreenProps } from "../types/auth";
 import {
   colors,
@@ -18,12 +19,12 @@ export const AuthWelcomeScreen: React.FC<AuthWelcomeScreenProps> = ({
 }) => {
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar style="light" />
+      <StatusBar style="dark" />
 
       <View style={styles.container}>
         {/* Branding Icon / Logo Placeholder */}
         <View style={styles.logoBadge}>
-          <Text style={styles.logoIcon}>✨</Text>
+          <Feather name="link" size={36} color={colors.primary} />
         </View>
 
         <Text style={styles.title}>Te Damos la Bienvenida</Text>
@@ -58,7 +59,8 @@ export const AuthWelcomeScreen: React.FC<AuthWelcomeScreenProps> = ({
           testID="btn-replay-onboarding"
           activeOpacity={0.7}
         >
-          <Text style={styles.replayText}>🔄 Ver presentación de nuevo</Text>
+          <Feather name="refresh-cw" size={14} color={colors.textMuted} accessible={false} />
+          <Text style={styles.replayText}>Ver presentación de nuevo</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -86,10 +88,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: spacing.lg,
     borderWidth: 1,
-    borderColor: colors.border,
-  },
-  logoIcon: {
-    fontSize: 36,
+    borderColor: colors.cardStroke,
   },
   title: {
     color: colors.textPrimary,
@@ -102,8 +101,8 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     fontSize: typography.fontSizes.md,
     textAlign: "center",
-    lineHeight: 22,
-    marginBottom: spacing.xxl,
+    lineHeight: 24,
+    marginBottom: spacing.xl,
     maxWidth: 320,
   },
   actionsContainer: {
@@ -123,21 +122,24 @@ const styles = StyleSheet.create({
     ...shadows.button,
   },
   primaryButtonText: {
-    color: "#FFFFFF",
+    color: colors.onPrimary,
     fontSize: typography.fontSizes.md,
     fontWeight: typography.fontWeights.bold,
   },
   secondaryButton: {
-    backgroundColor: "transparent",
-    borderWidth: 1.5,
-    borderColor: colors.border,
+    backgroundColor: colors.surfaceContainerLow,
+    borderWidth: 1,
+    borderColor: colors.outline,
   },
   secondaryButtonText: {
-    color: colors.textPrimary,
+    color: colors.primary,
     fontSize: typography.fontSizes.md,
     fontWeight: typography.fontWeights.semibold,
   },
   replayButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xs,
     paddingVertical: spacing.xs,
     paddingHorizontal: spacing.md,
   },

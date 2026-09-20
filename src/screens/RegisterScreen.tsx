@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
+import { Feather } from "@expo/vector-icons";
 import { useRegisterForm } from "../hooks/useRegisterForm";
 import { RegisterFormInput } from "../components/register/RegisterFormInput";
 import { PasswordRequirements } from "../components/register/PasswordRequirements";
@@ -52,7 +53,7 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar style="light" />
+      <StatusBar style="dark" />
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.container}
@@ -70,7 +71,7 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
                 accessibilityLabel="Volver atrás"
                 accessibilityRole="button"
               >
-                <Text style={styles.backArrow}>←</Text>
+                <Feather name="arrow-left" size={24} color={colors.textPrimary} accessible={false} />
               </TouchableOpacity>
               <Text style={styles.title}>Crear Cuenta</Text>
             </View>
@@ -177,7 +178,7 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
           >
             {isSubmitting ? (
               <ActivityIndicator
-                color={colors.textPrimary}
+                color={colors.onPrimary}
                 testID="loading-spinner"
               />
             ) : (
@@ -216,7 +217,6 @@ const styles = StyleSheet.create({
     paddingRight: spacing.xs,
     paddingVertical: spacing.xs,
   },
-  backArrow: { color: colors.textPrimary, fontSize: 24, fontWeight: "bold" },
   title: {
     color: colors.textPrimary,
     fontSize: typography.fontSizes.xl,
@@ -228,14 +228,17 @@ const styles = StyleSheet.create({
     marginTop: spacing.xs,
   },
   serverErrorBox: {
-    backgroundColor: "rgba(239, 68, 68, 0.15)",
+    backgroundColor: colors.errorContainer,
     borderColor: colors.error,
     borderWidth: 1,
     padding: spacing.md,
     borderRadius: borderRadius.md,
     marginBottom: spacing.md,
   },
-  serverErrorText: { color: colors.error, fontSize: typography.fontSizes.sm },
+  serverErrorText: {
+    color: colors.onErrorContainer,
+    fontSize: typography.fontSizes.sm,
+  },
   submitButton: {
     backgroundColor: colors.primary,
     height: 50,
@@ -247,7 +250,7 @@ const styles = StyleSheet.create({
   },
   submitButtonDisabled: { opacity: 0.5 },
   submitButtonText: {
-    color: colors.textPrimary,
+    color: colors.onPrimary,
     fontSize: typography.fontSizes.md,
     fontWeight: "700",
   },
@@ -261,7 +264,7 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSizes.sm,
   },
   loginLink: {
-    color: colors.primaryLight,
+    color: colors.primary,
     fontSize: typography.fontSizes.sm,
     fontWeight: "700",
   },

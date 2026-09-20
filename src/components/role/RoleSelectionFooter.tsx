@@ -1,5 +1,6 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
+import { Feather } from "@expo/vector-icons";
 import { colors, spacing, borderRadius, typography } from "../../theme/tokens";
 
 interface RoleSelectionFooterProps {
@@ -10,7 +11,12 @@ export const RoleSelectionFooter: React.FC<RoleSelectionFooterProps> = ({
   testID,
 }) => (
   <View style={styles.container} testID={testID}>
-    <Text style={styles.icon}>ℹ️</Text>
+    <Feather
+      name="info"
+      size={16}
+      color={colors.primary}
+      accessible={false}
+    />
     <Text style={styles.text}>
       Podés cambiar tu rol en cualquier momento desde Configuración
     </Text>
@@ -21,22 +27,19 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: colors.cardBackground,
+    backgroundColor: colors.surfaceContainerLow,
     padding: spacing.md,
     borderRadius: borderRadius.md,
     marginTop: spacing.lg,
     borderLeftWidth: 3,
     borderLeftColor: colors.primary,
   },
-  icon: {
-    fontSize: 16,
-    marginRight: spacing.sm,
-  },
   text: {
     color: colors.textSecondary,
     fontSize: typography.fontSizes.sm,
     flex: 1,
     lineHeight: 20,
+    marginLeft: spacing.sm,
   },
 });
 

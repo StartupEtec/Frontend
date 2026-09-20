@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import * as DocumentPicker from "expo-document-picker";
+import { Feather } from "@expo/vector-icons";
 import { colors, spacing, borderRadius, typography } from "../../theme/tokens";
 
 interface DniPhotoPickerProps {
@@ -20,6 +21,7 @@ interface DniPhotoPickerProps {
   onBackRemoved: () => void;
   frontError?: string;
   backError?: string;
+  accentColor?: string;
 }
 
 export const DniPhotoPicker: React.FC<DniPhotoPickerProps> = ({
@@ -31,6 +33,7 @@ export const DniPhotoPicker: React.FC<DniPhotoPickerProps> = ({
   onBackRemoved,
   frontError,
   backError,
+  accentColor = colors.primary,
 }) => {
   const [visible, setVisible] = useState(false);
   const [activeTarget, setActiveTarget] = useState<"front" | "back" | null>(
@@ -104,7 +107,11 @@ export const DniPhotoPicker: React.FC<DniPhotoPickerProps> = ({
         {/* Columna Frente */}
         <View style={styles.column}>
           <TouchableOpacity
-            style={[styles.slot, frontUri && styles.slotFilled]}
+            style={[
+              styles.slot,
+              frontUri && styles.slotFilled,
+              frontUri && { borderColor: accentColor },
+            ]}
             onPress={() => openPicker("front")}
             activeOpacity={0.7}
           >
@@ -112,7 +119,7 @@ export const DniPhotoPicker: React.FC<DniPhotoPickerProps> = ({
               <Image source={{ uri: frontUri }} style={styles.slotImage} />
             ) : (
               <View style={styles.slotPlaceholder}>
-                <Text style={styles.slotIcon}>🪪</Text>
+                <Feather name="credit-card" size={24} color={accentColor} accessible={false} />
                 <Text style={styles.slotText}>Frente</Text>
               </View>
             )}
@@ -127,7 +134,11 @@ export const DniPhotoPicker: React.FC<DniPhotoPickerProps> = ({
         {/* Columna Dorso */}
         <View style={styles.column}>
           <TouchableOpacity
-            style={[styles.slot, backUri && styles.slotFilled]}
+            style={[
+              styles.slot,
+              backUri && styles.slotFilled,
+              backUri && { borderColor: accentColor },
+            ]}
             onPress={() => openPicker("back")}
             activeOpacity={0.7}
           >
@@ -135,7 +146,7 @@ export const DniPhotoPicker: React.FC<DniPhotoPickerProps> = ({
               <Image source={{ uri: backUri }} style={styles.slotImage} />
             ) : (
               <View style={styles.slotPlaceholder}>
-                <Text style={styles.slotIcon}>🪪</Text>
+                <Feather name="credit-card" size={24} color={accentColor} accessible={false} />
                 <Text style={styles.slotText}>Dorso</Text>
               </View>
             )}
@@ -160,18 +171,18 @@ export const DniPhotoPicker: React.FC<DniPhotoPickerProps> = ({
           <View style={styles.sheet}>
             <Text style={styles.sheetTitle}>Seleccionar documento</Text>
             <TouchableOpacity style={styles.option} onPress={handleCamera}>
-              <Text style={styles.optionIcon}>📷</Text>
+              <Feather name="camera" size={20} color={accentColor} accessible={false} />
               <Text style={styles.optionText}>Cámara</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.option}
               onPress={handleGooglePhotos}
             >
-              <Text style={styles.optionIcon}>🖼️</Text>
+              <Feather name="image" size={20} color={accentColor} accessible={false} />
               <Text style={styles.optionText}>Google Fotos</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.option} onPress={handleGallery}>
-              <Text style={styles.optionIcon}>📁</Text>
+              <Feather name="folder" size={20} color={accentColor} accessible={false} />
               <Text style={styles.optionText}>Galería</Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -216,14 +227,13 @@ const styles = StyleSheet.create({
     height: 100,
     borderRadius: borderRadius.md,
     borderWidth: 1.5,
-    borderColor: colors.border,
+    borderColor: colors.cardStroke,
     borderStyle: "dashed",
-    backgroundColor: colors.cardBackground,
+    backgroundColor: colors.surfaceContainerLow,
     overflow: "hidden",
   },
   slotFilled: {
     borderStyle: "solid",
-    borderColor: colors.primary,
   },
   slotImage: {
     width: "100%",
@@ -233,10 +243,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-  },
-  slotIcon: {
-    fontSize: 24,
-    marginBottom: 4,
+    gap: spacing.xs,
   },
   slotText: {
     fontSize: typography.fontSizes.xs,
@@ -258,7 +265,7 @@ const styles = StyleSheet.create({
   },
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: colors.overlayBackground,
     justifyContent: "flex-end",
   },
   sheet: {
@@ -278,15 +285,12 @@ const styles = StyleSheet.create({
   option: {
     flexDirection: "row",
     alignItems: "center",
+    gap: spacing.md,
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.md,
     borderRadius: borderRadius.md,
     marginBottom: spacing.xs,
-    backgroundColor: colors.background,
-  },
-  optionIcon: {
-    fontSize: 20,
-    marginRight: spacing.md,
+    backgroundColor: colors.surfaceContainerLow,
   },
   optionText: {
     color: colors.textPrimary,

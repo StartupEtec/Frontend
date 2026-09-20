@@ -17,12 +17,14 @@ import { UserRole } from "../types/role";
 import { useCompleteProfile } from "../hooks/useCompleteProfile";
 import { PhotoPicker } from "../components/profile/PhotoPicker";
 import { DniPhotoPicker } from "../components/profile/DniPhotoPicker";
+import { Feather } from "@expo/vector-icons";
 import {
   colors,
   spacing,
   borderRadius,
   typography,
   shadows,
+  roleAccent,
 } from "../theme/tokens";
 
 export interface CompleteProfileScreenProps {
@@ -91,6 +93,7 @@ interface CalendarGridProps {
   selectedDate: Date | null;
   maxDate: Date;
   onSelect: (date: Date) => void;
+  accentColor: string;
 }
 
 const CalendarGrid: React.FC<CalendarGridProps> = ({
@@ -99,6 +102,7 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
   selectedDate,
   maxDate,
   onSelect,
+  accentColor,
 }) => {
   const daysInMonth = getDaysInMonth(year, month);
   const firstDay = getFirstDayOfMonth(year, month);
@@ -145,7 +149,11 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
             return (
               <TouchableOpacity
                 key={day}
-                style={[calStyles.cell, isSelected && calStyles.cellSelected]}
+                style={[
+                  calStyles.cell,
+                  isSelected && calStyles.cellSelected,
+                  isSelected && { backgroundColor: accentColor },
+                ]}
                 onPress={() => !isFuture && onSelect(date)}
                 disabled={isFuture}
                 activeOpacity={0.6}
@@ -173,12 +181,14 @@ interface YearPickerProps {
   selectedYear: number;
   maxYear: number;
   onSelect: (year: number) => void;
+  accentColor: string;
 }
 
 const YearPicker: React.FC<YearPickerProps> = ({
   selectedYear,
   maxYear,
   onSelect,
+  accentColor,
 }) => {
   const years = useMemo(() => {
     const arr: number[] = [];
@@ -216,7 +226,7 @@ const YearPicker: React.FC<YearPickerProps> = ({
             <TouchableOpacity
               style={[
                 yearStyles.yearItem,
-                isActive && yearStyles.yearItemActive,
+                isActive && { backgroundColor: accentColor },
               ]}
               onPress={() => onSelect(y)}
               activeOpacity={0.6}
@@ -280,8 +290,7 @@ export const CompleteProfileScreen: React.FC<CompleteProfileScreenProps> = ({
     }
   }, [status, toastOpacity, onGoBack]);
 
-  const accentColor =
-    role === "worker" ? colors.workerAccent : colors.clientAccent;
+  const accentColor = roleAccent(role);
 
   const selectedDate = formData.dateOfBirthDate;
   const displayDate = selectedDate ? formatDate(selectedDate) : "";
@@ -338,14 +347,14 @@ export const CompleteProfileScreen: React.FC<CompleteProfileScreenProps> = ({
             accessibilityLabel="Volver"
             accessibilityRole="button"
           >
-            <Text style={styles.backArrow}>←</Text>
+            <Feather name="arrow-left" size={24} color={accentColor} accessible={false} />
           </TouchableOpacity>
-        </View>
-
-        <View style={styles.header}>
           <Text style={[styles.title, { color: accentColor }]}>
             Completá tu perfil
           </Text>
+        </View>
+
+        <View style={styles.header}>
           <Text style={styles.subtitle}>
             Necesitamos algunos datos para verificar tu identidad.
           </Text>
@@ -364,6 +373,7 @@ export const CompleteProfileScreen: React.FC<CompleteProfileScreenProps> = ({
             onPhotoSelected={(uri) => updateField("selfieUri", uri)}
             onPhotoRemoved={() => updateField("selfieUri", null)}
             error={errors.selfieUri}
+            accentColor={accentColor}
           />
         </View>
 
@@ -376,6 +386,7 @@ export const CompleteProfileScreen: React.FC<CompleteProfileScreenProps> = ({
           onBackRemoved={() => updateField("dniBackUri", null)}
           frontError={errors.dniFrontUri}
           backError={errors.dniBackUri}
+          accentColor={accentColor}
         />
 
         <View style={styles.field}>
@@ -393,7 +404,7 @@ export const CompleteProfileScreen: React.FC<CompleteProfileScreenProps> = ({
             >
               {displayDate || "Seleccionar fecha"}
             </Text>
-            <Text style={styles.dateIcon}>📅</Text>
+            <Feather name="calendar" size={20} color={accentColor} accessible={false} />
           </TouchableOpacity>
           {errors.dateOfBirth && (
             <Text style={styles.errorText}>{errors.dateOfBirth}</Text>
@@ -429,11 +440,12 @@ export const CompleteProfileScreen: React.FC<CompleteProfileScreenProps> = ({
               </View>
 
               {showYearPicker ? (
-                <YearPicker
-                  selectedYear={calMonth.year}
-                  maxYear={maxDate.getFullYear()}
-                  onSelect={handleYearSelect}
-                />
+<YearPicker
+                selectedYear={calMonth.year}
+                maxYear={maxDate.getFullYear()}
+                onSelect={handleYearSelect}
+                accentColor={accentColor}
+              />
               ) : (
                 <>
                   <View style={calStyles.monthNav}>
@@ -441,31 +453,35 @@ export const CompleteProfileScreen: React.FC<CompleteProfileScreenProps> = ({
                       onPress={() => navigateMonth(-1)}
                       style={calStyles.navBtn}
                     >
-                      <Text style={calStyles.navBtnText}>‹</Text>
+                      <Feather name="chevron-left" size={24} color={accentColor} accessible={false} />
                     </TouchableOpacity>
                     <TouchableOpacity
                       onPress={() => setShowYearPicker(true)}
                       activeOpacity={0.6}
                     >
-                      <Text style={calStyles.monthTitle}>
-                        {MONTH_NAMES[calMonth.month]} {calMonth.year} ▾
-                      </Text>
+                      <View style={calStyles.monthTitleRow}>
+                        <Text style={calStyles.monthTitle}>
+                          {MONTH_NAMES[calMonth.month]} {calMonth.year}
+                        </Text>
+                        <Feather name="chevron-down" size={14} color={colors.textSecondary} accessible={false} />
+                      </View>
                     </TouchableOpacity>
                     <TouchableOpacity
                       onPress={() => navigateMonth(1)}
                       style={calStyles.navBtn}
                     >
-                      <Text style={calStyles.navBtnText}>›</Text>
+                      <Feather name="chevron-right" size={24} color={accentColor} accessible={false} />
                     </TouchableOpacity>
                   </View>
 
                   <CalendarGrid
-                    year={calMonth.year}
-                    month={calMonth.month}
-                    selectedDate={selectedDate}
-                    maxDate={maxDate}
-                    onSelect={handleDateSelect}
-                  />
+                year={calMonth.year}
+                month={calMonth.month}
+                selectedDate={selectedDate}
+                maxDate={maxDate}
+                onSelect={handleDateSelect}
+                accentColor={accentColor}
+              />
                 </>
               )}
             </View>
@@ -516,10 +532,10 @@ const calStyles = StyleSheet.create({
   navBtn: {
     padding: spacing.sm,
   },
-  navBtnText: {
-    color: colors.primary,
-    fontSize: 28,
-    fontWeight: "300",
+  monthTitleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xs,
   },
   monthTitle: {
     color: colors.textPrimary,
@@ -541,7 +557,6 @@ const calStyles = StyleSheet.create({
     alignItems: "center",
   },
   cellSelected: {
-    backgroundColor: colors.primary,
     borderRadius: borderRadius.sm,
   },
   dayLabel: {
@@ -554,7 +569,7 @@ const calStyles = StyleSheet.create({
     fontSize: typography.fontSizes.sm,
   },
   dayTextSelected: {
-    color: "#FFFFFF",
+    color: colors.onPrimary,
     fontWeight: typography.fontWeights.semibold,
   },
   dayTextDisabled: {
@@ -582,15 +597,12 @@ const yearStyles = StyleSheet.create({
     alignItems: "center",
     borderRadius: borderRadius.sm,
   },
-  yearItemActive: {
-    backgroundColor: colors.primary,
-  },
   yearText: {
     color: colors.textPrimary,
     fontSize: typography.fontSizes.md,
   },
   yearTextActive: {
-    color: "#FFFFFF",
+    color: colors.onPrimary,
     fontWeight: typography.fontWeights.semibold,
   },
 });
@@ -611,6 +623,7 @@ const styles = StyleSheet.create({
   topBar: {
     flexDirection: "row",
     alignItems: "center",
+    gap: spacing.sm,
     marginTop: spacing.xl,
     marginBottom: spacing.sm,
   },
@@ -618,18 +631,13 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.xs,
     paddingRight: spacing.sm,
   },
-  backArrow: {
-    color: colors.textPrimary,
-    fontSize: 24,
-    fontWeight: "bold",
-  },
   header: {
     marginBottom: spacing.lg,
   },
   title: {
+    flex: 1,
     fontSize: typography.fontSizes.xxl,
     fontWeight: typography.fontWeights.bold,
-    marginBottom: spacing.sm,
   },
   subtitle: {
     fontSize: typography.fontSizes.md,
@@ -637,7 +645,7 @@ const styles = StyleSheet.create({
     lineHeight: typography.fontSizes.md * 1.5,
   },
   errorBanner: {
-    backgroundColor: "rgba(239, 68, 68, 0.15)",
+    backgroundColor: colors.errorContainer,
     borderWidth: 1,
     borderColor: colors.error,
     borderRadius: borderRadius.md,
@@ -645,7 +653,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   errorBannerText: {
-    color: colors.error,
+    color: colors.onErrorContainer,
     fontSize: typography.fontSizes.sm,
     textAlign: "center",
   },
@@ -659,9 +667,9 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs,
   },
   dateButton: {
-    backgroundColor: colors.cardBackground,
+    backgroundColor: colors.surfaceContainerLow,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.inputBorder,
     borderRadius: borderRadius.md,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
@@ -680,9 +688,6 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSizes.md,
     color: colors.textSecondary,
   },
-  dateIcon: {
-    fontSize: 20,
-  },
   errorText: {
     color: colors.error,
     fontSize: typography.fontSizes.xs,
@@ -699,7 +704,7 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   saveButtonText: {
-    color: "#FFFFFF",
+    color: colors.onPrimary,
     fontSize: typography.fontSizes.md,
     fontWeight: typography.fontWeights.semibold,
   },
@@ -709,7 +714,7 @@ const styles = StyleSheet.create({
   },
   dateOverlayBackdrop: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: colors.overlayBackground,
   },
   dateModal: {
     backgroundColor: colors.cardBackground,
@@ -724,7 +729,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    borderBottomColor: colors.outlineVariant,
   },
   dateModalTitle: {
     color: colors.textPrimary,
@@ -736,7 +741,7 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSizes.md,
   },
   successToast: {
-    backgroundColor: "rgba(34, 197, 94, 0.95)",
+    backgroundColor: colors.success,
     borderRadius: borderRadius.md,
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.lg,
@@ -744,7 +749,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   successToastText: {
-    color: "#FFFFFF",
+    color: colors.onPrimary,
     fontSize: typography.fontSizes.md,
     fontWeight: typography.fontWeights.semibold,
   },
@@ -756,12 +761,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   ageInfoAdult: {
-    backgroundColor: "rgba(34, 197, 94, 0.12)",
+    backgroundColor: colors.successContainer,
     borderColor: colors.success,
   },
   ageInfoMinor: {
-    backgroundColor: "rgba(249, 115, 22, 0.12)",
-    borderColor: "#F97316",
+    backgroundColor: colors.warningContainer,
+    borderColor: colors.warning,
   },
   ageInfoText: {
     fontSize: typography.fontSizes.xs,
@@ -771,6 +776,6 @@ const styles = StyleSheet.create({
     color: colors.success,
   },
   ageInfoTextMinor: {
-    color: "#F97316",
+    color: colors.warning,
   },
 });

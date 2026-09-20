@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
+import { Feather } from "@expo/vector-icons";
 import { OtpVerificationScreenProps } from "../types/auth";
 import { useOtpVerification } from "../hooks/useOtpVerification";
 import { OtpDigitInput } from "../components/otp/OtpDigitInput";
@@ -73,7 +74,7 @@ export const OtpVerificationScreen: React.FC<OtpVerificationScreenProps> = ({
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar style="light" />
+      <StatusBar style="dark" />
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.flex}
@@ -92,11 +93,11 @@ export const OtpVerificationScreen: React.FC<OtpVerificationScreenProps> = ({
               accessibilityLabel="Volver al registro"
               accessibilityRole="button"
             >
-              <Text style={styles.backArrow}>←</Text>
+              <Feather name="arrow-left" size={24} color={colors.textPrimary} accessible={false} />
             </TouchableOpacity>
 
             <View style={styles.iconBadge}>
-              <Text style={styles.iconEmoji}>🔐</Text>
+              <Feather name="lock" size={32} color={colors.primary} accessible={false} />
             </View>
 
             <Text style={styles.title}>Verificar tu identidad</Text>
@@ -150,7 +151,7 @@ export const OtpVerificationScreen: React.FC<OtpVerificationScreenProps> = ({
           >
             {isVerifying ? (
               <ActivityIndicator
-                color={colors.textPrimary}
+                color={colors.onPrimary}
                 testID="otp-loading-spinner"
               />
             ) : (
@@ -223,23 +224,17 @@ const styles = StyleSheet.create({
     paddingRight: spacing.sm,
     marginBottom: spacing.md,
   },
-  backArrow: {
-    color: colors.textPrimary,
-    fontSize: 24,
-    fontWeight: "bold",
-  },
   iconBadge: {
     width: 72,
     height: 72,
     borderRadius: 36,
     backgroundColor: colors.cardBackground,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.cardStroke,
     justifyContent: "center",
     alignItems: "center",
     marginBottom: spacing.md,
   },
-  iconEmoji: { fontSize: 36 },
   title: {
     color: colors.textPrimary,
     fontSize: typography.fontSizes.xl,
@@ -254,7 +249,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   contactHighlight: {
-    color: colors.primaryLight,
+    color: colors.primary,
     fontWeight: "600",
   },
 
@@ -270,7 +265,7 @@ const styles = StyleSheet.create({
 
   // Error
   errorBanner: {
-    backgroundColor: "rgba(239, 68, 68, 0.12)",
+    backgroundColor: colors.errorContainer,
     borderColor: colors.error,
     borderWidth: 1,
     borderRadius: borderRadius.md,
@@ -278,7 +273,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   errorText: {
-    color: colors.error,
+    color: colors.onErrorContainer,
     fontSize: typography.fontSizes.sm,
     textAlign: "center",
   },
@@ -295,7 +290,7 @@ const styles = StyleSheet.create({
   },
   verifyButtonDisabled: { opacity: 0.45 },
   verifyButtonText: {
-    color: colors.textPrimary,
+    color: colors.onPrimary,
     fontSize: typography.fontSizes.md,
     fontWeight: "700",
   },
@@ -307,7 +302,7 @@ const styles = StyleSheet.create({
     minHeight: 24,
   },
   resendActive: {
-    color: colors.primaryLight,
+    color: colors.primary,
     fontSize: typography.fontSizes.sm,
     fontWeight: "700",
     textDecorationLine: "underline",

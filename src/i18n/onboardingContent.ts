@@ -40,7 +40,7 @@ export const onboardingSlidesEs: OnboardingSlideData[] = [
   {
     id: "slide_4_welcome",
     badgeText: "Únete Hoy",
-    badgeColor: colors.primaryLight,
+    badgeColor: colors.primary,
     title: "¿Listo para Comenzar la Experiencia?",
     highlightText: "Experiencia",
     description:
