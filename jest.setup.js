@@ -20,13 +20,6 @@ jest.mock('expo-file-system', () => ({
   ),
 }));
 
-jest.mock('expo-modules-core', () => ({
-  EventEmitter: class MockEventEmitter {},
-  requireNativeModule: () => ({}),
-  requireOptionalNativeModule: () => null,
-  Platform: { OS: 'android' },
-}));
-
 jest.mock('expo-document-picker', () => ({
   getDocumentAsync: jest.fn(() =>
     Promise.resolve({ canceled: true, assets: [] })
@@ -38,5 +31,14 @@ jest.mock('@react-native-community/datetimepicker', () => {
   return {
     __esModule: true,
     default: (props) => React.createElement('DateTimePicker', props),
+  };
+});
+
+jest.mock('@expo/vector-icons', () => {
+  const React = require('react');
+  const { Text } = require('react-native');
+  return {
+    Feather: ({ name, testID, ...props }) =>
+      React.createElement(Text, { ...props, testID }, name),
   };
 });

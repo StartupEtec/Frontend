@@ -40,10 +40,13 @@ export interface RegisterApiPayload {
 }
 
 export interface RegisterApiResponse {
-  success: boolean;
   message: string;
-  userId?: string;
-  requireOtpVerification?: boolean;
+  user: {
+    id: string;
+    email: string;
+    phone: string;
+    is_verified: boolean;
+  };
 }
 
 export interface RegisterScreenProps {

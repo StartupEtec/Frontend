@@ -4,13 +4,14 @@
 
 export interface OtpVerifyApiPayload {
   /** The 6-digit OTP code entered by the user */
-  code: string;
-  /** Email or phone that received the OTP */
-  contact: string;
+  otp_code: string;
+  /** Email that received the OTP (canonicalizado a E.164 en el backend) */
+  email?: string;
+  /** Phone that received the OTP */
+  phone?: string;
 }
 
 export interface OtpVerifyApiResponse {
-  success: boolean;
   message: string;
   /** JWT access token issued upon successful verification */
   accessToken?: string;
@@ -25,17 +26,19 @@ export interface OtpVerifyApiResponse {
 }
 
 export interface OtpResendApiPayload {
-  contact: string;
+  /** Email que recibió el OTP */
+  email?: string;
+  /** Phone que recibió el OTP */
+  phone?: string;
 }
 
 export interface OtpResendApiResponse {
-  success: boolean;
   message: string;
 }
 
 export type OtpErrorCode =
-  | "INVALID_CODE"
-  | "CODE_EXPIRED"
-  | "MAX_ATTEMPTS_EXCEEDED"
-  | "SERVER_ERROR"
-  | "NETWORK_ERROR";
+  | "VALIDATION_ERROR"
+  | "INVALID_OTP"
+  | "EXPIRED_OTP"
+  | "OTP_ATTEMPTS_EXCEEDED"
+  | "TOO_MANY_REQUESTS";

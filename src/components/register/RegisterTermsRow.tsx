@@ -1,5 +1,6 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { Feather } from "@expo/vector-icons";
 import { colors, spacing, borderRadius, typography } from "../../theme/tokens";
 
 interface RegisterTermsRowProps {
@@ -27,7 +28,9 @@ export const RegisterTermsRow: React.FC<RegisterTermsRowProps> = ({
           accessibilityRole="checkbox"
           accessibilityState={{ checked: acceptedTerms }}
         >
-          {acceptedTerms && <Text style={styles.checkmark}>✓</Text>}
+          {acceptedTerms && (
+            <Feather name="check" size={14} color={colors.onPrimary} accessible={false} />
+          )}
         </TouchableOpacity>
         <Text style={styles.termsText}>Acepto los </Text>
         <TouchableOpacity onPress={onOpenTermsModal} testID="btn-open-terms">
@@ -62,17 +65,12 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
     borderColor: colors.primary,
   },
-  checkmark: {
-    color: colors.textPrimary,
-    fontSize: 12,
-    fontWeight: "bold",
-  },
   termsText: {
     color: colors.textSecondary,
     fontSize: typography.fontSizes.sm,
   },
   termsLink: {
-    color: colors.primaryLight,
+    color: colors.primary,
     fontSize: typography.fontSizes.sm,
     fontWeight: typography.fontWeights.semibold,
   },
