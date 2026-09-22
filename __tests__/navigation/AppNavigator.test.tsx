@@ -3,6 +3,7 @@ import { render, fireEvent, waitFor } from "@testing-library/react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AppNavigator } from "../../src/navigation/AppNavigator";
 import { RoleProvider } from "../../src/context/RoleContext";
+import { userService } from "../../src/services/userService";
 
 jest.mock("@react-native-async-storage/async-storage", () => ({
   getItem: jest.fn(),
@@ -12,14 +13,18 @@ jest.mock("@react-native-async-storage/async-storage", () => ({
   multiRemove: jest.fn(),
 }));
 
+jest.mock("../../src/services/userService", () => ({
+  userService: { switchRole: jest.fn() },
+}));
+
 describe("AppNavigator Flow Integration", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
   const mockStorage = (overrides: Record<string, string | null> = {}) => {
-    (AsyncStorage.getItem as jest.Mock).mockImplementation((key: string) =>
-      overrides[key] ?? null,
+    (AsyncStorage.getItem as jest.Mock).mockImplementation(
+      (key: string) => overrides[key] ?? null,
     );
   };
 
@@ -218,6 +223,12 @@ describe("AppNavigator Flow Integration", () => {
       expect(getByText("Pantalla Principal")).toBeTruthy();
     });
 
+    fireEvent.press(getByTestId("btn-account"));
+
+    await waitFor(() => {
+      expect(getByText("Mi Perfil")).toBeTruthy();
+    });
+
     fireEvent.press(getByTestId("btn-logout"));
 
     await waitFor(() => {
@@ -232,5 +243,67 @@ describe("AppNavigator Flow Integration", () => {
     expect(AsyncStorage.removeItem).toHaveBeenCalledWith(
       "@startup_app/selected_role",
     );
+  });
+
+  it("switches role from the account screen (Mi Perfil)", async () => {
+    mockStorage({
+      "@startup_app/onboarding_completed": "true",
+      "@startup_app/access_token": "access-token-123",
+      "@startup_app/user_id": "user-123",
+      "@startup_app/last_role_user-123": "client",
+    });
+
+    (userService.switchRole as jest.Mock).mockResolvedValue({
+      new_role: "worker",
+      previous_role: "client",
+      accessToken: "worker-token-abc",
+      timestamp: "2026-01-01T00:00:00.000Z",
+    });
+
+    const { getByText, getByTestId } = render(
+      <RoleProvider>
+        <AppNavigator />
+      </RoleProvider>,
+    );
+
+    await waitFor(() => {
+      expect(getByText("Pantalla Principal")).toBeTruthy();
+    });
+    expect(getByText("Modo Cliente")).toBeTruthy();
+
+    fireEvent.press(getByTestId("btn-account"));
+
+    await waitFor(() => {
+      expect(getByText("Mi Perfil")).toBeTruthy();
+    });
+
+    fireEvent.press(getByTestId("btn-switch-role"));
+
+    await waitFor(() => {
+      expect(getByTestId("role-switch-modal")).toBeTruthy();
+    });
+
+    fireEvent.press(getByTestId("role-option-worker"));
+
+    await waitFor(
+      () => {
+        expect(getByText(/Estás en modo Trabajador/)).toBeTruthy();
+      },
+      { timeout: 6000 },
+    );
+
+    expect(userService.switchRole).toHaveBeenCalledWith("user-123", {
+      role: "worker",
+    });
+    expect(AsyncStorage.setItem).toHaveBeenCalledWith(
+      "@startup_app/last_role_user-123",
+      "worker",
+    );
+
+    fireEvent.press(getByTestId("btn-profile-back"));
+
+    await waitFor(() => {
+      expect(getByText("Modo Trabajador")).toBeTruthy();
+    });
   });
 });
