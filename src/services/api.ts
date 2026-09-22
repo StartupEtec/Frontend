@@ -31,11 +31,58 @@ export const API_CONFIG = {
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
+interface RefreshTokenResponse {
+  accessToken: string;
+  refreshToken: string;
+}
+
+/**
+ * Try to refresh the access token using the stored refresh token.
+ * Stores the new tokens on success. Returns null on any failure so the
+ * caller can surface the original 401 error.
+ */
+async function refreshTokens(): Promise<RefreshTokenResponse | null> {
+  const refreshToken = await tokenStorage.getRefreshToken();
+  if (!refreshToken) return null;
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(
+    () => controller.abort(),
+    API_CONFIG.DEFAULT_TIMEOUT,
+  );
+
+  try {
+    const response = await fetch(`${API_CONFIG.BASE_URL}/auth/refresh-token`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        "ngrok-skip-browser-warning": "true",
+      },
+      body: JSON.stringify({ refreshToken }),
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
+
+    if (!response.ok) return null;
+    const data = (await response.json()) as RefreshTokenResponse;
+    if (!data.accessToken || !data.refreshToken) return null;
+
+    await tokenStorage.setAccessToken(data.accessToken);
+    await tokenStorage.setRefreshToken(data.refreshToken);
+    return data;
+  } catch {
+    clearTimeout(timeoutId);
+    return null;
+  }
+}
+
 export async function apiClient<T>(
   endpoint: string,
   options: RequestInit = {},
   retries = API_CONFIG.MAX_RETRIES,
   retryDelay = API_CONFIG.INITIAL_RETRY_DELAY,
+  allowRefresh = true,
 ): Promise<T> {
   const url = endpoint.startsWith("http")
     ? endpoint
@@ -80,6 +127,18 @@ export async function apiClient<T>(
       if (response.status >= 500 && retries > 0) {
         await delay(retryDelay);
         return apiClient<T>(endpoint, options, retries - 1, retryDelay * 2);
+      }
+
+      // Auto-refresh the access token once on 401, then retry the request
+      if (
+        response.status === 401 &&
+        allowRefresh &&
+        !endpoint.endsWith("/auth/refresh-token")
+      ) {
+        const refreshed = await refreshTokens();
+        if (refreshed) {
+          return apiClient<T>(endpoint, options, retries, retryDelay, false);
+        }
       }
 
       throw new ApiError(errorMessage, response.status, errorCode);

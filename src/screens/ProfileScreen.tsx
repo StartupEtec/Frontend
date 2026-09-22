@@ -5,12 +5,12 @@ import {
   TouchableOpacity,
   ScrollView,
   StyleSheet,
-  Animated,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { UserRole } from "../types/role";
 import { RoleSwitchModal } from "../components/RoleSwitchModal";
+import { SuccessToast } from "../components/SuccessToast";
 import { useRoleSwitch } from "../hooks/useRoleSwitch";
 import {
   colors,
@@ -36,32 +36,21 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
   const [modalVisible, setModalVisible] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
-  const toastOpacity = useRef(new Animated.Value(0)).current;
+  const pendingRoleChange = useRef<{
+    newRole: UserRole;
+    newToken: string;
+  } | null>(null);
 
-  const { isSubmitting, error, handleSwitchRole, clearError } =
-    useRoleSwitch(currentRole, (newRole, newToken) => {
+  const { isSubmitting, error, handleSwitchRole, clearError } = useRoleSwitch(
+    currentRole,
+    (newRole, newToken) => {
       setModalVisible(false);
+      pendingRoleChange.current = { newRole, newToken };
       const label = newRole === "client" ? "Cliente" : "Trabajador";
       setSuccessMessage(`Cambiaste a rol de ${label}`);
       setShowSuccess(true);
-      toastOpacity.setValue(0);
-      Animated.sequence([
-        Animated.timing(toastOpacity, {
-          toValue: 1,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-        Animated.delay(2500),
-        Animated.timing(toastOpacity, {
-          toValue: 0,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-      ]).start(() => {
-        setShowSuccess(false);
-        onRoleChanged(newRole, newToken);
-      });
-    });
+    },
+  );
 
   useEffect(() => {
     if (modalVisible) {
@@ -96,9 +85,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
         >
           <View style={styles.avatarSection}>
             <View style={[styles.avatarCircle, { borderColor: accentColor }]}>
-              <Text style={styles.avatarIcon}>
-                {isClient ? "🔍" : "🛠️"}
-              </Text>
+              <Text style={styles.avatarIcon}>{isClient ? "🔍" : "🛠️"}</Text>
             </View>
             <Text style={styles.greeting}>Hola,</Text>
             <Text style={styles.currentRoleLabel}>
@@ -183,12 +170,19 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
         </ScrollView>
 
         {showSuccess && (
-          <Animated.View
-            style={[styles.successToast, { opacity: toastOpacity }]}
+          <SuccessToast
+            visible={showSuccess}
+            message={successMessage}
             testID="success-toast"
-          >
-            <Text style={styles.successToastText}>{successMessage}</Text>
-          </Animated.View>
+            onFinish={() => {
+              setShowSuccess(false);
+              const pending = pendingRoleChange.current;
+              if (pending) {
+                pendingRoleChange.current = null;
+                onRoleChanged(pending.newRole, pending.newToken);
+              }
+            }}
+          />
         )}
 
         <RoleSwitchModal
@@ -320,22 +314,6 @@ const styles = StyleSheet.create({
     color: colors.error,
     fontSize: typography.fontSizes.md,
     fontWeight: "600",
-  },
-  successToast: {
-    position: "absolute",
-    bottom: spacing.xl,
-    left: spacing.md,
-    right: spacing.md,
-    backgroundColor: "rgba(34, 197, 94, 0.95)",
-    borderRadius: borderRadius.md,
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.lg,
-    alignItems: "center",
-  },
-  successToastText: {
-    color: "#FFFFFF",
-    fontSize: typography.fontSizes.md,
-    fontWeight: typography.fontWeights.semibold,
   },
 });
 

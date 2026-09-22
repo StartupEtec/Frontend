@@ -17,6 +17,8 @@ import { RoleSelectionScreen } from "../screens/RoleSelectionScreen";
 import { CompleteProfileScreen } from "../screens/CompleteProfileScreen";
 import { LoginScreen } from "../screens/LoginScreen";
 import { ForgotPasswordScreen } from "../screens/ForgotPasswordScreen";
+import { ProfileScreen } from "../screens/ProfileScreen";
+import { NavBar } from "../components/NavBar";
 import { ASYNC_STORAGE_ONBOARDING_KEY } from "../i18n/onboardingContent";
 import { tokenStorage } from "../services/tokenStorage";
 import {
@@ -31,8 +33,7 @@ import { useRoleContext } from "../context/RoleContext";
 
 const profileKey = (userId: string) =>
   `@startup_app/profile_completed_${userId}`;
-const lastRoleKey = (userId: string) =>
-  `@startup_app/last_role_${userId}`;
+const lastRoleKey = (userId: string) => `@startup_app/last_role_${userId}`;
 
 export type AppRoute =
   | "Onboarding"
@@ -43,6 +44,7 @@ export type AppRoute =
   | "VerifyOTP"
   | "RoleSelection"
   | "CompleteProfile"
+  | "Profile"
   | "Main";
 
 export const AppNavigator: React.FC = () => {
@@ -53,7 +55,8 @@ export const AppNavigator: React.FC = () => {
   const [otpOrigin, setOtpOrigin] = useState<"Register" | "Login">("Register");
   const [selectedRole, setSelectedRole] = useState<UserRole>("client");
   const [profileCompleted, setProfileCompleted] = useState<boolean>(false);
-  const [justCompletedProfile, setJustCompletedProfile] = useState<boolean>(false);
+  const [justCompletedProfile, setJustCompletedProfile] =
+    useState<boolean>(false);
 
   useEffect(() => {
     const checkInitialRoute = async () => {
@@ -123,8 +126,7 @@ export const AppNavigator: React.FC = () => {
     setCurrentRoute("Main");
   };
 
-  const handleToggleRole = async () => {
-    const newRole: UserRole = selectedRole === "client" ? "worker" : "client";
+  const handleRoleChanged = async (newRole: UserRole, newToken: string) => {
     setSelectedRole(newRole);
     await setRole(newRole);
     const userId = await tokenStorage.getUserId();
@@ -199,11 +201,7 @@ export const AppNavigator: React.FC = () => {
   }
 
   if (currentRoute === "RoleSelection") {
-    return (
-      <RoleSelectionScreen
-        onRoleSelected={handleRoleSelected}
-      />
-    );
+    return <RoleSelectionScreen onRoleSelected={handleRoleSelected} />;
   }
 
   if (currentRoute === "CompleteProfile") {
@@ -240,63 +238,47 @@ export const AppNavigator: React.FC = () => {
     );
   }
 
+  if (currentRoute === "Profile") {
+    return (
+      <ProfileScreen
+        currentRole={selectedRole}
+        onRoleChanged={handleRoleChanged}
+        onGoBack={() => setCurrentRoute("Main")}
+        onLogout={handleLogout}
+      />
+    );
+  }
+
   const isClient = selectedRole === "client";
   const accentColor = roleAccent(selectedRole);
 
   return (
     <SafeAreaView style={styles.mainContainer}>
-      {/* Role toggle text — top-left */}
-      <TouchableOpacity
-        style={styles.roleToggle}
-        onPress={handleToggleRole}
-        testID="btn-role-toggle"
-        accessibilityLabel={`Modo ${isClient ? "Cliente" : "Trabajador"}. Tocá para cambiar.`}
-        accessibilityRole="button"
-      >
-        <Text
-          style={[styles.roleToggleText, { color: accentColor }]}
-        >
-          {isClient ? "Modo Cliente" : "Modo Trabajador"}
-        </Text>
-      </TouchableOpacity>
-
-      {/* Dev button — top-right, visible when profile is completed */}
-      {profileCompleted && (
-        <View style={styles.devCorner}>
-          <TouchableOpacity
-            onPress={() => setCurrentRoute("CompleteProfile")}
-            style={styles.devButton}
-            testID="btn-dev-complete-profile"
-          >
-            <Feather name="edit-2" size={16} color={colors.textPrimary} accessible={false} />
-          </TouchableOpacity>
-        </View>
-      )}
+      <NavBar
+        currentRole={selectedRole}
+        onNavigateToProfile={() => setCurrentRoute("Profile")}
+      />
 
       <View style={styles.centerContainer}>
         <View style={styles.welcomeRow}>
-          <Feather name="home" size={22} color={accentColor} accessible={false} />
+          <Feather
+            name="home"
+            size={22}
+            color={accentColor}
+            accessible={false}
+          />
           <Text style={styles.welcomeText}>Pantalla Principal</Text>
         </View>
-        {!justCompletedProfile && (
+        {!profileCompleted && !justCompletedProfile && (
           <TouchableOpacity
             style={[styles.profileButton, { backgroundColor: accentColor }]}
             onPress={() => setCurrentRoute("CompleteProfile")}
           >
-            <Text style={styles.profileButtonText}>Terminar de completar perfil ahora</Text>
+            <Text style={styles.profileButtonText}>
+              Terminar de completar perfil ahora
+            </Text>
           </TouchableOpacity>
         )}
-        <TouchableOpacity
-          style={styles.resetButton}
-          onPress={handleLogout}
-          testID="btn-logout"
-          accessibilityRole="button"
-        >
-          <View style={styles.resetRow}>
-            <Feather name="log-out" size={14} color={colors.textMuted} accessible={false} />
-            <Text style={styles.resetText}>Cerrar Sesión</Text>
-          </View>
-        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
@@ -321,24 +303,6 @@ const styles = StyleSheet.create({
     fontWeight: typography.fontWeights.semibold,
     textAlign: "center",
   },
-  resetRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.xs,
-  },
-  resetButton: {
-    marginTop: 20,
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    backgroundColor: colors.surfaceContainerHigh,
-    borderRadius: borderRadius.md,
-    borderWidth: 1,
-    borderColor: colors.outlineVariant,
-  },
-  resetText: {
-    color: colors.textMuted,
-    fontSize: 14,
-  },
   profileButton: {
     marginTop: 16,
     paddingHorizontal: 24,
@@ -353,33 +317,6 @@ const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
     backgroundColor: colors.background,
-  },
-  roleToggle: {
-    position: "absolute",
-    top: 44,
-    left: 16,
-    zIndex: 10,
-  },
-  roleToggleText: {
-    fontSize: typography.fontSizes.sm,
-    fontWeight: typography.fontWeights.bold,
-    textDecorationLine: "underline",
-  },
-  devCorner: {
-    position: "absolute",
-    top: 40,
-    right: 16,
-    zIndex: 10,
-  },
-  devButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: colors.cardBackground,
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: colors.outlineVariant,
   },
 });
 
