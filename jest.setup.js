@@ -18,6 +18,31 @@ jest.mock('expo-file-system', () => ({
   getInfoAsync: jest.fn(() =>
     Promise.resolve({ exists: true, size: 1024 })
   ),
+  uploadAsync: jest.fn(() =>
+    Promise.resolve({ status: 201, body: JSON.stringify({ message: 'OK', url: '/uploads/profiles/mock.jpg' }) })
+  ),
+  FileSystemUploadType: { BINARY_CONTENT: 0, MULTIPART: 1 },
+  UploadType: { BINARY_CONTENT: 0, MULTIPART: 1 },
+  File: jest.fn().mockImplementation((uri) => ({
+    uri,
+    upload: jest.fn(() =>
+      Promise.resolve({ status: 201, body: JSON.stringify({ message: 'OK', url: '/uploads/profiles/mock.jpg' }), headers: {} })
+    ),
+  })),
+}));
+
+jest.mock('expo-file-system/legacy', () => ({
+  cacheDirectory: 'file:///cache/',
+  getInfoAsync: jest.fn(() =>
+    Promise.resolve({ exists: true, size: 1024 })
+  ),
+  uploadAsync: jest.fn(() =>
+    Promise.resolve({ status: 201, body: JSON.stringify({ message: 'OK', url: '/uploads/profiles/mock.jpg' }) })
+  ),
+  copyAsync: jest.fn(() => Promise.resolve()),
+  makeDirectoryAsync: jest.fn(() => Promise.resolve()),
+  deleteAsync: jest.fn(() => Promise.resolve()),
+  FileSystemUploadType: { BINARY_CONTENT: 0, MULTIPART: 1 },
 }));
 
 jest.mock('expo-document-picker', () => ({

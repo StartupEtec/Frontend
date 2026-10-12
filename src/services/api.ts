@@ -29,30 +29,25 @@ export const API_CONFIG = {
   INITIAL_RETRY_DELAY: 500, // ms
 };
 
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
-interface RefreshTokenResponse {
-  accessToken: string;
-  refreshToken: string;
+/** Origen sin el sufijo /api/v1 (para mostrar archivos de /uploads/...). */
+export function apiOrigin(): string {
+  return API_CONFIG.BASE_URL.replace(/\/api\/v1\/?$/, "");
 }
 
-/**
- * Try to refresh the access token using the stored refresh token.
- * Stores the new tokens on success. Returns null on any failure so the
- * caller can surface the original 401 error.
- */
-async function refreshTokens(): Promise<RefreshTokenResponse | null> {
-  const refreshToken = await tokenStorage.getRefreshToken();
-  if (!refreshToken) return null;
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-  const controller = new AbortController();
-  const timeoutId = setTimeout(
-    () => controller.abort(),
-    API_CONFIG.DEFAULT_TIMEOUT,
-  );
+// Refresh de sesión compartido (una sola llamada en vuelo aunque varios
+// requests reciban 401/403 a la vez). El backend rota el refresh token.
+let refreshPromise: Promise<boolean> | null = null;
 
+async function doRefresh(): Promise<boolean> {
   try {
-    const response = await fetch(`${API_CONFIG.BASE_URL}/auth/refresh-token`, {
+    const [refreshToken, userId] = await Promise.all([
+      tokenStorage.getRefreshToken(),
+      tokenStorage.getUserId(),
+    ]);
+    if (!refreshToken || !userId) return false;
+    const res = await fetch(`${API_CONFIG.BASE_URL}/auth/refresh-token`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -60,21 +55,47 @@ async function refreshTokens(): Promise<RefreshTokenResponse | null> {
         "ngrok-skip-browser-warning": "true",
       },
       body: JSON.stringify({ refreshToken }),
-      signal: controller.signal,
     });
-    clearTimeout(timeoutId);
-
-    if (!response.ok) return null;
-    const data = (await response.json()) as RefreshTokenResponse;
-    if (!data.accessToken || !data.refreshToken) return null;
-
-    await tokenStorage.setAccessToken(data.accessToken);
-    await tokenStorage.setRefreshToken(data.refreshToken);
-    return data;
+    if (!res.ok) {
+      // Refresh inválido/expirado/revocado: no hay sesión que salvar.
+      if (res.status === 401 || res.status === 403) {
+        await tokenStorage.clear();
+      }
+      return false;
+    }
+    const data = (await res.json()) as {
+      accessToken?: string;
+      refreshToken?: string;
+    };
+    if (!data.accessToken || !data.refreshToken) return false;
+    await tokenStorage.saveAuth({
+      accessToken: data.accessToken,
+      refreshToken: data.refreshToken,
+      userId,
+    });
+    return true;
   } catch {
-    clearTimeout(timeoutId);
-    return null;
+    return false;
   }
+}
+
+/**
+ * Renueva la sesión si es necesario. Devuelve true si hay access token
+ * utilizable después del intento (ya sea porque se refrescó o porque otro
+ * llamado concurrente lo refrescó).
+ */
+export function refreshSession(): Promise<boolean> {
+  if (!refreshPromise) {
+    refreshPromise = doRefresh().finally(() => {
+      refreshPromise = null;
+    });
+  }
+  return refreshPromise;
+}
+
+/** Los endpoints de auth nunca intentan refresh (evita loops). */
+function isAuthEndpoint(endpoint: string): boolean {
+  return endpoint.startsWith("/auth/");
 }
 
 export async function apiClient<T>(
@@ -82,7 +103,7 @@ export async function apiClient<T>(
   options: RequestInit = {},
   retries = API_CONFIG.MAX_RETRIES,
   retryDelay = API_CONFIG.INITIAL_RETRY_DELAY,
-  allowRefresh = true,
+  retriedAfterRefresh = false,
 ): Promise<T> {
   const url = endpoint.startsWith("http")
     ? endpoint
@@ -95,12 +116,20 @@ export async function apiClient<T>(
   );
 
   const token = await tokenStorage.getAccessToken();
+  const isFormData =
+    typeof FormData !== "undefined" && options.body instanceof FormData;
   const headers: Record<string, string> = {
-    "Content-Type": "application/json",
     Accept: "application/json",
     "ngrok-skip-browser-warning": "true",
     ...((options.headers as Record<string, string>) || {}),
   };
+  if (!isFormData && !headers["Content-Type"]) {
+    headers["Content-Type"] = "application/json";
+  }
+  if (isFormData) {
+    // fetch genera el boundary de multipart automáticamente
+    delete headers["Content-Type"];
+  }
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
@@ -123,22 +152,35 @@ export async function apiClient<T>(
         data.message || data.error || `Error HTTP ${response.status}`;
       const errorCode = data.error || "SERVER_ERROR";
 
+      // Access token expirado o inválido (el backend usa 401 sin token y
+      // 403 con token inválido/expirado): refrescar una vez y reintentar.
+      // No importa cuánto tiempo pasó desde el login.
+      if (
+        (response.status === 401 || response.status === 403) &&
+        !retriedAfterRefresh &&
+        !isAuthEndpoint(endpoint)
+      ) {
+        const refreshed = await refreshSession();
+        if (refreshed) {
+          return apiClient<T>(endpoint, options, retries, retryDelay, true);
+        }
+        throw new ApiError(
+          "Sesión expirada. Volvé a iniciar sesión.",
+          response.status,
+          "SESSION_EXPIRED",
+        );
+      }
+
       // Retry on transient 5xx server errors if retries remaining
       if (response.status >= 500 && retries > 0) {
         await delay(retryDelay);
-        return apiClient<T>(endpoint, options, retries - 1, retryDelay * 2);
-      }
-
-      // Auto-refresh the access token once on 401, then retry the request
-      if (
-        response.status === 401 &&
-        allowRefresh &&
-        !endpoint.endsWith("/auth/refresh-token")
-      ) {
-        const refreshed = await refreshTokens();
-        if (refreshed) {
-          return apiClient<T>(endpoint, options, retries, retryDelay, false);
-        }
+        return apiClient<T>(
+          endpoint,
+          options,
+          retries - 1,
+          retryDelay * 2,
+          retriedAfterRefresh,
+        );
       }
 
       throw new ApiError(errorMessage, response.status, errorCode);

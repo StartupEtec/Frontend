@@ -148,6 +148,50 @@ describe("useRoleSwitch", () => {
     );
   });
 
+  it("shows orange warning with countdown and switches anyway when certification is pending", async () => {
+    jest.useFakeTimers();
+    try {
+      (userService.switchRole as jest.Mock).mockResolvedValueOnce({
+        new_role: "worker",
+        previous_role: "client",
+        accessToken: "new-jwt-token",
+        certification_pending: true,
+        timestamp: "2026-01-01T00:00:00Z",
+      });
+
+      const { result } = renderHook(() =>
+        useRoleSwitch("client", mockOnRoleChanged),
+      );
+
+      await act(async () => {
+        await result.current.handleSwitchRole("worker");
+      });
+
+      expect(result.current.error).toBeNull();
+      expect(result.current.countdown).toBe(3);
+      expect(result.current.warning).toContain("(Cambiando 3…)");
+
+      await act(async () => {
+        jest.advanceTimersByTime(1000);
+      });
+      expect(result.current.countdown).toBe(2);
+      expect(result.current.warning).toContain("(Cambiando 2…)");
+
+      await act(async () => {
+        jest.advanceTimersByTime(2000);
+      });
+
+      expect(tokenStorage.setAccessToken).toHaveBeenCalledWith(
+        "new-jwt-token",
+      );
+      expect(mockOnRoleChanged).toHaveBeenCalledWith("worker", "new-jwt-token");
+      expect(result.current.warning).toBeNull();
+      expect(result.current.isSubmitting).toBe(false);
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
   it("clearError clears the error state", async () => {
     (userService.switchRole as jest.Mock).mockRejectedValueOnce(
       new Error("fail"),

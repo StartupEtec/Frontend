@@ -8,5 +8,6 @@ export interface SwitchRoleResponse {
   new_role: UserRole;
   previous_role: UserRole;
   accessToken: string;
+  certification_pending?: boolean;
   timestamp: string;
 }

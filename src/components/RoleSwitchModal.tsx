@@ -22,6 +22,7 @@ interface RoleSwitchModalProps {
   currentRole: UserRole;
   isSubmitting: boolean;
   error: string | null;
+  warning?: string | null;
   onSelectRole: (role: UserRole) => void;
   onDismiss: () => void;
 }
@@ -31,6 +32,7 @@ export const RoleSwitchModal: React.FC<RoleSwitchModalProps> = ({
   currentRole,
   isSubmitting,
   error,
+  warning,
   onSelectRole,
   onDismiss,
 }) => {
@@ -162,6 +164,12 @@ export const RoleSwitchModal: React.FC<RoleSwitchModalProps> = ({
             </View>
           )}
 
+          {warning && (
+            <View style={styles.warningBox} testID="role-switch-warning">
+              <Text style={styles.warningText}>{warning}</Text>
+            </View>
+          )}
+
           {isSubmitting && (
             <View style={styles.loadingRow} testID="role-switch-loading">
               <ActivityIndicator color={colors.primaryLight} size="small" />
@@ -266,6 +274,19 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: colors.error,
+    fontSize: typography.fontSizes.sm,
+    textAlign: "center",
+  },
+  warningBox: {
+    backgroundColor: colors.warningContainer,
+    borderColor: colors.warning,
+    borderWidth: 1,
+    borderRadius: borderRadius.md,
+    padding: spacing.md,
+    marginTop: spacing.md,
+  },
+  warningText: {
+    color: colors.warning,
     fontSize: typography.fontSizes.sm,
     textAlign: "center",
   },

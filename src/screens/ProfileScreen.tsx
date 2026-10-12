@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -36,21 +36,18 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
   const [modalVisible, setModalVisible] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
-  const pendingRoleChange = useRef<{
-    newRole: UserRole;
-    newToken: string;
-  } | null>(null);
 
-  const { isSubmitting, error, handleSwitchRole, clearError } = useRoleSwitch(
-    currentRole,
-    (newRole, newToken) => {
+  const { isSubmitting, error, warning, handleSwitchRole, clearError, clearWarning } =
+    useRoleSwitch(currentRole, (newRole, newToken) => {
       setModalVisible(false);
-      pendingRoleChange.current = { newRole, newToken };
+      // Actualización optimista: el modo cambia ya mismo; el toast es solo
+      // confirmación visual y no bloquea la UI (antes esperaba ~3s a que
+      // terminara la animación para avisar al navegador).
+      onRoleChanged(newRole, newToken);
       const label = newRole === "client" ? "Cliente" : "Trabajador";
       setSuccessMessage(`Cambiaste a rol de ${label}`);
       setShowSuccess(true);
-    },
-  );
+    });
 
   useEffect(() => {
     if (modalVisible) {
@@ -176,11 +173,6 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
             testID="success-toast"
             onFinish={() => {
               setShowSuccess(false);
-              const pending = pendingRoleChange.current;
-              if (pending) {
-                pendingRoleChange.current = null;
-                onRoleChanged(pending.newRole, pending.newToken);
-              }
             }}
           />
         )}
@@ -190,8 +182,12 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
           currentRole={currentRole}
           isSubmitting={isSubmitting}
           error={error}
+          warning={warning}
           onSelectRole={handleSwitchRole}
-          onDismiss={() => setModalVisible(false)}
+          onDismiss={() => {
+            clearWarning();
+            setModalVisible(false);
+          }}
         />
       </View>
     </SafeAreaView>

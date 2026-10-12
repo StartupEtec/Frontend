@@ -8,7 +8,6 @@ import {
   Modal,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import * as DocumentPicker from "expo-document-picker";
 import { Feather } from "@expo/vector-icons";
 import { colors, spacing, borderRadius, typography } from "../../theme/tokens";
 
@@ -45,7 +44,7 @@ export const PhotoPicker: React.FC<PhotoPickerProps> = ({
     }
   };
 
-  const handleGooglePhotos = async () => {
+  const handleGallery = async () => {
     setVisible(false);
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!perm.granted) return;
@@ -53,18 +52,6 @@ export const PhotoPicker: React.FC<PhotoPickerProps> = ({
       mediaTypes: ["images"],
       allowsEditing: true,
       quality: QUALITY,
-    });
-    if (!result.canceled && result.assets?.[0]) {
-      onPhotoSelected(result.assets[0].uri);
-    }
-  };
-
-  const handleGallery = async () => {
-    setVisible(false);
-    const result = await DocumentPicker.getDocumentAsync({
-      type: "image/*",
-      copyToCacheDirectory: true,
-      multiple: false,
     });
     if (!result.canceled && result.assets?.[0]) {
       onPhotoSelected(result.assets[0].uri);
@@ -108,13 +95,9 @@ export const PhotoPicker: React.FC<PhotoPickerProps> = ({
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.option}
-              onPress={handleGooglePhotos}
+              onPress={handleGallery}
             >
               <Feather name="image" size={20} color={accentColor} accessible={false} />
-              <Text style={styles.optionText}>Google Fotos</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.option} onPress={handleGallery}>
-              <Feather name="folder" size={20} color={accentColor} accessible={false} />
               <Text style={styles.optionText}>Galería</Text>
             </TouchableOpacity>
             <TouchableOpacity

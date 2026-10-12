@@ -6,6 +6,13 @@ jest.mock("../../src/services/userService", () => ({
   userService: { switchRole: jest.fn() },
 }));
 
+jest.mock("../../src/services/tokenStorage", () => ({
+  tokenStorage: {
+    getUserId: jest.fn().mockResolvedValue("user-123"),
+    setAccessToken: jest.fn(),
+  },
+}));
+
 describe("ProfileScreen", () => {
   const mockOnRoleChanged = jest.fn();
   const mockOnGoBack = jest.fn();
@@ -85,5 +92,32 @@ describe("ProfileScreen", () => {
     );
 
     expect(getAllByText("Trabajador").length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("notifies role change immediately without waiting for the toast", async () => {
+    const { userService } = jest.requireMock("../../src/services/userService");
+    (userService.switchRole as jest.Mock).mockResolvedValueOnce({
+      new_role: "worker",
+      previous_role: "client",
+      accessToken: "token-abc",
+      timestamp: "2026-01-01T00:00:00Z",
+    });
+
+    const { getByTestId } = render(
+      <ProfileScreen
+        currentRole="client"
+        onRoleChanged={mockOnRoleChanged}
+        onGoBack={mockOnGoBack}
+        onLogout={mockOnLogout}
+      />,
+    );
+
+    const { act } = jest.requireActual("@testing-library/react-native");
+    fireEvent.press(getByTestId("btn-switch-role"));
+    fireEvent.press(getByTestId("role-option-worker"));
+
+    await act(async () => {});
+
+    expect(mockOnRoleChanged).toHaveBeenCalledWith("worker", "token-abc");
   });
 });

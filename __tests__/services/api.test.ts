@@ -1,149 +1,97 @@
 import { apiClient, ApiError } from "../../src/services/api";
 import { tokenStorage } from "../../src/services/tokenStorage";
 
+jest.mock("../../src/services/tokenStorage", () => ({
+  tokenStorage: {
+    getAccessToken: jest.fn(),
+    getRefreshToken: jest.fn(),
+    getUserId: jest.fn(),
+    saveAuth: jest.fn(),
+    clear: jest.fn(),
+  },
+}));
+
+const jsonRes = (body: unknown, init: { ok: boolean; status?: number } = { ok: true }) => ({
+  ok: init.ok,
+  status: init.status ?? (init.ok ? 200 : 500),
+  headers: { get: () => "application/json" },
+  json: async () => body,
+});
+
 describe("apiClient", () => {
   const originalFetch = global.fetch;
 
   beforeEach(() => {
     jest.clearAllMocks();
+    (tokenStorage.getAccessToken as jest.Mock).mockResolvedValue("token-1");
+    (tokenStorage.getRefreshToken as jest.Mock).mockResolvedValue("refresh-1");
+    (tokenStorage.getUserId as jest.Mock).mockResolvedValue("user-123");
   });
 
   afterEach(() => {
     global.fetch = originalFetch;
-    jest.restoreAllMocks();
   });
 
   it("makes successful json request", async () => {
-    global.fetch = jest.fn().mockResolvedValueOnce({
-      ok: true,
-      headers: { get: () => "application/json" },
-      json: async () => ({ success: true, data: "test" }),
-    });
+    global.fetch = jest.fn().mockResolvedValueOnce(
+      jsonRes({ success: true, data: "test" }),
+    );
 
     const data = await apiClient<{ success: boolean; data: string }>("/test");
     expect(data).toEqual({ success: true, data: "test" });
   });
 
   it("throws ApiError on non-ok status code without retry when 400", async () => {
-    global.fetch = jest.fn().mockResolvedValueOnce({
-      ok: false,
-      status: 400,
-      headers: { get: () => "application/json" },
-      json: async () => ({ message: "Bad request", error: "BAD_REQUEST" }),
-    });
+    global.fetch = jest.fn().mockResolvedValueOnce(
+      jsonRes({ message: "Bad request", error: "BAD_REQUEST" }, { ok: false, status: 400 }),
+    );
 
     await expect(apiClient("/test")).rejects.toThrow(ApiError);
   });
 
-  it("refreshes the token and retries the request with it on 401", async () => {
-    jest
-      .spyOn(tokenStorage, "getRefreshToken")
-      .mockResolvedValue("refresh-token-1");
-    let storedAccess: string | null = null;
-    jest
-      .spyOn(tokenStorage, "getAccessToken")
-      .mockImplementation(async () => storedAccess);
-    const setAccessSpy = jest
-      .spyOn(tokenStorage, "setAccessToken")
-      .mockImplementation(async (token) => {
-        storedAccess = token;
-      });
-    const setRefreshSpy = jest
-      .spyOn(tokenStorage, "setRefreshToken")
-      .mockResolvedValue();
-
-    const fetchMock = jest
-      .fn()
-      .mockResolvedValueOnce({
-        ok: false,
-        status: 401,
-        headers: { get: () => "application/json" },
-        json: async () => ({
-          message: "Token de acceso invalido o expirado",
-          error: "INVALID_ACCESS_TOKEN",
-        }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        headers: { get: () => "application/json" },
-        json: async () => ({
-          accessToken: "new-access-token",
-          refreshToken: "new-refresh-token",
-        }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        headers: { get: () => "application/json" },
-        json: async () => ({ ok: true }),
-      });
-    global.fetch = fetchMock;
-
-    const data = await apiClient<{ ok: boolean }>("/secured/resource");
-    expect(data).toEqual({ ok: true });
-
-    const calls = fetchMock.mock.calls;
-    expect(calls).toHaveLength(3);
-    expect(calls[0][0]).toContain("/secured/resource");
-    expect(calls[1][0]).toContain("/auth/refresh-token");
-    expect(calls[2][0]).toContain("/secured/resource");
-
-    const retryHeaders = calls[2][1].headers as Record<string, string>;
-    expect(retryHeaders.Authorization).toBe("Bearer new-access-token");
-    expect(setAccessSpy).toHaveBeenCalledWith("new-access-token");
-    expect(setRefreshSpy).toHaveBeenCalledWith("new-refresh-token");
-  });
-
-  it("rejects with the original 401 when the refresh token is invalid", async () => {
-    jest
-      .spyOn(tokenStorage, "getRefreshToken")
-      .mockResolvedValue("refresh-token-1");
-
+  it("refreshes session and retries once on 403 expired token", async () => {
     global.fetch = jest
       .fn()
-      .mockResolvedValueOnce({
-        ok: false,
-        status: 401,
-        headers: { get: () => "application/json" },
-        json: async () => ({
-          message: "Token de acceso invalido o expirado",
-          error: "INVALID_ACCESS_TOKEN",
-        }),
-      })
-      .mockResolvedValueOnce({
-        ok: false,
-        status: 401,
-        headers: { get: () => "application/json" },
-        json: async () => ({
-          message: "Token de refresco inválido, expirado o ya utilizado",
-          error: "INVALID_REFRESH_TOKEN",
-        }),
-      });
+      .mockResolvedValueOnce(
+        jsonRes({ message: "Token inválido o expirado", error: "FORBIDDEN" }, { ok: false, status: 403 }),
+      )
+      .mockResolvedValueOnce(jsonRes({ accessToken: "a2", refreshToken: "r2" }))
+      .mockResolvedValueOnce(jsonRes({ ok: true }));
 
-    await expect(apiClient("/secured/resource")).rejects.toMatchObject({
-      statusCode: 401,
-      message: "Token de acceso invalido o expirado",
+    const data = await apiClient<{ ok: boolean }>("/users/user-123/client-profile");
+
+    expect(tokenStorage.saveAuth).toHaveBeenCalledWith({
+      accessToken: "a2",
+      refreshToken: "r2",
+      userId: "user-123",
     });
+    expect(data).toEqual({ ok: true });
+    const calls = (global.fetch as jest.Mock).mock.calls;
+    expect(calls[1][0]).toContain("/auth/refresh-token");
   });
 
-  it("rejects with 401 without trying to refresh when no refresh token exists", async () => {
-    jest.spyOn(tokenStorage, "getRefreshToken").mockResolvedValue(null);
+  it("throws SESSION_EXPIRED and clears storage when refresh fails", async () => {
+    global.fetch = jest
+      .fn()
+      .mockResolvedValueOnce(
+        jsonRes({ message: "Token inválido o expirado", error: "FORBIDDEN" }, { ok: false, status: 403 }),
+      )
+      .mockResolvedValueOnce(
+        jsonRes({ message: "Revocado", error: "INVALID_REFRESH_TOKEN" }, { ok: false, status: 401 }),
+      );
 
-    const fetchMock = jest.fn().mockResolvedValueOnce({
-      ok: false,
-      status: 401,
-      headers: { get: () => "application/json" },
-      json: async () => ({
-        message: "Token de acceso invalido o expirado",
-        error: "INVALID_ACCESS_TOKEN",
-      }),
+    await expect(apiClient("/users/user-123")).rejects.toMatchObject({
+      errorCode: "SESSION_EXPIRED",
     });
-    global.fetch = fetchMock;
+    expect(tokenStorage.clear).toHaveBeenCalled();
+  });
 
-    await expect(apiClient("/secured/resource")).rejects.toMatchObject({
-      statusCode: 401,
-    });
-    expect(fetchMock).toHaveBeenCalledTimes(1);
+  it("does not attempt refresh for /auth/* endpoints", async () => {
+    global.fetch = jest.fn().mockResolvedValueOnce(
+      jsonRes({ message: "Bad", error: "X" }, { ok: false, status: 401 }),
+    );
+
+    await expect(apiClient("/auth/login")).rejects.toThrow(ApiError);
+    expect(global.fetch).toHaveBeenCalledTimes(1);
   });
 });

@@ -3,6 +3,7 @@ import {
   View,
   Text,
   ScrollView,
+  TextInput,
   TouchableOpacity,
   Pressable,
   StyleSheet,
@@ -253,7 +254,7 @@ export const CompleteProfileScreen: React.FC<CompleteProfileScreenProps> = ({
   onProfileCompleted,
   onGoBack,
 }) => {
-  const { formData, errors, status, updateField, handleSave } =
+  const { formData, errors, status, loading, updateField, handleSave } =
     useCompleteProfile({ role, onCompleted: onProfileCompleted });
 
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -288,9 +289,18 @@ export const CompleteProfileScreen: React.FC<CompleteProfileScreenProps> = ({
         onProfileCompleted();
       });
     }
-  }, [status, toastOpacity, onGoBack]);
+  }, [status, toastOpacity, onProfileCompleted]);
 
   const accentColor = roleAccent(role);
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={accentColor} />
+        <Text style={styles.loadingText}>Cargando perfil...</Text>
+      </View>
+    );
+  }
 
   const selectedDate = formData.dateOfBirthDate;
   const displayDate = selectedDate ? formatDate(selectedDate) : "";
@@ -365,6 +375,26 @@ export const CompleteProfileScreen: React.FC<CompleteProfileScreenProps> = ({
             <Text style={styles.errorBannerText}>{errors.general}</Text>
           </View>
         )}
+
+        <View style={styles.field}>
+          <Text style={styles.label}>Nombre completo *</Text>
+          <TextInput
+            style={[
+              styles.nameInput,
+              errors.fullName && styles.nameInputError,
+            ]}
+            value={formData.fullName}
+            onChangeText={(value) => updateField("fullName", value)}
+            placeholder="Tu nombre"
+            placeholderTextColor={colors.textSecondary}
+            autoCapitalize="words"
+            maxLength={100}
+            testID="input-profile-name"
+          />
+          {errors.fullName && (
+            <Text style={styles.errorText}>{errors.fullName}</Text>
+          )}
+        </View>
 
         <View style={styles.field}>
           <Text style={styles.label}>Foto tuya *</Text>
@@ -680,6 +710,19 @@ const styles = StyleSheet.create({
   dateButtonError: {
     borderColor: colors.error,
   },
+  nameInput: {
+    backgroundColor: colors.surfaceContainerLow,
+    borderWidth: 1,
+    borderColor: colors.inputBorder,
+    borderRadius: borderRadius.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    fontSize: typography.fontSizes.md,
+    color: colors.textPrimary,
+  },
+  nameInputError: {
+    borderColor: colors.error,
+  },
   dateText: {
     fontSize: typography.fontSizes.md,
     color: colors.textPrimary,
@@ -777,5 +820,16 @@ const styles = StyleSheet.create({
   },
   ageInfoTextMinor: {
     color: colors.warning,
+  },
+  loadingContainer: {
+    flex: 1,
+    backgroundColor: colors.background,
+    justifyContent: "center",
+    alignItems: "center",
+    gap: spacing.sm,
+  },
+  loadingText: {
+    color: colors.textSecondary,
+    fontSize: typography.fontSizes.sm,
   },
 });
