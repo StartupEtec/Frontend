@@ -21,6 +21,7 @@ import { ProfileScreen } from "../screens/ProfileScreen";
 import { NavBar } from "../components/NavBar";
 import { ASYNC_STORAGE_ONBOARDING_KEY } from "../i18n/onboardingContent";
 import { tokenStorage } from "../services/tokenStorage";
+import { profileService } from "../services/profileService";
 import {
   colors,
   spacing,
@@ -92,7 +93,24 @@ export const AppNavigator: React.FC = () => {
       AsyncStorage.getItem(lastRoleKey(userId)),
     ]);
 
-    setProfileCompleted(profileDone === "true");
+    // La identidad es única (vale para ambos roles, con backfill automático
+    // en el backend). Si el servidor la marca completa, se da por completa
+    // aunque el flag local sea viejo; si está parcial o vacía, se pide
+    // completar una sola vez aunque el flag local diga "true" (era por rol).
+    let identityComplete = profileDone === "true";
+    try {
+      const identity = await profileService.getIdentity(userId);
+      if (identity) {
+        identityComplete = identity.is_complete;
+        await AsyncStorage.setItem(
+          profileKey(userId),
+          identity.is_complete ? "true" : "false",
+        );
+      }
+    } catch {
+      // Offline o sesión inválida: se usa el flag local como fallback.
+    }
+    setProfileCompleted(identityComplete);
 
     if (savedRole === "client" || savedRole === "worker") {
       setSelectedRole(savedRole);

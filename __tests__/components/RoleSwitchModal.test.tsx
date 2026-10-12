@@ -137,4 +137,41 @@ describe("RoleSwitchModal", () => {
 
     expect(getByTestId("role-switch-loading")).toBeTruthy();
   });
+
+  it("shows orange warning with countdown when warning is provided", () => {
+    const { getByTestId, getByText } = render(
+      <RoleSwitchModal
+        visible={true}
+        currentRole="client"
+        isSubmitting={true}
+        error={null}
+        warning="Tu perfil de trabajador aún no está aprobado por el equipo (Cambiando 3…)"
+        onSelectRole={mockOnSelectRole}
+        onDismiss={mockOnDismiss}
+      />,
+    );
+
+    expect(getByTestId("role-switch-warning")).toBeTruthy();
+    expect(
+      getByText(
+        "Tu perfil de trabajador aún no está aprobado por el equipo (Cambiando 3…)",
+      ),
+    ).toBeTruthy();
+  });
+
+  it("hides warning box when warning is null", () => {
+    const { queryByTestId } = render(
+      <RoleSwitchModal
+        visible={true}
+        currentRole="client"
+        isSubmitting={false}
+        error={null}
+        warning={null}
+        onSelectRole={mockOnSelectRole}
+        onDismiss={mockOnDismiss}
+      />,
+    );
+
+    expect(queryByTestId("role-switch-warning")).toBeNull();
+  });
 });

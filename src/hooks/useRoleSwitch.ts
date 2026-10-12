@@ -1,14 +1,20 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { UserRole } from "../types/role";
 import { userService } from "../services/userService";
 import { tokenStorage } from "../services/tokenStorage";
 import { ApiError } from "../services/api";
 
+/** Segundos del aviso naranja antes de cambiar igual de modo. */
+export const CERTIFICATION_COUNTDOWN_SECONDS = 3;
+
 interface UseRoleSwitchReturn {
   isSubmitting: boolean;
   error: string | null;
+  warning: string | null;
+  countdown: number;
   handleSwitchRole: (newRole: UserRole) => Promise<void>;
   clearError: () => void;
+  clearWarning: () => void;
 }
 
 export const useRoleSwitch = (
@@ -17,18 +23,49 @@ export const useRoleSwitch = (
 ): UseRoleSwitchReturn => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [countdown, setCountdown] = useState(0);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const pendingRef = useRef<{ newRole: UserRole; newToken: string } | null>(
+    null,
+  );
+
+  const stopTimer = useCallback(() => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    pendingRef.current = null;
+  }, []);
+
+  useEffect(() => stopTimer, [stopTimer]);
+
+  const finishSwitch = useCallback(async () => {
+    const pending = pendingRef.current;
+    pendingRef.current = null;
+    setCountdown(0);
+    if (!pending) {
+      setIsSubmitting(false);
+      return;
+    }
+    await tokenStorage.setAccessToken(pending.newToken);
+    setIsSubmitting(false);
+    onRoleChanged(pending.newRole, pending.newToken);
+  }, [onRoleChanged]);
 
   const handleSwitchRole = useCallback(
     async (newRole: UserRole) => {
       if (newRole === currentRole) return;
 
       setError(null);
+      setCountdown(0);
+      stopTimer();
       setIsSubmitting(true);
 
       try {
         const userId = await tokenStorage.getUserId();
         if (!userId) {
           setError("No se encontró el usuario. Iniciá sesión de nuevo.");
+          setIsSubmitting(false);
           return;
         }
 
@@ -36,7 +73,32 @@ export const useRoleSwitch = (
           role: newRole,
         });
 
+        if (result.certification_pending) {
+          // Aviso temporal (naranja): el modo cambia igual al terminar el
+          // temporizador.
+          pendingRef.current = {
+            newRole: result.new_role,
+            newToken: result.accessToken,
+          };
+          setCountdown(CERTIFICATION_COUNTDOWN_SECONDS);
+          timerRef.current = setInterval(() => {
+            setCountdown((c) => {
+              if (c <= 1) {
+                if (timerRef.current) {
+                  clearInterval(timerRef.current);
+                  timerRef.current = null;
+                }
+                void finishSwitch();
+                return 0;
+              }
+              return c - 1;
+            });
+          }, 1000);
+          return;
+        }
+
         await tokenStorage.setAccessToken(result.accessToken);
+        setIsSubmitting(false);
         onRoleChanged(result.new_role, result.accessToken);
       } catch (err: unknown) {
         if (err instanceof ApiError) {
@@ -58,14 +120,30 @@ export const useRoleSwitch = (
         } else {
           setError("Error de conexión. Verificá tu internet e intentá de nuevo.");
         }
-      } finally {
         setIsSubmitting(false);
       }
     },
-    [currentRole, onRoleChanged],
+    [currentRole, onRoleChanged, stopTimer, finishSwitch],
   );
 
   const clearError = useCallback(() => setError(null), []);
 
-  return { isSubmitting, error, handleSwitchRole, clearError };
+  const clearWarning = useCallback(() => {
+    stopTimer();
+    setCountdown(0);
+    setIsSubmitting(false);
+  }, [stopTimer]);
+
+  const baseWarning =
+    "Tu perfil de trabajador aún no está aprobado por el equipo";
+
+  return {
+    isSubmitting,
+    error,
+    warning: countdown > 0 ? `${baseWarning} (Cambiando ${countdown}…)` : null,
+    countdown,
+    handleSwitchRole,
+    clearError,
+    clearWarning,
+  };
 };

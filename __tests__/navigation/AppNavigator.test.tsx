@@ -17,6 +17,10 @@ jest.mock("../../src/services/userService", () => ({
   userService: { switchRole: jest.fn() },
 }));
 
+jest.mock("../../src/services/profileService", () => ({
+  profileService: { getIdentity: jest.fn().mockResolvedValue(null) },
+}));
+
 describe("AppNavigator Flow Integration", () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -171,6 +175,68 @@ describe("AppNavigator Flow Integration", () => {
       expect(getByText("Pantalla Principal")).toBeTruthy();
     });
     expect(getByText("Modo Trabajador")).toBeTruthy();
+  });
+
+  it("marks profile completed when backend identity is complete", async () => {
+    const { profileService } = require("../../src/services/profileService");
+    (profileService.getIdentity as jest.Mock).mockResolvedValue({
+      full_name: "Juan",
+      date_of_birth: "1990-03-15",
+      avatar_url: "/uploads/a.jpg",
+      dni_front_url: "/uploads/f.jpg",
+      dni_back_url: "/uploads/b.jpg",
+      is_complete: true,
+    });
+    mockStorage({
+      "@startup_app/onboarding_completed": "true",
+      "@startup_app/access_token": "access-token-123",
+      "@startup_app/user_id": "user-123",
+      "@startup_app/last_role_user-123": "client",
+    });
+
+    const { getByText, queryByText } = render(
+      <RoleProvider>
+        <AppNavigator />
+      </RoleProvider>,
+    );
+
+    await waitFor(() => {
+      expect(getByText("Pantalla Principal")).toBeTruthy();
+    });
+    expect(
+      queryByText("Terminar de completar perfil ahora"),
+    ).toBeNull();
+  });
+
+  it("asks to complete once when backend identity is partial despite old local flag", async () => {
+    const { profileService } = require("../../src/services/profileService");
+    (profileService.getIdentity as jest.Mock).mockResolvedValue({
+      full_name: "Juan",
+      date_of_birth: null,
+      avatar_url: "/uploads/a.jpg",
+      dni_front_url: null,
+      dni_back_url: null,
+      is_complete: false,
+    });
+    mockStorage({
+      "@startup_app/onboarding_completed": "true",
+      "@startup_app/access_token": "access-token-123",
+      "@startup_app/user_id": "user-123",
+      "@startup_app/profile_completed_user-123": "true",
+      "@startup_app/last_role_user-123": "client",
+    });
+
+    const { getByText } = render(
+      <RoleProvider>
+        <AppNavigator />
+      </RoleProvider>,
+    );
+
+    await waitFor(() => {
+      expect(
+        getByText("Terminar de completar perfil ahora"),
+      ).toBeTruthy();
+    });
   });
 
   it("goes to RoleSelection on reopen when session exists but no role was chosen", async () => {

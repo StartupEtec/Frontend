@@ -29,6 +29,7 @@ jest.mock("@react-native-community/datetimepicker", () => {
 
 const DEFAULT_MOCK = {
   formData: {
+    fullName: "",
     selfieUri: null,
     dniFrontUri: null,
     dniBackUri: null,
