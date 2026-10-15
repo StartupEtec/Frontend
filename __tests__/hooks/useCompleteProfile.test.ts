@@ -56,7 +56,6 @@ describe("useCompleteProfile Hook", () => {
 
     expect(result.current.loading).toBe(false);
     expect(result.current.formData.selfieUri).toBeNull();
-    expect(result.current.formData.fullName).toBe("");
     expect(result.current.status).toBe("idle");
   });
 
@@ -75,7 +74,6 @@ describe("useCompleteProfile Hook", () => {
     await flush();
 
     expect(result.current.loading).toBe(false);
-    expect(result.current.formData.fullName).toBe("Juan");
     expect(result.current.formData.dateOfBirth).toBe("15/03/1990");
     expect(result.current.formData.selfieUri).toContain(
       "/uploads/profiles/selfie.jpg",
@@ -97,7 +95,6 @@ describe("useCompleteProfile Hook", () => {
     await flush();
 
     expect(profileService.getIdentity).toHaveBeenCalledWith("user-123");
-    expect(result.current.formData.fullName).toBe("Ana");
   });
 
   it("prefills partial identity (backfill) and still requires missing fields", async () => {
@@ -114,7 +111,6 @@ describe("useCompleteProfile Hook", () => {
     );
     await flush();
 
-    expect(result.current.formData.fullName).toBe("Pedro");
     expect(result.current.formData.selfieUri).toContain(
       "/uploads/profiles/selfie.jpg",
     );
@@ -137,12 +133,10 @@ describe("useCompleteProfile Hook", () => {
 
     const date = new Date(1990, 2, 15);
     act(() => {
-      result.current.updateField("fullName", "Juan");
       result.current.updateField("dateOfBirthDate", date);
       result.current.updateField("dateOfBirth", "15/03/1990");
     });
 
-    expect(result.current.formData.fullName).toBe("Juan");
     expect(result.current.formData.dateOfBirth).toBe("15/03/1990");
     expect(result.current.formData.dateOfBirthDate).toBe(date);
     expect(result.current.errors.dateOfBirth).toBeUndefined();
@@ -158,7 +152,6 @@ describe("useCompleteProfile Hook", () => {
       await result.current.handleSave();
     });
 
-    expect(result.current.errors.fullName).toBe("El nombre es obligatorio.");
     expect(result.current.errors.selfieUri).toBe(
       "La foto de perfil es obligatoria.",
     );
@@ -180,7 +173,6 @@ describe("useCompleteProfile Hook", () => {
     await flush();
 
     act(() => {
-      result.current.updateField("fullName", "Juan");
       result.current.updateField("selfieUri", "file:///selfie.jpg");
       result.current.updateField("dniFrontUri", "file:///dni-front.jpg");
       result.current.updateField("dniBackUri", "file:///dni-back.jpg");
@@ -195,7 +187,6 @@ describe("useCompleteProfile Hook", () => {
     expect(profileService.uploadProfileImage).toHaveBeenCalledTimes(3);
     expect(profileService.upsertIdentity).toHaveBeenCalledTimes(1);
     expect(profileService.upsertIdentity).toHaveBeenCalledWith("user-123", {
-      full_name: "Juan",
       date_of_birth: "1990-03-15",
       avatar_url: "/uploads/profiles/selfie.jpg",
       dni_front_url: "/uploads/profiles/dni-front.jpg",
@@ -240,7 +231,6 @@ describe("useCompleteProfile Hook", () => {
     await flush();
 
     act(() => {
-      result.current.updateField("fullName", "Juan");
       result.current.updateField("selfieUri", "file:///selfie.jpg");
       result.current.updateField("dniFrontUri", "file:///dni-front.jpg");
       result.current.updateField("dniBackUri", "file:///dni-back.jpg");
@@ -268,7 +258,6 @@ describe("useCompleteProfile Hook", () => {
     await flush();
 
     act(() => {
-      result.current.updateField("fullName", "Juan");
       result.current.updateField("selfieUri", "file:///selfie.jpg");
       result.current.updateField("dniFrontUri", "file:///dni-front.jpg");
       result.current.updateField("dniBackUri", "file:///dni-back.jpg");

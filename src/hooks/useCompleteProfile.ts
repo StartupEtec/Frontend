@@ -19,7 +19,6 @@ interface UseCompleteProfileOptions {
 export type ProfileStatus = "idle" | "saving" | "success" | "error";
 
 interface StoredIdentity {
-  full_name?: string | null;
   date_of_birth?: string | null;
   avatar_url?: string | null;
   dni_front_url?: string | null;
@@ -68,7 +67,6 @@ export const useCompleteProfile = ({
 }: UseCompleteProfileOptions) => {
   void _role;
   const [formData, setFormData] = useState<ProfileFormData>({
-    fullName: "",
     selfieUri: null,
     dniFrontUri: null,
     dniBackUri: null,
@@ -93,7 +91,6 @@ export const useCompleteProfile = ({
           (await profileService.getIdentity(userId)) as StoredIdentity | null;
         if (cancelled || !identity) return;
         setFormData({
-          fullName: identity.full_name ?? "",
           selfieUri: toDisplayUri(identity.avatar_url),
           dniFrontUri: toDisplayUri(identity.dni_front_url),
           dniBackUri: toDisplayUri(identity.dni_back_url),
@@ -126,10 +123,6 @@ export const useCompleteProfile = ({
 
   const validate = useCallback((): boolean => {
     const newErrors: ProfileFormErrors = {};
-
-    if (!formData.fullName.trim()) {
-      newErrors.fullName = "El nombre es obligatorio.";
-    }
 
     if (!formData.selfieUri) {
       newErrors.selfieUri = "La foto de perfil es obligatoria.";
@@ -210,7 +203,6 @@ export const useCompleteProfile = ({
       // Un solo guardado para ambos roles (el backend hace backfill a
       // client_profiles y worker_profiles).
       await profileService.upsertIdentity(userId, {
-        full_name: formData.fullName.trim(),
         date_of_birth: dateOfBirth,
         avatar_url: avatarUrl,
         dni_front_url: dniFrontUrl,

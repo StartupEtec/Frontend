@@ -3,7 +3,6 @@ import {
   View,
   Text,
   ScrollView,
-  TextInput,
   TouchableOpacity,
   Pressable,
   StyleSheet,
@@ -377,26 +376,6 @@ export const CompleteProfileScreen: React.FC<CompleteProfileScreenProps> = ({
         )}
 
         <View style={styles.field}>
-          <Text style={styles.label}>Nombre completo *</Text>
-          <TextInput
-            style={[
-              styles.nameInput,
-              errors.fullName && styles.nameInputError,
-            ]}
-            value={formData.fullName}
-            onChangeText={(value) => updateField("fullName", value)}
-            placeholder="Tu nombre"
-            placeholderTextColor={colors.textSecondary}
-            autoCapitalize="words"
-            maxLength={100}
-            testID="input-profile-name"
-          />
-          {errors.fullName && (
-            <Text style={styles.errorText}>{errors.fullName}</Text>
-          )}
-        </View>
-
-        <View style={styles.field}>
           <Text style={styles.label}>Foto tuya *</Text>
           <PhotoPicker
             uri={formData.selfieUri}
@@ -708,19 +687,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   dateButtonError: {
-    borderColor: colors.error,
-  },
-  nameInput: {
-    backgroundColor: colors.surfaceContainerLow,
-    borderWidth: 1,
-    borderColor: colors.inputBorder,
-    borderRadius: borderRadius.md,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    fontSize: typography.fontSizes.md,
-    color: colors.textPrimary,
-  },
-  nameInputError: {
     borderColor: colors.error,
   },
   dateText: {

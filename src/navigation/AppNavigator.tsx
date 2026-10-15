@@ -31,6 +31,7 @@ import {
 } from "../theme/tokens";
 import { UserRole } from "../types/role";
 import { useRoleContext } from "../context/RoleContext";
+import { getCurrentRoleFromJwt } from "../utils/jwt";
 
 const profileKey = (userId: string) =>
   `@startup_app/profile_completed_${userId}`;
@@ -88,9 +89,10 @@ export const AppNavigator: React.FC = () => {
   const restoreSession = async (
     userId: string,
   ): Promise<"Main" | "RoleSelection"> => {
-    const [profileDone, savedRole] = await Promise.all([
+    const [profileDone, savedRole, accessToken] = await Promise.all([
       AsyncStorage.getItem(profileKey(userId)),
       AsyncStorage.getItem(lastRoleKey(userId)),
+      tokenStorage.getAccessToken(),
     ]);
 
     // La identidad es única (vale para ambos roles, con backfill automático
@@ -112,9 +114,25 @@ export const AppNavigator: React.FC = () => {
     }
     setProfileCompleted(identityComplete);
 
-    if (savedRole === "client" || savedRole === "worker") {
-      setSelectedRole(savedRole);
-      await setRole(savedRole);
+    // El rol activo real viaja en el JWT (mismo claim que valida el backend
+    // para requireRole). Cuando el usuario ya eligió rol alguna vez, se
+    // prioriza el JWT sobre el valor local, que puede haber quedado
+    // desincronizado (p. ej. una selección inicial nunca persistida): así lo
+    // que muestra la app coincide con lo que cree el servidor.
+    //
+    // Ojo: el JWT siempre trae un rol (el backend default es "client"), así que
+    // no sirve como señal de "ya eligió". Esa señal es el rol local guardado.
+    const jwtRole = getCurrentRoleFromJwt(accessToken);
+    const storedRole =
+      savedRole === "client" || savedRole === "worker" ? savedRole : null;
+    const effectiveRole = storedRole ? (jwtRole ?? storedRole) : null;
+
+    if (effectiveRole) {
+      setSelectedRole(effectiveRole);
+      await setRole(effectiveRole);
+      if (effectiveRole !== savedRole) {
+        await AsyncStorage.setItem(lastRoleKey(userId), effectiveRole);
+      }
       return "Main";
     }
 
