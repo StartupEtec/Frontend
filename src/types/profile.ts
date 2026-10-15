@@ -1,7 +1,6 @@
 import { UserRole } from "./role";
 
 export interface ProfileFormData {
-  fullName: string;
   selfieUri: string | null;
   dniFrontUri: string | null;
   dniBackUri: string | null;
@@ -10,7 +9,6 @@ export interface ProfileFormData {
 }
 
 export interface ProfileFormErrors {
-  fullName?: string;
   selfieUri?: string;
   dniFrontUri?: string;
   dniBackUri?: string;

@@ -34,6 +34,7 @@ export interface PasswordCriteriaStatus {
 }
 
 export interface RegisterApiPayload {
+  full_name: string;
   email: string;
   phone: string;
   password: string;

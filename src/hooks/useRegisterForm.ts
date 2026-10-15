@@ -152,6 +152,8 @@ export const useRegisterForm = (
 
     try {
       await authService.register({
+        full_name:
+          `${formData.firstName.trim()} ${formData.lastName.trim()}`.trim(),
         email: formData.email.trim(),
         phone: formData.phone.replace(/\s+/g, ""),
         password: formData.password,

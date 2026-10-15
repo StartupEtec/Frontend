@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { Feather } from "@expo/vector-icons";
+import { CameraCapture } from "./CameraCapture";
 import { colors, spacing, borderRadius, typography } from "../../theme/tokens";
 
 const QUALITY = 0.7;
@@ -29,19 +30,16 @@ export const PhotoPicker: React.FC<PhotoPickerProps> = ({
   accentColor = colors.primary,
 }) => {
   const [visible, setVisible] = useState(false);
+  const [cameraVisible, setCameraVisible] = useState(false);
 
-  const handleCamera = async () => {
+  const handleCamera = () => {
     setVisible(false);
-    const perm = await ImagePicker.requestCameraPermissionsAsync();
-    if (!perm.granted) return;
-    const result = await ImagePicker.launchCameraAsync({
-      mediaTypes: ["images"],
-      allowsEditing: true,
-      quality: QUALITY,
-    });
-    if (!result.canceled && result.assets?.[0]) {
-      onPhotoSelected(result.assets[0].uri);
-    }
+    setCameraVisible(true);
+  };
+
+  const handleCameraCapture = (uri: string) => {
+    setCameraVisible(false);
+    onPhotoSelected(uri);
   };
 
   const handleGallery = async () => {
@@ -111,6 +109,13 @@ export const PhotoPicker: React.FC<PhotoPickerProps> = ({
           </View>
         </TouchableOpacity>
       </Modal>
+
+      <CameraCapture
+        visible={cameraVisible}
+        initialFacing="front"
+        onClose={() => setCameraVisible(false)}
+        onCapture={handleCameraCapture}
+      />
     </View>
   );
 };

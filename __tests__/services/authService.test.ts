@@ -17,6 +17,7 @@ describe("authService", () => {
     });
 
     const payload = {
+      full_name: "Juan Pérez",
       email: "juan@example.com",
       phone: "+5491122334455",
       password: "Password123!",

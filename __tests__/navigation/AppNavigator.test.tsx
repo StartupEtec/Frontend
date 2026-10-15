@@ -177,6 +177,53 @@ describe("AppNavigator Flow Integration", () => {
     expect(getByText("Modo Trabajador")).toBeTruthy();
   });
 
+  it("prioritizes the JWT role over a stale local role on restore", async () => {
+    mockStorage({
+      "@startup_app/onboarding_completed": "true",
+      // El JWT (fuente que usa el backend) dice worker...
+      "@startup_app/access_token":
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoidXNlci0xMjMiLCJlbWFpbCI6ImFAYi5jb20iLCJjdXJyZW50X3JvbGUiOiJ3b3JrZXIifQ.sig",
+      "@startup_app/user_id": "user-123",
+      // ...aunque el rol local guardado diga client.
+      "@startup_app/last_role_user-123": "client",
+    });
+
+    const { getByText } = render(
+      <RoleProvider>
+        <AppNavigator />
+      </RoleProvider>,
+    );
+
+    await waitFor(() => {
+      expect(getByText("Pantalla Principal")).toBeTruthy();
+    });
+    expect(getByText("Modo Trabajador")).toBeTruthy();
+    expect(AsyncStorage.setItem).toHaveBeenCalledWith(
+      "@startup_app/last_role_user-123",
+      "worker",
+    );
+  });
+
+  it("falls back to the stored local role when the token has no role claim", async () => {
+    mockStorage({
+      "@startup_app/onboarding_completed": "true",
+      "@startup_app/access_token": "access-token-123",
+      "@startup_app/user_id": "user-456",
+      "@startup_app/last_role_user-456": "worker",
+    });
+
+    const { getByText } = render(
+      <RoleProvider>
+        <AppNavigator />
+      </RoleProvider>,
+    );
+
+    await waitFor(() => {
+      expect(getByText("Pantalla Principal")).toBeTruthy();
+    });
+    expect(getByText("Modo Trabajador")).toBeTruthy();
+  });
+
   it("marks profile completed when backend identity is complete", async () => {
     const { profileService } = require("../../src/services/profileService");
     (profileService.getIdentity as jest.Mock).mockResolvedValue({
@@ -203,9 +250,7 @@ describe("AppNavigator Flow Integration", () => {
     await waitFor(() => {
       expect(getByText("Pantalla Principal")).toBeTruthy();
     });
-    expect(
-      queryByText("Terminar de completar perfil ahora"),
-    ).toBeNull();
+    expect(queryByText("Terminar de completar perfil ahora")).toBeNull();
   });
 
   it("asks to complete once when backend identity is partial despite old local flag", async () => {
@@ -233,9 +278,7 @@ describe("AppNavigator Flow Integration", () => {
     );
 
     await waitFor(() => {
-      expect(
-        getByText("Terminar de completar perfil ahora"),
-      ).toBeTruthy();
+      expect(getByText("Terminar de completar perfil ahora")).toBeTruthy();
     });
   });
 
@@ -244,6 +287,26 @@ describe("AppNavigator Flow Integration", () => {
       "@startup_app/onboarding_completed": "true",
       "@startup_app/access_token": "access-token-123",
       "@startup_app/user_id": "user-123",
+    });
+
+    const { getByText } = render(
+      <RoleProvider>
+        <AppNavigator />
+      </RoleProvider>,
+    );
+
+    await waitFor(() => {
+      expect(getByText("Elegí tu Rol")).toBeTruthy();
+    });
+  });
+
+  it("goes to RoleSelection on reopen when a valid session exists but no role was chosen", async () => {
+    mockStorage({
+      "@startup_app/onboarding_completed": "true",
+      // Token válido con current_role=client (default del backend).
+      "@startup_app/access_token":
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoidXNlci0yIiwiY3VycmVudF9yb2xlIjoiY2xpZW50In0.sig",
+      "@startup_app/user_id": "user-2",
     });
 
     const { getByText } = render(

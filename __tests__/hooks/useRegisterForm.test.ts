@@ -155,6 +155,7 @@ describe("useRegisterForm Hook", () => {
     });
 
     expect(authService.register).toHaveBeenCalledWith({
+      full_name: "Juan Pérez",
       email: "juan@example.com",
       phone: "+5491122334455",
       password: "Segura123!",

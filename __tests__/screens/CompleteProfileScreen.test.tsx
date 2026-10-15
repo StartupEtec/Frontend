@@ -29,7 +29,6 @@ jest.mock("@react-native-community/datetimepicker", () => {
 
 const DEFAULT_MOCK = {
   formData: {
-    fullName: "",
     selfieUri: null,
     dniFrontUri: null,
     dniBackUri: null,
@@ -65,6 +64,15 @@ describe("CompleteProfileScreen", () => {
     expect(getByText("Foto tuya *")).toBeTruthy();
     expect(getByText("Documento de identidad *")).toBeTruthy();
     expect(getByText("Fecha de nacimiento *")).toBeTruthy();
+  });
+
+  it("does not ask for the full name (comes from registration)", () => {
+    const { queryByText, queryByTestId, queryByPlaceholderText } = render(
+      <CompleteProfileScreen {...DEFAULT_PROPS} />,
+    );
+    expect(queryByText("Nombre completo *")).toBeNull();
+    expect(queryByTestId("input-profile-name")).toBeNull();
+    expect(queryByPlaceholderText("Tu nombre")).toBeNull();
   });
 
   it("renders date picker button with placeholder", () => {

@@ -101,6 +101,20 @@ export const useRoleSwitch = (
         setIsSubmitting(false);
         onRoleChanged(result.new_role, result.accessToken);
       } catch (err: unknown) {
+        // SAME_ROLE: el backend ya está en ese rol. La UI había quedado
+        // desincronizada (típicamente una selección inicial de rol que nunca
+        // se persistió en el servidor). En vez de bloquear con un popup falso
+        // ("Ya estás en ese rol"), se aplica el cambio localmente y se reusa el
+        // token actual, para que lo que muestra la app coincida con el backend.
+        if (err instanceof ApiError && err.errorCode === "SAME_ROLE") {
+          const currentToken = await tokenStorage.getAccessToken();
+          if (currentToken) {
+            setIsSubmitting(false);
+            onRoleChanged(newRole, currentToken);
+            return;
+          }
+        }
+
         if (err instanceof ApiError) {
           const messageMap: Record<string, string> = {
             MISSING_CLIENT_PROFILE:
@@ -118,7 +132,9 @@ export const useRoleSwitch = (
               "No se pudo cambiar el rol. Intentá de nuevo.",
           );
         } else {
-          setError("Error de conexión. Verificá tu internet e intentá de nuevo.");
+          setError(
+            "Error de conexión. Verificá tu internet e intentá de nuevo.",
+          );
         }
         setIsSubmitting(false);
       }

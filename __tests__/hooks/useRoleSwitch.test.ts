@@ -10,6 +10,7 @@ jest.mock("../../src/services/userService", () => ({
 jest.mock("../../src/services/tokenStorage", () => ({
   tokenStorage: {
     getUserId: jest.fn(),
+    getAccessToken: jest.fn(),
     setAccessToken: jest.fn(),
   },
 }));
@@ -82,6 +83,31 @@ describe("useRoleSwitch", () => {
     expect(result.current.error).toBe(
       "No se encontró el usuario. Iniciá sesión de nuevo.",
     );
+  });
+
+  it("treats SAME_ROLE as success and applies the role locally with the current token", async () => {
+    const { ApiError } = jest.requireActual("../../src/services/api");
+    (userService.switchRole as jest.Mock).mockRejectedValueOnce(
+      new ApiError("El usuario ya tiene el rol client", 409, "SAME_ROLE"),
+    );
+    (tokenStorage.getAccessToken as jest.Mock).mockResolvedValueOnce(
+      "current-jwt-token",
+    );
+
+    const { result } = renderHook(() =>
+      useRoleSwitch("worker", mockOnRoleChanged),
+    );
+
+    await act(async () => {
+      await result.current.handleSwitchRole("client");
+    });
+
+    expect(mockOnRoleChanged).toHaveBeenCalledWith(
+      "client",
+      "current-jwt-token",
+    );
+    expect(result.current.error).toBeNull();
+    expect(result.current.isSubmitting).toBe(false);
   });
 
   it("shows MISSING_CLIENT_PROFILE error message", async () => {
@@ -181,9 +207,7 @@ describe("useRoleSwitch", () => {
         jest.advanceTimersByTime(2000);
       });
 
-      expect(tokenStorage.setAccessToken).toHaveBeenCalledWith(
-        "new-jwt-token",
-      );
+      expect(tokenStorage.setAccessToken).toHaveBeenCalledWith("new-jwt-token");
       expect(mockOnRoleChanged).toHaveBeenCalledWith("worker", "new-jwt-token");
       expect(result.current.warning).toBeNull();
       expect(result.current.isSubmitting).toBe(false);
