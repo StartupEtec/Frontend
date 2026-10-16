@@ -24,6 +24,7 @@ export interface ProfileScreenProps {
   currentRole: UserRole;
   onRoleChanged: (newRole: UserRole, newToken: string) => void;
   onGoBack: () => void;
+  onEditProfile: () => void;
   onLogout: () => void;
 }
 
@@ -31,6 +32,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
   currentRole,
   onRoleChanged,
   onGoBack,
+  onEditProfile,
   onLogout,
 }) => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -121,8 +123,10 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
 
             <TouchableOpacity
               style={styles.menuItem}
+              onPress={onEditProfile}
               testID="btn-edit-profile"
               accessibilityRole="button"
+              accessibilityLabel="Editar perfil"
             >
               <View style={styles.menuItemLeft}>
                 <Text style={styles.menuItemIcon}>👤</Text>

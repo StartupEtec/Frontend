@@ -16,6 +16,7 @@ jest.mock("../../src/services/tokenStorage", () => ({
 describe("ProfileScreen", () => {
   const mockOnRoleChanged = jest.fn();
   const mockOnGoBack = jest.fn();
+  const mockOnEditProfile = jest.fn();
   const mockOnLogout = jest.fn();
 
   beforeEach(() => {
@@ -28,6 +29,7 @@ describe("ProfileScreen", () => {
         currentRole="client"
         onRoleChanged={mockOnRoleChanged}
         onGoBack={mockOnGoBack}
+        onEditProfile={mockOnEditProfile}
         onLogout={mockOnLogout}
       />,
     );
@@ -45,6 +47,7 @@ describe("ProfileScreen", () => {
         currentRole="client"
         onRoleChanged={mockOnRoleChanged}
         onGoBack={mockOnGoBack}
+        onEditProfile={mockOnEditProfile}
         onLogout={mockOnLogout}
       />,
     );
@@ -53,12 +56,28 @@ describe("ProfileScreen", () => {
     expect(mockOnGoBack).toHaveBeenCalled();
   });
 
+  it("navigates to edit profile when Editar Perfil pressed", () => {
+    const { getByTestId } = render(
+      <ProfileScreen
+        currentRole="client"
+        onRoleChanged={mockOnRoleChanged}
+        onGoBack={mockOnGoBack}
+        onEditProfile={mockOnEditProfile}
+        onLogout={mockOnLogout}
+      />,
+    );
+
+    fireEvent.press(getByTestId("btn-edit-profile"));
+    expect(mockOnEditProfile).toHaveBeenCalled();
+  });
+
   it("opens role switch modal when Cambiar Rol pressed", () => {
     const { getByTestId } = render(
       <ProfileScreen
         currentRole="client"
         onRoleChanged={mockOnRoleChanged}
         onGoBack={mockOnGoBack}
+        onEditProfile={mockOnEditProfile}
         onLogout={mockOnLogout}
       />,
     );
@@ -73,6 +92,7 @@ describe("ProfileScreen", () => {
         currentRole="client"
         onRoleChanged={mockOnRoleChanged}
         onGoBack={mockOnGoBack}
+        onEditProfile={mockOnEditProfile}
         onLogout={mockOnLogout}
       />,
     );
@@ -87,6 +107,7 @@ describe("ProfileScreen", () => {
         currentRole="worker"
         onRoleChanged={mockOnRoleChanged}
         onGoBack={mockOnGoBack}
+        onEditProfile={mockOnEditProfile}
         onLogout={mockOnLogout}
       />,
     );
@@ -108,6 +129,7 @@ describe("ProfileScreen", () => {
         currentRole="client"
         onRoleChanged={mockOnRoleChanged}
         onGoBack={mockOnGoBack}
+        onEditProfile={mockOnEditProfile}
         onLogout={mockOnLogout}
       />,
     );
