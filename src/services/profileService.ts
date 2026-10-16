@@ -12,6 +12,7 @@ import {
   UpdateIdentityPayload,
   IdentityApiResponse,
   IdentityPayload,
+  PrivateProfileResponse,
   ProfileUpdateApiResponse,
   UploadImageApiResponse,
 } from "../types/profile";
@@ -125,6 +126,16 @@ export const profileService = {
     return apiClient<IdentityApiResponse>(`/users/${userId}/identity`, {
       method: "PATCH",
       body: JSON.stringify(data),
+    });
+  },
+
+  /**
+   * Perfil privado del usuario autenticado (GET /users/me). Trae mail,
+   * teléfono y el perfil por rol (incluida la bio del trabajador).
+   */
+  async getPrivateProfile(): Promise<PrivateProfileResponse> {
+    return apiClient<PrivateProfileResponse>(`/users/me`, {
+      method: "GET",
     });
   },
 

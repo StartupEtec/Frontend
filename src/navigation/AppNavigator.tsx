@@ -18,6 +18,7 @@ import { CompleteProfileScreen } from "../screens/CompleteProfileScreen";
 import { LoginScreen } from "../screens/LoginScreen";
 import { ForgotPasswordScreen } from "../screens/ForgotPasswordScreen";
 import { ProfileScreen } from "../screens/ProfileScreen";
+import { EditProfileScreen } from "../screens/EditProfileScreen";
 import { NavBar } from "../components/NavBar";
 import { ASYNC_STORAGE_ONBOARDING_KEY } from "../i18n/onboardingContent";
 import { tokenStorage } from "../services/tokenStorage";
@@ -47,6 +48,7 @@ export type AppRoute =
   | "RoleSelection"
   | "CompleteProfile"
   | "Profile"
+  | "EditProfile"
   | "Main";
 
 export const AppNavigator: React.FC = () => {
@@ -280,7 +282,17 @@ export const AppNavigator: React.FC = () => {
         currentRole={selectedRole}
         onRoleChanged={handleRoleChanged}
         onGoBack={() => setCurrentRoute("Main")}
+        onEditProfile={() => setCurrentRoute("EditProfile")}
         onLogout={handleLogout}
+      />
+    );
+  }
+
+  if (currentRoute === "EditProfile") {
+    return (
+      <EditProfileScreen
+        role={selectedRole}
+        onGoBack={() => setCurrentRoute("Profile")}
       />
     );
   }

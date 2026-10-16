@@ -83,6 +83,43 @@ export interface ProfileUpdateApiResponse {
   };
 }
 
+/** Identidad incluida en GET /users/me (presente solo cuando está completa). */
+export type PrivateIdentity = Omit<IdentityPayload, "is_complete">;
+
+/** Perfil por rol (cliente o trabajador) tal como lo devuelve GET /users/me. */
+export interface PrivateRoleProfile {
+  id?: string;
+  full_name: string | null;
+  avatar_url: string | null;
+  bio: string | null;
+  hourly_rate?: number | null;
+  availability_status?: string | null;
+  certification_status?: string | null;
+}
+
+/**
+ * Respuesta de GET /users/me (perfil privado del usuario autenticado).
+ * Es la fuente de mail, teléfono y descripción (bio) para "Editar Perfil".
+ */
+export interface PrivateProfileResponse {
+  id: string;
+  email: string;
+  phone: string;
+  current_role: UserRole;
+  is_verified: boolean;
+  verified_email: boolean;
+  verified_phone: boolean;
+  active: boolean;
+  created_at: string;
+  updated_at: string;
+  average_rating: string | null;
+  identity: PrivateIdentity | null;
+  profile: {
+    client: PrivateRoleProfile | null;
+    worker: PrivateRoleProfile | null;
+  };
+}
+
 export type ProfileScreenProps = {
   role: UserRole;
   onProfileCompleted: () => void;

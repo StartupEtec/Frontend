@@ -18,7 +18,12 @@ jest.mock("../../src/services/userService", () => ({
 }));
 
 jest.mock("../../src/services/profileService", () => ({
-  profileService: { getIdentity: jest.fn().mockResolvedValue(null) },
+  profileService: {
+    getIdentity: jest.fn().mockResolvedValue(null),
+    getPrivateProfile: jest.fn(),
+  },
+  toDisplayUri: jest.requireActual("../../src/services/profileService")
+    .toDisplayUri,
 }));
 
 describe("AppNavigator Flow Integration", () => {
@@ -434,5 +439,77 @@ describe("AppNavigator Flow Integration", () => {
     await waitFor(() => {
       expect(getByText("Modo Trabajador")).toBeTruthy();
     });
+  });
+
+  it("navigates from Mi Perfil to Editar Perfil and shows the profile data", async () => {
+    const { profileService } = require("../../src/services/profileService");
+    (profileService.getIdentity as jest.Mock).mockResolvedValue({
+      full_name: "Juan Pérez",
+      date_of_birth: "1990-03-15",
+      avatar_url: "/uploads/profiles/selfie.jpg",
+      dni_front_url: "/uploads/front.jpg",
+      dni_back_url: "/uploads/back.jpg",
+      is_complete: true,
+    });
+    (profileService.getPrivateProfile as jest.Mock).mockResolvedValue({
+      id: "user-123",
+      email: "juan@example.com",
+      phone: "+5491112345678",
+      current_role: "worker",
+      is_verified: true,
+      verified_email: true,
+      verified_phone: true,
+      active: true,
+      created_at: "2026-01-01T00:00:00Z",
+      updated_at: "2026-01-01T00:00:00Z",
+      average_rating: null,
+      identity: null,
+      profile: {
+        client: {
+          full_name: "Juan Pérez",
+          avatar_url: "/uploads/client.jpg",
+          bio: null,
+        },
+        worker: {
+          full_name: "Juan Pérez",
+          avatar_url: "/uploads/worker.jpg",
+          bio: "Electricista",
+        },
+      },
+    });
+    mockStorage({
+      "@startup_app/onboarding_completed": "true",
+      "@startup_app/access_token": "access-token-123",
+      "@startup_app/user_id": "user-123",
+      "@startup_app/last_role_user-123": "worker",
+    });
+
+    const { getByText, getByTestId } = render(
+      <RoleProvider>
+        <AppNavigator />
+      </RoleProvider>,
+    );
+
+    await waitFor(() => {
+      expect(getByText("Pantalla Principal")).toBeTruthy();
+    });
+
+    fireEvent.press(getByTestId("btn-account"));
+
+    await waitFor(() => {
+      expect(getByText("Mi Perfil")).toBeTruthy();
+    });
+
+    fireEvent.press(getByTestId("btn-edit-profile"));
+
+    await waitFor(() => {
+      expect(getByText("Editar Perfil")).toBeTruthy();
+    });
+
+    await waitFor(() => {
+      expect(getByText("juan@example.com")).toBeTruthy();
+    });
+    expect(getByTestId("edit-profile-first-name").props.children).toBe("Juan");
+    expect(getByTestId("edit-profile-description")).toBeTruthy();
   });
 });
