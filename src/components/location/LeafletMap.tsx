@@ -68,15 +68,23 @@ interface LeafletMapProps {
   onPress?: (coordinates: Coordinates) => void;
   onMarkerPress?: (id: string) => void;
   onMarkerDragEnd?: (id: string, coordinates: Coordinates) => void;
+  /**
+   * El usuario terminó de mover o hacer zoom en el mapa. Reporta el centro
+   * visible y el zoom actuales (la pantalla de búsqueda los usa para
+   * re-consultar trabajadores en la zona visible).
+   */
+  onMoveEnd?: (center: Coordinates, zoom: number) => void;
   style?: StyleProp<ViewStyle>;
   testID?: string;
 }
 
 interface LeafletMessage {
-  type: "ready" | "error" | "press" | "markerPress" | "markerDragEnd";
+  type:
+    "ready" | "error" | "press" | "markerPress" | "markerDragEnd" | "moveend";
   id?: string;
   latitude?: number;
   longitude?: number;
+  zoom?: number;
 }
 
 type LoadStatus = "loading" | "ready" | "error";
@@ -108,6 +116,7 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
   onPress,
   onMarkerPress,
   onMarkerDragEnd,
+  onMoveEnd,
   style,
   testID = "leaflet-map",
 }) => {
@@ -224,9 +233,21 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
           latitude: message.latitude,
           longitude: message.longitude,
         });
+        return;
+      }
+
+      if (
+        message.type === "moveend" &&
+        typeof message.latitude === "number" &&
+        typeof message.longitude === "number"
+      ) {
+        onMoveEnd?.(
+          { latitude: message.latitude, longitude: message.longitude },
+          typeof message.zoom === "number" ? message.zoom : zoom,
+        );
       }
     },
-    [pushState, onPress, onMarkerPress, onMarkerDragEnd],
+    [pushState, onPress, onMarkerPress, onMarkerDragEnd, onMoveEnd, zoom],
   );
 
   useEffect(() => {
@@ -465,6 +486,13 @@ const LEAFLET_HTML = `<!DOCTYPE html>
 
       map.on('click', function (e) {
         if (selectable) send({ type: 'press', latitude: e.latlng.lat, longitude: e.latlng.lng });
+      });
+
+      // Reporta el fin de cada gesto de pan/zoom con el centro y zoom
+      // visibles (la pantalla de búsqueda re-consulta al mover el mapa).
+      map.on('moveend', function () {
+        var center = map.getCenter();
+        send({ type: 'moveend', latitude: center.lat, longitude: center.lng, zoom: map.getZoom() });
       });
 
       window.__leaflet = {

@@ -20,6 +20,8 @@ import { ForgotPasswordScreen } from "../screens/ForgotPasswordScreen";
 import { ProfileScreen } from "../screens/ProfileScreen";
 import { EditProfileScreen } from "../screens/EditProfileScreen";
 import { LocationsScreen } from "../screens/LocationsScreen";
+import { WorkerSearchScreen } from "../screens/WorkerSearchScreen";
+import { WorkerProfileScreen } from "../screens/WorkerProfileScreen";
 import { NavBar } from "../components/NavBar";
 import { ASYNC_STORAGE_ONBOARDING_KEY } from "../i18n/onboardingContent";
 import { tokenStorage } from "../services/tokenStorage";
@@ -32,6 +34,7 @@ import {
   roleAccent,
 } from "../theme/tokens";
 import { UserRole } from "../types/role";
+import { NearbyWorker } from "../types/worker";
 import { useRoleContext } from "../context/RoleContext";
 import { getCurrentRoleFromJwt } from "../utils/jwt";
 
@@ -51,6 +54,8 @@ export type AppRoute =
   | "Profile"
   | "EditProfile"
   | "Locations"
+  | "WorkerSearch"
+  | "WorkerProfile"
   | "Main";
 
 export const AppNavigator: React.FC = () => {
@@ -63,6 +68,11 @@ export const AppNavigator: React.FC = () => {
   const [profileCompleted, setProfileCompleted] = useState<boolean>(false);
   const [justCompletedProfile, setJustCompletedProfile] =
     useState<boolean>(false);
+  // Trabajador elegido en la búsqueda: alimenta la ficha "Perfil del
+  // Trabajador" que se abre desde "Ver Perfil Completo".
+  const [selectedWorker, setSelectedWorker] = useState<NearbyWorker | null>(
+    null,
+  );
 
   useEffect(() => {
     const checkInitialRoute = async () => {
@@ -181,6 +191,7 @@ export const AppNavigator: React.FC = () => {
     setSelectedRole("client");
     setProfileCompleted(false);
     setJustCompletedProfile(false);
+    setSelectedWorker(null);
     setCurrentRoute("AuthWelcome");
   };
 
@@ -309,6 +320,29 @@ export const AppNavigator: React.FC = () => {
     );
   }
 
+  if (currentRoute === "WorkerSearch") {
+    return (
+      <WorkerSearchScreen
+        role={selectedRole}
+        onGoBack={() => setCurrentRoute("Main")}
+        onViewProfile={(worker) => {
+          setSelectedWorker(worker);
+          setCurrentRoute("WorkerProfile");
+        }}
+      />
+    );
+  }
+
+  if (currentRoute === "WorkerProfile" && selectedWorker) {
+    return (
+      <WorkerProfileScreen
+        worker={selectedWorker}
+        role={selectedRole}
+        onGoBack={() => setCurrentRoute("WorkerSearch")}
+      />
+    );
+  }
+
   const isClient = selectedRole === "client";
   const accentColor = roleAccent(selectedRole);
 
@@ -339,6 +373,22 @@ export const AppNavigator: React.FC = () => {
             </Text>
           </TouchableOpacity>
         )}
+
+        <TouchableOpacity
+          style={[styles.searchButton, { backgroundColor: accentColor }]}
+          onPress={() => setCurrentRoute("WorkerSearch")}
+          testID="btn-search-workers"
+          accessibilityRole="button"
+          accessibilityLabel="Buscar trabajadores"
+        >
+          <Feather
+            name="search"
+            size={18}
+            color={colors.onPrimary}
+            accessible={false}
+          />
+          <Text style={styles.searchButtonText}>Buscar Trabajadores</Text>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
@@ -370,6 +420,21 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.md,
   },
   profileButtonText: {
+    color: colors.onPrimary,
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  searchButton: {
+    marginTop: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: spacing.sm,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: borderRadius.md,
+  },
+  searchButtonText: {
     color: colors.onPrimary,
     fontSize: 14,
     fontWeight: "600",

@@ -114,6 +114,53 @@ describe("LeafletMap", () => {
     });
   });
 
+  it("reports the end of a pan or zoom gesture with center and zoom", () => {
+    const onMoveEnd = jest.fn();
+    const { getByTestId } = render(
+      <LeafletMap markers={[]} onMoveEnd={onMoveEnd} testID="map" />,
+    );
+
+    sendMessage(getByTestId("map-webview"), {
+      type: "moveend",
+      latitude: -34.61,
+      longitude: -58.39,
+      zoom: 13,
+    });
+
+    expect(onMoveEnd).toHaveBeenCalledWith(
+      { latitude: -34.61, longitude: -58.39 },
+      13,
+    );
+  });
+
+  it("falls back to the current zoom when moveend does not report it", () => {
+    const onMoveEnd = jest.fn();
+    const { getByTestId } = render(
+      <LeafletMap markers={[]} zoom={14} onMoveEnd={onMoveEnd} testID="map" />,
+    );
+
+    sendMessage(getByTestId("map-webview"), {
+      type: "moveend",
+      latitude: -34.61,
+      longitude: -58.39,
+    });
+
+    expect(onMoveEnd).toHaveBeenCalledWith(
+      { latitude: -34.61, longitude: -58.39 },
+      14,
+    );
+  });
+
+  it("listens for moveend in the map HTML", () => {
+    const { getByTestId } = render(<LeafletMap markers={[]} testID="map" />);
+
+    const source = getByTestId("map-webview").props.source as {
+      html: string;
+    };
+    expect(source.html).toContain("map.on('moveend'");
+    expect(source.html).toContain("type: 'moveend'");
+  });
+
   it("ignores malformed or unknown messages", () => {
     const onPress = jest.fn();
     const { getByTestId } = render(

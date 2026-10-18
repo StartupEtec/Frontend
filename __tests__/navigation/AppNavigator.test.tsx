@@ -1,9 +1,11 @@
 import React from "react";
-import { render, fireEvent, waitFor } from "@testing-library/react-native";
+import { render, fireEvent, waitFor, act } from "@testing-library/react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AppNavigator } from "../../src/navigation/AppNavigator";
 import { RoleProvider } from "../../src/context/RoleContext";
 import { userService } from "../../src/services/userService";
+import { workerSearchService } from "../../src/services/workerSearchService";
+import { NearbyWorker } from "../../src/types/worker";
 
 jest.mock("@react-native-async-storage/async-storage", () => ({
   getItem: jest.fn(),
@@ -14,8 +16,21 @@ jest.mock("@react-native-async-storage/async-storage", () => ({
 }));
 
 jest.mock("../../src/services/userService", () => ({
-  userService: { switchRole: jest.fn() },
+  userService: { switchRole: jest.fn(), getPublicProfile: jest.fn() },
 }));
+
+jest.mock("../../src/services/workerSearchService", () => ({
+  workerSearchService: { nearby: jest.fn() },
+}));
+
+jest.mock("../../src/components/location/LeafletMap", () => {
+  const React = require("react");
+  const { View } = require("react-native");
+  return {
+    LeafletMap: (props: Record<string, unknown>) =>
+      React.createElement(View, props),
+  };
+});
 
 jest.mock("../../src/services/locationService", () => ({
   locationService: {
@@ -556,6 +571,91 @@ describe("AppNavigator Flow Integration", () => {
 
     await waitFor(() => {
       expect(getByText("Mi Perfil")).toBeTruthy();
+    });
+  });
+
+  it("navigates from Main to worker search, opens a pin and views the profile", async () => {
+    mockStorage({
+      "@startup_app/onboarding_completed": "true",
+      "@startup_app/access_token": "access-token-123",
+      "@startup_app/user_id": "user-123",
+      "@startup_app/last_role_user-123": "client",
+    });
+
+    const worker: NearbyWorker = {
+      worker_id: "worker-1",
+      user_id: "user-789",
+      full_name: "Ana Pérez",
+      avatar_url: null,
+      category_id: "d9b936d5-a3d5-45d6-b4d6-a4c3f5d6f003",
+      category_name: "Electricidad",
+      hourly_rate: 12500,
+      availability_status: "AVAILABLE",
+      certification_status: "APPROVED",
+      average_rating: "4.5",
+      distance_km: 1.2,
+      latitude: -34.61,
+      longitude: -58.39,
+    };
+    (workerSearchService.nearby as jest.Mock).mockResolvedValue({
+      workers: [worker],
+      count: 1,
+      limit: 50,
+      offset: 0,
+    });
+    (userService.getPublicProfile as jest.Mock).mockResolvedValue({
+      id: "user-789",
+      full_name: "Ana Pérez",
+      avatar_url: null,
+      bio: "Electricista matriculada con 8 años de experiencia.",
+      average_rating: "4.8",
+      role: "worker",
+    });
+
+    const { getByText, getByTestId } = render(
+      <RoleProvider>
+        <AppNavigator />
+      </RoleProvider>,
+    );
+
+    await waitFor(() => {
+      expect(getByText("Pantalla Principal")).toBeTruthy();
+    });
+
+    fireEvent.press(getByTestId("btn-search-workers"));
+
+    await waitFor(() => {
+      expect(getByTestId("worker-search-map")).toBeTruthy();
+    });
+
+    // Se simula el toque sobre el pin del trabajador.
+    act(() => {
+      getByTestId("worker-search-map").props.onMarkerPress("worker-1");
+    });
+
+    await waitFor(() => {
+      expect(getByTestId("worker-info-worker-1")).toBeTruthy();
+    });
+
+    fireEvent.press(getByTestId("btn-worker-profile-worker-1"));
+
+    await waitFor(() => {
+      expect(getByText("Perfil del Trabajador")).toBeTruthy();
+    });
+    await waitFor(() => {
+      expect(getByText(/Electricista matriculada/)).toBeTruthy();
+    });
+
+    fireEvent.press(getByTestId("btn-profile-back"));
+
+    await waitFor(() => {
+      expect(getByTestId("worker-search-map")).toBeTruthy();
+    });
+
+    fireEvent.press(getByTestId("btn-workers-back"));
+
+    await waitFor(() => {
+      expect(getByText("Pantalla Principal")).toBeTruthy();
     });
   });
 });

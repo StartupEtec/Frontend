@@ -30,9 +30,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">69.23% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>9/13</span>
+                <span class='fraction'>13/13</span>
             </div>
         
             
@@ -180,7 +180,12 @@
 <a name='L115'></a><a href='#L115'>115</a>
 <a name='L116'></a><a href='#L116'>116</a>
 <a name='L117'></a><a href='#L117'>117</a>
-<a name='L118'></a><a href='#L118'>118</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L118'></a><a href='#L118'>118</a>
+<a name='L119'></a><a href='#L119'>119</a>
+<a name='L120'></a><a href='#L120'>120</a>
+<a name='L121'></a><a href='#L121'>121</a>
+<a name='L122'></a><a href='#L122'>122</a>
+<a name='L123'></a><a href='#L123'>123</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -206,8 +211,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -220,10 +225,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">96x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">96x</span>
+<span class="cline-any cline-yes">194x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">194x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -257,7 +262,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -266,6 +270,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -297,7 +302,12 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import React from 'react';
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import React from "react";
 import {
   View,
   Text,
@@ -305,8 +315,9 @@ import {
   TouchableOpacity,
   StyleSheet,
   KeyboardTypeOptions,
-} from 'react-native';
-import { colors, spacing, borderRadius, typography } from '../../theme/tokens';
+} from "react-native";
+import { Feather } from "@expo/vector-icons";
+import { colors, spacing, borderRadius, typography } from "../../theme/tokens";
 &nbsp;
 interface RegisterFormInputProps {
   label: string;
@@ -318,7 +329,7 @@ interface RegisterFormInputProps {
   secureTextEntry?: boolean;
   onToggleSecureTextEntry?: () =&gt; void;
   keyboardType?: KeyboardTypeOptions;
-  autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
+  autoCapitalize?: "none" | "sentences" | "words" | "characters";
   testID?: string;
   editable?: boolean;
 }
@@ -332,8 +343,8 @@ export const RegisterFormInput: React.FC&lt;RegisterFormInputProps&gt; = ({
   placeholder,
   secureTextEntry,
   onToggleSecureTextEntry,
-  keyboardType = 'default',
-  autoCapitalize = 'none',
+  keyboardType = "default",
+  autoCapitalize = "none",
   testID,
   editable = true,
 }) =&gt; {
@@ -342,7 +353,7 @@ export const RegisterFormInput: React.FC&lt;RegisterFormInputProps&gt; = ({
   return (
     &lt;View style={styles.container}&gt;
       &lt;Text style={styles.label}&gt;{label}&lt;/Text&gt;
-      &lt;View style={[styles.inputWrapper, hasError &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >styles.inputWrapperError]</span>}&gt;
+      &lt;View style={[styles.inputWrapper, hasError &amp;&amp; styles.inputWrapperError]}&gt;
         &lt;TextInput
           style={styles.input}
           value={value}
@@ -361,15 +372,22 @@ export const RegisterFormInput: React.FC&lt;RegisterFormInputProps&gt; = ({
           &lt;TouchableOpacity
             style={styles.toggleButton}
             onPress={onToggleSecureTextEntry}
-            accessibilityLabel={secureTextEntry ? 'Mostrar contraseña' : <span class="branch-1 cbranch-no" title="branch not covered" >'Ocultar contraseña'}</span>
+            accessibilityLabel={
+              secureTextEntry ? "Mostrar contraseña" : "Ocultar contraseña"
+            }
             accessibilityRole="button"
             testID={`${testID}-toggle`}
           &gt;
-            &lt;Text style={styles.toggleText}&gt;{secureTextEntry ? '👁️' : <span class="branch-1 cbranch-no" title="branch not covered" >'🙈'}</span>&lt;/Text&gt;
+            &lt;Feather
+              name={secureTextEntry ? "eye" : "eye-off"}
+              size={20}
+              color={colors.textMuted}
+              accessible={false}
+            /&gt;
           &lt;/TouchableOpacity&gt;
         )}
       &lt;/View&gt;
-      {hasError &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >&lt;Text style={styles.errorText}&gt;{error}&lt;/Text&gt;}</span>
+      {hasError &amp;&amp; &lt;Text style={styles.errorText}&gt;{error}&lt;/Text&gt;}
     &lt;/View&gt;
   );
 };
@@ -385,11 +403,11 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs,
   },
   inputWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.cardBackground,
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: colors.surfaceContainerLow,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.inputBorder,
     borderRadius: borderRadius.md,
     paddingHorizontal: spacing.md,
   },
@@ -405,9 +423,6 @@ const styles = StyleSheet.create({
   toggleButton: {
     padding: spacing.xs,
   },
-  toggleText: {
-    fontSize: 16,
-  },
   errorText: {
     color: colors.error,
     fontSize: typography.fontSizes.xs,
@@ -421,7 +436,7 @@ const styles = StyleSheet.create({
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-08-07T17:26:21.987Z
+                at 2026-10-18T16:31:40.232Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

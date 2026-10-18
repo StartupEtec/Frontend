@@ -52,11 +52,27 @@ Aplicación Mobile (React Native + Expo) para la plataforma on-demand de servici
 Los mapas **no** usan `react-native-maps`. Se dibujan con **Leaflet** dentro de un **`react-native-webview`** (`components/location/LeafletMap.tsx`) usando mosaicos de **OpenStreetMap**, para que funcionen en **Expo Go** sin API key.
 
 - **Por qué**: desde Expo SDK 55, Expo Go **dejó de soportar Google Maps**; en Android `react-native-maps` se apoya en el SDK de Google y el mapa queda **en negro con el logo de Google**. Además, ese SDK exige una Google Maps API key **incluso para tiles propios** (`UrlTile`), así que la WebView evita por completo esa dependencia.
-- **Comunicación RN ↔ mapa**: React Native envía comandos con `injectJavaScript` y el mapa responde eventos (`press`, `markerPress`, `markerDragEnd`, `ready`, `error`) con `postMessage`.
+- **Comunicación RN ↔ mapa**: React Native envía comandos con `injectJavaScript` y el mapa responde eventos (`press`, `markerPress`, `markerDragEnd`, `moveend`, `ready`, `error`) con `postMessage`.
 - **Leaflet** se carga desde CDN (`unpkg.com/leaflet@1.9.4`) y los tiles desde `tile.openstreetmap.org`. Por eso el mapa necesita conexión a internet; si no cargan, se muestra un estado de error con botón **"Reintentar"**.
 - **Política de uso de OSM**: el proveedor público es apto para desarrollo/prototipo; para producción con mucho tráfico conviene un proveedor de tiles propio.
 - **Alternativa**: si preferís volver a `react-native-maps`, hay que crear una **Google Maps API key** y usar un **development build** (no funciona en Expo Go); no es un cambio de código puro.
 - **Permisos**: el plugin `expo-location` en `app.json` define el texto de `NSLocationWhenInUseUsageDescription`; en Android agrega los permisos `ACCESS_FINE_LOCATION`/`ACCESS_COARSE_LOCATION`.
+
+### 4. Issue #24 - Búsqueda de Trabajadores en Mapa (`WorkerSearchScreen`)
+- **Acceso**: desde la **Pantalla Principal** → botón **"Buscar Trabajadores"**.
+- **Mapa interactivo con ubicación actual**: al abrir se pide el permiso de ubicación (`expo-location`); con las coordenadas del dispositivo se dibuja el **punto azul** y se consulta `GET /workers/nearby` (Bearer token).
+- **Búsqueda automática al mover el mapa**: el evento `moveend` de Leaflet reporta el centro y zoom visibles; cada gesto de pan/zoom re-consulta los trabajadores de la **zona visible** (centro del mapa + radio del filtro). Un guard ignora los recentrados hechos por código para evitar bucles.
+- **Filtros**:
+  - **Distancia**: pills con presets 1 / 5 / 10 / 25 / 50 km (parámetro `radius_km`, obligatorio, 1..100). El mapa reencuadra el **círculo de radio de búsqueda** al cambiar de preset (`zoomForRadius`).
+  - **Categoría**: pills horizontales con las 32 categorías del seed (`types/worker.ts` espeja `Backend/src/database/seeds/01_categories.js`; el backend no expone `GET /categories`).
+- **Pines y ficha resumida**: cada trabajador es un pin con su categoría; al tocarlo se abre una ficha con **nombre, calificación (★), tarifa por hora y distancia**, más los botones **"Ver Perfil Completo"** y **"Solicitar Servicio"** (muestra un aviso "Próximamente": el flujo de cotización es un issue futuro).
+- **Contador de resultados**: "N trabajadores encontrados" (o "N+" al llegar al límite de 50 por consulta) e indicador de refresco en segundo plano.
+- **Vista lista ↔ mapa**: botón en el header para alternar; la lista muestra las mismas tarjetas con sus acciones.
+- **Perfil mínimo del trabajador (`WorkerProfileScreen`)**: desde "Ver Perfil Completo" se abre la ficha pública (`GET /users/:id`, sin auth) con avatar, nombre, categoría, badges **Disponible/Certificado**, calificación, distancia, tarifa, biografía y **"Solicitar Servicio"** (también "Próximamente"). Los datos básicos vienen de la búsqueda y la bio/rating fresco se cargan aparte, con su propio loading, error y "Reintentar".
+- **Endpoints**: `GET /workers/nearby?latitude=&longitude=&radius_km=&category_id?=&limit=&offset?`, `GET /users/:id`.
+- **Estados visuales**: spinner "Obteniendo tu ubicación...", spinner "Buscando trabajadores...", error con "Reintentar", banner si el permiso de ubicación se denegó (con "Activar") o si no se pudo leer la posición (zona por defecto + "Reintentar"), estado vacío en mapa y en lista.
+- **Componentes**: `components/worker/` → `WorkerFilters`, `WorkerCard`; `screens/` → `WorkerSearchScreen`, `WorkerProfileScreen`; `hooks/` → `useNearbyWorkers` (descarta respuestas fuera de orden); `services/` → `workerSearchService`, `userService.getPublicProfile`.
+- **Navegación**: sin librería externa — rutas nuevas `"WorkerSearch"` y `"WorkerProfile"` en el `AppRoute` de `AppNavigator.tsx` (patrón de la app).
 
 
 ---
@@ -69,21 +85,24 @@ Frontend/src/
 ├── types/
 │   ├── onboarding.ts
 │   ├── auth.ts                      # Interfaces de Registro y Autenticación
-│   └── location.ts                  # Tipos de ubicaciones guardadas
+│   ├── location.ts                  # Tipos de ubicaciones guardadas
+│   └── worker.ts                    # Tipos de búsqueda de trabajadores + catálogo de categorías
 ├── services/
 │   ├── api.ts                       # Cliente API centralizado (backoff retry + timeout)
 │   ├── authService.ts               # Llamadas a endpoints de Auth
 │   ├── locationService.ts           # CRUD de ubicaciones guardadas
+│   ├── workerSearchService.ts       # GET /workers/nearby (búsqueda en mapa)
 │   ├── deviceLocation.ts            # Ubicación del dispositivo (expo-location)
 │   └── geocodingService.ts          # Búsqueda/reverse-geocoding (Nominatim)
 ├── hooks/
 │   ├── useOnboarding.ts
 │   ├── useRegisterForm.ts           # Hook personalizado con validación y estados
 │   ├── useLocations.ts              # Lista + CRUD de ubicaciones (orden por cercanía)
+│   ├── useNearbyWorkers.ts          # Búsqueda cercana (refetch al mover mapa/filtros)
 │   ├── useDeviceLocation.ts         # Permiso + posición del dispositivo
 │   └── useLocationForm.ts           # Estado del formulario de ubicación
 ├── utils/
-│   └── map.ts                       # Centro/zoom, tiles OSM y formato de distancia
+│   └── map.ts                       # Centro/zoom, tiles OSM, formato de distancia y zoom por radio
 ├── components/
 │   ├── onboarding/                  # Subcomponentes de Onboarding
 │   ├── register/
@@ -91,6 +110,9 @@ Frontend/src/
 │   │   ├── PasswordRequirements.tsx # Checklist de complejidad de contraseña
 │   │   ├── RegisterTermsRow.tsx     # Checkbox de términos y condiciones
 │   │   └── TermsModal.tsx           # Modal de términos y condiciones
+│   ├── worker/
+│   │   ├── WorkerFilters.tsx        # Pills de distancia y categoría
+│   │   └── WorkerCard.tsx           # Tarjeta resumida con acciones
 │   └── location/
 │       ├── LeafletMap.tsx           # Mapa WebView + Leaflet + OSM (sin API key)
 │       ├── LocationMapPicker.tsx    # Mapa interactivo (pin arrastrable, expandible)
@@ -102,8 +124,10 @@ Frontend/src/
 ├── screens/
 │   ├── OnboardingScreen.tsx
 │   ├── RegisterScreen.tsx           # Contenedor de la pantalla de Registro (<150 líneas)
-│   └── LocationsScreen.tsx          # Gestión de ubicaciones guardadas
-└── navigation/AppNavigator.tsx      # Ruteo principal (Onboarding, Register, OTP, Login, Perfil, Ubicaciones)
+│   ├── LocationsScreen.tsx          # Gestión de ubicaciones guardadas
+│   ├── WorkerSearchScreen.tsx       # Búsqueda de trabajadores en mapa/lista
+│   └── WorkerProfileScreen.tsx      # Perfil público mínimo del trabajador
+└── navigation/AppNavigator.tsx      # Ruteo principal (Onboarding, Register, OTP, Login, Perfil, Ubicaciones, Búsqueda)
 ```
 
 ---

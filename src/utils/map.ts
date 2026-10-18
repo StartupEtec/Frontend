@@ -62,3 +62,22 @@ export function formatDistance(meters: number | null | undefined): string {
   const decimals = km < 10 ? 1 : 0;
   return `${km.toFixed(decimals).replace(".", ",")} km`;
 }
+
+/**
+ * Zoom aproximado para que un círculo de `radiusKm` de radio entre en pantalla.
+ *
+ * Estimación heurística: se asumen ~300 px desde el centro del mapa hasta el
+ * borde de la pantalla y la latitud del punto central. Se usa para encuadrar
+ * el radio de búsqueda al cambiar de preset en la pantalla de búsqueda de
+ * trabajadores (no es un cálculo de fitBounds exacto).
+ */
+export function zoomForRadius(
+  radiusKm: number,
+  latitude: number = DEFAULT_CENTER.latitude,
+): number {
+  const radiusMeters = Math.max(radiusKm, 0.1) * 1000;
+  const metersPerPixel = radiusMeters / 300;
+  const cosLatitude = Math.cos((latitude * Math.PI) / 180);
+  const zoom = Math.log2((156543.03392 * cosLatitude) / metersPerPixel);
+  return clamp(Math.round(zoom), 3, OSM_MAX_ZOOM - 1);
+}
