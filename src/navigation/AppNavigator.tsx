@@ -19,6 +19,7 @@ import { LoginScreen } from "../screens/LoginScreen";
 import { ForgotPasswordScreen } from "../screens/ForgotPasswordScreen";
 import { ProfileScreen } from "../screens/ProfileScreen";
 import { EditProfileScreen } from "../screens/EditProfileScreen";
+import { LocationsScreen } from "../screens/LocationsScreen";
 import { NavBar } from "../components/NavBar";
 import { ASYNC_STORAGE_ONBOARDING_KEY } from "../i18n/onboardingContent";
 import { tokenStorage } from "../services/tokenStorage";
@@ -49,6 +50,7 @@ export type AppRoute =
   | "CompleteProfile"
   | "Profile"
   | "EditProfile"
+  | "Locations"
   | "Main";
 
 export const AppNavigator: React.FC = () => {
@@ -283,6 +285,7 @@ export const AppNavigator: React.FC = () => {
         onRoleChanged={handleRoleChanged}
         onGoBack={() => setCurrentRoute("Main")}
         onEditProfile={() => setCurrentRoute("EditProfile")}
+        onManageLocations={() => setCurrentRoute("Locations")}
         onLogout={handleLogout}
       />
     );
@@ -291,6 +294,15 @@ export const AppNavigator: React.FC = () => {
   if (currentRoute === "EditProfile") {
     return (
       <EditProfileScreen
+        role={selectedRole}
+        onGoBack={() => setCurrentRoute("Profile")}
+      />
+    );
+  }
+
+  if (currentRoute === "Locations") {
+    return (
+      <LocationsScreen
         role={selectedRole}
         onGoBack={() => setCurrentRoute("Profile")}
       />
