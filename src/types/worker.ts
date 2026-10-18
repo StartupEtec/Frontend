@@ -154,11 +154,11 @@ export const WORKER_CATEGORIES: WorkerCategory[] = [
   },
 ];
 
-/** Presets del filtro de distancia en km (el backend acepta 1..100). */
-export const SEARCH_RADIUS_PRESETS_KM = [1, 5, 10, 25, 50];
-
-/** Radio por defecto de la búsqueda (km). */
-export const NEARBY_DEFAULT_RADIUS_KM = 10;
+/**
+ * Radio fijo de búsqueda (km). La pantalla no expone filtro de distancia:
+ * se envía el máximo que acepta el backend para no perder trabajadores.
+ */
+export const NEARBY_FIXED_RADIUS_KM = 100;
 
 /**
  * Límite de trabajadores por consulta. El backend acepta 1..100 y devuelve

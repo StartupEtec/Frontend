@@ -6,58 +6,27 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import {
-  SEARCH_RADIUS_PRESETS_KM,
-  WORKER_CATEGORIES,
-} from "../../types/worker";
+import { WORKER_CATEGORIES } from "../../types/worker";
 import { colors, spacing, borderRadius, typography } from "../../theme/tokens";
 
 export interface WorkerFiltersProps {
-  accentColor?: string;
-  /** Radio activo en km. */
-  radiusKm: number;
   /** Categoría activa (null = todas). */
   categoryId: string | null;
-  onRadiusChange: (radiusKm: number) => void;
   onCategoryChange: (categoryId: string | null) => void;
   testID?: string;
 }
 
 /**
- * Filtros de la búsqueda: pills de distancia (presets en km) y pills de
- * categoría (catálogo fijo del seed, porque el backend no expone /categories).
+ * Filtros de la búsqueda: pills de categoría (catálogo fijo del seed, porque
+ * el backend no expone /categories). El filtro de distancia fue eliminado:
+ * la búsqueda usa un radio fijo.
  */
 export const WorkerFilters: React.FC<WorkerFiltersProps> = ({
-  accentColor = colors.primary,
-  radiusKm,
   categoryId,
-  onRadiusChange,
   onCategoryChange,
   testID = "worker-filters",
 }) => (
   <View style={styles.container} testID={testID}>
-    <Text style={styles.label}>Distancia</Text>
-    <View style={styles.pillsRow}>
-      {SEARCH_RADIUS_PRESETS_KM.map((km) => {
-        const active = km === radiusKm;
-        return (
-          <TouchableOpacity
-            key={km}
-            style={[styles.pill, active && { backgroundColor: accentColor }]}
-            onPress={() => onRadiusChange(km)}
-            testID={`filter-radius-${km}`}
-            accessibilityRole="button"
-            accessibilityState={{ selected: active }}
-            accessibilityLabel={`Buscar dentro de ${km} kilómetros`}
-          >
-            <Text
-              style={[styles.pillText, active && styles.pillTextActive]}
-            >{`${km} km`}</Text>
-          </TouchableOpacity>
-        );
-      })}
-    </View>
-
     <Text style={styles.label}>Categoría</Text>
     <ScrollView
       horizontal
@@ -67,7 +36,7 @@ export const WorkerFilters: React.FC<WorkerFiltersProps> = ({
       <TouchableOpacity
         style={[
           styles.pill,
-          categoryId === null && { backgroundColor: accentColor },
+          categoryId === null && { backgroundColor: colors.primary },
         ]}
         onPress={() => onCategoryChange(null)}
         testID="filter-category-all"
@@ -88,7 +57,7 @@ export const WorkerFilters: React.FC<WorkerFiltersProps> = ({
         return (
           <TouchableOpacity
             key={category.id}
-            style={[styles.pill, active && { backgroundColor: accentColor }]}
+            style={[styles.pill, active && { backgroundColor: colors.primary }]}
             onPress={() => onCategoryChange(category.id)}
             testID={`filter-category-${index}`}
             accessibilityRole="button"
@@ -121,11 +90,6 @@ const styles = StyleSheet.create({
     fontWeight: typography.fontWeights.semibold,
     textTransform: "uppercase",
     marginTop: spacing.xs,
-  },
-  pillsRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: spacing.sm,
   },
   categoryRow: {
     gap: spacing.sm,

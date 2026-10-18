@@ -60,17 +60,15 @@ Los mapas **no** usan `react-native-maps`. Se dibujan con **Leaflet** dentro de 
 
 ### 4. Issue #24 - Búsqueda de Trabajadores en Mapa (`WorkerSearchScreen`)
 - **Acceso**: desde la **Pantalla Principal** → botón **"Buscar Trabajadores"**.
-- **Mapa interactivo con ubicación actual**: al abrir se pide el permiso de ubicación (`expo-location`); con las coordenadas del dispositivo se dibuja el **punto azul** y se consulta `GET /workers/nearby` (Bearer token).
-- **Búsqueda automática al mover el mapa**: el evento `moveend` de Leaflet reporta el centro y zoom visibles; cada gesto de pan/zoom re-consulta los trabajadores de la **zona visible** (centro del mapa + radio del filtro). Un guard ignora los recentrados hechos por código para evitar bucles.
-- **Filtros**:
-  - **Distancia**: pills con presets 1 / 5 / 10 / 25 / 50 km (parámetro `radius_km`, obligatorio, 1..100). El mapa reencuadra el **círculo de radio de búsqueda** al cambiar de preset (`zoomForRadius`).
-  - **Categoría**: pills horizontales con las 32 categorías del seed (`types/worker.ts` espeja `Backend/src/database/seeds/01_categories.js`; el backend no expone `GET /categories`).
-- **Pines y ficha resumida**: cada trabajador es un pin con su categoría; al tocarlo se abre una ficha con **nombre, calificación (★), tarifa por hora y distancia**, más los botones **"Ver Perfil Completo"** y **"Solicitar Servicio"** (muestra un aviso "Próximamente": el flujo de cotización es un issue futuro).
+- **Mapa interactivo con ubicación actual**: al abrir se pide el permiso de ubicación (`expo-location`); con las coordenadas del dispositivo se dibuja el **punto azul del cliente** (los trabajadores se marcan con **puntos verdes**, `colors.workerAccent`) y se consulta `GET /workers/nearby` (Bearer token).
+- **Búsqueda automática al mover el mapa**: el evento `moveend` de Leaflet reporta el centro y zoom visibles; cada gesto de pan/zoom re-consulta los trabajadores alrededor del **centro visible** (radio fijo de 100 km: no hay filtro de distancia). Un guard ignora los recentrados hechos por código para evitar bucles.
+- **Filtro de categoría**: pills horizontales con las 32 categorías del seed (`types/worker.ts` espeja `Backend/src/database/seeds/01_categories.js`; el backend no expone `GET /categories`). Cambiar de categoría re-consulta en el mismo centro, sin mover el mapa.
+- **Pines y ficha resumida**: cada trabajador es un pin verde; al tocarlo se abre una ficha con **nombre, calificación (★), tarifa por hora y distancia**, más los botones **"Ver Perfil Completo"** y **"Solicitar Servicio"** (muestra un aviso "Próximamente": el flujo de cotización es un issue futuro).
 - **Contador de resultados**: "N trabajadores encontrados" (o "N+" al llegar al límite de 50 por consulta) e indicador de refresco en segundo plano.
 - **Vista lista ↔ mapa**: botón en el header para alternar; la lista muestra las mismas tarjetas con sus acciones.
 - **Perfil mínimo del trabajador (`WorkerProfileScreen`)**: desde "Ver Perfil Completo" se abre la ficha pública (`GET /users/:id`, sin auth) con avatar, nombre, categoría, badges **Disponible/Certificado**, calificación, distancia, tarifa, biografía y **"Solicitar Servicio"** (también "Próximamente"). Los datos básicos vienen de la búsqueda y la bio/rating fresco se cargan aparte, con su propio loading, error y "Reintentar".
 - **Endpoints**: `GET /workers/nearby?latitude=&longitude=&radius_km=&category_id?=&limit=&offset?`, `GET /users/:id`.
-- **Estados visuales**: spinner "Obteniendo tu ubicación...", spinner "Buscando trabajadores...", error con "Reintentar", banner si el permiso de ubicación se denegó (con "Activar") o si no se pudo leer la posición (zona por defecto + "Reintentar"), estado vacío en mapa y en lista.
+- **Estados visuales**: spinner "Obteniendo tu ubicación...", spinner "Buscando trabajadores...", error con "Reintentar", banner si el permiso de ubicación se denegó (con "Activar") o si no se pudo leer la posición (ubicación por defecto + "Reintentar"), estado vacío en mapa y en lista ("No hay trabajadores disponibles por ahora").
 - **Componentes**: `components/worker/` → `WorkerFilters`, `WorkerCard`; `screens/` → `WorkerSearchScreen`, `WorkerProfileScreen`; `hooks/` → `useNearbyWorkers` (descarta respuestas fuera de orden); `services/` → `workerSearchService`, `userService.getPublicProfile`.
 - **Navegación**: sin librería externa — rutas nuevas `"WorkerSearch"` y `"WorkerProfile"` en el `AppRoute` de `AppNavigator.tsx` (patrón de la app).
 
@@ -111,7 +109,7 @@ Frontend/src/
 │   │   ├── RegisterTermsRow.tsx     # Checkbox de términos y condiciones
 │   │   └── TermsModal.tsx           # Modal de términos y condiciones
 │   ├── worker/
-│   │   ├── WorkerFilters.tsx        # Pills de distancia y categoría
+│   │   ├── WorkerFilters.tsx        # Pills de categoría (sin filtro de distancia)
 │   │   └── WorkerCard.tsx           # Tarjeta resumida con acciones
 │   └── location/
 │       ├── LeafletMap.tsx           # Mapa WebView + Leaflet + OSM (sin API key)

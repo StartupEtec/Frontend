@@ -6,6 +6,7 @@ import { useNearbyWorkers } from "../../src/hooks/useNearbyWorkers";
 import { useDeviceLocation } from "../../src/hooks/useDeviceLocation";
 import { UserRole } from "../../src/types/role";
 import { NearbyWorker, WORKER_CATEGORIES } from "../../src/types/worker";
+import { colors } from "../../src/theme/tokens";
 
 jest.mock("../../src/hooks/useNearbyWorkers", () => ({
   useNearbyWorkers: jest.fn(),
@@ -92,20 +93,21 @@ describe("WorkerSearchScreen", () => {
     jest.restoreAllMocks();
   });
 
-  it("requests the nearby search with the device location and draws the radius circle", () => {
-    const { getByTestId } = renderScreen();
+  it("requests the nearby search with the fixed radius and draws green pins", () => {
+    const { getByTestId } = renderScreen({
+      hook: { workers: [makeWorker()] },
+    });
 
+    // Radio fijo (la UI no expone filtro de distancia).
     expect(lastHookArgs()).toEqual(
-      expect.objectContaining({ center: deviceCoords, radiusKm: 10 }),
+      expect.objectContaining({ center: deviceCoords, radiusKm: 100 }),
     );
 
     const map = getByTestId("worker-search-map");
     expect(map.props.userLocation).toEqual(deviceCoords);
-    expect(map.props.circles[0]).toMatchObject({
-      radiusKm: 10,
-      latitude: deviceCoords.latitude,
-      longitude: deviceCoords.longitude,
-    });
+    // El trabajador se marca en verde; el punto azul del usuario lo dibuja
+    // LeafletMap por su cuenta.
+    expect(map.props.markers[0].color).toBe(colors.workerAccent);
   });
 
   it("shows a loading indicator while the first search runs", () => {
@@ -130,17 +132,6 @@ describe("WorkerSearchScreen", () => {
       latitude: -34.62,
       longitude: -58.4,
     });
-  });
-
-  it("applies the distance preset to the search", () => {
-    const { getByTestId } = renderScreen();
-
-    fireEvent.press(getByTestId("filter-radius-25"));
-
-    expect(lastHookArgs().radiusKm).toBe(25);
-    expect(
-      getByTestId("filter-radius-25").props.accessibilityState.selected,
-    ).toBe(true);
   });
 
   it("applies the category preset to the search", () => {
@@ -315,12 +306,23 @@ describe("WorkerSearchScreen", () => {
     expect(getByTestId("worker-search-map")).toBeTruthy();
   });
 
-  it("shows the empty state in list view", () => {
-    const { getByTestId } = renderScreen({ hook: { workers: [] } });
+  it("shows empty messages without mentioning zones or distances", () => {
+    const { getByTestId, getByText } = renderScreen({
+      hook: { workers: [] },
+    });
 
+    // Vista de mapa.
+    expect(
+      getByText("No hay trabajadores disponibles por ahora."),
+    ).toBeTruthy();
+
+    // Vista de lista.
     fireEvent.press(getByTestId("btn-toggle-view"));
 
     expect(getByTestId("workers-empty")).toBeTruthy();
+    expect(
+      getByText("Probá cambiando la categoría o volvé a intentar más tarde."),
+    ).toBeTruthy();
   });
 
   it("shows a count spinner while refreshing in the background", () => {

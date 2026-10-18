@@ -20,7 +20,7 @@ import { WorkerCard } from "../components/worker/WorkerCard";
 import { Coordinates } from "../types/location";
 import {
   NearbyWorker,
-  NEARBY_DEFAULT_RADIUS_KM,
+  NEARBY_FIXED_RADIUS_KM,
   NEARBY_MAX_LIMIT,
 } from "../types/worker";
 import { DEFAULT_CENTER, sameCoordinates, zoomForRadius } from "../utils/map";
@@ -46,11 +46,12 @@ const PLANNED_FEATURE_MESSAGE =
 
 /**
  * "Buscar Trabajadores": mapa interactivo (Leaflet + OSM en WebView) con un
- * pin por trabajador disponible, filtros de distancia y categoría, contador
- * de resultados y vista de lista alternativa.
+ * pin verde por trabajador disponible (el punto azul es tu ubicación), filtro
+ * de categoría, contador de resultados y vista de lista alternativa.
  *
- * La búsqueda usa GET /workers/nearby con el centro visible del mapa: se
- * consulta al cargar y cada vez que el usuario mueve el mapa (`onMoveEnd`).
+ * La búsqueda usa GET /workers/nearby con el centro visible del mapa y un
+ * radio fijo (sin filtro de distancia): se consulta al cargar y cada vez que
+ * el usuario mueve el mapa (`onMoveEnd`).
  * Al tocar un pin se abre una ficha resumida con "Ver Perfil Completo" y
  * "Solicitar Servicio".
  */
@@ -62,7 +63,7 @@ export const WorkerSearchScreen: React.FC<WorkerSearchScreenProps> = ({
   const accentColor = roleAccent(role);
   const device = useDeviceLocation();
 
-  const [radiusKm, setRadiusKm] = useState(NEARBY_DEFAULT_RADIUS_KM);
+  // Radio fijo de búsqueda (sin filtro de distancia en la UI).
   const [categoryId, setCategoryId] = useState<string | null>(null);
   const [view, setView] = useState<"map" | "list">("map");
   const [selectedWorker, setSelectedWorker] = useState<NearbyWorker | null>(
@@ -108,26 +109,17 @@ export const WorkerSearchScreen: React.FC<WorkerSearchScreenProps> = ({
     const center = initial ?? DEFAULT_CENTER;
     searchCenterRef.current = center;
     setSearchCenter(center);
-    applyProgrammaticView(center, zoomForRadius(radiusKm, center.latitude));
-  }, [searchCenter, device, radiusKm, applyProgrammaticView]);
+    applyProgrammaticView(
+      center,
+      zoomForRadius(NEARBY_FIXED_RADIUS_KM, center.latitude),
+    );
+  }, [searchCenter, device, applyProgrammaticView]);
 
   const { workers, status, error, refreshing, reload } = useNearbyWorkers({
     center: searchCenter,
-    radiusKm,
+    radiusKm: NEARBY_FIXED_RADIUS_KM,
     categoryId,
   });
-
-  // Cambio de radio: se reconsulta (por el hook) y se reencuadra el círculo
-  // de búsqueda en el mismo centro.
-  const handleRadiusChange = useCallback(
-    (km: number) => {
-      setRadiusKm(km);
-      const center = searchCenterRef.current;
-      if (center)
-        applyProgrammaticView(center, zoomForRadius(km, center.latitude));
-    },
-    [applyProgrammaticView],
-  );
 
   // El usuario dejó de mover/zoom el mapa: re-buscar en la nueva zona.
   const handleMoveEnd = useCallback((center: Coordinates, zoom: number) => {
@@ -165,34 +157,23 @@ export const WorkerSearchScreen: React.FC<WorkerSearchScreenProps> = ({
     setSearchCenter(coordinates);
     applyProgrammaticView(
       coordinates,
-      zoomForRadius(radiusKm, coordinates.latitude),
+      zoomForRadius(NEARBY_FIXED_RADIUS_KM, coordinates.latitude),
     );
-  }, [device, radiusKm, applyProgrammaticView]);
+  }, [device, applyProgrammaticView]);
 
   const handleRequestService = useCallback(() => {
     Alert.alert("Próximamente", PLANNED_FEATURE_MESSAGE);
   }, []);
 
+  // Pines de trabajadores siempre en verde (colors.workerAccent); el punto
+  // azul de la ubicación del usuario lo dibuja LeafletMap por su cuenta.
   const markers: LeafletMarker[] = workers.map((worker) => ({
     id: worker.worker_id,
     latitude: worker.latitude,
     longitude: worker.longitude,
-    color: accentColor,
+    color: colors.workerAccent,
     title: worker.full_name,
   }));
-
-  const searchCircles = searchCenter
-    ? [
-        {
-          id: "search-radius",
-          latitude: searchCenter.latitude,
-          longitude: searchCenter.longitude,
-          radiusKm,
-          color: accentColor,
-          fillOpacity: 0.12,
-        },
-      ]
-    : [];
 
   const truncated = workers.length >= NEARBY_MAX_LIMIT;
   const countLabel =
@@ -211,7 +192,7 @@ export const WorkerSearchScreen: React.FC<WorkerSearchScreenProps> = ({
     : device.unavailable
       ? {
           testID: "workers-location-unavailable",
-          text: "No pudimos obtener tu ubicación. La búsqueda usa una zona por defecto.",
+          text: "No pudimos obtener tu ubicación. La búsqueda usa una ubicación por defecto.",
           action: "Reintentar",
         }
       : null;
@@ -267,13 +248,7 @@ export const WorkerSearchScreen: React.FC<WorkerSearchScreenProps> = ({
         </TouchableOpacity>
       </View>
 
-      <WorkerFilters
-        accentColor={accentColor}
-        radiusKm={radiusKm}
-        categoryId={categoryId}
-        onRadiusChange={handleRadiusChange}
-        onCategoryChange={setCategoryId}
-      />
+      <WorkerFilters categoryId={categoryId} onCategoryChange={setCategoryId} />
 
       {(countLabel || refreshing) && (
         <View style={styles.countRow} testID="worker-search-count">
@@ -329,7 +304,6 @@ export const WorkerSearchScreen: React.FC<WorkerSearchScreenProps> = ({
         <View style={styles.mapWrap} testID="workers-map-view">
           <LeafletMap
             markers={markers}
-            circles={searchCircles}
             selectable
             userLocation={device.coordinates}
             center={mapCenter}
@@ -362,8 +336,7 @@ export const WorkerSearchScreen: React.FC<WorkerSearchScreenProps> = ({
           {status === "success" && workers.length === 0 && (
             <View style={styles.mapEmpty} pointerEvents="none">
               <Text style={styles.mapEmptyText}>
-                Sin trabajadores en esta zona. Mové el mapa o ampliá la
-                distancia.
+                No hay trabajadores disponibles por ahora.
               </Text>
             </View>
           )}
@@ -414,7 +387,7 @@ export const WorkerSearchScreen: React.FC<WorkerSearchScreenProps> = ({
               <Text style={styles.emptyIcon}>🔍</Text>
               <Text style={styles.emptyTitle}>Sin trabajadores cerca</Text>
               <Text style={styles.emptyText}>
-                Probá ampliando la distancia o cambiando la categoría.
+                Probá cambiando la categoría o volvé a intentar más tarde.
               </Text>
             </View>
           ) : (

@@ -511,9 +511,11 @@ const LEAFLET_HTML = `<!DOCTYPE html>
             return;
           }
           if (!userMarker) {
+            // Punto azul (= colors.clientAccent) para el usuario; los pines
+            // verdes de trabajadores los pasa RN en el prop markers.
             userMarker = L.circleMarker([lat, lng], {
               radius: 7, color: '#ffffff', weight: 3,
-              fillColor: '#0f62fe', fillOpacity: 1
+              fillColor: '${colors.clientAccent}', fillOpacity: 1
             }).addTo(map);
           } else {
             userMarker.setLatLng([lat, lng]);
