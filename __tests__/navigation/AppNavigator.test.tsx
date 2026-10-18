@@ -17,6 +17,15 @@ jest.mock("../../src/services/userService", () => ({
   userService: { switchRole: jest.fn() },
 }));
 
+jest.mock("../../src/services/locationService", () => ({
+  locationService: {
+    list: jest.fn().mockResolvedValue([]),
+    create: jest.fn(),
+    update: jest.fn(),
+    remove: jest.fn(),
+  },
+}));
+
 jest.mock("../../src/services/profileService", () => ({
   profileService: {
     getIdentity: jest.fn().mockResolvedValue(null),
@@ -511,5 +520,42 @@ describe("AppNavigator Flow Integration", () => {
     });
     expect(getByTestId("edit-profile-first-name").props.children).toBe("Juan");
     expect(getByTestId("edit-profile-description")).toBeTruthy();
+  });
+
+  it("navigates from Mi Perfil to Mis Ubicaciones and back", async () => {
+    mockStorage({
+      "@startup_app/onboarding_completed": "true",
+      "@startup_app/access_token": "access-token-123",
+      "@startup_app/user_id": "user-123",
+      "@startup_app/last_role_user-123": "client",
+    });
+
+    const { getByText, getByTestId } = render(
+      <RoleProvider>
+        <AppNavigator />
+      </RoleProvider>,
+    );
+
+    await waitFor(() => {
+      expect(getByText("Pantalla Principal")).toBeTruthy();
+    });
+
+    fireEvent.press(getByTestId("btn-account"));
+
+    await waitFor(() => {
+      expect(getByText("Mi Perfil")).toBeTruthy();
+    });
+
+    fireEvent.press(getByTestId("btn-manage-locations"));
+
+    await waitFor(() => {
+      expect(getByTestId("btn-locations-back")).toBeTruthy();
+    });
+
+    fireEvent.press(getByTestId("btn-locations-back"));
+
+    await waitFor(() => {
+      expect(getByText("Mi Perfil")).toBeTruthy();
+    });
   });
 });

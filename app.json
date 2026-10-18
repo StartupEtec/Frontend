@@ -37,6 +37,12 @@
           "backgroundColor": "#f9f9f9",
           "resizeMode": "contain"
         }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Permitir a $(PRODUCT_NAME) usar tu ubicación para mostrarte y ordenar tus direcciones guardadas más cercanas."
+        }
       ]
     ]
   }

@@ -85,6 +85,45 @@ jest.mock('@react-native-community/datetimepicker', () => {
   };
 });
 
+jest.mock('react-native-webview', () => {
+  const React = require('react');
+  const { View } = require('react-native');
+
+  const injectJavaScript = jest.fn();
+  const MockWebView = React.forwardRef((props, ref) => {
+    React.useImperativeHandle(ref, () => ({
+      injectJavaScript,
+      postMessage: jest.fn(),
+      reload: jest.fn(),
+    }));
+    return React.createElement(View, props);
+  });
+  MockWebView.displayName = 'WebView';
+
+  return {
+    __esModule: true,
+    default: MockWebView,
+    WebView: MockWebView,
+    __injectJavaScript: injectJavaScript,
+  };
+});
+
+jest.mock('expo-location', () => ({
+  Accuracy: { Lowest: 1, Low: 2, Balanced: 3, High: 4, Highest: 5, BestForNavigation: 6 },
+  requestForegroundPermissionsAsync: jest.fn(() =>
+    Promise.resolve({ status: 'granted', granted: true })
+  ),
+  getForegroundPermissionsAsync: jest.fn(() =>
+    Promise.resolve({ status: 'granted', granted: true })
+  ),
+  getCurrentPositionAsync: jest.fn(() =>
+    Promise.resolve({
+      coords: { latitude: -34.6037, longitude: -58.3816, accuracy: 10 },
+      timestamp: Date.now(),
+    })
+  ),
+}));
+
 jest.mock('@expo/vector-icons', () => {
   const React = require('react');
   const { Text } = require('react-native');

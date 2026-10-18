@@ -25,6 +25,7 @@ export interface ProfileScreenProps {
   onRoleChanged: (newRole: UserRole, newToken: string) => void;
   onGoBack: () => void;
   onEditProfile: () => void;
+  onManageLocations: () => void;
   onLogout: () => void;
 }
 
@@ -33,6 +34,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
   onRoleChanged,
   onGoBack,
   onEditProfile,
+  onManageLocations,
   onLogout,
 }) => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -134,6 +136,25 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
                   <Text style={styles.menuItemTitle}>Editar Perfil</Text>
                   <Text style={styles.menuItemSubtitle}>
                     Actualizá tu información personal
+                  </Text>
+                </View>
+              </View>
+              <Text style={styles.menuItemChevron}>›</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.menuItem}
+              onPress={onManageLocations}
+              testID="btn-manage-locations"
+              accessibilityRole="button"
+              accessibilityLabel="Mis ubicaciones"
+            >
+              <View style={styles.menuItemLeft}>
+                <Text style={styles.menuItemIcon}>📍</Text>
+                <View>
+                  <Text style={styles.menuItemTitle}>Mis Ubicaciones</Text>
+                  <Text style={styles.menuItemSubtitle}>
+                    Administrá tus direcciones guardadas
                   </Text>
                 </View>
               </View>

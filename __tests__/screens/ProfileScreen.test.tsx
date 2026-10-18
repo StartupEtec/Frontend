@@ -17,6 +17,7 @@ describe("ProfileScreen", () => {
   const mockOnRoleChanged = jest.fn();
   const mockOnGoBack = jest.fn();
   const mockOnEditProfile = jest.fn();
+  const mockOnManageLocations = jest.fn();
   const mockOnLogout = jest.fn();
 
   beforeEach(() => {
@@ -30,6 +31,7 @@ describe("ProfileScreen", () => {
         onRoleChanged={mockOnRoleChanged}
         onGoBack={mockOnGoBack}
         onEditProfile={mockOnEditProfile}
+        onManageLocations={mockOnManageLocations}
         onLogout={mockOnLogout}
       />,
     );
@@ -48,6 +50,7 @@ describe("ProfileScreen", () => {
         onRoleChanged={mockOnRoleChanged}
         onGoBack={mockOnGoBack}
         onEditProfile={mockOnEditProfile}
+        onManageLocations={mockOnManageLocations}
         onLogout={mockOnLogout}
       />,
     );
@@ -63,12 +66,29 @@ describe("ProfileScreen", () => {
         onRoleChanged={mockOnRoleChanged}
         onGoBack={mockOnGoBack}
         onEditProfile={mockOnEditProfile}
+        onManageLocations={mockOnManageLocations}
         onLogout={mockOnLogout}
       />,
     );
 
     fireEvent.press(getByTestId("btn-edit-profile"));
     expect(mockOnEditProfile).toHaveBeenCalled();
+  });
+
+  it("navigates to locations when Mis Ubicaciones pressed", () => {
+    const { getByTestId } = render(
+      <ProfileScreen
+        currentRole="client"
+        onRoleChanged={mockOnRoleChanged}
+        onGoBack={mockOnGoBack}
+        onEditProfile={mockOnEditProfile}
+        onManageLocations={mockOnManageLocations}
+        onLogout={mockOnLogout}
+      />,
+    );
+
+    fireEvent.press(getByTestId("btn-manage-locations"));
+    expect(mockOnManageLocations).toHaveBeenCalled();
   });
 
   it("opens role switch modal when Cambiar Rol pressed", () => {
@@ -78,6 +98,7 @@ describe("ProfileScreen", () => {
         onRoleChanged={mockOnRoleChanged}
         onGoBack={mockOnGoBack}
         onEditProfile={mockOnEditProfile}
+        onManageLocations={mockOnManageLocations}
         onLogout={mockOnLogout}
       />,
     );
@@ -93,6 +114,7 @@ describe("ProfileScreen", () => {
         onRoleChanged={mockOnRoleChanged}
         onGoBack={mockOnGoBack}
         onEditProfile={mockOnEditProfile}
+        onManageLocations={mockOnManageLocations}
         onLogout={mockOnLogout}
       />,
     );
@@ -108,6 +130,7 @@ describe("ProfileScreen", () => {
         onRoleChanged={mockOnRoleChanged}
         onGoBack={mockOnGoBack}
         onEditProfile={mockOnEditProfile}
+        onManageLocations={mockOnManageLocations}
         onLogout={mockOnLogout}
       />,
     );
@@ -130,6 +153,7 @@ describe("ProfileScreen", () => {
         onRoleChanged={mockOnRoleChanged}
         onGoBack={mockOnGoBack}
         onEditProfile={mockOnEditProfile}
+        onManageLocations={mockOnManageLocations}
         onLogout={mockOnLogout}
       />,
     );
