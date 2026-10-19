@@ -110,6 +110,18 @@ describe("WorkerSearchScreen", () => {
     expect(map.props.markers[0].color).toBe(colors.workerAccent);
   });
 
+  it("keeps the count row mounted with a fixed height so the map never resizes", () => {
+    // Regresión del temblor: si la fila aparece/desaparece según los
+    // resultados, la WebView cambia de tamaño y Leaflet entra en bucle.
+    const { getByTestId } = renderScreen({
+      hook: { workers: [], refreshing: false },
+    });
+
+    const row = getByTestId("worker-search-count");
+    expect(row).toBeTruthy();
+    expect(row.props.style).toMatchObject({ height: 36 });
+  });
+
   it("shows a loading indicator while the first search runs", () => {
     const { getByTestId } = renderScreen({
       hook: { status: "loading", workers: [] },

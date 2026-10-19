@@ -161,6 +161,16 @@ describe("LeafletMap", () => {
     expect(source.html).toContain("type: 'moveend'");
   });
 
+  it("skips setView when the map is already at the target (anti-tremor)", () => {
+    const { getByTestId } = render(<LeafletMap markers={[]} testID="map" />);
+
+    const source = getByTestId("map-webview").props.source as {
+      html: string;
+    };
+    // Corta el eco moveend → setView → moveend que hacía temblar al mapa.
+    expect(source.html).toContain("distanceTo(L.latLng(lat, lng)) < 1");
+  });
+
   it("ignores malformed or unknown messages", () => {
     const onPress = jest.fn();
     const { getByTestId } = render(

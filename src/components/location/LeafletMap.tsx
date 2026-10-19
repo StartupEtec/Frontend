@@ -522,6 +522,13 @@ const LEAFLET_HTML = `<!DOCTYPE html>
           }
         },
         setView: function (lat, lng, zoom) {
+          // Guard anti-temblor: si el mapa ya está en ese punto y zoom, no se
+          // vuelve a centrar. Sin esto, cada moveend (usuario o invalidateSize)
+          // re-inyectaba setView, Leaflet emitía otro moveend con el centro
+          // redondeado por píxel y el ciclo entraba en bucle.
+          if (map.getZoom() === zoom && map.getCenter().distanceTo(L.latLng(lat, lng)) < 1) {
+            return;
+          }
           map.setView([lat, lng], zoom, { animate: true });
         },
         fitMarkers: function () {

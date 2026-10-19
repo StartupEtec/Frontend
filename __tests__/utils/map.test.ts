@@ -50,8 +50,8 @@ describe("sameCoordinates", () => {
 });
 
 describe("DEFAULT_CENTER", () => {
-  it("points to Buenos Aires", () => {
-    expect(DEFAULT_CENTER.latitude).toBeCloseTo(-34.6037);
-    expect(DEFAULT_CENTER.longitude).toBeCloseTo(-58.3816);
+  it("points to Mendoza, Argentina", () => {
+    expect(DEFAULT_CENTER.latitude).toBeCloseTo(-32.8895);
+    expect(DEFAULT_CENTER.longitude).toBeCloseTo(-68.8458);
   });
 });

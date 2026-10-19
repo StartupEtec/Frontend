@@ -1,9 +1,9 @@
 import { Coordinates } from "../types/location";
 
-/** Centro inicial cuando todavía no hay coordenadas (Buenos Aires, AR). */
+/** Centro inicial cuando todavía no hay coordenadas (Ciudad de Mendoza, AR). */
 export const DEFAULT_CENTER: Coordinates = {
-  latitude: -34.6037,
-  longitude: -58.3816,
+  latitude: -32.8895,
+  longitude: -68.8458,
 };
 
 /** Zoom por defecto para una vista de contexto. */

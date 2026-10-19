@@ -76,7 +76,7 @@ export const WorkerSearchScreen: React.FC<WorkerSearchScreenProps> = ({
   const searchCenterRef = useRef<Coordinates | null>(null);
 
   // Centro/zoom que VE el mapa: se actualiza solo en movimientos
-  // programáticos (init, cambio de filtro, recentrado) y al sincronizar el
+  // programáticos (init o recentrado) y al sincronizar el
   // gesto del usuario, de modo que un recargo de la WebView vuelva a esta
   // vista sin pisar nunca el zoom elegido a mano.
   const [mapCenter, setMapCenter] = useState<Coordinates | null>(null);
@@ -250,7 +250,11 @@ export const WorkerSearchScreen: React.FC<WorkerSearchScreenProps> = ({
 
       <WorkerFilters categoryId={categoryId} onCategoryChange={setCategoryId} />
 
-      {(countLabel || refreshing) && (
+      {/* Fila siempre montada (si hay centro) con altura fija: si aparece o
+          desaparece según los resultados, la WebView cambia de tamaño,
+          Leaflet "invalidateSize" panea el mapa y re-dispara moveend,
+          entrando en un bucle visible de temblor. */}
+      {searchCenter !== null && (
         <View style={styles.countRow} testID="worker-search-count">
           {countLabel && <Text style={styles.countText}>{countLabel}</Text>}
           {refreshing && <ActivityIndicator size="small" color={accentColor} />}
@@ -439,11 +443,13 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surfaceContainerLow,
   },
   countRow: {
+    // Altura fija: el alto del contenedor del mapa no debe variar con el
+    // estado de la búsqueda (ver comentario en el JSX sobre el temblor).
+    height: 36,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
     gap: spacing.sm,
   },
   countText: {
