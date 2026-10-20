@@ -31,7 +31,6 @@ const makeWorker = (overrides: Partial<NearbyWorker> = {}): NearbyWorker => ({
   avatar_url: null,
   category_id: "d9b936d5-a3d5-45d6-b4d6-a4c3f5d6f003",
   category_name: "Electricidad",
-  hourly_rate: 12500,
   availability_status: "AVAILABLE",
   certification_status: "APPROVED",
   average_rating: "4.5",
@@ -96,7 +95,6 @@ describe("WorkerProfileScreen", () => {
     expect(getByText("Electricidad")).toBeTruthy();
     expect(getByText("★ 4,8")).toBeTruthy();
     expect(getByText(/1,2 km/)).toBeTruthy();
-    expect(getByText("$ 12.500")).toBeTruthy();
     expect(getByText("Disponible")).toBeTruthy();
     expect(getByText("Certificado")).toBeTruthy();
     expect(getByTestId("profile-bio")).toBeTruthy();

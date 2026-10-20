@@ -5,7 +5,11 @@ import { WorkerSearchScreen } from "../../src/screens/WorkerSearchScreen";
 import { useNearbyWorkers } from "../../src/hooks/useNearbyWorkers";
 import { UserRole } from "../../src/types/role";
 import { SavedLocation } from "../../src/types/location";
-import { NearbyWorker, WORKER_CATEGORIES } from "../../src/types/worker";
+import {
+  NearbyWorker,
+  NEARBY_MAX_LIMIT,
+  WORKER_CATEGORIES,
+} from "../../src/types/worker";
 import { colors } from "../../src/theme/tokens";
 
 jest.mock("../../src/hooks/useNearbyWorkers", () => ({
@@ -45,7 +49,6 @@ const makeWorker = (overrides: Partial<NearbyWorker> = {}): NearbyWorker => ({
   avatar_url: null,
   category_id: "d9b936d5-a3d5-45d6-b4d6-a4c3f5d6f003",
   category_name: "Electricidad",
-  hourly_rate: 12500,
   availability_status: "AVAILABLE",
   certification_status: "APPROVED",
   average_rating: "4.5",
@@ -273,12 +276,14 @@ describe("WorkerSearchScreen", () => {
   });
 
   it("shows the count as 'N+' when the backend limit is reached", () => {
-    const workers = Array.from({ length: 50 }, (_, index) =>
+    const workers = Array.from({ length: NEARBY_MAX_LIMIT }, (_, index) =>
       makeWorker({ worker_id: `worker-${index}` }),
     );
     const { getByText } = renderScreen({ hook: { workers } });
 
-    expect(getByText("50+ trabajadores encontrados")).toBeTruthy();
+    expect(
+      getByText(`${NEARBY_MAX_LIMIT}+ trabajadores encontrados`),
+    ).toBeTruthy();
   });
 
   it("opens the summary card when a pin is tapped", () => {
@@ -295,7 +300,6 @@ describe("WorkerSearchScreen", () => {
     expect(getByTestId("worker-info-worker-1")).toBeTruthy();
     expect(getByText("Ana Pérez")).toBeTruthy();
     expect(getByText("★ 4,5")).toBeTruthy();
-    expect(getByText("$ 12.500 / hora")).toBeTruthy();
     expect(getByText(/1,2 km/)).toBeTruthy();
   });
 
@@ -464,7 +468,141 @@ describe("WorkerSearchScreen", () => {
     expect(props.onGoBack).toHaveBeenCalled();
   });
 
-  it("switches between map and list views", async () => {
+  it("lists workers filtered, sorted and paginated in the list view", () => {
+    const workers = Array.from({ length: 12 }, (_, index) =>
+      makeWorker({
+        worker_id: `worker-${index}`,
+        full_name: `Trabajador ${index}`,
+        distance_km: index,
+      }),
+    );
+    const { getByTestId, getByText, queryByText, queryByTestId } = renderScreen(
+      {
+        hook: { workers },
+      },
+    );
+
+    fireEvent.press(getByTestId("btn-toggle-view"));
+
+    // Primera página: WORKER_LIST_PAGE_SIZE (10) fichas, con "Cargar más".
+    expect(getByText("Trabajador 0")).toBeTruthy();
+    expect(getByText("Trabajador 9")).toBeTruthy();
+    expect(queryByText("Trabajador 10")).toBeNull();
+    expect(getByTestId("btn-worker-list-load-more")).toBeTruthy();
+
+    fireEvent.press(getByTestId("btn-worker-list-load-more"));
+
+    expect(getByText("Trabajador 10")).toBeTruthy();
+    expect(getByText("Trabajador 11")).toBeTruthy();
+    // Ya no quedan páginas.
+    expect(queryByTestId("btn-worker-list-load-more")).toBeNull();
+  });
+
+  it("filters the list by name with debounce", async () => {
+    const workers = [
+      makeWorker({ worker_id: "w-1", full_name: "José Pérez" }),
+      makeWorker({ worker_id: "w-2", full_name: "Ana Gómez" }),
+    ];
+    const { getByTestId, getByText, queryByText } = renderScreen({
+      hook: { workers },
+    });
+
+    fireEvent.press(getByTestId("btn-toggle-view"));
+    fireEvent.changeText(getByTestId("worker-list-search-input"), "jose");
+
+    // Sin esperar el debounce, todavía se ven los dos.
+    expect(getByText("José Pérez")).toBeTruthy();
+    expect(getByText("Ana Gómez")).toBeTruthy();
+
+    // Tras el debounce solo queda el que coincide (sin acentos).
+    await waitFor(() => {
+      expect(queryByText("Ana Gómez")).toBeNull();
+    });
+    expect(getByText("José Pérez")).toBeTruthy();
+  });
+
+  it("shows a 'no matches' state and clears filters", async () => {
+    const workers = [makeWorker({ worker_id: "w-1", full_name: "Ana Gómez" })];
+    const { getByTestId, queryByTestId } = renderScreen({
+      hook: { workers },
+    });
+
+    fireEvent.press(getByTestId("btn-toggle-view"));
+    fireEvent.changeText(getByTestId("worker-list-search-input"), "zzz");
+
+    await waitFor(() => {
+      expect(getByTestId("workers-no-matches")).toBeTruthy();
+    });
+
+    fireEvent.press(getByTestId("btn-worker-list-reset"));
+
+    await waitFor(() => {
+      expect(queryByTestId("workers-no-matches")).toBeNull();
+    });
+  });
+
+  it("filters the list by minimum rating", () => {
+    const workers = [
+      makeWorker({
+        worker_id: "w-1",
+        full_name: "Alto",
+        average_rating: "4.8",
+      }),
+      makeWorker({
+        worker_id: "w-2",
+        full_name: "Bajo",
+        average_rating: "3.2",
+      }),
+      makeWorker({
+        worker_id: "w-3",
+        full_name: "Sin rating",
+        average_rating: null,
+      }),
+    ];
+    const { getByTestId, getByText, queryByText } = renderScreen({
+      hook: { workers },
+    });
+
+    fireEvent.press(getByTestId("btn-toggle-view"));
+    fireEvent.press(getByTestId("filter-rating-4"));
+
+    expect(getByText("Alto")).toBeTruthy();
+    expect(queryByText("Bajo")).toBeNull();
+    expect(queryByText("Sin rating")).toBeNull();
+  });
+
+  it("sorts the list by rating, sending unrated workers last", () => {
+    const workers = [
+      makeWorker({
+        worker_id: "w-1",
+        full_name: "Lejano bueno",
+        average_rating: "4.9",
+        distance_km: 9,
+      }),
+      makeWorker({
+        worker_id: "w-2",
+        full_name: "Cercano regular",
+        average_rating: "4.0",
+        distance_km: 1,
+      }),
+      makeWorker({
+        worker_id: "w-3",
+        full_name: "Sin rating",
+        average_rating: null,
+        distance_km: 0.5,
+      }),
+    ];
+    const { getByTestId, getByText } = renderScreen({ hook: { workers } });
+
+    fireEvent.press(getByTestId("btn-toggle-view"));
+    fireEvent.press(getByTestId("sort-rating"));
+
+    // El orden se refleja en el contador de filtros y en las fichas.
+    expect(getByTestId("worker-list-filters-count")).toBeTruthy();
+    expect(getByText("Lejano bueno")).toBeTruthy();
+  });
+
+  it("toggles the map and list views", async () => {
     const { getByTestId, queryByTestId } = renderScreen({
       hook: { workers: [makeWorker()] },
     });

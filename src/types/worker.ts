@@ -13,8 +13,6 @@ export interface NearbyWorker {
   avatar_url: string | null;
   category_id: string | null;
   category_name: string | null;
-  /** Puede ser null: la tarifa se define en un flujo posterior al alta. */
-  hourly_rate: number | null;
   availability_status: string;
   certification_status: string;
   /** Promedio como texto con un decimal ("4.5"); null sin valoraciones. */
@@ -166,5 +164,48 @@ export const NEARBY_FIXED_RADIUS_KM = 100;
  * Límite de trabajadores por consulta. El backend acepta 1..100 y devuelve
  * solo la página pedida (sin total real), así que al llegar a este límite
  * la UI muestra el contador como "N+".
+ *
+ * Se usa el máximo del contrato (100) porque la vista de lista filtra, ordena
+ * y pagina en el cliente: con más resultados en memoria, "Cargar más" y los
+ * filtros de rating/nombre operan sobre un conjunto más completo.
  */
-export const NEARBY_MAX_LIMIT = 50;
+export const NEARBY_MAX_LIMIT = 100;
+
+/**
+ * Tamaño de página de la vista de lista. La primera página se muestra al
+ * entrar; "Cargar más" agrega de a una página sobre los resultados ya
+ * traídos (paginación en cliente: el backend no devuelve un total real).
+ */
+export const WORKER_LIST_PAGE_SIZE = 10;
+
+/** Criterios de ordenamiento de la vista de lista. */
+export type WorkerSortOption = "distance" | "rating";
+
+/** Etiqueta legible de cada criterio de ordenamiento. */
+export const WORKER_SORT_LABELS: Record<WorkerSortOption, string> = {
+  distance: "Distancia",
+  rating: "Calificación",
+};
+
+/**
+ * Filtros de la vista de lista (Issue #25). La distancia NO se filtra acá: la
+ * búsqueda usa un radio fijo de 100 km y ese criterio quedó fuera por diseño.
+ */
+export interface WorkerListFilters {
+  /** Búsqueda por nombre (case/acento-insensible); "" desactiva el filtro. */
+  nameQuery: string;
+  /** Calificación mínima (0 = sin filtro). */
+  minRating: number;
+  /** Criterio de ordenamiento. */
+  sortBy: WorkerSortOption;
+}
+
+/** Filtros de lista por defecto: sin nombre, sin rating mínimo, por cercanía. */
+export const DEFAULT_WORKER_LIST_FILTERS: WorkerListFilters = {
+  nameQuery: "",
+  minRating: 0,
+  sortBy: "distance",
+};
+
+/** Opciones de calificación mínima ofrecidas en la UI (estrellas). */
+export const WORKER_MIN_RATING_OPTIONS = [0, 3, 4, 4.5];

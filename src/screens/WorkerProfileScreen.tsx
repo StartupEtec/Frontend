@@ -29,7 +29,7 @@ import {
 } from "../theme/tokens";
 
 export interface WorkerProfileScreenProps {
-  /** Trabajador elegido en la búsqueda (trae categoría, tarifa y distancia). */
+  /** Trabajador elegido en la búsqueda (trae categoría y distancia). */
   worker: NearbyWorker;
   /** Ubicación guardada desde la que se buscó: referencia del indicador de
    * cobertura (la misma que colorea el pin en el mapa). */
@@ -48,13 +48,6 @@ function formatRating(value: string | null): string | null {
   return rating.toFixed(1).replace(".", ",");
 }
 
-/** 12500 → "12.500". */
-function formatMoney(amount: number): string {
-  return Math.round(amount)
-    .toString()
-    .replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-}
-
 function messageFor(err: unknown, fallback: string): string {
   if (err instanceof ApiError) return err.message;
   if (err instanceof Error && err.message) return err.message;
@@ -63,7 +56,7 @@ function messageFor(err: unknown, fallback: string): string {
 
 /**
  * Perfil público de un trabajador (Issue #24): ficha mínima con avatar,
- * nombre, categoría, calificación, tarifa, distancia, biografía y botón
+ * nombre, categoría, calificación, distancia, biografía y botón
  * "Solicitar Servicio".
  *
  * Los datos básicos vienen de la búsqueda (`worker`); la biografía y el
@@ -228,15 +221,6 @@ export const WorkerProfileScreen: React.FC<WorkerProfileScreenProps> = ({
                 {formatDistance(worker.distance_km * 1000) || "—"}
               </Text>
               <Text style={styles.statLabel}>Distancia</Text>
-            </View>
-            <View style={styles.statDivider} />
-            <View style={styles.stat}>
-              <Text style={styles.statValue}>
-                {worker.hourly_rate != null
-                  ? `$ ${formatMoney(worker.hourly_rate)}`
-                  : "A acordar"}
-              </Text>
-              <Text style={styles.statLabel}>Por hora</Text>
             </View>
           </View>
 
