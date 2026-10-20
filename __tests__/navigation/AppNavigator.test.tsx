@@ -1,9 +1,14 @@
 import React from "react";
-import { render, fireEvent, waitFor } from "@testing-library/react-native";
+import { render, fireEvent, waitFor, act } from "@testing-library/react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AppNavigator } from "../../src/navigation/AppNavigator";
 import { RoleProvider } from "../../src/context/RoleContext";
+import { resetNearbyWorkersCache } from "../../src/hooks/useNearbyWorkers";
 import { userService } from "../../src/services/userService";
+import { workerSearchService } from "../../src/services/workerSearchService";
+import { locationService } from "../../src/services/locationService";
+import { SavedLocation } from "../../src/types/location";
+import { NearbyWorker } from "../../src/types/worker";
 
 jest.mock("@react-native-async-storage/async-storage", () => ({
   getItem: jest.fn(),
@@ -14,8 +19,21 @@ jest.mock("@react-native-async-storage/async-storage", () => ({
 }));
 
 jest.mock("../../src/services/userService", () => ({
-  userService: { switchRole: jest.fn() },
+  userService: { switchRole: jest.fn(), getPublicProfile: jest.fn() },
 }));
+
+jest.mock("../../src/services/workerSearchService", () => ({
+  workerSearchService: { nearby: jest.fn() },
+}));
+
+jest.mock("../../src/components/location/LeafletMap", () => {
+  const React = require("react");
+  const { View } = require("react-native");
+  return {
+    LeafletMap: (props: Record<string, unknown>) =>
+      React.createElement(View, props),
+  };
+});
 
 jest.mock("../../src/services/locationService", () => ({
   locationService: {
@@ -38,12 +56,32 @@ jest.mock("../../src/services/profileService", () => ({
 describe("AppNavigator Flow Integration", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    // La búsqueda cachea su último éxito a nivel módulo: se limpia para que
+    // cada test arranque sin resultados previos.
+    resetNearbyWorkersCache();
   });
 
   const mockStorage = (overrides: Record<string, string | null> = {}) => {
     (AsyncStorage.getItem as jest.Mock).mockImplementation(
       (key: string) => overrides[key] ?? null,
     );
+  };
+
+  const sessionOnMain = () =>
+    mockStorage({
+      "@startup_app/onboarding_completed": "true",
+      "@startup_app/access_token": "access-token-123",
+      "@startup_app/user_id": "user-123",
+      "@startup_app/last_role_user-123": "client",
+    });
+
+  const savedLocation: SavedLocation = {
+    id: "loc-1",
+    user_id: "user-123",
+    address: "Av. Olascoaga 1700, Mendoza",
+    latitude: -34.6037,
+    longitude: -58.3816,
+    is_primary: true,
   };
 
   it("starts at OnboardingScreen if onboarding is not completed, then moves to AuthWelcome on completion", async () => {
@@ -523,12 +561,8 @@ describe("AppNavigator Flow Integration", () => {
   });
 
   it("navigates from Mi Perfil to Mis Ubicaciones and back", async () => {
-    mockStorage({
-      "@startup_app/onboarding_completed": "true",
-      "@startup_app/access_token": "access-token-123",
-      "@startup_app/user_id": "user-123",
-      "@startup_app/last_role_user-123": "client",
-    });
+    (locationService.list as jest.Mock).mockResolvedValue([]);
+    sessionOnMain();
 
     const { getByText, getByTestId } = render(
       <RoleProvider>
@@ -556,6 +590,174 @@ describe("AppNavigator Flow Integration", () => {
 
     await waitFor(() => {
       expect(getByText("Mi Perfil")).toBeTruthy();
+    });
+  });
+
+  it("asks for a saved location before searching and can cancel", async () => {
+    sessionOnMain();
+    (locationService.list as jest.Mock).mockResolvedValue([savedLocation]);
+
+    const { getByTestId, getByText, queryByTestId } = render(
+      <RoleProvider>
+        <AppNavigator />
+      </RoleProvider>,
+    );
+
+    await waitFor(() => {
+      expect(getByText("Pantalla Principal")).toBeTruthy();
+    });
+
+    // "Buscar Trabajadores" abre el pop-up de ubicaciones guardadas.
+    fireEvent.press(getByTestId("btn-search-workers"));
+
+    await waitFor(() => {
+      expect(getByTestId("origin-option-loc-1")).toBeTruthy();
+    });
+
+    // Cancelar: se queda en la Principal sin abrir la búsqueda.
+    fireEvent.press(getByTestId("btn-search-origin-cancel"));
+
+    await waitFor(() => {
+      expect(getByText("Pantalla Principal")).toBeTruthy();
+    });
+    expect(
+      queryByTestId("worker-search-map", { includeHiddenElements: true }),
+    ).toBeNull();
+  });
+
+  it("offers to add a location when none are saved and returns to the popup", async () => {
+    sessionOnMain();
+    (locationService.list as jest.Mock).mockResolvedValue([]);
+
+    const { getByTestId, getByText } = render(
+      <RoleProvider>
+        <AppNavigator />
+      </RoleProvider>,
+    );
+
+    await waitFor(() => {
+      expect(getByText("Pantalla Principal")).toBeTruthy();
+    });
+
+    fireEvent.press(getByTestId("btn-search-workers"));
+
+    await waitFor(() => {
+      expect(getByTestId("search-origin-empty")).toBeTruthy();
+    });
+
+    // "Agregar ubicación" envía directo al formulario de alta de una
+    // ubicación (no a la lista).
+    fireEvent.press(getByTestId("btn-add-origin"));
+
+    await waitFor(() => {
+      expect(getByText("Agregar ubicación")).toBeTruthy();
+    });
+
+    // Se cierra el formulario, queda la lista y al volver el pop-up se
+    // reabre para que elija (o vea recién guardada) la ubicación y siga
+    // con la búsqueda.
+    fireEvent.press(getByTestId("btn-location-form-close"));
+    fireEvent.press(getByTestId("btn-locations-back"));
+
+    await waitFor(() => {
+      expect(getByText("Pantalla Principal")).toBeTruthy();
+    });
+    await waitFor(() => {
+      expect(getByTestId("search-origin-empty")).toBeTruthy();
+    });
+  });
+
+  it("navigates from Main to worker search, opens a pin and views the profile", async () => {
+    sessionOnMain();
+    (locationService.list as jest.Mock).mockResolvedValue([savedLocation]);
+
+    const worker: NearbyWorker = {
+      worker_id: "worker-1",
+      user_id: "user-789",
+      full_name: "Ana Pérez",
+      avatar_url: null,
+      category_id: "d9b936d5-a3d5-45d6-b4d6-a4c3f5d6f003",
+      category_name: "Electricidad",
+      hourly_rate: 12500,
+      availability_status: "AVAILABLE",
+      certification_status: "APPROVED",
+      average_rating: "4.5",
+      distance_km: 1.2,
+      coverage_radius_km: 10,
+      latitude: -34.61,
+      longitude: -58.39,
+    };
+    (workerSearchService.nearby as jest.Mock).mockResolvedValue({
+      workers: [worker],
+      count: 1,
+      limit: 50,
+      offset: 0,
+    });
+    (userService.getPublicProfile as jest.Mock).mockResolvedValue({
+      id: "user-789",
+      full_name: "Ana Pérez",
+      avatar_url: null,
+      bio: "Electricista matriculada con 8 años de experiencia.",
+      average_rating: "4.8",
+      role: "worker",
+    });
+
+    const { getByText, getByTestId } = render(
+      <RoleProvider>
+        <AppNavigator />
+      </RoleProvider>,
+    );
+
+    await waitFor(() => {
+      expect(getByText("Pantalla Principal")).toBeTruthy();
+    });
+
+    fireEvent.press(getByTestId("btn-search-workers"));
+
+    // Elegir la ubicación desde la que buscar.
+    await waitFor(() => {
+      expect(getByTestId("origin-option-loc-1")).toBeTruthy();
+    });
+    fireEvent.press(getByTestId("origin-option-loc-1"));
+
+    await waitFor(() => {
+      expect(getByTestId("worker-search-map")).toBeTruthy();
+    });
+
+    // Se simula el toque sobre el pin del trabajador.
+    act(() => {
+      getByTestId("worker-search-map").props.onMarkerPress("worker-1");
+    });
+
+    await waitFor(() => {
+      expect(getByTestId("worker-info-worker-1")).toBeTruthy();
+    });
+
+    fireEvent.press(getByTestId("btn-worker-profile-worker-1"));
+
+    await waitFor(() => {
+      expect(getByText("Perfil del Trabajador")).toBeTruthy();
+    });
+    await waitFor(() => {
+      expect(getByText(/Electricista matriculada/)).toBeTruthy();
+    });
+
+    // Regresión: la pantalla de búsqueda sigue montada (oculta con
+    // display: none) detrás del perfil: abrirla no destruye su mapa.
+    expect(
+      getByTestId("worker-search-map", { includeHiddenElements: true }),
+    ).toBeTruthy();
+
+    fireEvent.press(getByTestId("btn-profile-back"));
+
+    await waitFor(() => {
+      expect(getByTestId("worker-search-map")).toBeTruthy();
+    });
+
+    fireEvent.press(getByTestId("btn-workers-back"));
+
+    await waitFor(() => {
+      expect(getByText("Pantalla Principal")).toBeTruthy();
     });
   });
 });

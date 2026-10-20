@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   RefreshControl,
@@ -33,6 +33,9 @@ import {
 
 export interface LocationsScreenProps {
   role: UserRole;
+  /** Llegar desde el pop-up de búsqueda ("Agregar ubicación"): abre el
+   * formulario de alta directamente al montar la pantalla. */
+  openCreateOnMount?: boolean;
   onGoBack: () => void;
 }
 
@@ -43,6 +46,7 @@ export interface LocationsScreenProps {
  */
 export const LocationsScreen: React.FC<LocationsScreenProps> = ({
   role,
+  openCreateOnMount,
   onGoBack,
 }) => {
   const accentColor = roleAccent(role);
@@ -77,6 +81,13 @@ export const LocationsScreen: React.FC<LocationsScreenProps> = ({
     setEditing(null);
     setFormVisible(true);
   };
+
+  // Atajo desde el pop-up de búsqueda: la pantalla monta con el formulario
+  // de alta abierto; al cerrarlo queda la lista y "Atrás" vuelve al pop-up.
+  useEffect(() => {
+    if (openCreateOnMount) openCreate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const openEdit = (location: SavedLocation) => {
     clearActionError();

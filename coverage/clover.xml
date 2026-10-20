@@ -1,318 +1,2634 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1786123582000" clover="3.2.0">
-  <project timestamp="1786123582000" name="All files">
-    <metrics statements="241" coveredstatements="207" conditionals="155" coveredconditionals="107" methods="69" coveredmethods="53" elements="465" coveredelements="367" complexity="0" loc="241" ncloc="241" packages="7" files="17" classes="17"/>
+<coverage generated="1792449432331" clover="3.2.0">
+  <project timestamp="1792449432331" name="All files">
+    <metrics statements="2353" coveredstatements="1939" conditionals="1674" coveredconditionals="1199" methods="595" coveredmethods="447" elements="4622" coveredelements="3585" complexity="0" loc="2353" ncloc="2353" packages="17" files="75" classes="75"/>
+    <package name="components">
+      <metrics statements="34" coveredstatements="34" conditionals="28" coveredconditionals="27" methods="9" coveredmethods="9"/>
+      <file name="NavBar.tsx" path="/home/nicomanescau/StartUp 6I/Frontend/src/components/NavBar.tsx">
+        <metrics statements="5" coveredstatements="5" conditionals="4" coveredconditionals="4" methods="1" coveredmethods="1"/>
+        <line num="12" count="2" type="stmt"/>
+        <line num="16" count="23" type="stmt"/>
+        <line num="17" count="23" type="cond" truecount="2" falsecount="0"/>
+        <line num="19" count="23" type="stmt"/>
+        <line num="46" count="2" type="stmt"/>
+      </file>
+      <file name="RoleSwitchModal.tsx" path="/home/nicomanescau/StartUp 6I/Frontend/src/components/RoleSwitchModal.tsx">
+        <metrics statements="13" coveredstatements="13" conditionals="20" coveredconditionals="20" methods="4" coveredmethods="4"/>
+        <line num="30" count="3" type="stmt"/>
+        <line num="39" count="30" type="stmt"/>
+        <line num="40" count="30" type="stmt"/>
+        <line num="42" count="30" type="stmt"/>
+        <line num="43" count="28" type="cond" truecount="2" falsecount="0"/>
+        <line num="44" count="12" type="stmt"/>
+        <line num="57" count="16" type="stmt"/>
+        <line num="58" count="16" type="stmt"/>
+        <line num="62" count="30" type="stmt"/>
+        <line num="64" count="30" type="stmt"/>
+        <line num="92" count="1" type="stmt"/>
+        <line num="128" count="3" type="stmt"/>
+        <line num="194" count="3" type="stmt"/>
+      </file>
+      <file name="SuccessToast.tsx" path="/home/nicomanescau/StartUp 6I/Frontend/src/components/SuccessToast.tsx">
+        <metrics statements="16" coveredstatements="16" conditionals="4" coveredconditionals="3" methods="4" coveredmethods="4"/>
+        <line num="12" count="2" type="stmt"/>
+        <line num="18" count="4" type="stmt"/>
+        <line num="19" count="4" type="stmt"/>
+        <line num="20" count="4" type="stmt"/>
+        <line num="22" count="4" type="stmt"/>
+        <line num="23" count="2" type="stmt"/>
+        <line num="26" count="4" type="stmt"/>
+        <line num="27" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="29" count="2" type="stmt"/>
+        <line num="30" count="2" type="stmt"/>
+        <line num="32" count="2" type="stmt"/>
+        <line num="45" count="1" type="stmt"/>
+        <line num="46" count="1" type="stmt"/>
+        <line num="50" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="52" count="2" type="stmt"/>
+        <line num="63" count="2" type="stmt"/>
+      </file>
+    </package>
+    <package name="components.location">
+      <metrics statements="216" coveredstatements="178" conditionals="262" coveredconditionals="186" methods="66" coveredmethods="49"/>
+      <file name="AddressSearchInput.tsx" path="/home/nicomanescau/StartUp 6I/Frontend/src/components/location/AddressSearchInput.tsx">
+        <metrics statements="19" coveredstatements="19" conditionals="11" coveredconditionals="10" methods="9" coveredmethods="9"/>
+        <line num="26" count="3" type="stmt"/>
+        <line num="37" count="3" type="stmt"/>
+        <line num="47" count="11" type="stmt"/>
+        <line num="49" count="11" type="stmt"/>
+        <line num="50" count="9" type="cond" truecount="2" falsecount="0"/>
+        <line num="51" count="1" type="stmt"/>
+        <line num="52" count="1" type="stmt"/>
+        <line num="57" count="11" type="stmt"/>
+        <line num="59" count="11" type="stmt"/>
+        <line num="60" count="1" type="stmt"/>
+        <line num="61" count="1" type="stmt"/>
+        <line num="62" count="1" type="stmt"/>
+        <line num="65" count="11" type="stmt"/>
+        <line num="66" count="1" type="stmt"/>
+        <line num="67" count="1" type="stmt"/>
+        <line num="70" count="11" type="stmt"/>
+        <line num="102" count="1" type="stmt"/>
+        <line num="105" count="1" type="stmt"/>
+        <line num="126" count="3" type="stmt"/>
+      </file>
+      <file name="ConfirmDialog.tsx" path="/home/nicomanescau/StartUp 6I/Frontend/src/components/location/ConfirmDialog.tsx">
+        <metrics statements="3" coveredstatements="3" conditionals="8" coveredconditionals="5" methods="1" coveredmethods="1"/>
+        <line num="31" count="2" type="stmt"/>
+        <line num="42" count="25" type="stmt"/>
+        <line num="83" count="2" type="stmt"/>
+      </file>
+      <file name="LeafletMap.tsx" path="/home/nicomanescau/StartUp 6I/Frontend/src/components/location/LeafletMap.tsx">
+        <metrics statements="78" coveredstatements="71" conditionals="84" coveredconditionals="63" methods="19" coveredmethods="17"/>
+        <line num="93" count="1" type="stmt"/>
+        <line num="106" count="1" type="stmt"/>
+        <line num="123" count="19" type="stmt"/>
+        <line num="124" count="19" type="stmt"/>
+        <line num="125" count="19" type="stmt"/>
+        <line num="129" count="19" type="stmt"/>
+        <line num="130" count="12" type="stmt"/>
+        <line num="140" count="19" type="cond" truecount="2" falsecount="0"/>
+        <line num="141" count="19" type="cond" truecount="2" falsecount="0"/>
+        <line num="142" count="19" type="cond" truecount="2" falsecount="0"/>
+        <line num="143" count="19" type="cond" truecount="2" falsecount="0"/>
+        <line num="145" count="19" type="stmt"/>
+        <line num="147" count="18" type="stmt"/>
+        <line num="148" count="1" type="stmt"/>
+        <line num="160" count="19" type="stmt"/>
+        <line num="161" count="8" type="stmt"/>
+        <line num="165" count="19" type="stmt"/>
+        <line num="166" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="167" count="2" type="stmt"/>
+        <line num="168" count="2" type="stmt"/>
+        <line num="169" count="2" type="stmt"/>
+        <line num="170" count="2" type="cond" truecount="2" falsecount="2"/>
+        <line num="171" count="0" type="stmt"/>
+        <line num="172" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="173" count="0" type="stmt"/>
+        <line num="188" count="19" type="stmt"/>
+        <line num="191" count="11" type="stmt"/>
+        <line num="192" count="11" type="stmt"/>
+        <line num="194" count="1" type="stmt"/>
+        <line num="197" count="10" type="cond" truecount="2" falsecount="0"/>
+        <line num="198" count="2" type="stmt"/>
+        <line num="199" count="2" type="stmt"/>
+        <line num="200" count="2" type="stmt"/>
+        <line num="201" count="2" type="stmt"/>
+        <line num="204" count="8" type="cond" truecount="2" falsecount="0"/>
+        <line num="205" count="1" type="stmt"/>
+        <line num="206" count="1" type="stmt"/>
+        <line num="209" count="7" type="cond" truecount="2" falsecount="0"/>
+        <line num="214" count="1" type="stmt"/>
+        <line num="218" count="1" type="stmt"/>
+        <line num="221" count="6" type="cond" truecount="4" falsecount="0"/>
+        <line num="222" count="1" type="stmt"/>
+        <line num="223" count="1" type="stmt"/>
+        <line num="226" count="5" type="cond" truecount="2" falsecount="0"/>
+        <line num="232" count="1" type="stmt"/>
+        <line num="236" count="1" type="stmt"/>
+        <line num="239" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="244" count="2" type="stmt"/>
+        <line num="253" count="19" type="stmt"/>
+        <line num="254" count="15" type="cond" truecount="1" falsecount="1"/>
+        <line num="255" count="0" type="stmt"/>
+        <line num="261" count="19" type="stmt"/>
+        <line num="262" count="15" type="cond" truecount="1" falsecount="1"/>
+        <line num="265" count="19" type="stmt"/>
+        <line num="266" count="15" type="cond" truecount="1" falsecount="1"/>
+        <line num="269" count="19" type="stmt"/>
+        <line num="270" count="15" type="cond" truecount="1" falsecount="1"/>
+        <line num="271" count="0" type="stmt"/>
+        <line num="275" count="19" type="stmt"/>
+        <line num="276" count="15" type="cond" truecount="2" falsecount="3"/>
+        <line num="277" count="0" type="stmt"/>
+        <line num="283" count="19" type="stmt"/>
+        <line num="284" count="15" type="cond" truecount="2" falsecount="2"/>
+        <line num="289" count="19" type="stmt"/>
+        <line num="290" count="19" type="cond" truecount="2" falsecount="0"/>
+        <line num="291" count="16" type="stmt"/>
+        <line num="292" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="294" count="16" type="stmt"/>
+        <line num="297" count="19" type="stmt"/>
+        <line num="298" count="1" type="stmt"/>
+        <line num="299" count="1" type="stmt"/>
+        <line num="300" count="1" type="stmt"/>
+        <line num="305" count="19" type="stmt"/>
+        <line num="306" count="15" type="stmt"/>
+        <line num="310" count="19" type="stmt"/>
+        <line num="318" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="350" count="1" type="stmt"/>
+        <line num="395" count="1" type="stmt"/>
+      </file>
+      <file name="LocationCard.tsx" path="/home/nicomanescau/StartUp 6I/Frontend/src/components/location/LocationCard.tsx">
+        <metrics statements="4" coveredstatements="4" conditionals="20" coveredconditionals="19" methods="1" coveredmethods="1"/>
+        <line num="36" count="3" type="stmt"/>
+        <line num="46" count="33" type="stmt"/>
+        <line num="48" count="33" type="stmt"/>
+        <line num="165" count="3" type="stmt"/>
+      </file>
+      <file name="LocationFormModal.tsx" path="/home/nicomanescau/StartUp 6I/Frontend/src/components/location/LocationFormModal.tsx">
+        <metrics statements="25" coveredstatements="12" conditionals="46" coveredconditionals="22" methods="4" coveredmethods="2"/>
+        <line num="48" count="2" type="stmt"/>
+        <line num="61" count="28" type="stmt"/>
+        <line num="62" count="28" type="stmt"/>
+        <line num="63" count="28" type="stmt"/>
+        <line num="66" count="28" type="stmt"/>
+        <line num="67" count="21" type="cond" truecount="2" falsecount="0"/>
+        <line num="68" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="69" count="3" type="stmt"/>
+        <line num="73" count="28" type="stmt"/>
+        <line num="74" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="75" count="0" type="stmt"/>
+        <line num="78" count="28" type="stmt"/>
+        <line num="79" count="0" type="stmt"/>
+        <line num="80" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="81" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="82" count="0" type="stmt"/>
+        <line num="83" count="0" type="stmt"/>
+        <line num="84" count="0" type="stmt"/>
+        <line num="86" count="0" type="stmt"/>
+        <line num="89" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="90" count="0" type="stmt"/>
+        <line num="93" count="0" type="stmt"/>
+        <line num="95" count="0" type="stmt"/>
+        <line num="98" count="28" type="stmt"/>
+        <line num="275" count="2" type="stmt"/>
+      </file>
+      <file name="LocationMapPicker.tsx" path="/home/nicomanescau/StartUp 6I/Frontend/src/components/location/LocationMapPicker.tsx">
+        <metrics statements="32" coveredstatements="20" conditionals="36" coveredconditionals="27" methods="11" coveredmethods="4"/>
+        <line num="58" count="2" type="stmt"/>
+        <line num="68" count="7" type="stmt"/>
+        <line num="69" count="7" type="stmt"/>
+        <line num="72" count="7" type="stmt"/>
+        <line num="73" count="7" type="stmt"/>
+        <line num="76" count="7" type="stmt"/>
+        <line num="78" count="7" type="stmt"/>
+        <line num="79" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="80" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="81" count="0" type="stmt"/>
+        <line num="82" count="0" type="stmt"/>
+        <line num="84" count="1" type="stmt"/>
+        <line num="87" count="7" type="stmt"/>
+        <line num="88" count="4" type="cond" truecount="3" falsecount="1"/>
+        <line num="89" count="0" type="stmt"/>
+        <line num="92" count="7" type="stmt"/>
+        <line num="93" count="0" type="stmt"/>
+        <line num="94" count="0" type="stmt"/>
+        <line num="97" count="7" type="stmt"/>
+        <line num="98" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="99" count="0" type="stmt"/>
+        <line num="100" count="0" type="stmt"/>
+        <line num="103" count="7" type="cond" truecount="2" falsecount="0"/>
+        <line num="115" count="7" type="cond" truecount="2" falsecount="0"/>
+        <line num="121" count="7" type="stmt"/>
+        <line num="122" count="14" type="stmt"/>
+        <line num="131" count="0" type="stmt"/>
+        <line num="136" count="7" type="stmt"/>
+        <line num="143" count="0" type="stmt"/>
+        <line num="179" count="0" type="stmt"/>
+        <line num="186" count="0" type="stmt"/>
+        <line num="227" count="2" type="stmt"/>
+      </file>
+      <file name="LocationsMapPreview.tsx" path="/home/nicomanescau/StartUp 6I/Frontend/src/components/location/LocationsMapPreview.tsx">
+        <metrics statements="21" coveredstatements="15" conditionals="28" coveredconditionals="16" methods="11" coveredmethods="5"/>
+        <line num="25" count="2" type="stmt"/>
+        <line num="32" count="2" type="stmt"/>
+        <line num="42" count="15" type="stmt"/>
+        <line num="44" count="25" type="stmt"/>
+        <line num="53" count="15" type="cond" truecount="1" falsecount="1"/>
+        <line num="57" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="60" count="0" type="stmt"/>
+        <line num="70" count="15" type="stmt"/>
+        <line num="71" count="15" type="cond" truecount="1" falsecount="1"/>
+        <line num="72" count="25" type="stmt"/>
+        <line num="74" count="15" type="cond" truecount="1" falsecount="3"/>
+        <line num="75" count="15" type="cond" truecount="2" falsecount="0"/>
+        <line num="77" count="15" type="stmt"/>
+        <line num="78" count="30" type="stmt"/>
+        <line num="86" count="0" type="stmt"/>
+        <line num="87" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="93" count="15" type="stmt"/>
+        <line num="100" count="1" type="stmt"/>
+        <line num="113" count="0" type="stmt"/>
+        <line num="120" count="0" type="stmt"/>
+        <line num="137" count="2" type="stmt"/>
+      </file>
+      <file name="SearchOriginModal.tsx" path="/home/nicomanescau/StartUp 6I/Frontend/src/components/location/SearchOriginModal.tsx">
+        <metrics statements="34" coveredstatements="34" conditionals="29" coveredconditionals="24" methods="10" coveredmethods="10"/>
+        <line num="46" count="2" type="stmt"/>
+        <line num="53" count="53" type="stmt"/>
+        <line num="54" count="53" type="stmt"/>
+        <line num="56" count="53" type="stmt"/>
+        <line num="57" count="53" type="stmt"/>
+        <line num="59" count="53" type="stmt"/>
+        <line num="61" count="53" type="stmt"/>
+        <line num="62" count="28" type="cond" truecount="2" falsecount="0"/>
+        <line num="63" count="11" type="stmt"/>
+        <line num="76" count="17" type="stmt"/>
+        <line num="77" count="17" type="stmt"/>
+        <line num="83" count="53" type="stmt"/>
+        <line num="84" count="29" type="cond" truecount="2" falsecount="0"/>
+        <line num="85" count="12" type="stmt"/>
+        <line num="86" count="12" type="stmt"/>
+        <line num="87" count="12" type="stmt"/>
+        <line num="88" count="12" type="stmt"/>
+        <line num="89" count="12" type="stmt"/>
+        <line num="90" count="12" type="stmt"/>
+        <line num="91" count="12" type="cond" truecount="1" falsecount="1"/>
+        <line num="92" count="12" type="stmt"/>
+        <line num="93" count="11" type="cond" truecount="1" falsecount="1"/>
+        <line num="95" count="11" type="stmt"/>
+        <line num="98" count="5" type="cond" truecount="2" falsecount="2"/>
+        <line num="101" count="11" type="stmt"/>
+        <line num="103" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="106" count="12" type="stmt"/>
+        <line num="107" count="12" type="stmt"/>
+        <line num="111" count="53" type="stmt"/>
+        <line num="113" count="53" type="stmt"/>
+        <line num="165" count="14" type="stmt"/>
+        <line num="166" count="14" type="stmt"/>
+        <line num="170" count="2" type="stmt"/>
+        <line num="218" count="2" type="stmt"/>
+      </file>
+    </package>
     <package name="components.onboarding">
       <metrics statements="24" coveredstatements="23" conditionals="13" coveredconditionals="10" methods="6" coveredmethods="6"/>
       <file name="OnboardingFooter.tsx" path="/home/nicomanescau/StartUp 6I/Frontend/src/components/onboarding/OnboardingFooter.tsx">
         <metrics statements="7" coveredstatements="6" conditionals="4" coveredconditionals="2" methods="1" coveredmethods="1"/>
-        <line num="8" count="1" type="stmt"/>
-        <line num="15" count="2" type="stmt"/>
-        <line num="16" count="2" type="stmt"/>
-        <line num="18" count="2" type="cond" truecount="1" falsecount="1"/>
-        <line num="19" count="0" type="stmt"/>
-        <line num="40" count="2" type="stmt"/>
-        <line num="75" count="1" type="stmt"/>
+        <line num="14" count="2" type="stmt"/>
+        <line num="21" count="4" type="stmt"/>
+        <line num="22" count="4" type="stmt"/>
+        <line num="24" count="4" type="cond" truecount="1" falsecount="1"/>
+        <line num="25" count="0" type="stmt"/>
+        <line num="46" count="4" type="stmt"/>
+        <line num="83" count="2" type="stmt"/>
       </file>
       <file name="OnboardingHeader.tsx" path="/home/nicomanescau/StartUp 6I/Frontend/src/components/onboarding/OnboardingHeader.tsx">
         <metrics statements="3" coveredstatements="3" conditionals="2" coveredconditionals="1" methods="1" coveredmethods="1"/>
-        <line num="7" count="1" type="stmt"/>
-        <line num="8" count="2" type="stmt"/>
-        <line num="29" count="1" type="stmt"/>
+        <line num="7" count="2" type="stmt"/>
+        <line num="11" count="4" type="stmt"/>
+        <line num="32" count="2" type="stmt"/>
       </file>
       <file name="OnboardingSlide.tsx" path="/home/nicomanescau/StartUp 6I/Frontend/src/components/onboarding/OnboardingSlide.tsx">
         <metrics statements="9" coveredstatements="9" conditionals="5" coveredconditionals="5" methods="2" coveredmethods="2"/>
-        <line num="6" count="1" type="stmt"/>
-        <line num="8" count="8" type="stmt"/>
-        <line num="9" count="8" type="cond" truecount="5" falsecount="0"/>
-        <line num="11" count="2" type="stmt"/>
-        <line num="25" count="2" type="stmt"/>
-        <line num="44" count="2" type="stmt"/>
-        <line num="64" count="2" type="stmt"/>
-        <line num="82" count="8" type="stmt"/>
-        <line num="101" count="1" type="stmt"/>
+        <line num="7" count="2" type="stmt"/>
+        <line num="13" count="16" type="stmt"/>
+        <line num="14" count="16" type="cond" truecount="5" falsecount="0"/>
+        <line num="16" count="4" type="stmt"/>
+        <line num="35" count="4" type="stmt"/>
+        <line num="62" count="4" type="stmt"/>
+        <line num="92" count="4" type="stmt"/>
+        <line num="118" count="16" type="stmt"/>
+        <line num="137" count="2" type="stmt"/>
       </file>
       <file name="PaginationDots.tsx" path="/home/nicomanescau/StartUp 6I/Frontend/src/components/onboarding/PaginationDots.tsx">
         <metrics statements="5" coveredstatements="5" conditionals="2" coveredconditionals="2" methods="2" coveredmethods="2"/>
-        <line num="6" count="1" type="stmt"/>
-        <line num="7" count="2" type="stmt"/>
-        <line num="10" count="8" type="stmt"/>
-        <line num="11" count="8" type="stmt"/>
-        <line num="28" count="1" type="stmt"/>
+        <line num="6" count="2" type="stmt"/>
+        <line num="10" count="4" type="stmt"/>
+        <line num="13" count="16" type="stmt"/>
+        <line num="14" count="16" type="stmt"/>
+        <line num="31" count="2" type="stmt"/>
+      </file>
+    </package>
+    <package name="components.otp">
+      <metrics statements="20" coveredstatements="17" conditionals="20" coveredconditionals="15" methods="6" coveredmethods="3"/>
+      <file name="OtpDigitInput.tsx" path="/home/nicomanescau/StartUp 6I/Frontend/src/components/otp/OtpDigitInput.tsx">
+        <metrics statements="11" coveredstatements="8" conditionals="12" coveredconditionals="8" methods="5" coveredmethods="2"/>
+        <line num="17" count="3" type="stmt"/>
+        <line num="19" count="696" type="stmt"/>
+        <line num="21" count="696" type="cond" truecount="2" falsecount="0"/>
+        <line num="29" count="696" type="cond" truecount="1" falsecount="1"/>
+        <line num="33" count="696" type="stmt"/>
+        <line num="46" count="74" type="stmt"/>
+        <line num="47" count="0" type="stmt"/>
+        <line num="52" count="0" type="stmt"/>
+        <line num="53" count="0" type="stmt"/>
+        <line num="64" count="3" type="stmt"/>
+        <line num="66" count="3" type="stmt"/>
+      </file>
+      <file name="OtpTimer.tsx" path="/home/nicomanescau/StartUp 6I/Frontend/src/components/otp/OtpTimer.tsx">
+        <metrics statements="9" coveredstatements="9" conditionals="8" coveredconditionals="7" methods="1" coveredmethods="1"/>
+        <line num="13" count="3" type="stmt"/>
+        <line num="14" count="116" type="stmt"/>
+        <line num="15" count="116" type="stmt"/>
+        <line num="16" count="116" type="stmt"/>
+        <line num="18" count="116" type="cond" truecount="2" falsecount="0"/>
+        <line num="19" count="116" type="stmt"/>
+        <line num="21" count="116" type="cond" truecount="2" falsecount="0"/>
+        <line num="27" count="116" type="stmt"/>
+        <line num="38" count="3" type="stmt"/>
+      </file>
+    </package>
+    <package name="components.profile">
+      <metrics statements="122" coveredstatements="98" conditionals="99" coveredconditionals="64" methods="35" coveredmethods="25"/>
+      <file name="AvatarEditor.tsx" path="/home/nicomanescau/StartUp 6I/Frontend/src/components/profile/AvatarEditor.tsx">
+        <metrics statements="26" coveredstatements="24" conditionals="16" coveredconditionals="12" methods="8" coveredmethods="6"/>
+        <line num="16" count="3" type="stmt"/>
+        <line num="38" count="3" type="stmt"/>
+        <line num="46" count="33" type="stmt"/>
+        <line num="47" count="33" type="stmt"/>
+        <line num="49" count="33" type="stmt"/>
+        <line num="50" count="5" type="cond" truecount="1" falsecount="1"/>
+        <line num="51" count="5" type="stmt"/>
+        <line num="54" count="33" type="stmt"/>
+        <line num="55" count="2" type="stmt"/>
+        <line num="56" count="2" type="stmt"/>
+        <line num="59" count="33" type="stmt"/>
+        <line num="60" count="1" type="stmt"/>
+        <line num="61" count="1" type="stmt"/>
+        <line num="64" count="33" type="stmt"/>
+        <line num="65" count="1" type="stmt"/>
+        <line num="66" count="1" type="stmt"/>
+        <line num="67" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="68" count="1" type="stmt"/>
+        <line num="74" count="1" type="cond" truecount="3" falsecount="1"/>
+        <line num="75" count="1" type="stmt"/>
+        <line num="79" count="33" type="stmt"/>
+        <line num="81" count="33" type="stmt"/>
+        <line num="148" count="0" type="stmt"/>
+        <line num="180" count="1" type="stmt"/>
+        <line num="194" count="0" type="stmt"/>
+        <line num="201" count="3" type="stmt"/>
+      </file>
+      <file name="CameraCapture.tsx" path="/home/nicomanescau/StartUp 6I/Frontend/src/components/profile/CameraCapture.tsx">
+        <metrics statements="36" coveredstatements="33" conditionals="26" coveredconditionals="21" methods="8" coveredmethods="7"/>
+        <line num="32" count="7" type="stmt"/>
+        <line num="38" count="89" type="stmt"/>
+        <line num="39" count="89" type="stmt"/>
+        <line num="40" count="89" type="stmt"/>
+        <line num="41" count="89" type="stmt"/>
+        <line num="42" count="89" type="stmt"/>
+        <line num="43" count="89" type="stmt"/>
+        <line num="46" count="89" type="stmt"/>
+        <line num="47" count="62" type="cond" truecount="2" falsecount="0"/>
+        <line num="48" count="12" type="stmt"/>
+        <line num="49" count="12" type="stmt"/>
+        <line num="50" count="12" type="stmt"/>
+        <line num="51" count="12" type="stmt"/>
+        <line num="55" count="89" type="stmt"/>
+        <line num="56" count="1" type="stmt"/>
+        <line num="57" count="1" type="stmt"/>
+        <line num="58" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="61" count="89" type="stmt"/>
+        <line num="62" count="5" type="cond" truecount="4" falsecount="1"/>
+        <line num="63" count="5" type="stmt"/>
+        <line num="64" count="5" type="stmt"/>
+        <line num="65" count="5" type="stmt"/>
+        <line num="66" count="5" type="stmt"/>
+        <line num="67" count="5" type="cond" truecount="1" falsecount="1"/>
+        <line num="68" count="5" type="stmt"/>
+        <line num="70" count="0" type="stmt"/>
+        <line num="73" count="0" type="stmt"/>
+        <line num="75" count="5" type="stmt"/>
+        <line num="79" count="89" type="stmt"/>
+        <line num="80" count="89" type="cond" truecount="2" falsecount="0"/>
+        <line num="82" count="89" type="stmt"/>
+        <line num="108" count="1" type="stmt"/>
+        <line num="121" count="5" type="stmt"/>
+        <line num="122" count="0" type="stmt"/>
+        <line num="199" count="7" type="stmt"/>
+        <line num="201" count="7" type="stmt"/>
+      </file>
+      <file name="DniPhotoPicker.tsx" path="/home/nicomanescau/StartUp 6I/Frontend/src/components/profile/DniPhotoPicker.tsx">
+        <metrics statements="34" coveredstatements="24" conditionals="31" coveredconditionals="14" methods="10" coveredmethods="7"/>
+        <line num="27" count="3" type="stmt"/>
+        <line num="38" count="19" type="stmt"/>
+        <line num="39" count="19" type="stmt"/>
+        <line num="40" count="19" type="stmt"/>
+        <line num="44" count="19" type="stmt"/>
+        <line num="45" count="2" type="stmt"/>
+        <line num="46" count="2" type="stmt"/>
+        <line num="49" count="19" type="stmt"/>
+        <line num="50" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="51" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="52" count="2" type="stmt"/>
+        <line num="55" count="19" type="stmt"/>
+        <line num="56" count="2" type="stmt"/>
+        <line num="57" count="2" type="stmt"/>
+        <line num="60" count="19" type="stmt"/>
+        <line num="61" count="2" type="stmt"/>
+        <line num="62" count="2" type="stmt"/>
+        <line num="65" count="19" type="stmt"/>
+        <line num="66" count="0" type="stmt"/>
+        <line num="67" count="0" type="stmt"/>
+        <line num="70" count="19" type="stmt"/>
+        <line num="71" count="0" type="stmt"/>
+        <line num="72" count="0" type="stmt"/>
+        <line num="73" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="74" count="0" type="stmt"/>
+        <line num="79" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="80" count="0" type="stmt"/>
+        <line num="84" count="19" type="stmt"/>
+        <line num="85" count="0" type="stmt"/>
+        <line num="86" count="0" type="stmt"/>
+        <line num="89" count="19" type="stmt"/>
+        <line num="105" count="1" type="stmt"/>
+        <line num="132" count="1" type="stmt"/>
+        <line num="196" count="3" type="stmt"/>
+      </file>
+      <file name="PhotoPicker.tsx" path="/home/nicomanescau/StartUp 6I/Frontend/src/components/profile/PhotoPicker.tsx">
+        <metrics statements="23" coveredstatements="14" conditionals="13" coveredconditionals="6" methods="8" coveredmethods="4"/>
+        <line num="15" count="3" type="stmt"/>
+        <line num="25" count="3" type="stmt"/>
+        <line num="32" count="19" type="stmt"/>
+        <line num="33" count="19" type="stmt"/>
+        <line num="35" count="19" type="stmt"/>
+        <line num="36" count="2" type="stmt"/>
+        <line num="37" count="2" type="stmt"/>
+        <line num="40" count="19" type="stmt"/>
+        <line num="41" count="1" type="stmt"/>
+        <line num="42" count="1" type="stmt"/>
+        <line num="45" count="19" type="stmt"/>
+        <line num="46" count="0" type="stmt"/>
+        <line num="47" count="0" type="stmt"/>
+        <line num="48" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="49" count="0" type="stmt"/>
+        <line num="54" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="55" count="0" type="stmt"/>
+        <line num="59" count="19" type="stmt"/>
+        <line num="63" count="2" type="stmt"/>
+        <line num="86" count="0" type="stmt"/>
+        <line num="103" count="0" type="stmt"/>
+        <line num="116" count="0" type="stmt"/>
+        <line num="123" count="3" type="stmt"/>
+      </file>
+      <file name="ProfileInfoRow.tsx" path="/home/nicomanescau/StartUp 6I/Frontend/src/components/profile/ProfileInfoRow.tsx">
+        <metrics statements="3" coveredstatements="3" conditionals="13" coveredconditionals="11" methods="1" coveredmethods="1"/>
+        <line num="23" count="2" type="stmt"/>
+        <line num="34" count="76" type="cond" truecount="2" falsecount="0"/>
+        <line num="66" count="2" type="stmt"/>
       </file>
     </package>
     <package name="components.register">
-      <metrics statements="17" coveredstatements="17" conditionals="26" coveredconditionals="21" methods="6" coveredmethods="6"/>
+      <metrics statements="17" coveredstatements="17" conditionals="26" coveredconditionals="25" methods="6" coveredmethods="6"/>
       <file name="PasswordRequirements.tsx" path="/home/nicomanescau/StartUp 6I/Frontend/src/components/register/PasswordRequirements.tsx">
         <metrics statements="5" coveredstatements="5" conditionals="6" coveredconditionals="6" methods="2" coveredmethods="2"/>
-        <line num="10" count="1" type="stmt"/>
-        <line num="11" count="16" type="stmt"/>
-        <line num="19" count="16" type="stmt"/>
-        <line num="23" count="80" type="stmt"/>
-        <line num="36" count="1" type="stmt"/>
+        <line num="11" count="3" type="stmt"/>
+        <line num="14" count="26" type="stmt"/>
+        <line num="38" count="26" type="stmt"/>
+        <line num="42" count="130" type="stmt"/>
+        <line num="63" count="3" type="stmt"/>
       </file>
       <file name="RegisterFormInput.tsx" path="/home/nicomanescau/StartUp 6I/Frontend/src/components/register/RegisterFormInput.tsx">
-        <metrics statements="4" coveredstatements="4" conditionals="13" coveredconditionals="9" methods="1" coveredmethods="1"/>
-        <line num="27" count="1" type="stmt"/>
-        <line num="41" count="96" type="stmt"/>
-        <line num="43" count="96" type="stmt"/>
-        <line num="78" count="1" type="stmt"/>
+        <metrics statements="4" coveredstatements="4" conditionals="13" coveredconditionals="13" methods="1" coveredmethods="1"/>
+        <line num="28" count="4" type="stmt"/>
+        <line num="42" count="194" type="stmt"/>
+        <line num="44" count="194" type="stmt"/>
+        <line num="86" count="4" type="stmt"/>
       </file>
       <file name="RegisterTermsRow.tsx" path="/home/nicomanescau/StartUp 6I/Frontend/src/components/register/RegisterTermsRow.tsx">
         <metrics statements="3" coveredstatements="3" conditionals="7" coveredconditionals="6" methods="1" coveredmethods="1"/>
-        <line num="13" count="1" type="stmt"/>
-        <line num="20" count="16" type="stmt"/>
-        <line num="42" count="1" type="stmt"/>
+        <line num="14" count="2" type="stmt"/>
+        <line num="21" count="17" type="stmt"/>
+        <line num="45" count="2" type="stmt"/>
       </file>
       <file name="TermsModal.tsx" path="/home/nicomanescau/StartUp 6I/Frontend/src/components/register/TermsModal.tsx">
         <metrics statements="5" coveredstatements="5" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="2"/>
-        <line num="18" count="1" type="stmt"/>
-        <line num="19" count="16" type="stmt"/>
-        <line num="59" count="1" type="stmt"/>
-        <line num="60" count="1" type="stmt"/>
-        <line num="73" count="1" type="stmt"/>
+        <line num="18" count="2" type="stmt"/>
+        <line num="23" count="17" type="stmt"/>
+        <line num="71" count="1" type="stmt"/>
+        <line num="72" count="1" type="stmt"/>
+        <line num="85" count="2" type="stmt"/>
+      </file>
+    </package>
+    <package name="components.role">
+      <metrics statements="7" coveredstatements="7" conditionals="0" coveredconditionals="0" methods="3" coveredmethods="3"/>
+      <file name="RoleCard.tsx" path="/home/nicomanescau/StartUp 6I/Frontend/src/components/role/RoleCard.tsx">
+        <metrics statements="4" coveredstatements="4" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="2"/>
+        <line num="16" count="2" type="stmt"/>
+        <line num="25" count="18" type="stmt"/>
+        <line num="29" count="2" type="stmt"/>
+        <line num="50" count="2" type="stmt"/>
+      </file>
+      <file name="RoleSelectionFooter.tsx" path="/home/nicomanescau/StartUp 6I/Frontend/src/components/role/RoleSelectionFooter.tsx">
+        <metrics statements="3" coveredstatements="3" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
+        <line num="10" count="2" type="stmt"/>
+        <line num="13" count="9" type="stmt"/>
+        <line num="26" count="2" type="stmt"/>
+      </file>
+    </package>
+    <package name="components.worker">
+      <metrics statements="17" coveredstatements="17" conditionals="33" coveredconditionals="26" methods="7" coveredmethods="7"/>
+      <file name="WorkerCard.tsx" path="/home/nicomanescau/StartUp 6I/Frontend/src/components/worker/WorkerCard.tsx">
+        <metrics statements="10" coveredstatements="10" conditionals="24" coveredconditionals="17" methods="3" coveredmethods="3"/>
+        <line num="27" count="12" type="cond" truecount="1" falsecount="1"/>
+        <line num="28" count="12" type="stmt"/>
+        <line num="29" count="12" type="cond" truecount="1" falsecount="1"/>
+        <line num="30" count="12" type="stmt"/>
+        <line num="35" count="12" type="stmt"/>
+        <line num="46" count="2" type="stmt"/>
+        <line num="53" count="12" type="stmt"/>
+        <line num="54" count="12" type="stmt"/>
+        <line num="56" count="12" type="stmt"/>
+        <line num="136" count="2" type="stmt"/>
+      </file>
+      <file name="WorkerFilters.tsx" path="/home/nicomanescau/StartUp 6I/Frontend/src/components/worker/WorkerFilters.tsx">
+        <metrics statements="7" coveredstatements="7" conditionals="9" coveredconditionals="9" methods="4" coveredmethods="4"/>
+        <line num="24" count="2" type="stmt"/>
+        <line num="29" count="69" type="stmt"/>
+        <line num="41" count="1" type="stmt"/>
+        <line num="56" count="2208" type="stmt"/>
+        <line num="57" count="2208" type="stmt"/>
+        <line num="61" count="2" type="stmt"/>
+        <line num="77" count="2" type="stmt"/>
+      </file>
+    </package>
+    <package name="context">
+      <metrics statements="26" coveredstatements="24" conditionals="6" coveredconditionals="4" methods="6" coveredmethods="6"/>
+      <file name="RoleContext.tsx" path="/home/nicomanescau/StartUp 6I/Frontend/src/context/RoleContext.tsx">
+        <metrics statements="26" coveredstatements="24" conditionals="6" coveredconditionals="4" methods="6" coveredmethods="6"/>
+        <line num="12" count="1" type="stmt"/>
+        <line num="23" count="1" type="stmt"/>
+        <line num="25" count="1" type="stmt"/>
+        <line num="28" count="42" type="stmt"/>
+        <line num="29" count="42" type="stmt"/>
+        <line num="31" count="42" type="stmt"/>
+        <line num="32" count="20" type="stmt"/>
+        <line num="33" count="20" type="stmt"/>
+        <line num="34" count="20" type="stmt"/>
+        <line num="35" count="20" type="cond" truecount="3" falsecount="1"/>
+        <line num="36" count="0" type="stmt"/>
+        <line num="41" count="20" type="stmt"/>
+        <line num="44" count="20" type="stmt"/>
+        <line num="47" count="42" type="stmt"/>
+        <line num="48" count="14" type="stmt"/>
+        <line num="49" count="14" type="stmt"/>
+        <line num="52" count="42" type="stmt"/>
+        <line num="53" count="1" type="stmt"/>
+        <line num="54" count="1" type="stmt"/>
+        <line num="57" count="42" type="stmt"/>
+        <line num="59" count="42" type="stmt"/>
+        <line num="68" count="1" type="stmt"/>
+        <line num="69" count="66" type="stmt"/>
+        <line num="70" count="66" type="cond" truecount="1" falsecount="1"/>
+        <line num="71" count="0" type="stmt"/>
+        <line num="73" count="66" type="stmt"/>
       </file>
     </package>
     <package name="hooks">
-      <metrics statements="116" coveredstatements="101" conditionals="55" coveredconditionals="33" methods="27" coveredmethods="22"/>
-      <file name="useOnboarding.ts" path="/home/nicomanescau/StartUp 6I/Frontend/src/hooks/useOnboarding.ts">
-        <metrics statements="42" coveredstatements="34" conditionals="21" coveredconditionals="7" methods="12" coveredmethods="9"/>
-        <line num="6" count="2" type="stmt"/>
-        <line num="9" count="13" type="stmt"/>
-        <line num="10" count="13" type="stmt"/>
-        <line num="13" count="13" type="stmt"/>
-        <line num="14" count="6" type="stmt"/>
-        <line num="15" count="6" type="stmt"/>
-        <line num="16" count="6" type="stmt"/>
-        <line num="17" count="6" type="stmt"/>
-        <line num="18" count="6" type="cond" truecount="3" falsecount="1"/>
-        <line num="19" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="20" count="0" type="stmt"/>
-        <line num="24" count="0" type="stmt"/>
-        <line num="26" count="6" type="cond" truecount="1" falsecount="1"/>
-        <line num="27" count="6" type="stmt"/>
-        <line num="32" count="6" type="stmt"/>
-        <line num="33" count="6" type="stmt"/>
-        <line num="34" count="6" type="stmt"/>
-        <line num="38" count="13" type="stmt"/>
-        <line num="39" count="13" type="stmt"/>
-        <line num="40" count="13" type="stmt"/>
-        <line num="42" count="13" type="stmt"/>
-        <line num="43" count="3" type="stmt"/>
-        <line num="44" count="3" type="stmt"/>
-        <line num="46" count="0" type="stmt"/>
-        <line num="50" count="13" type="stmt"/>
-        <line num="51" count="1" type="cond" truecount="1" falsecount="1"/>
-        <line num="52" count="1" type="stmt"/>
-        <line num="56" count="13" type="stmt"/>
-        <line num="57" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="58" count="0" type="stmt"/>
-        <line num="62" count="13" type="stmt"/>
-        <line num="63" count="2" type="stmt"/>
-        <line num="64" count="2" type="cond" truecount="1" falsecount="1"/>
+      <metrics statements="908" coveredstatements="810" conditionals="493" coveredconditionals="337" methods="172" coveredmethods="153"/>
+      <file name="useCompleteProfile.ts" path="/home/nicomanescau/StartUp 6I/Frontend/src/hooks/useCompleteProfile.ts">
+        <metrics statements="86" coveredstatements="81" conditionals="46" coveredconditionals="33" methods="14" coveredmethods="14"/>
+        <line num="31" count="3" type="stmt"/>
+        <line num="32" count="3" type="stmt"/>
+        <line num="33" count="3" type="stmt"/>
+        <line num="34" count="3" type="stmt"/>
+        <line num="39" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="40" count="3" type="stmt"/>
+        <line num="41" count="3" type="cond" truecount="1" falsecount="1"/>
+        <line num="42" count="3" type="stmt"/>
+        <line num="43" count="3" type="cond" truecount="1" falsecount="1"/>
+        <line num="48" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="49" count="3" type="stmt"/>
+        <line num="50" count="3" type="cond" truecount="1" falsecount="1"/>
+        <line num="51" count="3" type="stmt"/>
+        <line num="55" count="4" type="cond" truecount="1" falsecount="1"/>
+        <line num="56" count="4" type="stmt"/>
+        <line num="57" count="4" type="stmt"/>
+        <line num="59" count="4" type="stmt"/>
+        <line num="60" count="4" type="stmt"/>
+        <line num="61" count="4" type="stmt"/>
+        <line num="62" count="4" type="cond" truecount="2" falsecount="0"/>
         <line num="65" count="2" type="stmt"/>
-        <line num="69" count="13" type="stmt"/>
-        <line num="71" count="1" type="stmt"/>
-        <line num="72" count="1" type="cond" truecount="1" falsecount="1"/>
-        <line num="73" count="1" type="stmt"/>
+        <line num="68" count="30" type="stmt"/>
+        <line num="69" count="30" type="stmt"/>
+        <line num="76" count="30" type="stmt"/>
+        <line num="77" count="30" type="stmt"/>
+        <line num="78" count="30" type="stmt"/>
+        <line num="79" count="30" type="stmt"/>
+        <line num="84" count="30" type="stmt"/>
+        <line num="85" count="10" type="stmt"/>
+        <line num="86" count="10" type="stmt"/>
+        <line num="87" count="10" type="stmt"/>
+        <line num="88" count="10" type="stmt"/>
+        <line num="89" count="10" type="cond" truecount="2" falsecount="0"/>
+        <line num="91" count="9" type="stmt"/>
+        <line num="92" count="9" type="cond" truecount="4" falsecount="0"/>
+        <line num="93" count="4" type="stmt"/>
+        <line num="100" count="4" type="stmt"/>
+        <line num="104" count="10" type="cond" truecount="1" falsecount="1"/>
+        <line num="107" count="10" type="stmt"/>
+        <line num="108" count="10" type="stmt"/>
+        <line num="112" count="30" type="stmt"/>
+        <line num="114" count="17" type="stmt"/>
+        <line num="115" count="17" type="stmt"/>
+        <line num="124" count="30" type="stmt"/>
+        <line num="125" count="6" type="stmt"/>
+        <line num="127" count="6" type="cond" truecount="2" falsecount="0"/>
+        <line num="128" count="1" type="stmt"/>
+        <line num="131" count="6" type="cond" truecount="2" falsecount="0"/>
+        <line num="132" count="2" type="stmt"/>
+        <line num="136" count="6" type="cond" truecount="2" falsecount="0"/>
+        <line num="137" count="2" type="stmt"/>
+        <line num="140" count="6" type="cond" truecount="2" falsecount="0"/>
+        <line num="141" count="2" type="stmt"/>
+        <line num="142" count="4" type="cond" truecount="1" falsecount="1"/>
+        <line num="143" count="0" type="stmt"/>
+        <line num="146" count="6" type="stmt"/>
+        <line num="147" count="6" type="stmt"/>
+        <line num="150" count="30" type="stmt"/>
+        <line num="151" count="6" type="cond" truecount="2" falsecount="0"/>
+        <line num="153" count="4" type="stmt"/>
+        <line num="154" count="4" type="stmt"/>
+        <line num="155" count="4" type="stmt"/>
+        <line num="156" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="157" count="1" type="stmt"/>
+        <line num="158" count="1" type="stmt"/>
+        <line num="159" count="1" type="stmt"/>
+        <line num="162" count="3" type="stmt"/>
+        <line num="166" count="3" type="stmt"/>
+        <line num="170" count="9" type="cond" truecount="2" falsecount="0"/>
+        <line num="171" count="6" type="stmt"/>
+        <line num="173" count="3" type="stmt"/>
+        <line num="179" count="3" type="stmt"/>
+        <line num="180" count="3" type="stmt"/>
+        <line num="181" count="3" type="stmt"/>
+        <line num="185" count="3" type="stmt"/>
+        <line num="193" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="198" count="0" type="stmt"/>
+        <line num="199" count="0" type="stmt"/>
+        <line num="200" count="0" type="stmt"/>
+        <line num="205" count="3" type="stmt"/>
+        <line num="211" count="2" type="stmt"/>
+        <line num="213" count="2" type="stmt"/>
+        <line num="216" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="219" count="1" type="stmt"/>
+        <line num="220" count="1" type="stmt"/>
+        <line num="224" count="30" type="stmt"/>
+      </file>
+      <file name="useDeviceLocation.ts" path="/home/nicomanescau/StartUp 6I/Frontend/src/hooks/useDeviceLocation.ts">
+        <metrics statements="18" coveredstatements="18" conditionals="6" coveredconditionals="5" methods="5" coveredmethods="5"/>
+        <line num="21" count="2" type="cond" truecount="1" falsecount="0"/>
+        <line num="24" count="17" type="stmt"/>
+        <line num="25" count="17" type="stmt"/>
+        <line num="26" count="17" type="stmt"/>
+        <line num="28" count="17" type="stmt"/>
+        <line num="29" count="6" type="stmt"/>
+        <line num="30" count="6" type="stmt"/>
+        <line num="31" count="6" type="stmt"/>
+        <line num="35" count="17" type="stmt"/>
+        <line num="36" count="6" type="stmt"/>
+        <line num="37" count="6" type="stmt"/>
+        <line num="38" count="6" type="cond" truecount="1" falsecount="1"/>
+        <line num="40" count="6" type="stmt"/>
+        <line num="41" count="6" type="stmt"/>
+        <line num="42" count="6" type="stmt"/>
+        <line num="45" count="17" type="stmt"/>
+        <line num="46" count="6" type="cond" truecount="2" falsecount="0"/>
+        <line num="49" count="17" type="stmt"/>
+      </file>
+      <file name="useEditProfile.ts" path="/home/nicomanescau/StartUp 6I/Frontend/src/hooks/useEditProfile.ts">
+        <metrics statements="61" coveredstatements="61" conditionals="34" coveredconditionals="26" methods="11" coveredmethods="11"/>
+        <line num="25" count="2" type="stmt"/>
+        <line num="43" count="16" type="cond" truecount="2" falsecount="0"/>
+        <line num="44" count="16" type="cond" truecount="2" falsecount="0"/>
+        <line num="45" count="14" type="cond" truecount="2" falsecount="0"/>
+        <line num="46" count="13" type="stmt"/>
+        <line num="49" count="2" type="stmt"/>
+        <line num="50" count="37" type="stmt"/>
+        <line num="51" count="37" type="stmt"/>
+        <line num="52" count="37" type="stmt"/>
+        <line num="53" count="37" type="stmt"/>
+        <line num="54" count="37" type="stmt"/>
+        <line num="55" count="37" type="stmt"/>
+        <line num="57" count="37" type="stmt"/>
+        <line num="60" count="37" type="stmt"/>
+        <line num="61" count="22" type="stmt"/>
+        <line num="62" count="22" type="cond" truecount="2" falsecount="0"/>
+        <line num="63" count="3" type="stmt"/>
+        <line num="69" count="19" type="stmt"/>
+        <line num="72" count="37" type="stmt"/>
+        <line num="73" count="15" type="stmt"/>
+        <line num="74" count="15" type="stmt"/>
+        <line num="75" count="15" type="stmt"/>
+        <line num="76" count="15" type="stmt"/>
         <line num="79" count="13" type="stmt"/>
-        <line num="80" count="0" type="cond" truecount="0" falsecount="4"/>
-        <line num="81" count="0" type="stmt"/>
-        <line num="85" count="13" type="stmt"/>
+        <line num="83" count="11" type="stmt"/>
+        <line num="85" count="1" type="stmt"/>
+        <line num="87" count="11" type="cond" truecount="2" falsecount="0"/>
+        <line num="88" count="11" type="cond" truecount="1" falsecount="1"/>
+        <line num="91" count="11" type="cond" truecount="3" falsecount="1"/>
+        <line num="93" count="11" type="cond" truecount="3" falsecount="1"/>
+        <line num="97" count="11" type="stmt"/>
+        <line num="99" count="11" type="stmt"/>
+        <line num="107" count="11" type="stmt"/>
+        <line num="109" count="4" type="stmt"/>
+        <line num="114" count="4" type="stmt"/>
+        <line num="122" count="37" type="stmt"/>
+        <line num="124" count="3" type="stmt"/>
+        <line num="125" count="3" type="stmt"/>
+        <line num="126" count="3" type="stmt"/>
+        <line num="127" count="3" type="stmt"/>
+        <line num="128" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="131" count="2" type="stmt"/>
+        <line num="132" count="2" type="stmt"/>
+        <line num="133" count="2" type="stmt"/>
+        <line num="135" count="1" type="stmt"/>
+        <line num="140" count="1" type="stmt"/>
+        <line num="142" count="3" type="stmt"/>
+        <line num="152" count="37" type="stmt"/>
+        <line num="154" count="4" type="stmt"/>
+        <line num="155" count="4" type="stmt"/>
+        <line num="156" count="4" type="stmt"/>
+        <line num="157" count="4" type="stmt"/>
+        <line num="158" count="3" type="stmt"/>
+        <line num="159" count="1" type="stmt"/>
+        <line num="160" count="1" type="stmt"/>
+        <line num="162" count="3" type="stmt"/>
+        <line num="167" count="3" type="stmt"/>
+        <line num="169" count="4" type="stmt"/>
+        <line num="175" count="37" type="stmt"/>
+        <line num="176" count="14" type="stmt"/>
+        <line num="179" count="37" type="stmt"/>
+      </file>
+      <file name="useForgotPassword.ts" path="/home/nicomanescau/StartUp 6I/Frontend/src/hooks/useForgotPassword.ts">
+        <metrics statements="133" coveredstatements="109" conditionals="71" coveredconditionals="38" methods="26" coveredmethods="22"/>
+        <line num="10" count="3" type="stmt"/>
+        <line num="11" count="3" type="stmt"/>
+        <line num="12" count="3" type="stmt"/>
+        <line num="13" count="3" type="stmt"/>
+        <line num="45" count="3" type="stmt"/>
+        <line num="48" count="101" type="stmt"/>
+        <line num="49" count="101" type="stmt"/>
+        <line num="50" count="101" type="stmt"/>
+        <line num="51" count="101" type="stmt"/>
+        <line num="52" count="101" type="stmt"/>
+        <line num="53" count="101" type="stmt"/>
+        <line num="54" count="101" type="stmt"/>
+        <line num="57" count="101" type="stmt"/>
+        <line num="58" count="101" type="stmt"/>
+        <line num="59" count="101" type="stmt"/>
+        <line num="61" count="101" type="stmt"/>
+        <line num="66" count="101" type="stmt"/>
+        <line num="67" count="34" type="stmt"/>
+        <line num="68" count="34" type="cond" truecount="2" falsecount="0"/>
+        <line num="69" count="12" type="stmt"/>
+        <line num="71" count="22" type="cond" truecount="2" falsecount="0"/>
+        <line num="72" count="2" type="stmt"/>
+        <line num="74" count="20" type="stmt"/>
+        <line num="79" count="101" type="stmt"/>
+        <line num="80" count="32" type="cond" truecount="2" falsecount="0"/>
+        <line num="82" count="9" type="stmt"/>
+        <line num="83" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="86" count="9" type="stmt"/>
+        <line num="91" count="101" type="stmt"/>
+        <line num="92" count="35" type="cond" truecount="2" falsecount="0"/>
+        <line num="93" count="1" type="stmt"/>
+        <line num="94" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="95" count="0" type="stmt"/>
+        <line num="97" count="1" type="cond" truecount="3" falsecount="1"/>
+        <line num="98" count="1" type="stmt"/>
+        <line num="100" count="0" type="stmt"/>
+        <line num="103" count="101" type="stmt"/>
+        <line num="104" count="34" type="stmt"/>
+        <line num="109" count="287" type="stmt"/>
+        <line num="110" count="101" type="stmt"/>
+        <line num="111" count="50" type="cond" truecount="2" falsecount="0"/>
+        <line num="112" count="140" type="cond" truecount="2" falsecount="0"/>
+        <line num="113" count="26" type="stmt"/>
+        <line num="116" count="101" type="stmt"/>
+        <line num="120" count="101" type="stmt"/>
+        <line num="121" count="22" type="cond" truecount="2" falsecount="0"/>
+        <line num="122" count="3" type="cond" truecount="1" falsecount="1"/>
+        <line num="123" count="0" type="stmt"/>
+        <line num="125" count="3" type="cond" truecount="1" falsecount="1"/>
+        <line num="126" count="0" type="stmt"/>
+        <line num="128" count="3" type="stmt"/>
+        <line num="131" count="101" type="stmt"/>
+        <line num="132" count="25" type="cond" truecount="2" falsecount="0"/>
+        <line num="133" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="134" count="1" type="stmt"/>
+        <line num="136" count="2" type="stmt"/>
+        <line num="139" count="101" type="stmt"/>
+        <line num="140" count="25" type="stmt"/>
+        <line num="150" count="101" type="stmt"/>
+        <line num="151" count="15" type="stmt"/>
+        <line num="152" count="15" type="stmt"/>
+        <line num="155" count="101" type="stmt"/>
+        <line num="156" count="1" type="stmt"/>
+        <line num="159" count="101" type="stmt"/>
+        <line num="160" count="31" type="stmt"/>
+        <line num="161" count="31" type="stmt"/>
+        <line num="162" count="31" type="stmt"/>
+        <line num="163" count="31" type="stmt"/>
+        <line num="164" count="31" type="stmt"/>
+        <line num="166" count="31" type="stmt"/>
+        <line num="167" count="31" type="cond" truecount="4" falsecount="0"/>
+        <line num="168" count="26" type="stmt"/>
+        <line num="172" count="101" type="stmt"/>
+        <line num="174" count="0" type="cond" truecount="0" falsecount="5"/>
+        <line num="175" count="0" type="stmt"/>
+        <line num="181" count="101" type="stmt"/>
+        <line num="182" count="3" type="stmt"/>
+        <line num="183" count="3" type="stmt"/>
+        <line num="186" count="101" type="stmt"/>
+        <line num="187" count="3" type="stmt"/>
+        <line num="188" count="3" type="stmt"/>
+        <line num="191" count="101" type="stmt"/>
+        <line num="192" count="11" type="stmt"/>
+        <line num="193" count="11" type="stmt"/>
+        <line num="195" count="11" type="stmt"/>
+        <line num="196" count="11" type="stmt"/>
+        <line num="197" count="9" type="stmt"/>
+        <line num="198" count="9" type="stmt"/>
+        <line num="199" count="9" type="stmt"/>
+        <line num="201" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="202" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="203" count="2" type="stmt"/>
+        <line num="206" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="207" count="0" type="stmt"/>
+        <line num="211" count="0" type="stmt"/>
+        <line num="216" count="0" type="stmt"/>
+        <line num="219" count="11" type="stmt"/>
+        <line num="223" count="101" type="stmt"/>
+        <line num="224" count="5" type="cond" truecount="1" falsecount="1"/>
+        <line num="225" count="5" type="stmt"/>
+        <line num="226" count="5" type="stmt"/>
+        <line num="228" count="5" type="stmt"/>
+        <line num="233" count="5" type="stmt"/>
+        <line num="234" count="5" type="stmt"/>
+        <line num="235" count="4" type="stmt"/>
+        <line num="236" count="4" type="stmt"/>
+        <line num="238" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="239" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="240" count="1" type="stmt"/>
+        <line num="242" count="0" type="stmt"/>
+        <line num="247" count="0" type="stmt"/>
+        <line num="250" count="5" type="stmt"/>
+        <line num="254" count="101" type="stmt"/>
+        <line num="255" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="256" count="2" type="stmt"/>
+        <line num="257" count="2" type="stmt"/>
+        <line num="259" count="2" type="stmt"/>
+        <line num="260" count="2" type="stmt"/>
+        <line num="264" count="2" type="stmt"/>
+        <line num="266" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="267" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="268" count="0" type="stmt"/>
+        <line num="272" count="0" type="stmt"/>
+        <line num="277" count="0" type="stmt"/>
+        <line num="280" count="2" type="stmt"/>
+        <line num="284" count="101" type="stmt"/>
+        <line num="285" count="0" type="stmt"/>
+        <line num="286" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="288" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="289" count="0" type="stmt"/>
+        <line num="290" count="0" type="stmt"/>
+        <line num="292" count="0" type="stmt"/>
+        <line num="296" count="101" type="stmt"/>
+      </file>
+      <file name="useLocationForm.ts" path="/home/nicomanescau/StartUp 6I/Frontend/src/hooks/useLocationForm.ts">
+        <metrics statements="92" coveredstatements="86" conditionals="58" coveredconditionals="43" methods="16" coveredmethods="13"/>
+        <line num="16" count="3" type="stmt"/>
+        <line num="25" count="3" type="stmt"/>
+        <line num="26" count="52" type="cond" truecount="2" falsecount="0"/>
+        <line num="27" count="52" type="stmt"/>
+        <line num="32" count="52" type="stmt"/>
+        <line num="35" count="52" type="stmt"/>
+        <line num="40" count="52" type="stmt"/>
+        <line num="42" count="52" type="stmt"/>
+        <line num="43" count="52" type="stmt"/>
+        <line num="44" count="52" type="stmt"/>
+        <line num="45" count="52" type="stmt"/>
+        <line num="48" count="52" type="stmt"/>
+        <line num="49" count="52" type="stmt"/>
+        <line num="51" count="52" type="stmt"/>
+        <line num="52" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="53" count="3" type="stmt"/>
+        <line num="56" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="57" count="3" type="stmt"/>
+        <line num="62" count="3" type="stmt"/>
+        <line num="63" count="3" type="stmt"/>
+        <line num="64" count="3" type="stmt"/>
+        <line num="65" count="3" type="stmt"/>
+        <line num="68" count="52" type="stmt"/>
+        <line num="69" count="3" type="stmt"/>
+        <line num="70" count="3" type="stmt"/>
+        <line num="71" count="3" type="stmt"/>
+        <line num="74" count="52" type="stmt"/>
+        <line num="75" count="4" type="stmt"/>
+        <line num="76" count="4" type="stmt"/>
+        <line num="79" count="52" type="stmt"/>
+        <line num="81" count="52" type="stmt"/>
+        <line num="82" count="2" type="stmt"/>
+        <line num="83" count="2" type="stmt"/>
+        <line num="87" count="52" type="stmt"/>
+        <line num="88" count="2" type="stmt"/>
+        <line num="89" count="2" type="stmt"/>
+        <line num="91" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="92" count="1" type="stmt"/>
+        <line num="93" count="1" type="stmt"/>
+        <line num="94" count="1" type="stmt"/>
+        <line num="95" count="1" type="stmt"/>
+        <line num="98" count="1" type="stmt"/>
+        <line num="99" count="1" type="stmt"/>
+        <line num="100" count="1" type="stmt"/>
+        <line num="101" count="1" type="stmt"/>
+        <line num="102" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="103" count="1" type="stmt"/>
+        <line num="105" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="106" count="0" type="stmt"/>
+        <line num="111" count="0" type="stmt"/>
+        <line num="113" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="117" count="52" type="stmt"/>
+        <line num="118" count="0" type="stmt"/>
+        <line num="119" count="0" type="stmt"/>
+        <line num="120" count="0" type="stmt"/>
+        <line num="124" count="52" type="stmt"/>
+        <line num="125" count="1" type="stmt"/>
+        <line num="126" count="1" type="stmt"/>
+        <line num="130" count="1" type="stmt"/>
+        <line num="131" count="1" type="stmt"/>
+        <line num="132" count="1" type="stmt"/>
+        <line num="133" count="1" type="stmt"/>
+        <line num="142" count="52" type="stmt"/>
+        <line num="144" count="2" type="stmt"/>
+        <line num="145" count="2" type="cond" truecount="4" falsecount="0"/>
+        <line num="146" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="148" count="1" type="stmt"/>
+        <line num="149" count="1" type="stmt"/>
+        <line num="150" count="1" type="stmt"/>
+        <line num="154" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="158" count="1" type="stmt"/>
+        <line num="164" count="52" type="stmt"/>
+        <line num="165" count="4" type="stmt"/>
+        <line num="166" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="167" count="2" type="stmt"/>
+        <line num="169" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="170" count="2" type="stmt"/>
+        <line num="172" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="173" count="2" type="stmt"/>
+        <line num="174" count="2" type="stmt"/>
+        <line num="175" count="2" type="cond" truecount="4" falsecount="0"/>
+        <line num="176" count="1" type="stmt"/>
+        <line num="179" count="4" type="stmt"/>
+        <line num="180" count="4" type="stmt"/>
+        <line num="184" count="52" type="stmt"/>
+        <line num="186" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="187" count="1" type="stmt"/>
+        <line num="188" count="1" type="stmt"/>
+        <line num="189" count="1" type="cond" truecount="3" falsecount="1"/>
+        <line num="190" count="1" type="stmt"/>
+        <line num="193" count="2" type="stmt"/>
+        <line num="202" count="52" type="stmt"/>
+      </file>
+      <file name="useLocations.ts" path="/home/nicomanescau/StartUp 6I/Frontend/src/hooks/useLocations.ts">
+        <metrics statements="106" coveredstatements="99" conditionals="57" coveredconditionals="46" methods="27" coveredmethods="25"/>
+        <line num="17" count="23" type="stmt"/>
+        <line num="31" count="26" type="cond" truecount="2" falsecount="0"/>
+        <line num="33" count="3" type="stmt"/>
+        <line num="34" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="35" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="36" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="37" count="1" type="stmt"/>
+        <line num="51" count="8" type="cond" truecount="2" falsecount="0"/>
+        <line num="52" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="55" count="7" type="cond" truecount="2" falsecount="0"/>
+        <line num="56" count="7" type="cond" truecount="2" falsecount="0"/>
+        <line num="59" count="7" type="stmt"/>
+        <line num="63" count="5" type="cond" truecount="1" falsecount="1"/>
+        <line num="64" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="65" count="0" type="stmt"/>
+        <line num="77" count="19" type="stmt"/>
+        <line num="78" count="20" type="cond" truecount="1" falsecount="1"/>
+        <line num="79" count="20" type="stmt"/>
+        <line num="80" count="20" type="cond" truecount="2" falsecount="0"/>
+        <line num="97" count="2" type="stmt"/>
+        <line num="98" count="54" type="stmt"/>
+        <line num="99" count="54" type="stmt"/>
+        <line num="100" count="54" type="stmt"/>
+        <line num="101" count="54" type="stmt"/>
+        <line num="102" count="54" type="stmt"/>
+        <line num="103" count="54" type="stmt"/>
+        <line num="104" count="54" type="stmt"/>
+        <line num="105" count="54" type="stmt"/>
+        <line num="109" count="54" type="stmt"/>
+        <line num="111" count="54" type="cond" truecount="3" falsecount="0"/>
+        <line num="114" count="54" type="cond" truecount="2" falsecount="0"/>
+        <line num="117" count="54" type="cond" truecount="2" falsecount="0"/>
+        <line num="118" count="54" type="cond" truecount="2" falsecount="0"/>
+        <line num="120" count="54" type="stmt"/>
+        <line num="122" count="54" type="stmt"/>
+        <line num="123" count="27" type="cond" truecount="2" falsecount="0"/>
+        <line num="124" count="27" type="cond" truecount="2" falsecount="0"/>
+        <line num="125" count="1" type="stmt"/>
+        <line num="131" count="26" type="stmt"/>
+        <line num="132" count="26" type="stmt"/>
+        <line num="135" count="54" type="stmt"/>
+        <line num="137" count="22" type="cond" truecount="2" falsecount="0"/>
+        <line num="138" count="22" type="stmt"/>
+        <line num="139" count="22" type="stmt"/>
+        <line num="140" count="22" type="stmt"/>
+        <line num="141" count="21" type="stmt"/>
+        <line num="142" count="21" type="cond" truecount="2" falsecount="0"/>
+        <line num="145" count="19" type="stmt"/>
+        <line num="146" count="19" type="stmt"/>
+        <line num="149" count="19" type="stmt"/>
+        <line num="150" count="19" type="stmt"/>
+        <line num="152" count="3" type="stmt"/>
+        <line num="155" count="3" type="stmt"/>
+        <line num="157" count="22" type="stmt"/>
+        <line num="166" count="54" type="stmt"/>
+        <line num="168" count="20" type="stmt"/>
+        <line num="171" count="54" type="stmt"/>
+        <line num="173" count="54" type="stmt"/>
+        <line num="174" count="0" type="stmt"/>
+        <line num="175" count="0" type="stmt"/>
+        <line num="178" count="54" type="stmt"/>
+        <line num="180" count="54" type="stmt"/>
+        <line num="182" count="5" type="stmt"/>
+        <line num="183" count="5" type="stmt"/>
+        <line num="184" count="5" type="stmt"/>
+        <line num="185" count="5" type="stmt"/>
+        <line num="186" count="5" type="stmt"/>
+        <line num="187" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="188" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="189" count="4" type="stmt"/>
+        <line num="190" count="4" type="stmt"/>
+        <line num="196" count="4" type="stmt"/>
+        <line num="198" count="1" type="stmt"/>
+        <line num="201" count="1" type="stmt"/>
+        <line num="203" count="5" type="stmt"/>
+        <line num="209" count="54" type="stmt"/>
+        <line num="214" count="3" type="stmt"/>
+        <line num="215" count="3" type="stmt"/>
+        <line num="216" count="3" type="stmt"/>
+        <line num="217" count="3" type="stmt"/>
+        <line num="219" count="3" type="cond" truecount="1" falsecount="1"/>
+        <line num="222" count="3" type="cond" truecount="1" falsecount="1"/>
+        <line num="223" count="0" type="stmt"/>
+        <line num="225" count="3" type="stmt"/>
+        <line num="226" count="4" type="stmt"/>
+        <line num="227" count="3" type="stmt"/>
+        <line num="234" count="3" type="stmt"/>
+        <line num="236" count="3" type="stmt"/>
+        <line num="241" count="0" type="stmt"/>
+        <line num="244" count="0" type="stmt"/>
+        <line num="246" count="3" type="stmt"/>
+        <line num="252" count="54" type="stmt"/>
+        <line num="254" count="2" type="stmt"/>
+        <line num="255" count="2" type="stmt"/>
+        <line num="260" count="54" type="stmt"/>
+        <line num="262" count="2" type="stmt"/>
+        <line num="263" count="2" type="stmt"/>
+        <line num="264" count="2" type="stmt"/>
+        <line num="265" count="2" type="stmt"/>
+        <line num="266" count="1" type="stmt"/>
+        <line num="267" count="1" type="stmt"/>
+        <line num="268" count="1" type="stmt"/>
+        <line num="270" count="1" type="stmt"/>
+        <line num="271" count="1" type="stmt"/>
+        <line num="273" count="2" type="stmt"/>
+        <line num="279" count="54" type="stmt"/>
+      </file>
+      <file name="useLoginForm.ts" path="/home/nicomanescau/StartUp 6I/Frontend/src/hooks/useLoginForm.ts">
+        <metrics statements="73" coveredstatements="63" conditionals="29" coveredconditionals="20" methods="15" coveredmethods="14"/>
+        <line num="7" count="3" type="stmt"/>
+        <line num="8" count="3" type="stmt"/>
+        <line num="9" count="3" type="stmt"/>
+        <line num="11" count="3" type="stmt"/>
+        <line num="14" count="53" type="stmt"/>
+        <line num="19" count="53" type="stmt"/>
+        <line num="24" count="53" type="stmt"/>
+        <line num="25" count="53" type="stmt"/>
+        <line num="26" count="53" type="stmt"/>
+        <line num="27" count="53" type="stmt"/>
+        <line num="29" count="53" type="stmt"/>
+        <line num="30" count="20" type="stmt"/>
+        <line num="31" count="20" type="stmt"/>
+        <line num="32" count="20" type="stmt"/>
+        <line num="33" count="20" type="cond" truecount="1" falsecount="1"/>
+        <line num="34" count="0" type="stmt"/>
+        <line num="35" count="0" type="stmt"/>
+        <line num="41" count="20" type="stmt"/>
+        <line num="44" count="53" type="stmt"/>
+        <line num="45" count="39" type="stmt"/>
+        <line num="46" count="39" type="stmt"/>
+        <line num="48" count="39" type="cond" truecount="2" falsecount="0"/>
+        <line num="49" count="22" type="stmt"/>
+        <line num="51" count="17" type="stmt"/>
+        <line num="52" count="17" type="stmt"/>
+        <line num="53" count="17" type="cond" truecount="4" falsecount="0"/>
+        <line num="54" count="1" type="stmt"/>
+        <line num="58" count="39" type="cond" truecount="2" falsecount="0"/>
+        <line num="59" count="25" type="stmt"/>
+        <line num="60" count="14" type="cond" truecount="2" falsecount="0"/>
+        <line num="61" count="2" type="stmt"/>
+        <line num="64" count="39" type="stmt"/>
+        <line num="67" count="53" type="stmt"/>
+        <line num="68" count="39" type="stmt"/>
+        <line num="71" count="53" type="stmt"/>
+        <line num="73" count="28" type="stmt"/>
+        <line num="74" count="28" type="stmt"/>
+        <line num="79" count="53" type="stmt"/>
+        <line num="80" count="2" type="stmt"/>
+        <line num="83" count="53" type="stmt"/>
+        <line num="84" count="1" type="stmt"/>
+        <line num="87" count="53" type="stmt"/>
+        <line num="88" count="1" type="stmt"/>
+        <line num="91" count="53" type="stmt"/>
+        <line num="92" count="8" type="stmt"/>
+        <line num="94" count="8" type="cond" truecount="1" falsecount="1"/>
+        <line num="96" count="8" type="stmt"/>
+        <line num="97" count="8" type="stmt"/>
+        <line num="99" count="8" type="stmt"/>
+        <line num="100" count="8" type="stmt"/>
+        <line num="101" count="8" type="stmt"/>
+        <line num="103" count="8" type="stmt"/>
+        <line num="108" count="8" type="stmt"/>
+        <line num="109" count="8" type="stmt"/>
+        <line num="111" count="6" type="cond" truecount="2" falsecount="0"/>
+        <line num="112" count="1" type="stmt"/>
+        <line num="114" count="5" type="stmt"/>
+        <line num="117" count="6" type="cond" truecount="2" falsecount="0"/>
+        <line num="118" count="6" type="stmt"/>
+        <line num="120" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="121" count="2" type="cond" truecount="1" falsecount="4"/>
+        <line num="123" count="2" type="stmt"/>
+        <line num="124" count="2" type="stmt"/>
+        <line num="126" count="0" type="stmt"/>
+        <line num="127" count="0" type="stmt"/>
+        <line num="129" count="0" type="stmt"/>
+        <line num="130" count="0" type="stmt"/>
+        <line num="132" count="0" type="stmt"/>
+        <line num="133" count="0" type="stmt"/>
+        <line num="135" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="138" count="0" type="stmt"/>
+        <line num="141" count="8" type="stmt"/>
+        <line num="145" count="53" type="stmt"/>
+      </file>
+      <file name="useNearbyWorkers.ts" path="/home/nicomanescau/StartUp 6I/Frontend/src/hooks/useNearbyWorkers.ts">
+        <metrics statements="44" coveredstatements="36" conditionals="46" coveredconditionals="34" methods="7" coveredmethods="5"/>
+        <line num="19" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="20" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="21" count="0" type="stmt"/>
+        <line num="25" count="2" type="stmt"/>
+        <line num="30" count="28" type="cond" truecount="2" falsecount="0"/>
+        <line num="38" count="2" type="stmt"/>
+        <line num="42" count="24" type="stmt"/>
+        <line num="60" count="2" type="stmt"/>
+        <line num="65" count="23" type="cond" truecount="2" falsecount="0"/>
+        <line num="66" count="23" type="cond" truecount="2" falsecount="0"/>
+        <line num="68" count="23" type="cond" truecount="4" falsecount="0"/>
+        <line num="72" count="23" type="cond" truecount="2" falsecount="0"/>
+        <line num="76" count="23" type="cond" truecount="4" falsecount="0"/>
+        <line num="80" count="23" type="cond" truecount="2" falsecount="0"/>
+        <line num="81" count="23" type="stmt"/>
+        <line num="84" count="23" type="stmt"/>
+        <line num="85" count="23" type="stmt"/>
+        <line num="86" count="23" type="stmt"/>
+        <line num="87" count="23" type="stmt"/>
+        <line num="89" count="23" type="stmt"/>
+        <line num="91" count="6" type="cond" truecount="3" falsecount="1"/>
+        <line num="92" count="6" type="stmt"/>
+        <line num="93" count="6" type="cond" truecount="2" falsecount="0"/>
+        <line num="94" count="6" type="stmt"/>
+        <line num="95" count="6" type="stmt"/>
+        <line num="96" count="6" type="stmt"/>
+        <line num="97" count="6" type="stmt"/>
+        <line num="104" count="6" type="cond" truecount="1" falsecount="1"/>
+        <line num="105" count="6" type="stmt"/>
+        <line num="106" count="6" type="stmt"/>
+        <line num="107" count="6" type="stmt"/>
+        <line num="108" count="6" type="cond" truecount="3" falsecount="1"/>
+        <line num="109" count="6" type="stmt"/>
+        <line num="115" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="116" count="0" type="stmt"/>
+        <line num="117" count="0" type="stmt"/>
+        <line num="119" count="6" type="cond" truecount="1" falsecount="1"/>
+        <line num="127" count="23" type="stmt"/>
+        <line num="129" count="7" type="cond" truecount="2" falsecount="0"/>
+        <line num="131" count="6" type="stmt"/>
+        <line num="135" count="23" type="stmt"/>
+        <line num="136" count="0" type="stmt"/>
+        <line num="137" count="0" type="stmt"/>
+        <line num="140" count="23" type="stmt"/>
+      </file>
+      <file name="useOnboarding.ts" path="/home/nicomanescau/StartUp 6I/Frontend/src/hooks/useOnboarding.ts">
+        <metrics statements="30" coveredstatements="25" conditionals="13" coveredconditionals="3" methods="10" coveredmethods="7"/>
+        <line num="9" count="3" type="stmt"/>
+        <line num="12" count="17" type="stmt"/>
+        <line num="13" count="17" type="stmt"/>
+        <line num="16" count="17" type="stmt"/>
+        <line num="17" count="8" type="stmt"/>
+        <line num="20" count="17" type="stmt"/>
+        <line num="21" count="17" type="stmt"/>
+        <line num="22" count="17" type="stmt"/>
+        <line num="24" count="17" type="stmt"/>
+        <line num="25" count="4" type="stmt"/>
+        <line num="26" count="4" type="stmt"/>
+        <line num="28" count="0" type="stmt"/>
+        <line num="32" count="17" type="stmt"/>
+        <line num="33" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="34" count="1" type="stmt"/>
+        <line num="38" count="17" type="stmt"/>
+        <line num="39" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="40" count="0" type="stmt"/>
+        <line num="44" count="17" type="stmt"/>
+        <line num="45" count="3" type="stmt"/>
+        <line num="46" count="3" type="cond" truecount="1" falsecount="1"/>
+        <line num="47" count="3" type="stmt"/>
+        <line num="51" count="17" type="stmt"/>
+        <line num="55" count="1" type="stmt"/>
+        <line num="56" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="57" count="1" type="stmt"/>
+        <line num="63" count="17" type="stmt"/>
+        <line num="65" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="66" count="0" type="stmt"/>
+        <line num="72" count="17" type="stmt"/>
+      </file>
+      <file name="useOtpVerification.ts" path="/home/nicomanescau/StartUp 6I/Frontend/src/hooks/useOtpVerification.ts">
+        <metrics statements="103" coveredstatements="84" conditionals="68" coveredconditionals="39" methods="14" coveredmethods="13"/>
+        <line num="8" count="2" type="stmt"/>
+        <line num="10" count="2" type="stmt"/>
+        <line num="12" count="2" type="stmt"/>
+        <line num="42" count="2" type="stmt"/>
+        <line num="46" count="98" type="stmt"/>
+        <line num="47" count="98" type="stmt"/>
+        <line num="48" count="98" type="stmt"/>
+        <line num="50" count="98" type="stmt"/>
+        <line num="51" count="98" type="stmt"/>
+        <line num="54" count="98" type="stmt"/>
+        <line num="56" count="98" type="stmt"/>
+        <line num="62" count="98" type="stmt"/>
+        <line num="63" count="33" type="cond" truecount="4" falsecount="0"/>
+        <line num="65" count="31" type="stmt"/>
+        <line num="66" count="661" type="stmt"/>
+        <line num="67" count="661" type="cond" truecount="2" falsecount="0"/>
+        <line num="68" count="1" type="stmt"/>
+        <line num="69" count="1" type="stmt"/>
+        <line num="72" count="1" type="stmt"/>
+        <line num="74" count="660" type="stmt"/>
+        <line num="78" count="31" type="stmt"/>
+        <line num="81" count="98" type="stmt"/>
+        <line num="82" count="18" type="cond" truecount="2" falsecount="0"/>
+        <line num="84" count="15" type="stmt"/>
+        <line num="85" count="661" type="stmt"/>
+        <line num="88" count="15" type="stmt"/>
+        <line num="94" count="98" type="cond" truecount="3" falsecount="0"/>
+        <line num="98" count="98" type="stmt"/>
+        <line num="100" count="61" type="stmt"/>
+        <line num="102" count="61" type="stmt"/>
+        <line num="103" count="61" type="stmt"/>
+        <line num="104" count="61" type="stmt"/>
+        <line num="105" count="61" type="stmt"/>
+        <line num="108" count="61" type="stmt"/>
+        <line num="110" count="61" type="cond" truecount="4" falsecount="0"/>
+        <line num="111" count="50" type="stmt"/>
+        <line num="115" count="98" type="stmt"/>
+        <line num="117" count="0" type="cond" truecount="0" falsecount="5"/>
+        <line num="118" count="0" type="stmt"/>
+        <line num="126" count="98" type="stmt"/>
+        <line num="127" count="9" type="stmt"/>
+        <line num="129" count="9" type="cond" truecount="1" falsecount="1"/>
+        <line num="130" count="0" type="stmt"/>
+        <line num="131" count="0" type="stmt"/>
+        <line num="134" count="9" type="cond" truecount="1" falsecount="1"/>
+        <line num="135" count="9" type="cond" truecount="1" falsecount="1"/>
+        <line num="136" count="0" type="stmt"/>
+        <line num="137" count="0" type="stmt"/>
+        <line num="140" count="9" type="stmt"/>
+        <line num="141" count="9" type="stmt"/>
+        <line num="143" count="9" type="stmt"/>
+        <line num="144" count="9" type="stmt"/>
+        <line num="148" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="149" count="1" type="stmt"/>
+        <line num="151" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="152" count="1" type="stmt"/>
+        <line num="154" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="155" count="1" type="stmt"/>
+        <line num="157" count="1" type="stmt"/>
+        <line num="158" count="1" type="stmt"/>
+        <line num="160" count="7" type="stmt"/>
+        <line num="162" count="7" type="cond" truecount="1" falsecount="1"/>
+        <line num="163" count="7" type="stmt"/>
+        <line num="165" count="7" type="cond" truecount="1" falsecount="1"/>
+        <line num="166" count="0" type="stmt"/>
+        <line num="170" count="0" type="stmt"/>
+        <line num="173" count="7" type="cond" truecount="4" falsecount="0"/>
+        <line num="174" count="1" type="stmt"/>
+        <line num="177" count="1" type="stmt"/>
+        <line num="180" count="6" type="cond" truecount="1" falsecount="1"/>
+        <line num="181" count="0" type="stmt"/>
+        <line num="182" count="0" type="stmt"/>
+        <line num="183" count="0" type="stmt"/>
+        <line num="186" count="0" type="stmt"/>
+        <line num="189" count="6" type="cond" truecount="3" falsecount="1"/>
+        <line num="190" count="0" type="stmt"/>
+        <line num="193" count="0" type="stmt"/>
+        <line num="198" count="6" type="stmt"/>
+        <line num="199" count="6" type="stmt"/>
+        <line num="201" count="6" type="cond" truecount="2" falsecount="0"/>
+        <line num="202" count="1" type="stmt"/>
+        <line num="203" count="1" type="stmt"/>
+        <line num="206" count="1" type="stmt"/>
+        <line num="209" count="5" type="cond" truecount="1" falsecount="1"/>
+        <line num="210" count="5" type="stmt"/>
+        <line num="217" count="0" type="stmt"/>
+        <line num="233" count="98" type="stmt"/>
+        <line num="234" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="236" count="1" type="stmt"/>
+        <line num="237" count="1" type="stmt"/>
+        <line num="239" count="1" type="stmt"/>
+        <line num="240" count="1" type="stmt"/>
+        <line num="243" count="1" type="stmt"/>
+        <line num="244" count="1" type="stmt"/>
+        <line num="245" count="1" type="stmt"/>
+        <line num="246" count="1" type="stmt"/>
+        <line num="247" count="1" type="stmt"/>
+        <line num="250" count="1" type="stmt"/>
+        <line num="252" count="0" type="stmt"/>
+        <line num="253" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="254" count="0" type="stmt"/>
+        <line num="258" count="0" type="stmt"/>
+        <line num="263" count="98" type="stmt"/>
       </file>
       <file name="useRegisterForm.ts" path="/home/nicomanescau/StartUp 6I/Frontend/src/hooks/useRegisterForm.ts">
         <metrics statements="74" coveredstatements="67" conditionals="34" coveredconditionals="26" methods="15" coveredmethods="13"/>
-        <line num="11" count="2" type="stmt"/>
-        <line num="12" count="2" type="stmt"/>
-        <line num="14" count="2" type="stmt"/>
-        <line num="18" count="37" type="stmt"/>
-        <line num="28" count="37" type="stmt"/>
-        <line num="38" count="37" type="stmt"/>
-        <line num="39" count="37" type="stmt"/>
-        <line num="40" count="37" type="stmt"/>
-        <line num="41" count="37" type="stmt"/>
-        <line num="42" count="37" type="stmt"/>
-        <line num="44" count="37" type="stmt"/>
-        <line num="45" count="19" type="stmt"/>
-        <line num="46" count="19" type="stmt"/>
-        <line num="55" count="37" type="stmt"/>
-        <line num="56" count="30" type="stmt"/>
-        <line num="58" count="30" type="cond" truecount="2" falsecount="0"/>
-        <line num="59" count="21" type="stmt"/>
-        <line num="60" count="9" type="cond" truecount="1" falsecount="1"/>
-        <line num="61" count="0" type="stmt"/>
-        <line num="64" count="30" type="cond" truecount="2" falsecount="0"/>
-        <line num="65" count="22" type="stmt"/>
-        <line num="66" count="8" type="cond" truecount="1" falsecount="1"/>
-        <line num="67" count="0" type="stmt"/>
-        <line num="70" count="30" type="cond" truecount="2" falsecount="0"/>
-        <line num="71" count="21" type="stmt"/>
-        <line num="72" count="9" type="cond" truecount="2" falsecount="0"/>
-        <line num="73" count="1" type="stmt"/>
-        <line num="76" count="30" type="stmt"/>
-        <line num="77" count="30" type="cond" truecount="2" falsecount="0"/>
-        <line num="78" count="24" type="stmt"/>
-        <line num="79" count="6" type="cond" truecount="1" falsecount="1"/>
-        <line num="80" count="0" type="stmt"/>
-        <line num="83" count="30" type="stmt"/>
-        <line num="84" count="30" type="cond" truecount="2" falsecount="0"/>
-        <line num="85" count="21" type="stmt"/>
-        <line num="86" count="9" type="cond" truecount="2" falsecount="0"/>
-        <line num="87" count="1" type="stmt"/>
-        <line num="90" count="30" type="cond" truecount="2" falsecount="0"/>
-        <line num="91" count="24" type="stmt"/>
-        <line num="92" count="6" type="cond" truecount="2" falsecount="0"/>
-        <line num="93" count="1" type="stmt"/>
-        <line num="96" count="30" type="cond" truecount="2" falsecount="0"/>
-        <line num="97" count="25" type="stmt"/>
-        <line num="100" count="30" type="stmt"/>
-        <line num="103" count="37" type="stmt"/>
-        <line num="104" count="30" type="stmt"/>
-        <line num="107" count="37" type="stmt"/>
-        <line num="108" count="30" type="stmt"/>
-        <line num="109" count="30" type="stmt"/>
-        <line num="112" count="37" type="stmt"/>
-        <line num="113" count="0" type="stmt"/>
-        <line num="116" count="37" type="stmt"/>
-        <line num="117" count="1" type="stmt"/>
-        <line num="120" count="37" type="stmt"/>
-        <line num="121" count="1" type="stmt"/>
-        <line num="124" count="37" type="stmt"/>
-        <line num="125" count="2" type="stmt"/>
-        <line num="126" count="2" type="stmt"/>
-        <line num="129" count="37" type="stmt"/>
-        <line num="131" count="3" type="stmt"/>
-        <line num="141" count="3" type="cond" truecount="1" falsecount="1"/>
-        <line num="142" count="0" type="stmt"/>
-        <line num="145" count="3" type="stmt"/>
-        <line num="146" count="3" type="stmt"/>
-        <line num="148" count="3" type="stmt"/>
-        <line num="149" count="3" type="stmt"/>
-        <line num="157" count="2" type="stmt"/>
-        <line num="159" count="1" type="cond" truecount="1" falsecount="1"/>
-        <line num="160" count="1" type="cond" truecount="1" falsecount="1"/>
-        <line num="161" count="1" type="stmt"/>
-        <line num="163" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="166" count="0" type="stmt"/>
-        <line num="169" count="3" type="stmt"/>
-        <line num="173" count="37" type="stmt"/>
+        <line num="11" count="3" type="stmt"/>
+        <line num="12" count="3" type="stmt"/>
+        <line num="14" count="3" type="stmt"/>
+        <line num="18" count="38" type="stmt"/>
+        <line num="28" count="38" type="stmt"/>
+        <line num="38" count="38" type="stmt"/>
+        <line num="40" count="38" type="stmt"/>
+        <line num="41" count="38" type="stmt"/>
+        <line num="42" count="38" type="stmt"/>
+        <line num="43" count="38" type="stmt"/>
+        <line num="45" count="38" type="stmt"/>
+        <line num="46" count="20" type="stmt"/>
+        <line num="47" count="20" type="stmt"/>
+        <line num="56" count="38" type="stmt"/>
+        <line num="57" count="31" type="stmt"/>
+        <line num="59" count="31" type="cond" truecount="2" falsecount="0"/>
+        <line num="60" count="22" type="stmt"/>
+        <line num="61" count="9" type="cond" truecount="1" falsecount="1"/>
+        <line num="62" count="0" type="stmt"/>
+        <line num="65" count="31" type="cond" truecount="2" falsecount="0"/>
+        <line num="66" count="23" type="stmt"/>
+        <line num="67" count="8" type="cond" truecount="1" falsecount="1"/>
+        <line num="68" count="0" type="stmt"/>
+        <line num="71" count="31" type="cond" truecount="2" falsecount="0"/>
+        <line num="72" count="22" type="stmt"/>
+        <line num="73" count="9" type="cond" truecount="2" falsecount="0"/>
+        <line num="74" count="1" type="stmt"/>
+        <line num="77" count="31" type="stmt"/>
+        <line num="78" count="31" type="cond" truecount="2" falsecount="0"/>
+        <line num="79" count="25" type="stmt"/>
+        <line num="80" count="6" type="cond" truecount="1" falsecount="1"/>
+        <line num="81" count="0" type="stmt"/>
+        <line num="84" count="31" type="stmt"/>
+        <line num="85" count="31" type="cond" truecount="2" falsecount="0"/>
+        <line num="86" count="22" type="stmt"/>
+        <line num="87" count="9" type="cond" truecount="2" falsecount="0"/>
+        <line num="88" count="1" type="stmt"/>
+        <line num="92" count="31" type="cond" truecount="2" falsecount="0"/>
+        <line num="93" count="25" type="stmt"/>
+        <line num="94" count="6" type="cond" truecount="2" falsecount="0"/>
+        <line num="95" count="1" type="stmt"/>
+        <line num="98" count="31" type="cond" truecount="2" falsecount="0"/>
+        <line num="99" count="26" type="stmt"/>
+        <line num="102" count="31" type="stmt"/>
+        <line num="105" count="38" type="stmt"/>
+        <line num="106" count="31" type="stmt"/>
+        <line num="109" count="38" type="stmt"/>
+        <line num="111" count="30" type="stmt"/>
+        <line num="112" count="30" type="stmt"/>
+        <line num="117" count="38" type="stmt"/>
+        <line num="118" count="0" type="stmt"/>
+        <line num="121" count="38" type="stmt"/>
+        <line num="122" count="1" type="stmt"/>
+        <line num="125" count="38" type="stmt"/>
+        <line num="126" count="1" type="stmt"/>
+        <line num="129" count="38" type="stmt"/>
+        <line num="130" count="2" type="stmt"/>
+        <line num="131" count="2" type="stmt"/>
+        <line num="134" count="38" type="stmt"/>
+        <line num="136" count="3" type="stmt"/>
+        <line num="146" count="3" type="cond" truecount="1" falsecount="1"/>
+        <line num="147" count="0" type="stmt"/>
+        <line num="150" count="3" type="stmt"/>
+        <line num="151" count="3" type="stmt"/>
+        <line num="153" count="3" type="stmt"/>
+        <line num="154" count="3" type="stmt"/>
+        <line num="162" count="2" type="stmt"/>
+        <line num="164" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="165" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="166" count="1" type="stmt"/>
+        <line num="170" count="0" type="stmt"/>
+        <line num="175" count="0" type="stmt"/>
+        <line num="180" count="3" type="stmt"/>
+        <line num="184" count="38" type="stmt"/>
+      </file>
+      <file name="useRoleSelection.ts" path="/home/nicomanescau/StartUp 6I/Frontend/src/hooks/useRoleSelection.ts">
+        <metrics statements="18" coveredstatements="18" conditionals="2" coveredconditionals="2" methods="3" coveredmethods="3"/>
+        <line num="13" count="2" type="stmt"/>
+        <line num="16" count="16" type="stmt"/>
+        <line num="17" count="16" type="stmt"/>
+        <line num="18" count="16" type="stmt"/>
+        <line num="19" count="16" type="stmt"/>
+        <line num="21" count="16" type="stmt"/>
+        <line num="22" count="5" type="stmt"/>
+        <line num="23" count="5" type="stmt"/>
+        <line num="26" count="16" type="stmt"/>
+        <line num="27" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="29" count="3" type="stmt"/>
+        <line num="30" count="3" type="stmt"/>
+        <line num="32" count="3" type="stmt"/>
+        <line num="33" count="3" type="stmt"/>
+        <line num="34" count="1" type="stmt"/>
+        <line num="36" count="2" type="stmt"/>
+        <line num="38" count="3" type="stmt"/>
+        <line num="42" count="16" type="stmt"/>
+      </file>
+      <file name="useRoleSwitch.ts" path="/home/nicomanescau/StartUp 6I/Frontend/src/hooks/useRoleSwitch.ts">
+        <metrics statements="70" coveredstatements="63" conditionals="29" coveredconditionals="22" methods="9" coveredmethods="8"/>
+        <line num="8" count="3" type="stmt"/>
+        <line num="20" count="3" type="stmt"/>
+        <line num="24" count="46" type="stmt"/>
+        <line num="25" count="46" type="stmt"/>
+        <line num="26" count="46" type="stmt"/>
+        <line num="27" count="46" type="stmt"/>
+        <line num="28" count="46" type="stmt"/>
+        <line num="32" count="46" type="stmt"/>
+        <line num="33" count="33" type="cond" truecount="1" falsecount="1"/>
+        <line num="34" count="0" type="stmt"/>
+        <line num="35" count="0" type="stmt"/>
+        <line num="37" count="33" type="stmt"/>
+        <line num="40" count="46" type="stmt"/>
+        <line num="42" count="46" type="stmt"/>
+        <line num="43" count="1" type="stmt"/>
+        <line num="44" count="1" type="stmt"/>
+        <line num="45" count="1" type="stmt"/>
+        <line num="46" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="47" count="0" type="stmt"/>
+        <line num="48" count="0" type="stmt"/>
+        <line num="50" count="1" type="stmt"/>
+        <line num="51" count="1" type="stmt"/>
+        <line num="52" count="1" type="stmt"/>
+        <line num="55" count="46" type="stmt"/>
+        <line num="57" count="11" type="cond" truecount="2" falsecount="0"/>
+        <line num="59" count="10" type="stmt"/>
+        <line num="60" count="10" type="stmt"/>
+        <line num="61" count="10" type="stmt"/>
+        <line num="62" count="10" type="stmt"/>
+        <line num="64" count="10" type="stmt"/>
+        <line num="65" count="10" type="stmt"/>
+        <line num="66" count="10" type="cond" truecount="2" falsecount="0"/>
+        <line num="67" count="1" type="stmt"/>
+        <line num="68" count="1" type="stmt"/>
+        <line num="69" count="1" type="stmt"/>
+        <line num="72" count="9" type="stmt"/>
+        <line num="76" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="79" count="1" type="stmt"/>
+        <line num="83" count="1" type="stmt"/>
+        <line num="84" count="1" type="stmt"/>
+        <line num="85" count="3" type="stmt"/>
+        <line num="86" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="87" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="88" count="1" type="stmt"/>
+        <line num="89" count="1" type="stmt"/>
+        <line num="91" count="1" type="stmt"/>
+        <line num="92" count="1" type="stmt"/>
+        <line num="94" count="2" type="stmt"/>
+        <line num="97" count="1" type="stmt"/>
+        <line num="100" count="3" type="stmt"/>
+        <line num="101" count="3" type="stmt"/>
+        <line num="102" count="3" type="stmt"/>
+        <line num="109" count="5" type="cond" truecount="4" falsecount="0"/>
+        <line num="110" count="1" type="stmt"/>
+        <line num="111" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="112" count="1" type="stmt"/>
+        <line num="113" count="1" type="stmt"/>
+        <line num="114" count="1" type="stmt"/>
+        <line num="118" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="119" count="2" type="stmt"/>
+        <line num="129" count="2" type="stmt"/>
+        <line num="135" count="2" type="stmt"/>
+        <line num="139" count="4" type="stmt"/>
+        <line num="145" count="46" type="stmt"/>
+        <line num="147" count="46" type="stmt"/>
+        <line num="148" count="0" type="stmt"/>
+        <line num="149" count="0" type="stmt"/>
+        <line num="150" count="0" type="stmt"/>
+        <line num="154" count="46" type="stmt"/>
+        <line num="156" count="46" type="stmt"/>
       </file>
     </package>
     <package name="i18n">
       <metrics statements="3" coveredstatements="3" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
       <file name="onboardingContent.ts" path="/home/nicomanescau/StartUp 6I/Frontend/src/i18n/onboardingContent.ts">
         <metrics statements="3" coveredstatements="3" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
-        <line num="4" count="2" type="stmt"/>
-        <line num="6" count="2" type="stmt"/>
-        <line num="53" count="2" type="stmt"/>
+        <line num="4" count="3" type="stmt"/>
+        <line num="6" count="3" type="stmt"/>
+        <line num="53" count="3" type="stmt"/>
+      </file>
+    </package>
+    <package name="navigation">
+      <metrics statements="168" coveredstatements="130" conditionals="77" coveredconditionals="62" methods="40" coveredmethods="24"/>
+      <file name="AppNavigator.tsx" path="/home/nicomanescau/StartUp 6I/Frontend/src/navigation/AppNavigator.tsx">
+        <metrics statements="168" coveredstatements="130" conditionals="77" coveredconditionals="62" methods="40" coveredmethods="24"/>
+        <line num="43" count="1" type="stmt"/>
+        <line num="44" count="26" type="stmt"/>
+        <line num="45" count="17" type="stmt"/>
+        <line num="63" count="1" type="stmt"/>
+        <line num="64" count="64" type="stmt"/>
+        <line num="65" count="64" type="stmt"/>
+        <line num="66" count="64" type="stmt"/>
+        <line num="67" count="64" type="stmt"/>
+        <line num="68" count="64" type="stmt"/>
+        <line num="69" count="64" type="stmt"/>
+        <line num="70" count="64" type="stmt"/>
+        <line num="72" count="64" type="stmt"/>
+        <line num="75" count="64" type="stmt"/>
+        <line num="81" count="64" type="stmt"/>
+        <line num="84" count="64" type="stmt"/>
+        <line num="88" count="64" type="stmt"/>
+        <line num="91" count="64" type="stmt"/>
+        <line num="95" count="64" type="stmt"/>
+        <line num="96" count="20" type="stmt"/>
+        <line num="97" count="20" type="stmt"/>
+        <line num="98" count="20" type="stmt"/>
+        <line num="104" count="20" type="cond" truecount="4" falsecount="0"/>
+        <line num="105" count="15" type="stmt"/>
+        <line num="106" count="5" type="cond" truecount="2" falsecount="0"/>
+        <line num="107" count="4" type="stmt"/>
+        <line num="109" count="1" type="stmt"/>
+        <line num="112" count="0" type="stmt"/>
+        <line num="114" count="20" type="stmt"/>
+        <line num="118" count="20" type="stmt"/>
+        <line num="121" count="64" type="stmt"/>
+        <line num="124" count="15" type="stmt"/>
+        <line num="134" count="15" type="stmt"/>
+        <line num="135" count="15" type="stmt"/>
+        <line num="136" count="15" type="stmt"/>
+        <line num="137" count="15" type="cond" truecount="2" falsecount="0"/>
+        <line num="138" count="11" type="stmt"/>
+        <line num="139" count="11" type="stmt"/>
+        <line num="147" count="15" type="stmt"/>
+        <line num="157" count="15" type="stmt"/>
+        <line num="159" count="15" type="cond" truecount="4" falsecount="0"/>
+        <line num="160" count="15" type="cond" truecount="4" falsecount="0"/>
+        <line num="162" count="15" type="cond" truecount="2" falsecount="0"/>
+        <line num="163" count="13" type="stmt"/>
+        <line num="164" count="13" type="stmt"/>
+        <line num="165" count="13" type="cond" truecount="2" falsecount="0"/>
+        <line num="166" count="1" type="stmt"/>
+        <line num="168" count="13" type="stmt"/>
+        <line num="171" count="2" type="stmt"/>
+        <line num="174" count="64" type="stmt"/>
+        <line num="175" count="1" type="stmt"/>
+        <line num="178" count="64" type="stmt"/>
+        <line num="179" count="0" type="stmt"/>
+        <line num="180" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="181" count="0" type="stmt"/>
+        <line num="183" count="0" type="stmt"/>
+        <line num="184" count="0" type="stmt"/>
+        <line num="185" count="0" type="stmt"/>
+        <line num="188" count="64" type="stmt"/>
+        <line num="189" count="0" type="stmt"/>
+        <line num="190" count="0" type="stmt"/>
+        <line num="191" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="192" count="0" type="stmt"/>
+        <line num="194" count="0" type="stmt"/>
+        <line num="197" count="64" type="stmt"/>
+        <line num="198" count="1" type="stmt"/>
+        <line num="199" count="1" type="stmt"/>
+        <line num="200" count="1" type="stmt"/>
+        <line num="201" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="202" count="1" type="stmt"/>
+        <line num="206" count="64" type="stmt"/>
+        <line num="207" count="1" type="stmt"/>
+        <line num="208" count="1" type="stmt"/>
+        <line num="209" count="1" type="stmt"/>
+        <line num="210" count="1" type="stmt"/>
+        <line num="211" count="1" type="stmt"/>
+        <line num="212" count="1" type="stmt"/>
+        <line num="216" count="1" type="stmt"/>
+        <line num="217" count="1" type="stmt"/>
+        <line num="218" count="1" type="stmt"/>
+        <line num="219" count="1" type="stmt"/>
+        <line num="220" count="1" type="stmt"/>
+        <line num="225" count="64" type="stmt"/>
+        <line num="226" count="1" type="stmt"/>
+        <line num="227" count="1" type="stmt"/>
+        <line num="228" count="1" type="stmt"/>
+        <line num="229" count="1" type="stmt"/>
+        <line num="234" count="64" type="stmt"/>
+        <line num="235" count="1" type="stmt"/>
+        <line num="236" count="1" type="stmt"/>
+        <line num="237" count="1" type="stmt"/>
+        <line num="240" count="64" type="stmt"/>
+        <line num="241" count="1" type="stmt"/>
+        <line num="242" count="1" type="stmt"/>
+        <line num="245" count="64" type="stmt"/>
+        <line num="246" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="247" count="1" type="stmt"/>
+        <line num="248" count="1" type="stmt"/>
+        <line num="249" count="1" type="stmt"/>
+        <line num="251" count="1" type="stmt"/>
+        <line num="254" count="64" type="stmt"/>
+        <line num="255" count="0" type="stmt"/>
+        <line num="256" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="257" count="0" type="stmt"/>
+        <line num="258" count="0" type="stmt"/>
+        <line num="261" count="0" type="stmt"/>
+        <line num="264" count="64" type="cond" truecount="2" falsecount="0"/>
+        <line num="265" count="20" type="stmt"/>
+        <line num="279" count="44" type="cond" truecount="4" falsecount="0"/>
+        <line num="283" count="44" type="stmt"/>
+        <line num="285" count="44" type="stmt"/>
+        <line num="287" count="44" type="cond" truecount="2" falsecount="0"/>
+        <line num="288" count="2" type="stmt"/>
+        <line num="289" count="42" type="cond" truecount="2" falsecount="0"/>
+        <line num="290" count="7" type="stmt"/>
+        <line num="292" count="1" type="stmt"/>
+        <line num="293" count="0" type="stmt"/>
+        <line num="294" count="1" type="stmt"/>
+        <line num="297" count="35" type="cond" truecount="2" falsecount="0"/>
+        <line num="298" count="1" type="stmt"/>
+        <line num="300" count="1" type="stmt"/>
+        <line num="302" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="303" count="0" type="stmt"/>
+        <line num="304" count="0" type="stmt"/>
+        <line num="306" count="0" type="stmt"/>
+        <line num="309" count="34" type="cond" truecount="1" falsecount="1"/>
+        <line num="310" count="0" type="stmt"/>
+        <line num="314" count="0" type="stmt"/>
+        <line num="317" count="34" type="cond" truecount="2" falsecount="0"/>
+        <line num="318" count="2" type="stmt"/>
+        <line num="319" count="32" type="cond" truecount="1" falsecount="1"/>
+        <line num="320" count="0" type="stmt"/>
+        <line num="324" count="0" type="stmt"/>
+        <line num="327" count="32" type="cond" truecount="1" falsecount="1"/>
+        <line num="328" count="0" type="stmt"/>
+        <line num="330" count="0" type="stmt"/>
+        <line num="332" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="333" count="0" type="stmt"/>
+        <line num="334" count="0" type="stmt"/>
+        <line num="336" count="0" type="stmt"/>
+        <line num="337" count="0" type="stmt"/>
+        <line num="340" count="32" type="cond" truecount="1" falsecount="1"/>
+        <line num="341" count="0" type="stmt"/>
+        <line num="343" count="0" type="stmt"/>
+        <line num="344" count="0" type="stmt"/>
+        <line num="347" count="32" type="cond" truecount="2" falsecount="0"/>
+        <line num="348" count="6" type="stmt"/>
+        <line num="352" count="1" type="stmt"/>
+        <line num="353" count="1" type="stmt"/>
+        <line num="358" count="26" type="cond" truecount="2" falsecount="0"/>
+        <line num="359" count="1" type="stmt"/>
+        <line num="362" count="0" type="stmt"/>
+        <line num="365" count="25" type="cond" truecount="2" falsecount="0"/>
+        <line num="366" count="2" type="stmt"/>
+        <line num="369" count="23" type="cond" truecount="2" falsecount="0"/>
+        <line num="371" count="2" type="stmt"/>
+        <line num="372" count="21" type="cond" truecount="4" falsecount="0"/>
+        <line num="373" count="1" type="stmt"/>
+        <line num="378" count="1" type="stmt"/>
+        <line num="382" count="20" type="stmt"/>
+        <line num="386" count="4" type="stmt"/>
+        <line num="405" count="0" type="stmt"/>
+        <line num="418" count="3" type="stmt"/>
+        <line num="440" count="1" type="stmt"/>
+        <line num="446" count="44" type="stmt"/>
+        <line num="458" count="1" type="stmt"/>
+        <line num="460" count="1" type="stmt"/>
+        <line num="461" count="1" type="stmt"/>
+        <line num="471" count="1" type="stmt"/>
       </file>
     </package>
     <package name="screens">
-      <metrics statements="41" coveredstatements="31" conditionals="29" coveredconditionals="27" methods="24" coveredmethods="16"/>
+      <metrics statements="434" coveredstatements="322" conditionals="386" coveredconditionals="286" methods="152" coveredmethods="100"/>
       <file name="AuthWelcomeScreen.tsx" path="/home/nicomanescau/StartUp 6I/Frontend/src/screens/AuthWelcomeScreen.tsx">
         <metrics statements="3" coveredstatements="3" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
-        <line num="8" count="1" type="stmt"/>
-        <line num="13" count="2" type="stmt"/>
-        <line num="61" count="1" type="stmt"/>
+        <line num="15" count="2" type="stmt"/>
+        <line num="20" count="9" type="stmt"/>
+        <line num="70" count="2" type="stmt"/>
+      </file>
+      <file name="CompleteProfileScreen.tsx" path="/home/nicomanescau/StartUp 6I/Frontend/src/screens/CompleteProfileScreen.tsx">
+        <metrics statements="121" coveredstatements="34" conditionals="74" coveredconditionals="16" methods="41" coveredmethods="4"/>
+        <line num="36" count="2" type="stmt"/>
+        <line num="50" count="2" type="stmt"/>
+        <line num="52" count="2" type="stmt"/>
+        <line num="53" count="2" type="stmt"/>
+        <line num="54" count="2" type="stmt"/>
+        <line num="55" count="2" type="stmt"/>
+        <line num="58" count="0" type="stmt"/>
+        <line num="59" count="0" type="stmt"/>
+        <line num="60" count="0" type="stmt"/>
+        <line num="61" count="0" type="stmt"/>
+        <line num="65" count="20" type="stmt"/>
+        <line num="66" count="20" type="stmt"/>
+        <line num="67" count="20" type="stmt"/>
+        <line num="71" count="0" type="stmt"/>
+        <line num="72" count="0" type="stmt"/>
+        <line num="73" count="0" type="stmt"/>
+        <line num="74" count="0" type="cond" truecount="0" falsecount="5"/>
+        <line num="75" count="0" type="stmt"/>
+        <line num="77" count="0" type="stmt"/>
+        <line num="81" count="0" type="stmt"/>
+        <line num="85" count="0" type="stmt"/>
+        <line num="86" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="99" count="2" type="stmt"/>
+        <line num="107" count="0" type="stmt"/>
+        <line num="108" count="0" type="stmt"/>
+        <line num="110" count="0" type="stmt"/>
+        <line num="111" count="0" type="stmt"/>
+        <line num="112" count="0" type="stmt"/>
+        <line num="113" count="0" type="stmt"/>
+        <line num="114" count="0" type="stmt"/>
+        <line num="116" count="0" type="stmt"/>
+        <line num="117" count="0" type="stmt"/>
+        <line num="118" count="0" type="stmt"/>
+        <line num="120" count="0" type="stmt"/>
+        <line num="123" count="0" type="stmt"/>
+        <line num="127" count="0" type="stmt"/>
+        <line num="133" count="0" type="stmt"/>
+        <line num="135" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="136" count="0" type="stmt"/>
+        <line num="142" count="0" type="stmt"/>
+        <line num="143" count="0" type="stmt"/>
+        <line num="145" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="149" count="0" type="stmt"/>
+        <line num="157" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="187" count="2" type="stmt"/>
+        <line num="193" count="0" type="stmt"/>
+        <line num="194" count="0" type="stmt"/>
+        <line num="195" count="0" type="stmt"/>
+        <line num="196" count="0" type="stmt"/>
+        <line num="199" count="0" type="stmt"/>
+        <line num="201" count="0" type="stmt"/>
+        <line num="202" count="0" type="stmt"/>
+        <line num="203" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="204" count="0" type="stmt"/>
+        <line num="205" count="0" type="stmt"/>
+        <line num="210" count="0" type="stmt"/>
+        <line num="216" count="0" type="stmt"/>
+        <line num="218" count="0" type="stmt"/>
+        <line num="224" count="0" type="stmt"/>
+        <line num="225" count="0" type="stmt"/>
+        <line num="231" count="0" type="stmt"/>
+        <line num="251" count="2" type="stmt"/>
+        <line num="257" count="10" type="stmt"/>
+        <line num="259" count="10" type="stmt"/>
+        <line num="260" count="10" type="stmt"/>
+        <line num="261" count="10" type="stmt"/>
+        <line num="262" count="10" type="stmt"/>
+        <line num="263" count="10" type="stmt"/>
+        <line num="267" count="10" type="stmt"/>
+        <line num="268" count="10" type="stmt"/>
+        <line num="270" count="10" type="stmt"/>
+        <line num="271" count="10" type="cond" truecount="1" falsecount="1"/>
+        <line num="272" count="0" type="stmt"/>
+        <line num="273" count="0" type="stmt"/>
+        <line num="274" count="0" type="stmt"/>
+        <line num="287" count="0" type="stmt"/>
+        <line num="288" count="0" type="stmt"/>
+        <line num="293" count="10" type="stmt"/>
+        <line num="295" count="10" type="cond" truecount="1" falsecount="1"/>
+        <line num="296" count="0" type="stmt"/>
+        <line num="304" count="10" type="stmt"/>
+        <line num="305" count="10" type="cond" truecount="1" falsecount="1"/>
+        <line num="306" count="10" type="stmt"/>
+        <line num="308" count="10" type="stmt"/>
+        <line num="309" count="0" type="stmt"/>
+        <line num="310" count="0" type="stmt"/>
+        <line num="311" count="0" type="stmt"/>
+        <line num="314" count="10" type="stmt"/>
+        <line num="315" count="0" type="stmt"/>
+        <line num="316" count="0" type="stmt"/>
+        <line num="319" count="10" type="stmt"/>
+        <line num="320" count="0" type="stmt"/>
+        <line num="321" count="0" type="stmt"/>
+        <line num="322" count="0" type="stmt"/>
+        <line num="323" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="324" count="0" type="stmt"/>
+        <line num="325" count="0" type="stmt"/>
+        <line num="326" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="327" count="0" type="stmt"/>
+        <line num="328" count="0" type="stmt"/>
+        <line num="330" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="334" count="0" type="stmt"/>
+        <line num="336" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="337" count="0" type="stmt"/>
+        <line num="341" count="10" type="stmt"/>
+        <line num="382" count="0" type="stmt"/>
+        <line num="383" count="0" type="stmt"/>
+        <line num="392" count="0" type="stmt"/>
+        <line num="393" count="0" type="stmt"/>
+        <line num="394" count="0" type="stmt"/>
+        <line num="395" count="0" type="stmt"/>
+        <line num="408" count="0" type="stmt"/>
+        <line num="437" count="0" type="stmt"/>
+        <line num="441" count="0" type="stmt"/>
+        <line num="444" count="0" type="stmt"/>
+        <line num="462" count="0" type="stmt"/>
+        <line num="468" count="0" type="stmt"/>
+        <line num="479" count="0" type="stmt"/>
+        <line num="533" count="2" type="stmt"/>
+        <line num="591" count="2" type="stmt"/>
+        <line num="620" count="2" type="stmt"/>
+      </file>
+      <file name="EditProfileScreen.tsx" path="/home/nicomanescau/StartUp 6I/Frontend/src/screens/EditProfileScreen.tsx">
+        <metrics statements="30" coveredstatements="27" conditionals="22" coveredconditionals="18" methods="9" coveredmethods="7"/>
+        <line num="47" count="2" type="stmt"/>
+        <line num="62" count="19" type="stmt"/>
+        <line num="63" count="19" type="stmt"/>
+        <line num="65" count="19" type="stmt"/>
+        <line num="66" count="19" type="stmt"/>
+        <line num="68" count="19" type="stmt"/>
+        <line num="69" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="70" count="2" type="stmt"/>
+        <line num="71" count="2" type="stmt"/>
+        <line num="74" count="19" type="stmt"/>
+        <line num="75" count="2" type="stmt"/>
+        <line num="76" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="77" count="1" type="stmt"/>
+        <line num="82" count="19" type="stmt"/>
+        <line num="83" count="0" type="stmt"/>
+        <line num="84" count="0" type="stmt"/>
+        <line num="87" count="19" type="stmt"/>
+        <line num="88" count="0" type="stmt"/>
+        <line num="91" count="19" type="stmt"/>
+        <line num="92" count="16" type="stmt"/>
+        <line num="106" count="16" type="cond" truecount="2" falsecount="0"/>
+        <line num="107" count="12" type="stmt"/>
+        <line num="116" count="16" type="stmt"/>
+        <line num="119" count="19" type="stmt"/>
+        <line num="151" count="1" type="stmt"/>
+        <line num="152" count="1" type="stmt"/>
+        <line num="191" count="76" type="stmt"/>
+        <line num="219" count="1" type="stmt"/>
+        <line num="220" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="277" count="2" type="stmt"/>
+      </file>
+      <file name="ForgotPasswordScreen.tsx" path="/home/nicomanescau/StartUp 6I/Frontend/src/screens/ForgotPasswordScreen.tsx">
+        <metrics statements="28" coveredstatements="28" conditionals="60" coveredconditionals="55" methods="16" coveredmethods="16"/>
+        <line num="30" count="2" type="stmt"/>
+        <line num="36" count="2" type="stmt"/>
+        <line num="68" count="48" type="stmt"/>
+        <line num="70" count="48" type="stmt"/>
+        <line num="71" count="48" type="stmt"/>
+        <line num="72" count="48" type="stmt"/>
+        <line num="74" count="48" type="stmt"/>
+        <line num="75" count="14" type="stmt"/>
+        <line num="76" count="84" type="cond" truecount="2" falsecount="0"/>
+        <line num="80" count="48" type="stmt"/>
+        <line num="81" count="48" type="stmt"/>
+        <line num="102" count="48" type="stmt"/>
+        <line num="103" count="48" type="stmt"/>
+        <line num="105" count="144" type="stmt"/>
+        <line num="106" count="144" type="stmt"/>
+        <line num="107" count="144" type="stmt"/>
+        <line num="136" count="48" type="stmt"/>
+        <line num="137" count="20" type="stmt"/>
+        <line num="179" count="48" type="stmt"/>
+        <line num="180" count="19" type="stmt"/>
+        <line num="203" count="114" type="stmt"/>
+        <line num="206" count="228" type="stmt"/>
+        <line num="239" count="48" type="stmt"/>
+        <line num="240" count="9" type="stmt"/>
+        <line num="260" count="2" type="stmt"/>
+        <line num="283" count="1" type="stmt"/>
+        <line num="306" count="48" type="stmt"/>
+        <line num="329" count="2" type="stmt"/>
+      </file>
+      <file name="LocationsScreen.tsx" path="/home/nicomanescau/StartUp 6I/Frontend/src/screens/LocationsScreen.tsx">
+        <metrics statements="41" coveredstatements="33" conditionals="26" coveredconditionals="19" methods="13" coveredmethods="11"/>
+        <line num="44" count="2" type="stmt"/>
+        <line num="48" count="31" type="stmt"/>
+        <line num="49" count="31" type="stmt"/>
+        <line num="65" count="31" type="stmt"/>
+        <line num="67" count="31" type="stmt"/>
+        <line num="68" count="31" type="stmt"/>
+        <line num="69" count="31" type="stmt"/>
+        <line num="73" count="31" type="stmt"/>
+        <line num="75" count="31" type="stmt"/>
+        <line num="76" count="2" type="stmt"/>
+        <line num="77" count="2" type="stmt"/>
+        <line num="78" count="2" type="stmt"/>
+        <line num="81" count="31" type="stmt"/>
+        <line num="82" count="1" type="stmt"/>
+        <line num="83" count="1" type="stmt"/>
+        <line num="84" count="1" type="stmt"/>
+        <line num="87" count="31" type="stmt"/>
+        <line num="88" count="0" type="stmt"/>
+        <line num="89" count="0" type="stmt"/>
+        <line num="92" count="31" type="stmt"/>
+        <line num="93" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="94" count="0" type="stmt"/>
+        <line num="95" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="96" count="0" type="stmt"/>
+        <line num="98" count="0" type="stmt"/>
+        <line num="99" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="102" count="31" type="stmt"/>
+        <line num="103" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="104" count="1" type="stmt"/>
+        <line num="105" count="1" type="stmt"/>
+        <line num="108" count="31" type="stmt"/>
+        <line num="109" count="1" type="stmt"/>
+        <line num="112" count="31" type="stmt"/>
+        <line num="180" count="1" type="stmt"/>
+        <line num="227" count="24" type="stmt"/>
+        <line num="234" count="1" type="stmt"/>
+        <line num="236" count="2" type="stmt"/>
+        <line num="237" count="2" type="stmt"/>
+        <line num="240" count="1" type="stmt"/>
+        <line num="290" count="1" type="stmt"/>
+        <line num="299" count="2" type="stmt"/>
+      </file>
+      <file name="LoginScreen.tsx" path="/home/nicomanescau/StartUp 6I/Frontend/src/screens/LoginScreen.tsx">
+        <metrics statements="8" coveredstatements="8" conditionals="19" coveredconditionals="16" methods="5" coveredmethods="5"/>
+        <line num="26" count="2" type="stmt"/>
+        <line num="46" count="27" type="stmt"/>
+        <line num="48" count="27" type="stmt"/>
+        <line num="86" count="5" type="stmt"/>
+        <line num="87" count="1" type="stmt"/>
+        <line num="98" count="5" type="stmt"/>
+        <line num="99" count="1" type="stmt"/>
+        <line num="171" count="2" type="stmt"/>
+      </file>
+      <file name="MainScreen.tsx" path="/home/nicomanescau/StartUp 6I/Frontend/src/screens/MainScreen.tsx">
+        <metrics statements="5" coveredstatements="5" conditionals="9" coveredconditionals="8" methods="1" coveredmethods="1"/>
+        <line num="30" count="1" type="stmt"/>
+        <line num="38" count="6" type="stmt"/>
+        <line num="39" count="6" type="cond" truecount="2" falsecount="0"/>
+        <line num="41" count="6" type="stmt"/>
+        <line num="98" count="1" type="stmt"/>
       </file>
       <file name="OnboardingScreen.tsx" path="/home/nicomanescau/StartUp 6I/Frontend/src/screens/OnboardingScreen.tsx">
         <metrics statements="19" coveredstatements="15" conditionals="6" coveredconditionals="6" methods="7" coveredmethods="5"/>
-        <line num="21" count="1" type="stmt"/>
-        <line num="22" count="4" type="stmt"/>
-        <line num="23" count="4" type="stmt"/>
-        <line num="35" count="4" type="stmt"/>
-        <line num="38" count="4" type="stmt"/>
-        <line num="39" count="4" type="cond" truecount="4" falsecount="0"/>
-        <line num="40" count="2" type="stmt"/>
-        <line num="47" count="4" type="stmt"/>
-        <line num="48" count="0" type="stmt"/>
-        <line num="49" count="0" type="stmt"/>
-        <line num="50" count="0" type="stmt"/>
-        <line num="53" count="4" type="cond" truecount="2" falsecount="0"/>
-        <line num="54" count="2" type="stmt"/>
-        <line num="61" count="2" type="stmt"/>
-        <line num="72" count="14" type="stmt"/>
-        <line num="77" count="4" type="stmt"/>
-        <line num="83" count="8" type="stmt"/>
-        <line num="93" count="0" type="stmt"/>
-        <line num="99" count="1" type="stmt"/>
+        <line num="24" count="2" type="stmt"/>
+        <line num="27" count="8" type="stmt"/>
+        <line num="28" count="8" type="stmt"/>
+        <line num="40" count="8" type="stmt"/>
+        <line num="43" count="8" type="stmt"/>
+        <line num="44" count="8" type="cond" truecount="4" falsecount="0"/>
+        <line num="45" count="4" type="stmt"/>
+        <line num="52" count="8" type="stmt"/>
+        <line num="55" count="0" type="stmt"/>
+        <line num="56" count="0" type="stmt"/>
+        <line num="57" count="0" type="stmt"/>
+        <line num="60" count="8" type="cond" truecount="2" falsecount="0"/>
+        <line num="61" count="4" type="stmt"/>
+        <line num="68" count="4" type="stmt"/>
+        <line num="79" count="28" type="stmt"/>
+        <line num="84" count="8" type="stmt"/>
+        <line num="90" count="16" type="stmt"/>
+        <line num="100" count="0" type="stmt"/>
+        <line num="106" count="2" type="stmt"/>
+      </file>
+      <file name="OtpVerificationScreen.tsx" path="/home/nicomanescau/StartUp 6I/Frontend/src/screens/OtpVerificationScreen.tsx">
+        <metrics statements="19" coveredstatements="19" conditionals="25" coveredconditionals="22" methods="10" coveredmethods="10"/>
+        <line num="28" count="2" type="stmt"/>
+        <line num="45" count="98" type="stmt"/>
+        <line num="48" count="98" type="stmt"/>
+        <line num="51" count="98" type="stmt"/>
+        <line num="52" count="14" type="stmt"/>
+        <line num="53" count="84" type="cond" truecount="1" falsecount="1"/>
+        <line num="58" count="98" type="stmt"/>
+        <line num="59" count="14" type="stmt"/>
+        <line num="60" count="14" type="stmt"/>
+        <line num="63" count="98" type="stmt"/>
+        <line num="64" count="98" type="stmt"/>
+        <line num="65" count="98" type="stmt"/>
+        <line num="66" count="423" type="stmt"/>
+        <line num="67" count="98" type="stmt"/>
+        <line num="71" count="98" type="cond" truecount="1" falsecount="1"/>
+        <line num="75" count="98" type="stmt"/>
+        <line num="118" count="588" type="stmt"/>
+        <line num="121" count="1164" type="stmt"/>
+        <line num="209" count="2" type="stmt"/>
+      </file>
+      <file name="ProfileScreen.tsx" path="/home/nicomanescau/StartUp 6I/Frontend/src/screens/ProfileScreen.tsx">
+        <metrics statements="21" coveredstatements="19" conditionals="14" coveredconditionals="13" methods="6" coveredmethods="5"/>
+        <line num="32" count="2" type="stmt"/>
+        <line num="40" count="23" type="stmt"/>
+        <line num="41" count="23" type="stmt"/>
+        <line num="42" count="23" type="stmt"/>
+        <line num="45" count="23" type="stmt"/>
+        <line num="46" count="2" type="stmt"/>
+        <line num="50" count="2" type="stmt"/>
+        <line num="51" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="52" count="2" type="stmt"/>
+        <line num="53" count="2" type="stmt"/>
+        <line num="56" count="23" type="stmt"/>
+        <line num="57" count="18" type="cond" truecount="2" falsecount="0"/>
+        <line num="58" count="3" type="stmt"/>
+        <line num="62" count="23" type="stmt"/>
+        <line num="63" count="23" type="cond" truecount="2" falsecount="0"/>
+        <line num="65" count="23" type="stmt"/>
+        <line num="103" count="3" type="stmt"/>
+        <line num="200" count="1" type="stmt"/>
+        <line num="213" count="0" type="stmt"/>
+        <line num="214" count="0" type="stmt"/>
+        <line num="222" count="2" type="stmt"/>
       </file>
       <file name="RegisterScreen.tsx" path="/home/nicomanescau/StartUp 6I/Frontend/src/screens/RegisterScreen.tsx">
         <metrics statements="19" coveredstatements="13" conditionals="23" coveredconditionals="21" methods="16" coveredmethods="10"/>
-        <line num="22" count="1" type="stmt"/>
-        <line num="45" count="16" type="stmt"/>
-        <line num="47" count="16" type="stmt"/>
-        <line num="80" count="1" type="stmt"/>
-        <line num="81" count="0" type="stmt"/>
-        <line num="91" count="1" type="stmt"/>
-        <line num="92" count="0" type="stmt"/>
-        <line num="102" count="1" type="stmt"/>
-        <line num="103" count="0" type="stmt"/>
+        <line num="29" count="2" type="stmt"/>
+        <line num="52" count="17" type="stmt"/>
+        <line num="54" count="17" type="stmt"/>
+        <line num="92" count="1" type="stmt"/>
+        <line num="93" count="0" type="stmt"/>
+        <line num="103" count="1" type="stmt"/>
+        <line num="104" count="0" type="stmt"/>
         <line num="114" count="1" type="stmt"/>
         <line num="115" count="0" type="stmt"/>
-        <line num="125" count="1" type="stmt"/>
-        <line num="126" count="0" type="stmt"/>
-        <line num="139" count="1" type="stmt"/>
-        <line num="140" count="0" type="stmt"/>
-        <line num="150" count="1" type="stmt"/>
+        <line num="126" count="1" type="stmt"/>
+        <line num="127" count="0" type="stmt"/>
+        <line num="137" count="1" type="stmt"/>
+        <line num="138" count="0" type="stmt"/>
         <line num="151" count="1" type="stmt"/>
+        <line num="152" count="0" type="stmt"/>
+        <line num="163" count="1" type="stmt"/>
+        <line num="165" count="1" type="stmt"/>
+        <line num="203" count="1" type="stmt"/>
+        <line num="210" count="2" type="stmt"/>
+      </file>
+      <file name="RoleSelectionScreen.tsx" path="/home/nicomanescau/StartUp 6I/Frontend/src/screens/RoleSelectionScreen.tsx">
+        <metrics statements="10" coveredstatements="10" conditionals="6" coveredconditionals="6" methods="2" coveredmethods="2"/>
+        <line num="11" count="2" type="stmt"/>
+        <line num="19" count="2" type="stmt"/>
+        <line num="28" count="2" type="stmt"/>
+        <line num="32" count="9" type="stmt"/>
+        <line num="34" count="9" type="stmt"/>
+        <line num="35" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="36" count="1" type="stmt"/>
+        <line num="37" count="1" type="stmt"/>
+        <line num="40" count="9" type="stmt"/>
+        <line num="83" count="2" type="stmt"/>
+      </file>
+      <file name="WorkerProfileScreen.tsx" path="/home/nicomanescau/StartUp 6I/Frontend/src/screens/WorkerProfileScreen.tsx">
+        <metrics statements="42" coveredstatements="42" conditionals="45" coveredconditionals="34" methods="8" coveredmethods="8"/>
+        <line num="45" count="27" type="cond" truecount="1" falsecount="1"/>
+        <line num="46" count="27" type="stmt"/>
+        <line num="47" count="27" type="cond" truecount="1" falsecount="1"/>
+        <line num="48" count="27" type="stmt"/>
+        <line num="53" count="25" type="stmt"/>
+        <line num="59" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="60" count="1" type="cond" truecount="3" falsecount="1"/>
+        <line num="61" count="1" type="stmt"/>
+        <line num="72" count="2" type="stmt"/>
+        <line num="78" count="27" type="stmt"/>
+        <line num="79" count="27" type="stmt"/>
+        <line num="80" count="27" type="stmt"/>
+        <line num="81" count="27" type="stmt"/>
+        <line num="83" count="27" type="stmt"/>
+        <line num="84" count="15" type="stmt"/>
+        <line num="85" count="15" type="stmt"/>
+        <line num="86" count="15" type="stmt"/>
+        <line num="87" count="15" type="stmt"/>
+        <line num="88" count="10" type="stmt"/>
+        <line num="89" count="10" type="stmt"/>
+        <line num="91" count="2" type="stmt"/>
+        <line num="92" count="2" type="stmt"/>
+        <line num="96" count="27" type="stmt"/>
+        <line num="97" count="14" type="stmt"/>
+        <line num="100" count="27" type="stmt"/>
+        <line num="101" count="1" type="stmt"/>
+        <line num="107" count="27" type="stmt"/>
+        <line num="109" count="27" type="cond" truecount="3" falsecount="1"/>
+        <line num="115" count="27" type="cond" truecount="2" falsecount="0"/>
+        <line num="121" count="27" type="stmt"/>
+        <line num="125" count="27" type="cond" truecount="2" falsecount="0"/>
+        <line num="126" count="21" type="stmt"/>
+        <line num="127" count="21" type="stmt"/>
+        <line num="128" count="6" type="cond" truecount="2" falsecount="0"/>
+        <line num="129" count="2" type="stmt"/>
+        <line num="130" count="2" type="stmt"/>
+        <line num="132" count="4" type="stmt"/>
+        <line num="135" count="4" type="stmt"/>
+        <line num="139" count="4" type="stmt"/>
+        <line num="143" count="27" type="stmt"/>
+        <line num="168" count="1" type="stmt"/>
+        <line num="282" count="2" type="stmt"/>
+      </file>
+      <file name="WorkerSearchScreen.tsx" path="/home/nicomanescau/StartUp 6I/Frontend/src/screens/WorkerSearchScreen.tsx">
+        <metrics statements="68" coveredstatements="66" conditionals="57" coveredconditionals="52" methods="17" coveredmethods="15"/>
+        <line num="56" count="2" type="stmt"/>
+        <line num="59" count="2" type="stmt"/>
+        <line num="77" count="2" type="stmt"/>
+        <line num="83" count="70" type="stmt"/>
+        <line num="86" count="70" type="stmt"/>
+        <line num="87" count="70" type="stmt"/>
+        <line num="88" count="70" type="stmt"/>
+        <line num="95" count="70" type="cond" truecount="1" falsecount="1"/>
+        <line num="98" count="70" type="stmt"/>
+        <line num="99" count="70" type="stmt"/>
+        <line num="101" count="70" type="stmt"/>
+        <line num="102" count="70" type="stmt"/>
+        <line num="108" count="70" type="stmt"/>
+        <line num="109" count="70" type="stmt"/>
+        <line num="110" count="70" type="stmt"/>
+        <line num="113" count="70" type="stmt"/>
+        <line num="115" count="70" type="stmt"/>
+        <line num="117" count="25" type="stmt"/>
+        <line num="121" count="25" type="stmt"/>
+        <line num="122" count="25" type="stmt"/>
+        <line num="123" count="25" type="stmt"/>
+        <line num="131" count="70" type="stmt"/>
+        <line num="132" count="24" type="stmt"/>
+        <line num="133" count="24" type="stmt"/>
+        <line num="134" count="24" type="stmt"/>
+        <line num="135" count="24" type="stmt"/>
+        <line num="140" count="24" type="stmt"/>
+        <line num="143" count="70" type="stmt"/>
+        <line num="150" count="70" type="stmt"/>
+        <line num="151" count="4" type="stmt"/>
+        <line num="152" count="4" type="cond" truecount="4" falsecount="0"/>
+        <line num="154" count="1" type="stmt"/>
+        <line num="155" count="1" type="stmt"/>
+        <line num="157" count="3" type="stmt"/>
+        <line num="158" count="3" type="cond" truecount="4" falsecount="0"/>
+        <line num="161" count="1" type="stmt"/>
+        <line num="162" count="1" type="stmt"/>
+        <line num="164" count="2" type="stmt"/>
+        <line num="165" count="2" type="stmt"/>
+        <line num="166" count="2" type="stmt"/>
+        <line num="169" count="2" type="stmt"/>
+        <line num="170" count="2" type="stmt"/>
+        <line num="171" count="2" type="stmt"/>
+        <line num="172" count="2" type="stmt"/>
+        <line num="177" count="70" type="stmt"/>
+        <line num="178" count="1" type="stmt"/>
+        <line num="179" count="1" type="stmt"/>
         <line num="180" count="1" type="stmt"/>
-        <line num="187" count="1" type="stmt"/>
+        <line num="181" count="1" type="stmt"/>
+        <line num="187" count="70" type="stmt"/>
+        <line num="188" count="1" type="stmt"/>
+        <line num="196" count="70" type="cond" truecount="1" falsecount="1"/>
+        <line num="197" count="70" type="stmt"/>
+        <line num="198" count="144" type="stmt"/>
+        <line num="202" count="144" type="stmt"/>
+        <line num="211" count="70" type="stmt"/>
+        <line num="213" count="70" type="cond" truecount="2" falsecount="0"/>
+        <line num="220" count="70" type="cond" truecount="4" falsecount="0"/>
+        <line num="237" count="70" type="stmt"/>
+        <line num="252" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="303" count="0" type="stmt"/>
+        <line num="305" count="6" type="stmt"/>
+        <line num="306" count="6" type="cond" truecount="1" falsecount="1"/>
+        <line num="350" count="1" type="stmt"/>
+        <line num="361" count="2" type="stmt"/>
+        <line num="386" count="2" type="stmt"/>
+        <line num="390" count="0" type="stmt"/>
+        <line num="401" count="2" type="stmt"/>
       </file>
     </package>
     <package name="services">
-      <metrics statements="35" coveredstatements="27" conditionals="32" coveredconditionals="16" methods="6" coveredmethods="3"/>
+      <metrics statements="271" coveredstatements="181" conditionals="184" coveredconditionals="115" methods="71" coveredmethods="42"/>
       <file name="api.ts" path="/home/nicomanescau/StartUp 6I/Frontend/src/services/api.ts">
-        <metrics statements="33" coveredstatements="25" conditionals="32" coveredconditionals="16" methods="5" coveredmethods="2"/>
-        <line num="16" count="2" type="stmt"/>
-        <line num="17" count="2" type="stmt"/>
-        <line num="18" count="2" type="stmt"/>
-        <line num="19" count="2" type="stmt"/>
-        <line num="23" count="4" type="stmt"/>
-        <line num="30" count="4" type="stmt"/>
-        <line num="38" count="2" type="cond" truecount="1" falsecount="1"/>
-        <line num="40" count="2" type="stmt"/>
-        <line num="41" count="2" type="stmt"/>
-        <line num="43" count="2" type="stmt"/>
-        <line num="49" count="2" type="stmt"/>
+        <metrics statements="67" coveredstatements="56" conditionals="69" coveredconditionals="45" methods="10" coveredmethods="7"/>
+        <line num="18" count="33" type="stmt"/>
+        <line num="19" count="33" type="stmt"/>
+        <line num="20" count="33" type="stmt"/>
+        <line num="21" count="33" type="stmt"/>
+        <line num="25" count="20" type="stmt"/>
+        <line num="34" count="27" type="stmt"/>
+        <line num="37" count="20" type="stmt"/>
+        <line num="41" count="20" type="stmt"/>
+        <line num="44" count="2" type="stmt"/>
+        <line num="45" count="2" type="stmt"/>
+        <line num="49" count="2" type="cond" truecount="3" falsecount="1"/>
         <line num="50" count="2" type="stmt"/>
-        <line num="56" count="2" type="stmt"/>
-        <line num="58" count="2" type="stmt"/>
         <line num="59" count="2" type="cond" truecount="2" falsecount="0"/>
-        <line num="60" count="2" type="cond" truecount="1" falsecount="1"/>
-        <line num="62" count="2" type="cond" truecount="2" falsecount="0"/>
-        <line num="63" count="1" type="cond" truecount="1" falsecount="2"/>
-        <line num="64" count="1" type="cond" truecount="1" falsecount="1"/>
-        <line num="67" count="1" type="cond" truecount="2" falsecount="2"/>
-        <line num="68" count="0" type="stmt"/>
-        <line num="69" count="0" type="stmt"/>
-        <line num="72" count="1" type="stmt"/>
-        <line num="75" count="1" type="stmt"/>
-        <line num="77" count="1" type="stmt"/>
-        <line num="79" count="1" type="cond" truecount="1" falsecount="1"/>
-        <line num="80" count="1" type="stmt"/>
-        <line num="84" count="0" type="cond" truecount="0" falsecount="4"/>
-        <line num="85" count="0" type="stmt"/>
-        <line num="86" count="0" type="stmt"/>
-        <line num="89" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="90" count="0" type="stmt"/>
-        <line num="93" count="0" type="stmt"/>
+        <line num="61" count="1" type="cond" truecount="2" falsecount="2"/>
+        <line num="62" count="1" type="stmt"/>
+        <line num="64" count="1" type="stmt"/>
+        <line num="66" count="1" type="stmt"/>
+        <line num="70" count="1" type="cond" truecount="3" falsecount="1"/>
+        <line num="71" count="1" type="stmt"/>
+        <line num="76" count="1" type="stmt"/>
+        <line num="78" count="0" type="stmt"/>
+        <line num="88" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="89" count="2" type="stmt"/>
+        <line num="90" count="2" type="stmt"/>
+        <line num="93" count="2" type="stmt"/>
+        <line num="98" count="3" type="stmt"/>
+        <line num="108" count="6" type="cond" truecount="1" falsecount="1"/>
+        <line num="112" count="6" type="stmt"/>
+        <line num="113" count="6" type="stmt"/>
+        <line num="114" count="0" type="stmt"/>
+        <line num="118" count="6" type="stmt"/>
+        <line num="120" count="6" type="cond" truecount="2" falsecount="0"/>
+        <line num="121" count="6" type="stmt"/>
+        <line num="126" count="6" type="cond" truecount="3" falsecount="1"/>
+        <line num="127" count="6" type="stmt"/>
+        <line num="129" count="6" type="cond" truecount="1" falsecount="1"/>
+        <line num="131" count="0" type="stmt"/>
+        <line num="133" count="6" type="cond" truecount="1" falsecount="1"/>
+        <line num="134" count="6" type="stmt"/>
+        <line num="137" count="6" type="stmt"/>
+        <line num="138" count="6" type="stmt"/>
+        <line num="144" count="6" type="stmt"/>
+        <line num="146" count="6" type="stmt"/>
+        <line num="147" count="6" type="cond" truecount="2" falsecount="0"/>
+        <line num="148" count="6" type="cond" truecount="1" falsecount="1"/>
+        <line num="150" count="6" type="cond" truecount="2" falsecount="0"/>
+        <line num="152" count="4" type="cond" truecount="1" falsecount="2"/>
+        <line num="153" count="4" type="cond" truecount="1" falsecount="1"/>
+        <line num="158" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="163" count="2" type="stmt"/>
+        <line num="164" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="165" count="1" type="stmt"/>
+        <line num="167" count="1" type="stmt"/>
+        <line num="175" count="2" type="cond" truecount="2" falsecount="2"/>
+        <line num="176" count="0" type="stmt"/>
+        <line num="177" count="0" type="stmt"/>
+        <line num="186" count="2" type="stmt"/>
+        <line num="189" count="2" type="stmt"/>
+        <line num="191" count="3" type="stmt"/>
+        <line num="193" count="3" type="cond" truecount="1" falsecount="1"/>
+        <line num="194" count="3" type="stmt"/>
+        <line num="198" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="199" count="0" type="stmt"/>
+        <line num="200" count="0" type="stmt"/>
+        <line num="203" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="204" count="0" type="stmt"/>
+        <line num="211" count="0" type="stmt"/>
       </file>
       <file name="authService.ts" path="/home/nicomanescau/StartUp 6I/Frontend/src/services/authService.ts">
-        <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
-        <line num="4" count="1" type="stmt"/>
-        <line num="10" count="1" type="stmt"/>
+        <metrics statements="8" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="7" coveredmethods="1"/>
+        <line num="21" count="2" type="stmt"/>
+        <line num="27" count="1" type="stmt"/>
+        <line num="41" count="0" type="stmt"/>
+        <line num="55" count="0" type="stmt"/>
+        <line num="66" count="0" type="stmt"/>
+        <line num="79" count="0" type="stmt"/>
+        <line num="92" count="0" type="stmt"/>
+        <line num="105" count="0" type="stmt"/>
+      </file>
+      <file name="coverageRadiusStorage.ts" path="/home/nicomanescau/StartUp 6I/Frontend/src/services/coverageRadiusStorage.ts">
+        <metrics statements="19" coveredstatements="18" conditionals="8" coveredconditionals="7" methods="5" coveredmethods="5"/>
+        <line num="13" count="2" type="stmt"/>
+        <line num="18" count="23" type="cond" truecount="2" falsecount="0"/>
+        <line num="19" count="12" type="stmt"/>
+        <line num="20" count="12" type="stmt"/>
+        <line num="21" count="12" type="stmt"/>
+        <line num="22" count="12" type="stmt"/>
+        <line num="23" count="4" type="stmt"/>
+        <line num="24" count="4" type="cond" truecount="3" falsecount="1"/>
+        <line num="25" count="4" type="stmt"/>
+        <line num="28" count="12" type="stmt"/>
+        <line num="30" count="0" type="stmt"/>
+        <line num="34" count="2" type="stmt"/>
+        <line num="36" count="23" type="stmt"/>
+        <line num="40" count="3" type="stmt"/>
+        <line num="41" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="42" count="1" type="stmt"/>
+        <line num="44" count="2" type="stmt"/>
+        <line num="46" count="3" type="stmt"/>
+        <line num="50" count="1" type="stmt"/>
+      </file>
+      <file name="deviceLocation.ts" path="/home/nicomanescau/StartUp 6I/Frontend/src/services/deviceLocation.ts">
+        <metrics statements="28" coveredstatements="25" conditionals="12" coveredconditionals="12" methods="8" coveredmethods="6"/>
+        <line num="23" count="2" type="stmt"/>
+        <line num="29" count="2" type="stmt"/>
+        <line num="33" count="2" type="stmt"/>
+        <line num="34" count="2" type="stmt"/>
+        <line num="35" count="2" type="stmt"/>
+        <line num="37" count="1" type="stmt"/>
+        <line num="38" count="1" type="stmt"/>
+        <line num="41" count="0" type="stmt"/>
+        <line num="42" count="0" type="stmt"/>
+        <line num="48" count="4" type="stmt"/>
+        <line num="65" count="2" type="stmt"/>
+        <line num="67" count="8" type="stmt"/>
+        <line num="68" count="8" type="stmt"/>
+        <line num="69" count="8" type="cond" truecount="2" falsecount="0"/>
+        <line num="70" count="1" type="stmt"/>
+        <line num="73" count="7" type="stmt"/>
+        <line num="74" count="0" type="stmt"/>
+        <line num="76" count="5" type="cond" truecount="4" falsecount="0"/>
+        <line num="78" count="1" type="stmt"/>
+        <line num="81" count="4" type="stmt"/>
+        <line num="82" count="4" type="stmt"/>
+        <line num="83" count="4" type="stmt"/>
+        <line num="86" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="91" count="1" type="stmt"/>
+        <line num="94" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="95" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="96" count="3" type="stmt"/>
+        <line num="98" count="2" type="stmt"/>
+      </file>
+      <file name="geocodingService.ts" path="/home/nicomanescau/StartUp 6I/Frontend/src/services/geocodingService.ts">
+        <metrics statements="38" coveredstatements="38" conditionals="30" coveredconditionals="28" methods="6" coveredmethods="5"/>
+        <line num="18" count="3" type="stmt"/>
+        <line num="39" count="3" type="stmt"/>
+        <line num="42" count="7" type="stmt"/>
+        <line num="51" count="7" type="stmt"/>
+        <line num="52" count="7" type="stmt"/>
+        <line num="54" count="7" type="stmt"/>
+        <line num="55" count="7" type="stmt"/>
+        <line num="61" count="5" type="cond" truecount="2" falsecount="0"/>
+        <line num="62" count="1" type="stmt"/>
+        <line num="68" count="4" type="stmt"/>
+        <line num="70" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="71" count="2" type="cond" truecount="4" falsecount="0"/>
+        <line num="72" count="1" type="stmt"/>
+        <line num="78" count="1" type="stmt"/>
+        <line num="84" count="7" type="stmt"/>
+        <line num="92" count="4" type="stmt"/>
+        <line num="93" count="4" type="stmt"/>
+        <line num="94" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="102" count="2" type="stmt"/>
+        <line num="104" count="2" type="stmt"/>
+        <line num="107" count="3" type="stmt"/>
+        <line num="113" count="5" type="stmt"/>
+        <line num="114" count="5" type="cond" truecount="2" falsecount="0"/>
+        <line num="117" count="4" type="stmt"/>
+        <line num="126" count="4" type="stmt"/>
+        <line num="127" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="129" count="2" type="stmt"/>
+        <line num="130" count="2" type="stmt"/>
+        <line num="131" count="4" type="stmt"/>
+        <line num="132" count="4" type="cond" truecount="1" falsecount="1"/>
+        <line num="133" count="4" type="cond" truecount="4" falsecount="0"/>
+        <line num="134" count="2" type="stmt"/>
+        <line num="136" count="2" type="stmt"/>
+        <line num="142" count="3" type="stmt"/>
+        <line num="150" count="3" type="stmt"/>
+        <line num="151" count="3" type="stmt"/>
+        <line num="152" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="155" count="1" type="stmt"/>
+      </file>
+      <file name="locationService.ts" path="/home/nicomanescau/StartUp 6I/Frontend/src/services/locationService.ts">
+        <metrics statements="18" coveredstatements="18" conditionals="9" coveredconditionals="9" methods="8" coveredmethods="8"/>
+        <line num="32" count="2" type="stmt"/>
+        <line num="43" count="1" type="stmt"/>
+        <line num="46" count="1" type="stmt"/>
+        <line num="58" count="5" type="stmt"/>
+        <line num="59" count="6" type="stmt"/>
+        <line num="64" count="5" type="stmt"/>
+        <line num="65" count="5" type="stmt"/>
+        <line num="66" count="3" type="stmt"/>
+        <line num="68" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="69" count="1" type="stmt"/>
+        <line num="70" count="1" type="stmt"/>
+        <line num="74" count="1" type="stmt"/>
+        <line num="80" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="83" count="3" type="stmt"/>
+        <line num="87" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="94" count="2" type="stmt"/>
+        <line num="101" count="3" type="stmt"/>
+        <line num="105" count="1" type="stmt"/>
+      </file>
+      <file name="profileService.ts" path="/home/nicomanescau/StartUp 6I/Frontend/src/services/profileService.ts">
+        <metrics statements="73" coveredstatements="6" conditionals="48" coveredconditionals="6" methods="18" coveredmethods="3"/>
+        <line num="21" count="0" type="stmt"/>
+        <line num="22" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="23" count="0" type="stmt"/>
+        <line num="27" count="0" type="stmt"/>
+        <line num="28" count="0" type="stmt"/>
+        <line num="31" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="32" count="0" type="stmt"/>
+        <line num="34" count="0" type="stmt"/>
+        <line num="42" count="64" type="cond" truecount="2" falsecount="0"/>
+        <line num="43" count="23" type="cond" truecount="1" falsecount="1"/>
+        <line num="44" count="0" type="stmt"/>
+        <line num="52" count="4" type="stmt"/>
+        <line num="53" count="4" type="cond" truecount="1" falsecount="1"/>
+        <line num="54" count="0" type="stmt"/>
+        <line num="59" count="12" type="cond" truecount="2" falsecount="0"/>
+        <line num="68" count="0" type="stmt"/>
+        <line num="69" count="0" type="stmt"/>
+        <line num="76" count="0" type="stmt"/>
+        <line num="78" count="0" type="stmt"/>
+        <line num="85" count="0" type="stmt"/>
+        <line num="93" count="0" type="stmt"/>
+        <line num="94" count="0" type="stmt"/>
+        <line num="96" count="0" type="stmt"/>
+        <line num="104" count="5" type="stmt"/>
+        <line num="110" count="0" type="stmt"/>
+        <line num="111" count="0" type="stmt"/>
+        <line num="117" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="118" count="0" type="stmt"/>
+        <line num="126" count="0" type="stmt"/>
+        <line num="137" count="0" type="stmt"/>
+        <line num="146" count="0" type="stmt"/>
+        <line num="156" count="0" type="stmt"/>
+        <line num="169" count="0" type="stmt"/>
+        <line num="182" count="0" type="stmt"/>
+        <line num="195" count="0" type="stmt"/>
+        <line num="205" count="0" type="stmt"/>
+        <line num="211" count="0" type="stmt"/>
+        <line num="230" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="233" count="0" type="stmt"/>
+        <line num="234" count="0" type="stmt"/>
+        <line num="242" count="0" type="stmt"/>
+        <line num="243" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="244" count="0" type="stmt"/>
+        <line num="246" count="0" type="stmt"/>
+        <line num="248" count="0" type="stmt"/>
+        <line num="249" count="0" type="stmt"/>
+        <line num="250" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="251" count="0" type="stmt"/>
+        <line num="253" count="0" type="stmt"/>
+        <line num="254" count="0" type="stmt"/>
+        <line num="255" count="0" type="stmt"/>
+        <line num="257" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="258" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="259" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="260" count="0" type="stmt"/>
+        <line num="266" count="0" type="stmt"/>
+        <line num="277" count="0" type="stmt"/>
+        <line num="278" count="0" type="stmt"/>
+        <line num="279" count="0" type="stmt"/>
+        <line num="280" count="0" type="stmt"/>
+        <line num="281" count="0" type="cond" truecount="0" falsecount="5"/>
+        <line num="282" count="0" type="stmt"/>
+        <line num="283" count="0" type="stmt"/>
+        <line num="284" count="0" type="stmt"/>
+        <line num="287" count="0" type="stmt"/>
+        <line num="295" count="0" type="stmt"/>
+        <line num="296" count="0" type="stmt"/>
+        <line num="301" count="0" type="stmt"/>
+        <line num="302" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="303" count="0" type="stmt"/>
+        <line num="309" count="0" type="cond" truecount="0" falsecount="5"/>
+        <line num="310" count="0" type="stmt"/>
+        <line num="316" count="0" type="stmt"/>
+      </file>
+      <file name="tokenStorage.ts" path="/home/nicomanescau/StartUp 6I/Frontend/src/services/tokenStorage.ts">
+        <metrics statements="12" coveredstatements="10" conditionals="0" coveredconditionals="0" methods="8" coveredmethods="6"/>
+        <line num="3" count="14" type="stmt"/>
+        <line num="4" count="14" type="stmt"/>
+        <line num="5" count="14" type="stmt"/>
+        <line num="7" count="14" type="stmt"/>
+        <line num="9" count="35" type="stmt"/>
+        <line num="13" count="2" type="stmt"/>
+        <line num="17" count="0" type="stmt"/>
+        <line num="21" count="1" type="stmt"/>
+        <line num="25" count="29" type="stmt"/>
+        <line num="29" count="1" type="stmt"/>
+        <line num="37" count="0" type="stmt"/>
+        <line num="45" count="1" type="stmt"/>
+      </file>
+      <file name="workerSearchService.ts" path="/home/nicomanescau/StartUp 6I/Frontend/src/services/workerSearchService.ts">
+        <metrics statements="8" coveredstatements="8" conditionals="8" coveredconditionals="8" methods="1" coveredmethods="1"/>
+        <line num="14" count="1" type="stmt"/>
+        <line num="17" count="5" type="stmt"/>
+        <line num="22" count="5" type="cond" truecount="2" falsecount="0"/>
+        <line num="23" count="1" type="stmt"/>
+        <line num="25" count="5" type="cond" truecount="2" falsecount="0"/>
+        <line num="26" count="5" type="cond" truecount="2" falsecount="0"/>
+        <line num="28" count="5" type="stmt"/>
+        <line num="33" count="4" type="cond" truecount="2" falsecount="0"/>
       </file>
     </package>
     <package name="theme">
-      <metrics statements="5" coveredstatements="5" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+      <metrics statements="7" coveredstatements="7" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
       <file name="tokens.ts" path="/home/nicomanescau/StartUp 6I/Frontend/src/theme/tokens.ts">
-        <metrics statements="5" coveredstatements="5" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
-        <line num="6" count="4" type="stmt"/>
-        <line num="37" count="4" type="stmt"/>
-        <line num="46" count="4" type="stmt"/>
-        <line num="53" count="4" type="stmt"/>
-        <line num="75" count="4" type="stmt"/>
+        <metrics statements="7" coveredstatements="7" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
+        <line num="7" count="27" type="stmt"/>
+        <line num="96" count="27" type="stmt"/>
+        <line num="97" count="246" type="cond" truecount="2" falsecount="0"/>
+        <line num="99" count="27" type="stmt"/>
+        <line num="110" count="27" type="stmt"/>
+        <line num="119" count="27" type="stmt"/>
+        <line num="195" count="27" type="stmt"/>
+      </file>
+    </package>
+    <package name="types">
+      <metrics statements="4" coveredstatements="4" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+      <file name="location.ts" path="/home/nicomanescau/StartUp 6I/Frontend/src/types/location.ts">
+        <metrics statements="1" coveredstatements="1" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="54" count="2" type="stmt"/>
+      </file>
+      <file name="worker.ts" path="/home/nicomanescau/StartUp 6I/Frontend/src/types/worker.ts">
+        <metrics statements="3" coveredstatements="3" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="70" count="3" type="stmt"/>
+        <line num="163" count="3" type="stmt"/>
+        <line num="170" count="3" type="stmt"/>
+      </file>
+    </package>
+    <package name="utils">
+      <metrics statements="75" coveredstatements="67" conditionals="45" coveredconditionals="40" methods="15" coveredmethods="13"/>
+      <file name="contact.ts" path="/home/nicomanescau/StartUp 6I/Frontend/src/utils/contact.ts">
+        <metrics statements="9" coveredstatements="5" conditionals="4" coveredconditionals="1" methods="1" coveredmethods="1"/>
+        <line num="1" count="2" type="stmt"/>
+        <line num="2" count="2" type="stmt"/>
+        <line num="18" count="10" type="stmt"/>
+        <line num="19" count="10" type="cond" truecount="1" falsecount="1"/>
+        <line num="20" count="10" type="stmt"/>
+        <line num="22" count="0" type="stmt"/>
+        <line num="23" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="24" count="0" type="stmt"/>
+        <line num="26" count="0" type="stmt"/>
+      </file>
+      <file name="jwt.ts" path="/home/nicomanescau/StartUp 6I/Frontend/src/utils/jwt.ts">
+        <metrics statements="30" coveredstatements="28" conditionals="18" coveredconditionals="17" methods="5" coveredmethods="5"/>
+        <line num="19" count="2" type="stmt"/>
+        <line num="23" count="8" type="stmt"/>
+        <line num="24" count="8" type="stmt"/>
+        <line num="25" count="8" type="stmt"/>
+        <line num="26" count="8" type="stmt"/>
+        <line num="27" count="8" type="stmt"/>
+        <line num="29" count="8" type="stmt"/>
+        <line num="30" count="462" type="stmt"/>
+        <line num="31" count="462" type="cond" truecount="2" falsecount="0"/>
+        <line num="32" count="461" type="stmt"/>
+        <line num="33" count="461" type="stmt"/>
+        <line num="34" count="461" type="cond" truecount="2" falsecount="0"/>
+        <line num="35" count="343" type="stmt"/>
+        <line num="36" count="343" type="stmt"/>
+        <line num="40" count="7" type="stmt"/>
+        <line num="45" count="7" type="stmt"/>
+        <line num="46" count="7" type="stmt"/>
+        <line num="49" count="343" type="stmt"/>
+        <line num="53" count="0" type="stmt"/>
+        <line num="61" count="27" type="cond" truecount="2" falsecount="0"/>
+        <line num="62" count="23" type="stmt"/>
+        <line num="63" count="23" type="cond" truecount="2" falsecount="0"/>
+        <line num="65" count="8" type="stmt"/>
+        <line num="66" count="8" type="stmt"/>
+        <line num="67" count="8" type="cond" truecount="2" falsecount="0"/>
+        <line num="68" count="7" type="stmt"/>
+        <line num="69" count="7" type="cond" truecount="3" falsecount="1"/>
+        <line num="71" count="0" type="stmt"/>
+        <line num="79" count="21" type="stmt"/>
+        <line num="80" count="21" type="cond" truecount="4" falsecount="0"/>
+      </file>
+      <file name="map.ts" path="/home/nicomanescau/StartUp 6I/Frontend/src/utils/map.ts">
+        <metrics statements="36" coveredstatements="34" conditionals="23" coveredconditionals="22" methods="9" coveredmethods="7"/>
+        <line num="5" count="7" type="stmt"/>
+        <line num="11" count="7" type="stmt"/>
+        <line num="13" count="7" type="stmt"/>
+        <line num="15" count="7" type="stmt"/>
+        <line num="17" count="7" type="stmt"/>
+        <line num="26" count="7" type="stmt"/>
+        <line num="27" count="7" type="stmt"/>
+        <line num="30" count="25" type="stmt"/>
+        <line num="34" count="0" type="stmt"/>
+        <line num="38" count="0" type="stmt"/>
+        <line num="47" count="11" type="cond" truecount="4" falsecount="0"/>
+        <line num="48" count="8" type="stmt"/>
+        <line num="59" count="84" type="cond" truecount="5" falsecount="0"/>
+        <line num="60" count="48" type="cond" truecount="2" falsecount="0"/>
+        <line num="62" count="43" type="stmt"/>
+        <line num="63" count="43" type="cond" truecount="2" falsecount="0"/>
+        <line num="64" count="43" type="stmt"/>
+        <line num="78" count="25" type="stmt"/>
+        <line num="79" count="25" type="stmt"/>
+        <line num="80" count="25" type="stmt"/>
+        <line num="81" count="25" type="stmt"/>
+        <line num="82" count="25" type="stmt"/>
+        <line num="87" count="7" type="stmt"/>
+        <line num="93" count="7" type="stmt"/>
+        <line num="100" count="7" type="stmt"/>
+        <line num="107" count="608" type="stmt"/>
+        <line num="108" count="152" type="stmt"/>
+        <line num="109" count="152" type="stmt"/>
+        <line num="110" count="152" type="stmt"/>
+        <line num="111" count="152" type="stmt"/>
+        <line num="113" count="152" type="stmt"/>
+        <line num="115" count="152" type="stmt"/>
+        <line num="127" count="178" type="cond" truecount="2" falsecount="0"/>
+        <line num="128" count="172" type="cond" truecount="2" falsecount="0"/>
+        <line num="129" count="13" type="cond" truecount="2" falsecount="0"/>
+        <line num="130" count="7" type="stmt"/>
       </file>
     </package>
   </project>

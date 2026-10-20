@@ -114,6 +114,115 @@ describe("LeafletMap", () => {
     });
   });
 
+  it("reports the end of a pan or zoom gesture with center and zoom", () => {
+    const onMoveEnd = jest.fn();
+    const { getByTestId } = render(
+      <LeafletMap markers={[]} onMoveEnd={onMoveEnd} testID="map" />,
+    );
+
+    sendMessage(getByTestId("map-webview"), {
+      type: "moveend",
+      latitude: -34.61,
+      longitude: -58.39,
+      zoom: 13,
+    });
+
+    expect(onMoveEnd).toHaveBeenCalledWith(
+      { latitude: -34.61, longitude: -58.39 },
+      13,
+    );
+  });
+
+  it("falls back to the current zoom when moveend does not report it", () => {
+    const onMoveEnd = jest.fn();
+    const { getByTestId } = render(
+      <LeafletMap markers={[]} zoom={14} onMoveEnd={onMoveEnd} testID="map" />,
+    );
+
+    sendMessage(getByTestId("map-webview"), {
+      type: "moveend",
+      latitude: -34.61,
+      longitude: -58.39,
+    });
+
+    expect(onMoveEnd).toHaveBeenCalledWith(
+      { latitude: -34.61, longitude: -58.39 },
+      14,
+    );
+  });
+
+  it("listens for moveend in the map HTML", () => {
+    const { getByTestId } = render(<LeafletMap markers={[]} testID="map" />);
+
+    const source = getByTestId("map-webview").props.source as {
+      html: string;
+    };
+    expect(source.html).toContain("map.on('moveend'");
+    expect(source.html).toContain("type: 'moveend'");
+  });
+
+  it("only reports moveend for real user gestures (breaks the feedback loop)", () => {
+    const { getByTestId } = render(<LeafletMap markers={[]} testID="map" />);
+
+    const source = getByTestId("map-webview").props.source as {
+      html: string;
+    };
+    // Los movimientos programáticos (setView/invalidateSize/fitBounds) y los
+    // re-centrados internos de Leaflet no llevan `originalEvent`: reportarlos
+    // re-disparaba la búsqueda y el mapa entraba en un bucle de zoom/parpadeo.
+    expect(source.html).toContain("map.on('movestart'");
+    expect(source.html).toContain("if (e.originalEvent) userMoved = true;");
+    expect(source.html).toContain(
+      "if (!e.originalEvent && !userMoved) return;",
+    );
+  });
+
+  it("skips setView when the map is already at the target (anti-tremor)", () => {
+    const { getByTestId } = render(<LeafletMap markers={[]} testID="map" />);
+
+    const source = getByTestId("map-webview").props.source as {
+      html: string;
+    };
+    // Corta el eco moveend → setView → moveend: el umbral de ~25 m absorbe
+    // el redondeo por píxel de Leaflet y los micro-paneos.
+    expect(source.html).toContain("distanceTo(L.latLng(lat, lng)) < 25");
+    // Sin animación: un pan animado encima de tiles cargando se ve como
+    // salto y su moveend re-disparaba la búsqueda.
+    expect(source.html).toContain(
+      "map.setView([lat, lng], zoom, { animate: false })",
+    );
+  });
+
+  it("reconciles markers without recreating them (no flicker)", () => {
+    const { getByTestId } = render(
+      <LeafletMap markers={markers} testID="map" />,
+    );
+
+    const source = getByTestId("map-webview").props.source as {
+      html: string;
+    };
+    // Los pines que siguen presentes se reutilizan (posición/color) en lugar
+    // de borrar y re-crear todo el conjunto en cada recarga de resultados.
+    expect(source.html).toContain("existing.setLatLng(position)");
+    expect(source.html).toContain("existing.setIcon(color ? pinIcon(color)");
+    expect(source.html).toContain("if (!next[id]) removeMarker(id)");
+  });
+
+  it("only recalculates the viewport when the size really changed", () => {
+    const { getByTestId } = render(<LeafletMap markers={[]} testID="map" />);
+
+    const source = getByTestId("map-webview").props.source as {
+      html: string;
+    };
+    // invalidateSize con el mismo tamaño (o pantalla oculta) emitía moveend
+    // espurios: se ignoran tamaños en 0 y sin cambios.
+    expect(source.html).toContain("if (size.x === 0 || size.y === 0) return;");
+    expect(source.html).toContain(
+      "if (size.x === lastSize.x && size.y === lastSize.y) return;",
+    );
+    expect(source.html).toContain("map.invalidateSize({ animate: false });");
+  });
+
   it("ignores malformed or unknown messages", () => {
     const onPress = jest.fn();
     const { getByTestId } = render(

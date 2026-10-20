@@ -20,7 +20,10 @@ import { ForgotPasswordScreen } from "../screens/ForgotPasswordScreen";
 import { ProfileScreen } from "../screens/ProfileScreen";
 import { EditProfileScreen } from "../screens/EditProfileScreen";
 import { LocationsScreen } from "../screens/LocationsScreen";
+import { WorkerSearchScreen } from "../screens/WorkerSearchScreen";
+import { WorkerProfileScreen } from "../screens/WorkerProfileScreen";
 import { NavBar } from "../components/NavBar";
+import { SearchOriginModal } from "../components/location/SearchOriginModal";
 import { ASYNC_STORAGE_ONBOARDING_KEY } from "../i18n/onboardingContent";
 import { tokenStorage } from "../services/tokenStorage";
 import { profileService } from "../services/profileService";
@@ -32,6 +35,8 @@ import {
   roleAccent,
 } from "../theme/tokens";
 import { UserRole } from "../types/role";
+import { SavedLocation } from "../types/location";
+import { NearbyWorker } from "../types/worker";
 import { useRoleContext } from "../context/RoleContext";
 import { getCurrentRoleFromJwt } from "../utils/jwt";
 
@@ -51,6 +56,8 @@ export type AppRoute =
   | "Profile"
   | "EditProfile"
   | "Locations"
+  | "WorkerSearch"
+  | "WorkerProfile"
   | "Main";
 
 export const AppNavigator: React.FC = () => {
@@ -63,6 +70,29 @@ export const AppNavigator: React.FC = () => {
   const [profileCompleted, setProfileCompleted] = useState<boolean>(false);
   const [justCompletedProfile, setJustCompletedProfile] =
     useState<boolean>(false);
+  // Trabajador elegido en la búsqueda: alimenta la ficha "Perfil del
+  // Trabajador" que se abre desde "Ver Perfil Completo".
+  const [selectedWorker, setSelectedWorker] = useState<NearbyWorker | null>(
+    null,
+  );
+  // true desde que el usuario entró a "Buscar Trabajadores": a partir de ahí
+  // la pantalla de búsqueda queda montada (oculta en las demás rutas) para no
+  // destruir y recargar su mapa (WebView) en cada ida y vuelta.
+  const [searchVisited, setSearchVisited] = useState(false);
+  // Pop-up de selección de ubicación de referencia: se abre al tocar
+  // "Buscar Trabajadores" y su elección define desde dónde se busca.
+  const [searchPopupVisible, setSearchPopupVisible] = useState(false);
+  // Ubicación guardada elegida: origen fijo de la búsqueda (centro inicial
+  // del mapa y referencia de los colores de cobertura). Reemplaza a la
+  // ubicación del dispositivo.
+  const [searchOrigin, setSearchOrigin] = useState<SavedLocation | null>(null);
+  // Pantalla de ubicaciones abierta desde el perfil o desde el pop-up de
+  // búsqueda: define a dónde vuelve el botón "Atrás" y si el formulario de
+  // alta se abre directo.
+  const [locationsBackTo, setLocationsBackTo] = useState<"Profile" | "Main">(
+    "Profile",
+  );
+  const [locationsAutoCreate, setLocationsAutoCreate] = useState(false);
 
   useEffect(() => {
     const checkInitialRoute = async () => {
@@ -181,7 +211,50 @@ export const AppNavigator: React.FC = () => {
     setSelectedRole("client");
     setProfileCompleted(false);
     setJustCompletedProfile(false);
+    setSelectedWorker(null);
+    // Sesión cerrada: se desmonta la búsqueda guardada (mapa y resultados
+    // viejos no deben sobrevivir al próximo login) y se olvida la ubicación
+    // de referencia elegida.
+    setSearchVisited(false);
+    setSearchOrigin(null);
+    setSearchPopupVisible(false);
+    setLocationsBackTo("Profile");
+    setLocationsAutoCreate(false);
     setCurrentRoute("AuthWelcome");
+  };
+
+  // Eligió una ubicación en el pop-up: la búsqueda se centra y tiñe los
+  // trabajadores desde ese punto (no desde la ubicación del dispositivo).
+  const handleSelectSearchOrigin = (location: SavedLocation) => {
+    setSearchOrigin(location);
+    setSearchPopupVisible(false);
+    setSearchVisited(true);
+    setCurrentRoute("WorkerSearch");
+  };
+
+  // "Agregar ubicación" desde el pop-up: se abre directo el formulario de
+  // alta y, al volver, se reabre el pop-up para que siga con la búsqueda
+  // sin empezar de cero.
+  const openLocationsFromSearch = () => {
+    setSearchPopupVisible(false);
+    setLocationsBackTo("Main");
+    setLocationsAutoCreate(true);
+    setCurrentRoute("Locations");
+  };
+
+  const openLocationsFromProfile = () => {
+    setLocationsBackTo("Profile");
+    setLocationsAutoCreate(false);
+    setCurrentRoute("Locations");
+  };
+
+  const handleLocationsBack = () => {
+    if (locationsBackTo === "Main") {
+      setCurrentRoute("Main");
+      setSearchPopupVisible(true);
+      return;
+    }
+    setCurrentRoute("Profile");
   };
 
   const handleOtpSuccess = async () => {
@@ -202,22 +275,33 @@ export const AppNavigator: React.FC = () => {
     );
   }
 
-  if (currentRoute === "Onboarding") {
-    return <OnboardingScreen onFinishOnboarding={handleFinishOnboarding} />;
-  }
+  // La pantalla de búsqueda queda montada (oculta en las demás rutas) durante
+  // toda la sesión autenticada: su mapa es una WebView costosa de construir y,
+  // antes, abrir el perfil la desmontaba y al volver había que recargarla
+  // entera (recarga visible y demora). La capa vive siempre en el mismo slot
+  // del árbol para que la instancia nunca se remonte; `display: none` la
+  // oculta sin destruirla.
+  const searchLayerMounted =
+    currentRoute === "WorkerSearch" ||
+    (searchVisited &&
+      currentRoute !== "Onboarding" &&
+      currentRoute !== "AuthWelcome");
+  const searchLayerVisible = currentRoute === "WorkerSearch";
 
-  if (currentRoute === "AuthWelcome") {
-    return (
+  let content: React.ReactNode = null;
+
+  if (currentRoute === "Onboarding") {
+    content = <OnboardingScreen onFinishOnboarding={handleFinishOnboarding} />;
+  } else if (currentRoute === "AuthWelcome") {
+    content = (
       <AuthWelcomeScreen
         onNavigateToRegister={() => setCurrentRoute("Register")}
         onNavigateToLogin={() => setCurrentRoute("Login")}
         onNavigateToOnboarding={() => setCurrentRoute("Onboarding")}
       />
     );
-  }
-
-  if (currentRoute === "Register") {
-    return (
+  } else if (currentRoute === "Register") {
+    content = (
       <RegisterScreen
         onNavigateBack={() => setCurrentRoute("AuthWelcome")}
         onNavigateToOtp={(contact?: string) => {
@@ -228,34 +312,26 @@ export const AppNavigator: React.FC = () => {
         onNavigateToLogin={() => setCurrentRoute("Login")}
       />
     );
-  }
-
-  if (currentRoute === "VerifyOTP") {
-    return (
+  } else if (currentRoute === "VerifyOTP") {
+    content = (
       <OtpVerificationScreen
         contact={registeredContact}
         onVerificationSuccess={handleOtpSuccess}
         onNavigateBackToRegister={() => setCurrentRoute(otpOrigin)}
       />
     );
-  }
-
-  if (currentRoute === "RoleSelection") {
-    return <RoleSelectionScreen onRoleSelected={handleRoleSelected} />;
-  }
-
-  if (currentRoute === "CompleteProfile") {
-    return (
+  } else if (currentRoute === "RoleSelection") {
+    content = <RoleSelectionScreen onRoleSelected={handleRoleSelected} />;
+  } else if (currentRoute === "CompleteProfile") {
+    content = (
       <CompleteProfileScreen
         role={selectedRole}
         onProfileCompleted={handleProfileCompleted}
         onGoBack={() => setCurrentRoute("Main")}
       />
     );
-  }
-
-  if (currentRoute === "Login") {
-    return (
+  } else if (currentRoute === "Login") {
+    content = (
       <LoginScreen
         onNavigateBack={() => setCurrentRoute("AuthWelcome")}
         onNavigateToOtp={(contact?: string) => {
@@ -267,84 +343,160 @@ export const AppNavigator: React.FC = () => {
         onNavigateToForgotPassword={() => setCurrentRoute("ForgotPassword")}
       />
     );
-  }
-
-  if (currentRoute === "ForgotPassword") {
-    return (
+  } else if (currentRoute === "ForgotPassword") {
+    content = (
       <ForgotPasswordScreen
         onNavigateToLogin={() => setCurrentRoute("Login")}
         onNavigateBack={() => setCurrentRoute("Login")}
       />
     );
-  }
-
-  if (currentRoute === "Profile") {
-    return (
+  } else if (currentRoute === "Profile") {
+    content = (
       <ProfileScreen
         currentRole={selectedRole}
         onRoleChanged={handleRoleChanged}
         onGoBack={() => setCurrentRoute("Main")}
         onEditProfile={() => setCurrentRoute("EditProfile")}
-        onManageLocations={() => setCurrentRoute("Locations")}
+        onManageLocations={openLocationsFromProfile}
         onLogout={handleLogout}
       />
     );
-  }
-
-  if (currentRoute === "EditProfile") {
-    return (
+  } else if (currentRoute === "EditProfile") {
+    content = (
       <EditProfileScreen
         role={selectedRole}
         onGoBack={() => setCurrentRoute("Profile")}
       />
     );
-  }
-
-  if (currentRoute === "Locations") {
-    return (
+  } else if (currentRoute === "Locations") {
+    content = (
       <LocationsScreen
         role={selectedRole}
-        onGoBack={() => setCurrentRoute("Profile")}
+        openCreateOnMount={locationsAutoCreate}
+        onGoBack={handleLocationsBack}
       />
+    );
+  } else if (currentRoute === "WorkerSearch") {
+    // Visible vía la capa de búsqueda de abajo (misma instancia montada).
+    content = null;
+  } else if (currentRoute === "WorkerProfile" && selectedWorker) {
+    content = (
+      <WorkerProfileScreen
+        worker={selectedWorker}
+        role={selectedRole}
+        origin={searchOrigin}
+        onGoBack={() => setCurrentRoute("WorkerSearch")}
+      />
+    );
+  } else {
+    content = (
+      <SafeAreaView style={styles.mainContainer}>
+        <NavBar
+          currentRole={selectedRole}
+          onNavigateToProfile={() => setCurrentRoute("Profile")}
+        />
+
+        <View style={styles.centerContainer}>
+          <View style={styles.welcomeRow}>
+            <Feather
+              name="home"
+              size={22}
+              color={roleAccent(selectedRole)}
+              accessible={false}
+            />
+            <Text style={styles.welcomeText}>Pantalla Principal</Text>
+          </View>
+          {!profileCompleted && !justCompletedProfile && (
+            <TouchableOpacity
+              style={[
+                styles.profileButton,
+                { backgroundColor: roleAccent(selectedRole) },
+              ]}
+              onPress={() => setCurrentRoute("CompleteProfile")}
+            >
+              <Text style={styles.profileButtonText}>
+                Terminar de completar perfil ahora
+              </Text>
+            </TouchableOpacity>
+          )}
+
+          <TouchableOpacity
+            style={[
+              styles.searchButton,
+              { backgroundColor: roleAccent(selectedRole) },
+            ]}
+            onPress={() => setSearchPopupVisible(true)}
+            testID="btn-search-workers"
+            accessibilityRole="button"
+            accessibilityLabel="Buscar trabajadores"
+          >
+            <Feather
+              name="search"
+              size={18}
+              color={colors.onPrimary}
+              accessible={false}
+            />
+            <Text style={styles.searchButtonText}>Buscar Trabajadores</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Elegir la ubicación desde la que se busca (en lugar de la
+            ubicación del dispositivo). */}
+        <SearchOriginModal
+          visible={searchPopupVisible}
+          selectedId={searchOrigin?.id}
+          onSelect={handleSelectSearchOrigin}
+          onAddLocation={openLocationsFromSearch}
+          onDismiss={() => setSearchPopupVisible(false)}
+        />
+      </SafeAreaView>
     );
   }
 
-  const isClient = selectedRole === "client";
-  const accentColor = roleAccent(selectedRole);
-
   return (
-    <SafeAreaView style={styles.mainContainer}>
-      <NavBar
-        currentRole={selectedRole}
-        onNavigateToProfile={() => setCurrentRoute("Profile")}
-      />
-
-      <View style={styles.centerContainer}>
-        <View style={styles.welcomeRow}>
-          <Feather
-            name="home"
-            size={22}
-            color={accentColor}
-            accessible={false}
+    <View style={styles.appRoot}>
+      {searchLayerMounted && (
+        <View
+          style={[
+            styles.searchLayer,
+            !searchLayerVisible && styles.searchLayerHidden,
+          ]}
+        >
+          <WorkerSearchScreen
+            role={selectedRole}
+            origin={searchOrigin}
+            onGoBack={() => setCurrentRoute("Main")}
+            onViewProfile={(worker) => {
+              setSelectedWorker(worker);
+              setCurrentRoute("WorkerProfile");
+            }}
           />
-          <Text style={styles.welcomeText}>Pantalla Principal</Text>
         </View>
-        {!profileCompleted && !justCompletedProfile && (
-          <TouchableOpacity
-            style={[styles.profileButton, { backgroundColor: accentColor }]}
-            onPress={() => setCurrentRoute("CompleteProfile")}
-          >
-            <Text style={styles.profileButtonText}>
-              Terminar de completar perfil ahora
-            </Text>
-          </TouchableOpacity>
-        )}
-      </View>
-    </SafeAreaView>
+      )}
+      {content}
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  appRoot: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  // Capa con la pantalla de búsqueda: absoluto para poder convivir con la
+  // ruta activa (solo una de las dos se muestra a la vez).
+  searchLayer: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  // Oculta la capa sin desmontarla: la WebView del mapa sobrevive a la
+  // navegación (RNTL también la excluye de las queries por display: none).
+  searchLayerHidden: {
+    display: "none",
+  },
   centerContainer: {
     flex: 1,
     backgroundColor: colors.background,
@@ -370,6 +522,21 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.md,
   },
   profileButtonText: {
+    color: colors.onPrimary,
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  searchButton: {
+    marginTop: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: spacing.sm,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: borderRadius.md,
+  },
+  searchButtonText: {
     color: colors.onPrimary,
     fontSize: 14,
     fontWeight: "600",
