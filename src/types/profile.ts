@@ -33,7 +33,6 @@ export interface ClientProfilePayload {
 
 export interface WorkerProfilePayload extends ClientProfilePayload {
   category_id?: string | null;
-  hourly_rate?: number | null;
   availability_status?: "AVAILABLE" | "BUSY" | "OFFLINE";
 }
 
@@ -92,7 +91,6 @@ export interface PrivateRoleProfile {
   full_name: string | null;
   avatar_url: string | null;
   bio: string | null;
-  hourly_rate?: number | null;
   availability_status?: string | null;
   certification_status?: string | null;
 }

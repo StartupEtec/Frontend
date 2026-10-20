@@ -30,16 +30,9 @@ function formatRating(value: string | null): string | null {
   return rating.toFixed(1).replace(".", ",");
 }
 
-/** 12500 → "12.500" (miles con punto, como el resto de la app). */
-function formatMoney(amount: number): string {
-  return Math.round(amount)
-    .toString()
-    .replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-}
-
 /**
- * Tarjeta resumida de un trabajador: nombre, calificación, categoría,
- * distancia y tarifa. Se usa en la lista y en la ficha superpuesta al mapa
+ * Tarjeta resumida de un trabajador: nombre, calificación, categoría y
+ * distancia. Se usa en la lista y en la ficha superpuesta al mapa
  * (al tocar un pin). Con callbacks muestra las acciones del DoD:
  * "Ver Perfil Completo" y "Solicitar Servicio".
  */
@@ -92,13 +85,6 @@ export const WorkerCard: React.FC<WorkerCardProps> = ({
             </Text>
           </View>
         )}
-        <View style={[styles.tag, styles.rateTag]}>
-          <Text style={styles.rateText}>
-            {worker.hourly_rate != null
-              ? `$ ${formatMoney(worker.hourly_rate)} / hora`
-              : "Tarifa a acordar"}
-          </Text>
-        </View>
       </View>
 
       {(onViewProfile || onRequestService) && (
@@ -196,17 +182,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.cardStroke,
   },
-  rateTag: {
-    backgroundColor: colors.surfaceContainer,
-  },
   tagText: {
     color: colors.textSecondary,
     fontSize: typography.fontSizes.xs,
-  },
-  rateText: {
-    color: colors.textPrimary,
-    fontSize: typography.fontSizes.xs,
-    fontWeight: typography.fontWeights.semibold,
   },
   actionsRow: {
     flexDirection: "row",

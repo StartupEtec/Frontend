@@ -19,8 +19,10 @@ import { StatusBar } from "expo-status-bar";
 import { Feather } from "@expo/vector-icons";
 import { UserRole } from "../types/role";
 import { useNearbyWorkers } from "../hooks/useNearbyWorkers";
+import { useWorkerList } from "../hooks/useWorkerList";
 import { LeafletMap, LeafletMarker } from "../components/location/LeafletMap";
 import { WorkerFilters } from "../components/worker/WorkerFilters";
+import { WorkerListFilters } from "../components/worker/WorkerListFilters";
 import { WorkerCard } from "../components/worker/WorkerCard";
 import { Coordinates, SavedLocation } from "../types/location";
 import {
@@ -158,6 +160,25 @@ export const WorkerSearchScreen: React.FC<WorkerSearchScreenProps> = ({
     radiusKm: NEARBY_FIXED_RADIUS_KM,
     categoryId,
   });
+
+  // Vista de lista (Issue #25): filtros por nombre/calificación, ordenamiento y
+  // paginación en cliente sobre los resultados ya traídos. La paginación se
+  // reinicia cuando cambia el conjunto consultado (centro o categoría).
+  const listResetKey = `${searchCenter.latitude},${searchCenter.longitude},${categoryId ?? ""}`;
+  const {
+    nameInput: listNameInput,
+    filters: listFilters,
+    workers: visibleWorkers,
+    filteredCount,
+    totalCount,
+    hasMore,
+    hasActiveFilters,
+    setNameQuery: setListNameQuery,
+    setMinRating: setListMinRating,
+    setSortBy: setListSortBy,
+    loadMore,
+    clearFilters: clearListFilters,
+  } = useWorkerList(workers, { resetKey: listResetKey });
 
   // El usuario dejó de mover/zoom el mapa: re-buscar en la nueva zona.
   const handleMoveEnd = useCallback((center: Coordinates, zoom: number) => {
@@ -406,33 +427,96 @@ export const WorkerSearchScreen: React.FC<WorkerSearchScreenProps> = ({
           )}
         </View>
       ) : (
-        <ScrollView contentContainerStyle={styles.listContent}>
-          {staleError}
-          {status === "loading" ? (
-            <View style={styles.empty} testID="workers-loading">
-              <ActivityIndicator size="large" color={accentColor} />
-              <Text style={styles.emptyText}>Buscando trabajadores...</Text>
-            </View>
-          ) : workers.length === 0 ? (
-            <View style={styles.empty} testID="workers-empty">
-              <Text style={styles.emptyIcon}>🔍</Text>
-              <Text style={styles.emptyTitle}>Sin trabajadores cerca</Text>
-              <Text style={styles.emptyText}>
-                Probá cambiando la categoría o volvé a intentar más tarde.
-              </Text>
-            </View>
-          ) : (
-            workers.map((worker) => (
-              <WorkerCard
-                key={worker.worker_id}
-                worker={worker}
-                accentColor={accentColor}
-                onViewProfile={() => onViewProfile(worker)}
-                onRequestService={handleRequestService}
-              />
-            ))
-          )}
-        </ScrollView>
+        <View style={styles.listWrap}>
+          <WorkerListFilters
+            nameInput={listNameInput}
+            onNameChange={setListNameQuery}
+            minRating={listFilters.minRating}
+            onMinRatingChange={setListMinRating}
+            sortBy={listFilters.sortBy}
+            onSortChange={setListSortBy}
+            accentColor={accentColor}
+            filteredCount={filteredCount}
+            totalCount={totalCount}
+            onClearFilters={clearListFilters}
+            hasActiveFilters={hasActiveFilters}
+          />
+
+          <ScrollView contentContainerStyle={styles.listContent}>
+            {staleError}
+            {status === "loading" ? (
+              <View style={styles.empty} testID="workers-loading">
+                <ActivityIndicator size="large" color={accentColor} />
+                <Text style={styles.emptyText}>Buscando trabajadores...</Text>
+              </View>
+            ) : workers.length === 0 ? (
+              <View style={styles.empty} testID="workers-empty">
+                <Text style={styles.emptyIcon}>🔍</Text>
+                <Text style={styles.emptyTitle}>Sin trabajadores cerca</Text>
+                <Text style={styles.emptyText}>
+                  Probá cambiando la categoría o volvé a intentar más tarde.
+                </Text>
+              </View>
+            ) : visibleWorkers.length === 0 ? (
+              <View style={styles.empty} testID="workers-no-matches">
+                <Text style={styles.emptyIcon}>🔎</Text>
+                <Text style={styles.emptyTitle}>Sin coincidencias</Text>
+                <Text style={styles.emptyText}>
+                  No hay trabajadores que coincidan con la búsqueda o la
+                  calificación mínima.
+                </Text>
+                <TouchableOpacity
+                  style={[styles.retryButton, { backgroundColor: accentColor }]}
+                  onPress={clearListFilters}
+                  testID="btn-worker-list-reset"
+                  accessibilityRole="button"
+                >
+                  <Text style={styles.retryText}>Limpiar filtros</Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <>
+                {visibleWorkers.map((worker) => (
+                  <WorkerCard
+                    key={worker.worker_id}
+                    worker={worker}
+                    accentColor={accentColor}
+                    onViewProfile={() => onViewProfile(worker)}
+                    onRequestService={handleRequestService}
+                  />
+                ))}
+                {hasMore && (
+                  <TouchableOpacity
+                    style={[
+                      styles.loadMoreButton,
+                      { borderColor: accentColor },
+                    ]}
+                    onPress={loadMore}
+                    testID="btn-worker-list-load-more"
+                    accessibilityRole="button"
+                    accessibilityLabel="Cargar más trabajadores"
+                  >
+                    <Text style={[styles.loadMoreText, { color: accentColor }]}>
+                      Cargar más
+                    </Text>
+                  </TouchableOpacity>
+                )}
+              </>
+            )}
+
+            {/* Refresco en segundo plano (cambio de centro/categoría o
+                revalidación de caché) sin vaciar la lista visible. */}
+            {refreshing && visibleWorkers.length > 0 && (
+              <View
+                style={styles.listRefreshing}
+                testID="workers-list-refreshing"
+              >
+                <ActivityIndicator size="small" color={accentColor} />
+                <Text style={styles.emptyText}>Actualizando resultados...</Text>
+              </View>
+            )}
+          </ScrollView>
+        </View>
       )}
     </SafeAreaView>
   );
@@ -606,6 +690,28 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     paddingBottom: spacing.xxl,
     gap: spacing.sm,
+  },
+  listWrap: {
+    flex: 1,
+  },
+  loadMoreButton: {
+    alignSelf: "center",
+    borderRadius: borderRadius.md,
+    borderWidth: 1.5,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    marginTop: spacing.xs,
+  },
+  loadMoreText: {
+    fontSize: typography.fontSizes.sm,
+    fontWeight: typography.fontWeights.semibold,
+  },
+  listRefreshing: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: spacing.sm,
+    paddingVertical: spacing.sm,
   },
   empty: {
     alignItems: "center",
