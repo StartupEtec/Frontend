@@ -1,4 +1,5 @@
 import { Coordinates } from "../types/location";
+import { colors } from "../theme/tokens";
 
 /** Centro inicial cuando todavía no hay coordenadas (Ciudad de Mendoza, AR). */
 export const DEFAULT_CENTER: Coordinates = {
@@ -63,8 +64,7 @@ export function formatDistance(meters: number | null | undefined): string {
   return `${km.toFixed(decimals).replace(".", ",")} km`;
 }
 
-/**
- * Zoom aproximado para que un círculo de `radiusKm` de radio entre en pantalla.
+/** Zoom aproximado para que un círculo de `radiusKm` de radio entre en pantalla.
  *
  * Estimación heurística: se asumen ~300 px desde el centro del mapa hasta el
  * borde de la pantalla y la latitud del punto central. Se usa para encuadrar
@@ -80,4 +80,52 @@ export function zoomForRadius(
   const cosLatitude = Math.cos((latitude * Math.PI) / 180);
   const zoom = Math.log2((156543.03392 * cosLatitude) / metersPerPixel);
   return clamp(Math.round(zoom), 3, OSM_MAX_ZOOM - 1);
+}
+
+/** Banda de tolerancia del área de cobertura: quien está fuera del área pero
+ * a menos de estos km se muestra como "cerca" (verde apagado) y no en gris. */
+export const COVERAGE_NEAR_BAND_KM = 5;
+
+/** Relación entre el cliente y el área de cobertura de un trabajador. */
+export type CoverageTier = "in" | "near" | "out" | "unknown";
+
+/** Color de pin/etiqueta para cada nivel de cobertura. */
+export const COVERAGE_TIER_COLORS: Record<CoverageTier, string> = {
+  in: colors.workerAccent,
+  near: colors.workerAccentDim,
+  out: colors.workerOut,
+  unknown: colors.workerOut,
+};
+
+const EARTH_RADIUS_KM = 6371;
+
+/**
+ * Distancia en línea recta entre dos puntos (haversine, en km). Se usa para
+ * evaluar si el cliente cae dentro del área de cobertura del trabajador.
+ */
+export function distanceKmBetween(a: Coordinates, b: Coordinates): number {
+  const toRadians = (degrees: number): number => (degrees * Math.PI) / 180;
+  const dLat = toRadians(b.latitude - a.latitude);
+  const dLng = toRadians(b.longitude - a.longitude);
+  const lat1 = toRadians(a.latitude);
+  const lat2 = toRadians(b.latitude);
+  const h =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
+  return 2 * EARTH_RADIUS_KM * Math.asin(Math.min(1, Math.sqrt(h)));
+}
+
+/**
+ * Clasifica al trabajador según la distancia del cliente respecto de su área
+ * de cobertura: "in" dentro del área, "near" fuera pero por pocos km (banda
+ * de COVERAGE_NEAR_BAND_KM), "out" lejos y "unknown" sin área definida.
+ */
+export function coverageTier(
+  distanceKm: number,
+  coverageRadiusKm: number | null | undefined,
+): CoverageTier {
+  if (coverageRadiusKm == null) return "unknown";
+  if (distanceKm <= coverageRadiusKm) return "in";
+  if (distanceKm <= coverageRadiusKm + COVERAGE_NEAR_BAND_KM) return "near";
+  return "out";
 }

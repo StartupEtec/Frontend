@@ -21,6 +21,27 @@ function messageFor(err: unknown, fallback: string): string {
   return fallback;
 }
 
+/** Clave de caché: centro + radio + categoría (limit es fijo). */
+const keyOf = (
+  lat: number,
+  lng: number,
+  radiusKm: number,
+  categoryId: string | null | undefined,
+): string => `${lat},${lng},${radiusKm},${categoryId ?? ""}`;
+
+/**
+ * Última búsqueda exitosa de la sesión (nivel módulo). Sobrevive a remontajes
+ * de la pantalla: si volvés del perfil (o de cualquier ruta) con el mismo
+ * centro/radio/categoría, los resultados se muestran al instante y solo se
+ * revalidan en segundo plano.
+ */
+let lastSuccess: { key: string; workers: NearbyWorker[] } | null = null;
+
+/** Reinicia la caché de sesión de la búsqueda (para tests). */
+export function resetNearbyWorkersCache(): void {
+  lastSuccess = null;
+}
+
 /**
  * Busca trabajadores cercanos con GET /workers/nearby.
  *
@@ -28,6 +49,10 @@ function messageFor(err: unknown, fallback: string): string {
  * el radio o la categoría. La primera carga muestra spinner (`status`);
  * las recargas posteriores son silenciosas y solo levantan `refreshing`,
  * para no vaciar el mapa mientras se actualizan los resultados.
+ *
+ * Los últimos resultados quedan cacheados a nivel módulo por clave
+ * (centro/radio/categoría): un remontaje de la pantalla arranca en `success`
+ * con esos trabajadores y revalida en silencio.
  *
  * Las respuestas fuera de orden se descartan: solo la última petición
  * autorizada puede escribir en estado.
@@ -37,17 +62,29 @@ export const useNearbyWorkers = ({
   radiusKm,
   categoryId,
 }: UseNearbyWorkersOptions) => {
-  const [workers, setWorkers] = useState<NearbyWorker[]>([]);
-  const [status, setStatus] = useState<NearbyWorkersStatus>("idle");
-  const [error, setError] = useState<string | null>(null);
-  const [refreshing, setRefreshing] = useState(false);
-  const sequenceRef = useRef(0);
-  const hasLoadedRef = useRef(false);
-
   const lat = center?.latitude ?? null;
   const lng = center?.longitude ?? null;
   const hasCenter =
     lat != null && lng != null && Number.isFinite(lat) && Number.isFinite(lng);
+
+  // Caché de sesión: arranca con los últimos resultados si la clave coincide
+  // (evita el estado idle → loading en cada remontaje de la pantalla).
+  const cacheKey = hasCenter
+    ? keyOf(lat as number, lng as number, radiusKm, categoryId)
+    : null;
+  const cachedWorkers =
+    cacheKey != null && lastSuccess?.key === cacheKey
+      ? lastSuccess.workers
+      : null;
+
+  const [workers, setWorkers] = useState<NearbyWorker[]>(cachedWorkers ?? []);
+  const [status, setStatus] = useState<NearbyWorkersStatus>(
+    cachedWorkers ? "success" : "idle",
+  );
+  const [error, setError] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+  const sequenceRef = useRef(0);
+  const hasLoadedRef = useRef(cachedWorkers != null);
 
   const fetchWorkers = useCallback(
     async (showLoading: boolean) => {
@@ -68,6 +105,12 @@ export const useNearbyWorkers = ({
         setWorkers(result.workers);
         setStatus("success");
         hasLoadedRef.current = true;
+        if (lat != null && lng != null) {
+          lastSuccess = {
+            key: keyOf(lat, lng, radiusKm, categoryId),
+            workers: result.workers,
+          };
+        }
       } catch (err: unknown) {
         if (sequence !== sequenceRef.current) return;
         setError(messageFor(err, "No pudimos buscar trabajadores. Reintentá."));

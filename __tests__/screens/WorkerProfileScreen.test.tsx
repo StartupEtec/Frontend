@@ -4,6 +4,7 @@ import { render, fireEvent, waitFor } from "@testing-library/react-native";
 import { WorkerProfileScreen } from "../../src/screens/WorkerProfileScreen";
 import { userService } from "../../src/services/userService";
 import { ApiError } from "../../src/services/api";
+import { SavedLocation } from "../../src/types/location";
 import { NearbyWorker } from "../../src/types/worker";
 
 jest.mock("../../src/services/userService", () => ({
@@ -11,6 +12,17 @@ jest.mock("../../src/services/userService", () => ({
 }));
 
 const mockGetPublicProfile = userService.getPublicProfile as jest.Mock;
+
+// Ubicación guardada desde la que se buscó: es la referencia del indicador
+// de cobertura (igual que para los colores de los pines del mapa).
+const originLocation: SavedLocation = {
+  id: "loc-1",
+  user_id: "user-123",
+  address: "Av. Olascoaga 1700, Mendoza",
+  latitude: -34.6037,
+  longitude: -58.3816,
+  is_primary: true,
+};
 
 const makeWorker = (overrides: Partial<NearbyWorker> = {}): NearbyWorker => ({
   worker_id: "worker-1",
@@ -24,6 +36,7 @@ const makeWorker = (overrides: Partial<NearbyWorker> = {}): NearbyWorker => ({
   certification_status: "APPROVED",
   average_rating: "4.5",
   distance_km: 1.2,
+  coverage_radius_km: 10,
   latitude: -34.61,
   longitude: -58.39,
   ...overrides,
@@ -38,9 +51,13 @@ const publicProfile = {
   role: "worker" as const,
 };
 
-const renderScreen = (worker: NearbyWorker = makeWorker()) => {
+const renderScreen = (
+  worker: NearbyWorker = makeWorker(),
+  origin: SavedLocation | null = null,
+) => {
   const props = {
     worker,
+    origin,
     role: "client" as const,
     onGoBack: jest.fn(),
   };
@@ -159,5 +176,61 @@ describe("WorkerProfileScreen", () => {
     fireEvent.press(getByTestId("btn-profile-back"));
 
     expect(props.onGoBack).toHaveBeenCalled();
+  });
+
+  describe("coverage area hint", () => {
+    it("shows 'en su área de cobertura' when the client is inside the radius", async () => {
+      mockGetPublicProfile.mockResolvedValue(publicProfile);
+
+      // Sin ubicación elegida se usa la distancia de la búsqueda
+      // (1.2 km) contra un radio de 10 km → dentro del área.
+      const { getByTestId, getByText } = renderScreen(
+        makeWorker({ coverage_radius_km: 10 }),
+      );
+
+      await waitFor(() => expect(getByTestId("profile-bio")).toBeTruthy());
+      expect(getByText("Estás en su área de cobertura")).toBeTruthy();
+    });
+
+    it("evaluates coverage from the chosen saved location when provided", () => {
+      // La ubicación elegida queda a ~1.04 km del trabajador (haversine) y
+      // el radio es 0.5 km: fuera del área pero dentro de la banda de 5 km.
+      const { getByText } = renderScreen(
+        makeWorker({ coverage_radius_km: 0.5 }),
+        originLocation,
+      );
+
+      expect(getByText(/Fuera de su área por poco/)).toBeTruthy();
+      expect(getByText(/del límite/)).toBeTruthy();
+    });
+
+    it("shows 'en su área de cobertura' for the chosen location inside the radius", () => {
+      // La ubicación elegida está a ~1.04 km y el radio es 10 km.
+      const { getByText } = renderScreen(
+        makeWorker({ coverage_radius_km: 10 }),
+        originLocation,
+      );
+
+      expect(getByText("Estás en su área de cobertura")).toBeTruthy();
+    });
+
+    it("shows a distant notice when far outside the coverage area", () => {
+      // La banda de tolerancia es de 5 km: 8 km contra 0.1 km de radio.
+      const { getByText } = renderScreen(
+        makeWorker({ coverage_radius_km: 0.1, distance_km: 8 }),
+      );
+
+      expect(getByText(/Fuera de su área de cobertura/)).toBeTruthy();
+    });
+
+    it("states when the worker has no coverage area defined", () => {
+      const { getByText } = renderScreen(
+        makeWorker({ coverage_radius_km: null }),
+      );
+
+      expect(
+        getByText("Este trabajador no definió su área de cobertura"),
+      ).toBeTruthy();
+    });
   });
 });

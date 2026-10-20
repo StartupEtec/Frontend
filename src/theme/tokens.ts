@@ -65,6 +65,10 @@ export const colors = {
   // Role accents
   clientAccent: "#0f62fe",
   workerAccent: "#15803d",
+  // Verde apagado: pin del trabajador fuera de su área pero por pocos km.
+  workerAccentDim: "#81c784",
+  // Gris: pin del trabajador muy lejos del área (o sin área definida).
+  workerOut: "#9e9e9e",
 
   // App-level aliases (backwards compatible UI API)
   cardBackground: "#ffffff",

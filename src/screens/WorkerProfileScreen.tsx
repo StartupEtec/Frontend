@@ -14,10 +14,11 @@ import { StatusBar } from "expo-status-bar";
 import { Feather } from "@expo/vector-icons";
 import { UserRole } from "../types/role";
 import { NearbyWorker, PublicWorkerProfile } from "../types/worker";
+import { SavedLocation } from "../types/location";
 import { userService } from "../services/userService";
 import { toDisplayUri } from "../services/profileService";
 import { ApiError } from "../services/api";
-import { formatDistance } from "../utils/map";
+import { coverageTier, distanceKmBetween, formatDistance } from "../utils/map";
 import {
   colors,
   spacing,
@@ -30,6 +31,9 @@ import {
 export interface WorkerProfileScreenProps {
   /** Trabajador elegido en la búsqueda (trae categoría, tarifa y distancia). */
   worker: NearbyWorker;
+  /** Ubicación guardada desde la que se buscó: referencia del indicador de
+   * cobertura (la misma que colorea el pin en el mapa). */
+  origin?: SavedLocation | null;
   role?: UserRole;
   onGoBack: () => void;
 }
@@ -67,6 +71,7 @@ function messageFor(err: unknown, fallback: string): string {
  */
 export const WorkerProfileScreen: React.FC<WorkerProfileScreenProps> = ({
   worker,
+  origin,
   role = "client",
   onGoBack,
 }) => {
@@ -102,6 +107,38 @@ export const WorkerProfileScreen: React.FC<WorkerProfileScreenProps> = ({
   const avatarUri = toDisplayUri(worker.avatar_url);
   const rating =
     formatRating(profile?.average_rating ?? worker.average_rating) ?? null;
+
+  // ¿Llega el trabajador hasta la ubicación que elegiste para buscar? La
+  // referencia es esa ubicación guardada (misma que colorea los pines del
+  // mapa); sin ella se usa la distancia que trae la búsqueda (medida desde
+  // el centro de búsqueda).
+  const coverageDistanceKm = origin
+    ? distanceKmBetween(
+        { latitude: origin.latitude, longitude: origin.longitude },
+        worker,
+      )
+    : worker.distance_km;
+  const tier = coverageTier(coverageDistanceKm, worker.coverage_radius_km);
+
+  let coverageText: string;
+  let coverageColor: string;
+  if (tier === "in") {
+    coverageText = "Estás en su área de cobertura";
+    coverageColor = colors.workerAccent;
+  } else if (tier === "unknown") {
+    coverageText = "Este trabajador no definió su área de cobertura";
+    coverageColor = colors.textMuted;
+  } else {
+    const limitGap = formatDistance(
+      (coverageDistanceKm - (worker.coverage_radius_km ?? 0)) * 1000,
+    );
+    coverageText =
+      tier === "near"
+        ? `Fuera de su área por poco (a ${limitGap} del límite)`
+        : `Fuera de su área de cobertura (a ${limitGap} del límite)`;
+    coverageColor =
+      tier === "near" ? colors.workerAccentDim : colors.textSecondary;
+  }
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -201,6 +238,16 @@ export const WorkerProfileScreen: React.FC<WorkerProfileScreenProps> = ({
               </Text>
               <Text style={styles.statLabel}>Por hora</Text>
             </View>
+          </View>
+
+          {/* Indicador chico de relación con el área de cobertura. */}
+          <View style={styles.coverageRow} testID="profile-coverage">
+            <View
+              style={[styles.coverageDot, { backgroundColor: coverageColor }]}
+            />
+            <Text style={[styles.coverageText, { color: coverageColor }]}>
+              {coverageText}
+            </Text>
           </View>
 
           <Text style={styles.sectionTitle}>Acerca de</Text>
@@ -359,6 +406,20 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     fontSize: typography.fontSizes.xs,
     textAlign: "center",
+  },
+  coverageRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
+  },
+  coverageDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  coverageText: {
+    flex: 1,
+    fontSize: typography.fontSizes.xs,
   },
   sectionTitle: {
     color: colors.textPrimary,

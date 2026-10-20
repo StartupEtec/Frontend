@@ -21,6 +21,8 @@ export interface NearbyWorker {
   average_rating: string | null;
   /** Distancia al centro de búsqueda en km (2 decimales). */
   distance_km: number;
+  /** Radio de cobertura del trabajador en km; null si no lo definió. */
+  coverage_radius_km: number | null;
   latitude: number;
   longitude: number;
 }

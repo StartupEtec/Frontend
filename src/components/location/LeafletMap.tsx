@@ -438,6 +438,19 @@ const LEAFLET_HTML = `<!DOCTYPE html>
       var circles = {};
       var userMarker = null;
       var selectable = false;
+      // Último tamaño válido de la WebView, para no recalcular sin cambios.
+      var lastSize = map.getSize();
+
+      function doInvalidate() {
+        var size = map.getSize();
+        // Tamaño inválido (pantalla oculta con display:none) o sin cambios:
+        // invalidateSize en ese estado emite moveend/pan innecesarios que se
+        // ven como temblor y disparan búsquedas de más.
+        if (size.x === 0 || size.y === 0) return;
+        if (size.x === lastSize.x && size.y === lastSize.y) return;
+        lastSize = { x: size.x, y: size.y };
+        map.invalidateSize({ animate: false });
+      }
 
       function pinIcon(color) {
         return L.divIcon({
@@ -456,6 +469,9 @@ const LEAFLET_HTML = `<!DOCTYPE html>
         var options = { draggable: !!m.draggable, title: m.title || '' };
         if (m.color) options.icon = pinIcon(m.color);
         var marker = L.marker([m.latitude, m.longitude], options).addTo(map);
+        // Estado propio para poder reconciliar pins sin re-crearlos.
+        marker.__color = m.color || null;
+        marker.__draggable = !!m.draggable;
         marker.on('click', function () { send({ type: 'markerPress', id: m.id }); });
         if (m.draggable) {
           marker.on('dragend', function () {
@@ -488,9 +504,23 @@ const LEAFLET_HTML = `<!DOCTYPE html>
         if (selectable) send({ type: 'press', latitude: e.latlng.lat, longitude: e.latlng.lng });
       });
 
-      // Reporta el fin de cada gesto de pan/zoom con el centro y zoom
-      // visibles (la pantalla de búsqueda re-consulta al mover el mapa).
-      map.on('moveend', function () {
+      // Reporta el fin de cada gesto de pan/zoom DEL USUARIO con el centro y
+      // zoom visibles (la pantalla de búsqueda re-consulta al mover el mapa).
+      //
+      // Solo se emite cuando el movimiento trae originalEvent (gesto real):
+      // los movimientos programáticos (setView de un recentrado/filtro) y los
+      // re-centrados internos de Leaflet (invalidateSize, re-encuadre al
+      // cargar tiles) no lo llevan. Sin este filtro, cada setMarkers/setView
+      // re-emitía un moveend con el centro redondeado por píxel, que
+      // re-disparaba la búsqueda y volvía a mover el mapa: un bucle de
+      // zoom-in/zoom-out y parpadeo constante.
+      var userMoved = false;
+      map.on('movestart', function (e) {
+        if (e.originalEvent) userMoved = true;
+      });
+      map.on('moveend', function (e) {
+        if (!e.originalEvent && !userMoved) return;
+        userMoved = false;
         var center = map.getCenter();
         send({ type: 'moveend', latitude: center.lat, longitude: center.lng, zoom: map.getZoom() });
       });
@@ -498,8 +528,33 @@ const LEAFLET_HTML = `<!DOCTYPE html>
       window.__leaflet = {
         setSelectable: function (value) { selectable = !!value; },
         setMarkers: function (list) {
-          Object.keys(markers).forEach(removeMarker);
-          (list || []).forEach(addMarker);
+          // Reconciliación diferencial: los pines que siguen presentes se
+          // reutilizan (solo se ajusta posición/color) en lugar de borrar y
+          // re-crear todo el conjunto. Así, cada recarga de resultados no
+          // hace parpadear los pines del mapa.
+          var next = {};
+          (list || []).forEach(function (m) {
+            var existing = markers[m.id];
+            var color = m.color || null;
+            if (existing && existing.__draggable === !!m.draggable) {
+              var position = L.latLng(m.latitude, m.longitude);
+              if (!existing.getLatLng().equals(position)) existing.setLatLng(position);
+              if (existing.__color !== color) {
+                existing.__color = color;
+                existing.setIcon(color ? pinIcon(color) : new L.Icon.Default());
+              }
+              if (m.title) existing.options.title = m.title;
+              next[m.id] = existing;
+              return;
+            }
+            if (existing) removeMarker(m.id);
+            addMarker(m);
+            next[m.id] = markers[m.id];
+          });
+          Object.keys(markers).forEach(function (id) {
+            if (!next[id]) removeMarker(id);
+          });
+          markers = next;
         },
         setCircles: function (list) {
           Object.keys(circles).forEach(removeCircle);
@@ -522,14 +577,17 @@ const LEAFLET_HTML = `<!DOCTYPE html>
           }
         },
         setView: function (lat, lng, zoom) {
-          // Guard anti-temblor: si el mapa ya está en ese punto y zoom, no se
-          // vuelve a centrar. Sin esto, cada moveend (usuario o invalidateSize)
+          // Guard anti-temblor: si el mapa ya está (casi) en ese punto y zoom,
+          // no se vuelve a centrar. El umbral de ~25 m absorbe el redondeo por
+          // píxel de Leaflet y los micro-paneos: sin esto, cada moveend
           // re-inyectaba setView, Leaflet emitía otro moveend con el centro
-          // redondeado por píxel y el ciclo entraba en bucle.
-          if (map.getZoom() === zoom && map.getCenter().distanceTo(L.latLng(lat, lng)) < 1) {
+          // redondeado y el ciclo se veía como temblor. La animación está
+          // desactivada: un pan animado encima de tiles cargando se nota
+          // como salto (y su moveend re-disparaba la búsqueda).
+          if (map.getZoom() === zoom && map.getCenter().distanceTo(L.latLng(lat, lng)) < 25) {
             return;
           }
-          map.setView([lat, lng], zoom, { animate: true });
+          map.setView([lat, lng], zoom, { animate: false });
         },
         fitMarkers: function () {
           var points = Object.keys(markers).map(function (id) { return markers[id].getLatLng(); });
@@ -537,16 +595,17 @@ const LEAFLET_HTML = `<!DOCTYPE html>
           if (points.length === 1) { map.setView(points[0], 15, { animate: true }); return; }
           map.fitBounds(L.latLngBounds(points), { padding: [40, 40] });
         },
-        invalidate: function () { map.invalidateSize(); }
+        invalidate: doInvalidate
       };
 
       send({ type: 'ready' });
 
       // La WebView puede reportar 'ready' antes de tener su tamaño final; un
       // invalidateSize asegura que Leaflet calcule bien el viewport y pinte los
-      // mosaicos (evita el cuadro en blanco).
-      setTimeout(function () { map.invalidateSize(); }, 300);
-      window.addEventListener('resize', function () { map.invalidateSize(); });
+      // mosaicos (evita el cuadro en blanco). El guard de tamaño hace que solo
+      // se ejecute si el tamaño realmente cambió.
+      setTimeout(doInvalidate, 300);
+      window.addEventListener('resize', doInvalidate);
     })();
   </script>
 </body>

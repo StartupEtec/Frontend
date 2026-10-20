@@ -138,6 +138,17 @@ describe("LocationsScreen", () => {
     });
   });
 
+  it("opens the create form on mount when arriving from the search popup", async () => {
+    const { getByText } = render(
+      <LocationsScreen role="client" openCreateOnMount onGoBack={onGoBack} />,
+    );
+
+    // El formulario de alta aparece directo, sin tocar "Agregar Ubicación".
+    await waitFor(() => {
+      expect(getByText("Agregar ubicación")).toBeTruthy();
+    });
+  });
+
   it("opens the edit modal prefilled from a location", async () => {
     const { getByTestId } = renderScreen({
       locations: [makeLocation({ id: "a", address: "Calle A 123" })],

@@ -3,17 +3,13 @@ import { Alert } from "react-native";
 import { render, fireEvent, waitFor, act } from "@testing-library/react-native";
 import { WorkerSearchScreen } from "../../src/screens/WorkerSearchScreen";
 import { useNearbyWorkers } from "../../src/hooks/useNearbyWorkers";
-import { useDeviceLocation } from "../../src/hooks/useDeviceLocation";
 import { UserRole } from "../../src/types/role";
+import { SavedLocation } from "../../src/types/location";
 import { NearbyWorker, WORKER_CATEGORIES } from "../../src/types/worker";
 import { colors } from "../../src/theme/tokens";
 
 jest.mock("../../src/hooks/useNearbyWorkers", () => ({
   useNearbyWorkers: jest.fn(),
-}));
-
-jest.mock("../../src/hooks/useDeviceLocation", () => ({
-  useDeviceLocation: jest.fn(),
 }));
 
 jest.mock("../../src/components/location/LeafletMap", () => {
@@ -26,9 +22,21 @@ jest.mock("../../src/components/location/LeafletMap", () => {
 });
 
 const mockUseNearbyWorkers = useNearbyWorkers as jest.Mock;
-const mockUseDeviceLocation = useDeviceLocation as jest.Mock;
 
-const deviceCoords = { latitude: -34.6037, longitude: -58.3816 };
+// La referencia de la búsqueda es la ubicación guardada elegida (el
+// dispositivo ya no interviene).
+const originLocation: SavedLocation = {
+  id: "loc-1",
+  user_id: "user-123",
+  address: "Av. Olascoaga 1700, Mendoza",
+  latitude: -34.6037,
+  longitude: -58.3816,
+  is_primary: true,
+};
+const originCoords = {
+  latitude: originLocation.latitude,
+  longitude: originLocation.longitude,
+};
 
 const makeWorker = (overrides: Partial<NearbyWorker> = {}): NearbyWorker => ({
   worker_id: "worker-1",
@@ -42,6 +50,7 @@ const makeWorker = (overrides: Partial<NearbyWorker> = {}): NearbyWorker => ({
   certification_status: "APPROVED",
   average_rating: "4.5",
   distance_km: 1.2,
+  coverage_radius_km: 10,
   latitude: -34.61,
   longitude: -58.39,
   ...overrides,
@@ -49,19 +58,17 @@ const makeWorker = (overrides: Partial<NearbyWorker> = {}): NearbyWorker => ({
 
 interface RenderOptions {
   hook?: Record<string, unknown>;
-  device?: Record<string, unknown>;
+  origin?: SavedLocation | null;
 }
 
+const makeProps = (origin: SavedLocation | null) => ({
+  role: "client" as UserRole,
+  origin,
+  onGoBack: jest.fn(),
+  onViewProfile: jest.fn(),
+});
+
 const renderScreen = (options: RenderOptions = {}) => {
-  (useDeviceLocation as jest.Mock).mockReturnValue({
-    coordinates: deviceCoords,
-    status: "granted",
-    loading: false,
-    denied: false,
-    unavailable: false,
-    request: jest.fn(),
-    ...options.device,
-  });
   (useNearbyWorkers as jest.Mock).mockReturnValue({
     workers: [],
     status: "success",
@@ -71,11 +78,8 @@ const renderScreen = (options: RenderOptions = {}) => {
     ...options.hook,
   });
 
-  const props = {
-    role: "client" as UserRole,
-    onGoBack: jest.fn(),
-    onViewProfile: jest.fn(),
-  };
+  const origin = options.origin === undefined ? originLocation : options.origin;
+  const props = makeProps(origin);
 
   return { ...render(<WorkerSearchScreen {...props} />), props };
 };
@@ -93,21 +97,85 @@ describe("WorkerSearchScreen", () => {
     jest.restoreAllMocks();
   });
 
-  it("requests the nearby search with the fixed radius and draws green pins", () => {
+  it("requests the nearby search from the chosen saved location and draws green pins", () => {
     const { getByTestId } = renderScreen({
       hook: { workers: [makeWorker()] },
     });
 
-    // Radio fijo (la UI no expone filtro de distancia).
+    // Radio fijo (la UI no expone filtro de distancia) y centro inicial en
+    // la ubicación elegida, sin esperar nada del dispositivo.
     expect(lastHookArgs()).toEqual(
-      expect.objectContaining({ center: deviceCoords, radiusKm: 100 }),
+      expect.objectContaining({ center: originCoords, radiusKm: 100 }),
     );
 
     const map = getByTestId("worker-search-map");
-    expect(map.props.userLocation).toEqual(deviceCoords);
-    // El trabajador se marca en verde; el punto azul del usuario lo dibuja
-    // LeafletMap por su cuenta.
-    expect(map.props.markers[0].color).toBe(colors.workerAccent);
+    // La ubicación actual del dispositivo ya no interviene en la búsqueda.
+    expect(map.props.userLocation).toBeUndefined();
+    // El trabajador cae dentro de su área de cobertura (10 km); se marca en
+    // verde (el primer pin es el de la ubicación elegida).
+    expect(map.props.markers[1].color).toBe(colors.workerAccent);
+  });
+
+  it("marks the chosen location on the map with its own pin", () => {
+    const { getByTestId } = renderScreen({
+      hook: { workers: [makeWorker()] },
+    });
+
+    // El pin de la ubicación elegida va primero, con el color del rol (el
+    // mismo estilo de "Mis Ubicaciones") y la dirección como título.
+    expect(getByTestId("worker-search-map").props.markers[0]).toMatchObject({
+      id: "__search-origin__",
+      latitude: originCoords.latitude,
+      longitude: originCoords.longitude,
+      color: colors.clientAccent,
+      title: originLocation.address,
+    });
+  });
+
+  it("does not open a summary card for the location pin", () => {
+    const { getByTestId, queryByTestId } = renderScreen({
+      hook: { workers: [makeWorker()] },
+    });
+
+    // Tocar el pin de la ubicación elegida no es tocar un trabajador.
+    act(() => {
+      getByTestId("worker-search-map").props.onMarkerPress("__search-origin__");
+    });
+
+    expect(queryByTestId("worker-info-sheet")).toBeNull();
+  });
+
+  it("colors pins by coverage area relative to the chosen saved location", () => {
+    // El trabajador está a ~1.04 km de la ubicación elegida (haversine).
+    const workers = [
+      // 1.04 km contra 5 km de radio → dentro del área (verde).
+      makeWorker({ worker_id: "w-in", coverage_radius_km: 5 }),
+      // 1.04 km contra 0.5 km → afuera pero por poco (verde apagado).
+      makeWorker({ worker_id: "w-near", coverage_radius_km: 0.5 }),
+      // Muy lejos de la ubicación elegida → gris.
+      makeWorker({
+        worker_id: "w-out",
+        coverage_radius_km: 0.1,
+        latitude: -35.0,
+        longitude: -58.8,
+      }),
+      // Sin área definida → gris.
+      makeWorker({ worker_id: "w-unknown", coverage_radius_km: null }),
+    ];
+
+    const { getByTestId } = renderScreen({ hook: { workers } });
+
+    const markerColors = getByTestId("worker-search-map").props.markers.map(
+      (marker: { color: string }) => marker.color,
+    );
+    expect(markerColors).toEqual([
+      // El primer pin es el de la ubicación elegida (color del rol).
+      colors.clientAccent,
+      colors.workerAccent,
+      colors.workerAccentDim,
+      colors.workerOut,
+      colors.workerOut,
+    ]);
   });
 
   it("keeps the count row mounted with a fixed height so the map never resizes", () => {
@@ -144,6 +212,29 @@ describe("WorkerSearchScreen", () => {
       latitude: -34.62,
       longitude: -58.4,
     });
+  });
+
+  it("ignores micro-moves within the ~20 m tolerance (no extra queries)", () => {
+    const { getByTestId } = renderScreen();
+
+    // Eco del setView inicial: limpia el recentrado programático.
+    act(() => {
+      getByTestId("worker-search-map").props.onMoveEnd(originCoords, 9);
+    });
+
+    // Paneo mínimo (≈11 m): entra en la tolerancia (~20 m), así que no se
+    // re-consulta la API ni se re-centra el mapa (evita temblor/búsquedas).
+    act(() => {
+      getByTestId("worker-search-map").props.onMoveEnd(
+        {
+          latitude: originCoords.latitude + 0.0001,
+          longitude: originCoords.longitude,
+        },
+        9,
+      );
+    });
+
+    expect(lastHookArgs().center).toEqual(originCoords);
   });
 
   it("applies the category preset to the search", () => {
@@ -251,38 +342,58 @@ describe("WorkerSearchScreen", () => {
     );
   });
 
-  it("shows the permission banner and asks again when geolocation is denied", () => {
-    const request = jest.fn().mockResolvedValue(null);
-    const { getByTestId, getByText } = renderScreen({
-      device: {
-        coordinates: null,
-        denied: true,
-        status: "denied",
-        request,
-      },
+  it("recenters the map on the chosen saved location", () => {
+    const { getByTestId } = renderScreen();
+
+    // El usuario exploró otra zona del mapa.
+    act(() => {
+      getByTestId("worker-search-map").props.onMoveEnd(
+        { latitude: -34.62, longitude: -58.4 },
+        13,
+      );
+    });
+    expect(lastHookArgs().center).toEqual({
+      latitude: -34.62,
+      longitude: -58.4,
+    });
+
+    fireEvent.press(getByTestId("btn-recenter"));
+
+    // Vuelve a la ubicación elegida (no a la del dispositivo).
+    expect(lastHookArgs().center).toEqual(originCoords);
+    expect(getByTestId("worker-search-map").props.center).toEqual(originCoords);
+  });
+
+  it("re-centers and re-searches when a different saved location is chosen", () => {
+    const { rerender, getByTestId, queryByTestId } = renderScreen({
       hook: { workers: [makeWorker()] },
     });
 
-    expect(getByTestId("workers-permission")).toBeTruthy();
-    expect(
-      getByText("Activá tu ubicación para buscar trabajadores cerca tuyo."),
-    ).toBeTruthy();
-
-    fireEvent.press(getByTestId("btn-enable-location"));
-
-    expect(request).toHaveBeenCalled();
-    // La búsqueda igual avanza con un centro por defecto.
-    expect(lastHookArgs().center).toEqual(
-      expect.objectContaining({ latitude: expect.any(Number) }),
-    );
-  });
-
-  it("shows a fallback banner when the position cannot be read", () => {
-    const { getByTestId } = renderScreen({
-      device: { coordinates: null, unavailable: true, status: "unavailable" },
+    act(() => {
+      getByTestId("worker-search-map").props.onMarkerPress("worker-1");
     });
+    expect(getByTestId("worker-info-worker-1")).toBeTruthy();
 
-    expect(getByTestId("workers-location-unavailable")).toBeTruthy();
+    const otherOrigin: SavedLocation = {
+      ...originLocation,
+      id: "loc-2",
+      address: "Los Alerces 450, Luján de Cuyo",
+      latitude: -33.036,
+      longitude: -68.905,
+      is_primary: false,
+    };
+    rerender(<WorkerSearchScreen {...makeProps(otherOrigin)} />);
+
+    expect(lastHookArgs().center).toEqual({
+      latitude: -33.036,
+      longitude: -68.905,
+    });
+    expect(getByTestId("worker-search-map").props.center).toEqual({
+      latitude: -33.036,
+      longitude: -68.905,
+    });
+    // La ficha de la búsqueda anterior queda cerrada.
+    expect(queryByTestId("worker-info-sheet")).toBeNull();
   });
 
   it("shows a full error state with retry when the search fails", () => {

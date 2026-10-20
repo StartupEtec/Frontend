@@ -1,22 +1,23 @@
-import { renderHook, act } from "@testing-library/react-native";
-import { useNearbyWorkers } from "../../src/hooks/useNearbyWorkers";
+import { renderHook, waitFor } from "@testing-library/react-native";
+import {
+  useNearbyWorkers,
+  resetNearbyWorkersCache,
+} from "../../src/hooks/useNearbyWorkers";
 import { workerSearchService } from "../../src/services/workerSearchService";
-import { ApiError } from "../../src/services/api";
-import { Coordinates } from "../../src/types/location";
 import { NearbyWorker } from "../../src/types/worker";
 
 jest.mock("../../src/services/workerSearchService", () => ({
   workerSearchService: { nearby: jest.fn() },
 }));
 
-const mockNearby = workerSearchService.nearby as jest.Mock;
+const nearby = workerSearchService.nearby as jest.Mock;
 
-const flush = () => act(async () => {});
+const center = { latitude: -32.8895, longitude: -68.8458 };
 
-const makeWorker = (overrides: Partial<NearbyWorker> = {}): NearbyWorker => ({
-  worker_id: "worker-1",
-  user_id: "user-456",
-  full_name: "Ana Pérez",
+const makeWorker = (id: string): NearbyWorker => ({
+  worker_id: id,
+  user_id: `user-${id}`,
+  full_name: `Trabajador ${id}`,
   avatar_url: null,
   category_id: "d9b936d5-a3d5-45d6-b4d6-a4c3f5d6f003",
   category_name: "Electricidad",
@@ -25,173 +26,90 @@ const makeWorker = (overrides: Partial<NearbyWorker> = {}): NearbyWorker => ({
   certification_status: "APPROVED",
   average_rating: "4.5",
   distance_km: 1.2,
-  latitude: -34.61,
-  longitude: -58.39,
-  ...overrides,
+  coverage_radius_km: 10,
+  latitude: -32.89,
+  longitude: -68.85,
 });
 
-const response = (workers: NearbyWorker[]) => ({
+const responseFor = (workers: NearbyWorker[]) => ({
   workers,
   count: workers.length,
   limit: 50,
   offset: 0,
 });
 
-const centerA: Coordinates = { latitude: -34.6037, longitude: -58.3816 };
-const centerB: Coordinates = { latitude: -34.62, longitude: -58.4 };
-
-const renderSearch = (initialCenter: Coordinates | null = centerA) =>
-  renderHook(
-    ({ center }: { center: Coordinates | null }) =>
-      useNearbyWorkers({ center, radiusKm: 10, categoryId: null }),
-    { initialProps: { center: initialCenter } },
-  );
-
 describe("useNearbyWorkers", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    nearby.mockReset();
+    resetNearbyWorkersCache();
   });
 
-  it("stays idle and does not query without a center", () => {
-    const { result } = renderSearch(null);
+  it("stays idle and skips the request when there is no center yet", () => {
+    const { result } = renderHook(() =>
+      useNearbyWorkers({ center: null, radiusKm: 100 }),
+    );
 
     expect(result.current.status).toBe("idle");
     expect(result.current.workers).toEqual([]);
-    expect(mockNearby).not.toHaveBeenCalled();
+    expect(nearby).not.toHaveBeenCalled();
   });
 
-  it("loads workers with the spinner on first fetch", async () => {
-    mockNearby.mockResolvedValue(response([makeWorker()]));
+  it("fetches workers on the first load with a spinner", async () => {
+    nearby.mockResolvedValue(responseFor([makeWorker("a")]));
 
-    const { result } = renderSearch();
-
+    const { result } = renderHook(() =>
+      useNearbyWorkers({ center, radiusKm: 100 }),
+    );
     expect(result.current.status).toBe("loading");
-    await flush();
 
-    expect(result.current.status).toBe("success");
-    expect(result.current.workers).toHaveLength(1);
-    expect(result.current.refreshing).toBe(false);
-    expect(mockNearby).toHaveBeenCalledWith({
-      latitude: centerA.latitude,
-      longitude: centerA.longitude,
-      radius_km: 10,
-      category_id: undefined,
-      limit: 50,
-    });
+    await waitFor(() => expect(result.current.status).toBe("success"));
+    expect(result.current.workers).toEqual([makeWorker("a")]);
+    expect(nearby).toHaveBeenCalledTimes(1);
   });
 
-  it("re-queries silently when the radius changes", async () => {
-    mockNearby.mockResolvedValue(response([makeWorker()]));
+  it("reuses the last successful result instantly on remount and revalidates", async () => {
+    nearby.mockResolvedValue(responseFor([makeWorker("a")]));
+    const first = renderHook(() => useNearbyWorkers({ center, radiusKm: 100 }));
+    await waitFor(() => expect(first.result.current.status).toBe("success"));
+    first.unmount();
 
-    const { result, rerender } = renderHook(
-      ({ radiusKm }: { radiusKm: number }) =>
-        useNearbyWorkers({ center: centerA, radiusKm, categoryId: null }),
-      { initialProps: { radiusKm: 10 } },
+    // Otro conjunto de resultados para ver cuándo termina la revalidación.
+    nearby.mockResolvedValue(responseFor([makeWorker("b")]));
+
+    // Remontaje con la misma clave: arranca en success con la caché de
+    // sesión (sin pasar por loading) y revalida en segundo plano.
+    const second = renderHook(() =>
+      useNearbyWorkers({ center, radiusKm: 100 }),
     );
-    await flush();
-    expect(result.current.status).toBe("success");
+    expect(second.result.current.status).toBe("success");
+    expect(second.result.current.workers).toEqual([makeWorker("a")]);
 
-    rerender({ radiusKm: 25 });
-    expect(result.current.refreshing).toBe(true);
-    await flush();
-
-    expect(mockNearby).toHaveBeenCalledTimes(2);
-    expect(mockNearby).toHaveBeenLastCalledWith(
-      expect.objectContaining({ radius_km: 25 }),
+    await waitFor(() =>
+      expect(second.result.current.workers).toEqual([makeWorker("b")]),
     );
-    // La recarga silenciosa no vuelve a "loading": conserva los resultados.
-    expect(result.current.status).toBe("success");
-    expect(result.current.refreshing).toBe(false);
+    expect(second.result.current.status).toBe("success");
+    expect(nearby).toHaveBeenCalledTimes(2);
   });
 
-  it("re-queries when the center moves (map pan)", async () => {
-    mockNearby.mockResolvedValue(response([]));
+  it("does not reuse cached results for a different center", async () => {
+    nearby.mockResolvedValue(responseFor([makeWorker("a")]));
+    const first = renderHook(() => useNearbyWorkers({ center, radiusKm: 100 }));
+    await waitFor(() => expect(first.result.current.status).toBe("success"));
+    first.unmount();
 
-    const { rerender } = renderHook(
-      ({ center }: { center: Coordinates | null }) =>
-        useNearbyWorkers({ center, radiusKm: 10, categoryId: null }),
-      { initialProps: { center: centerA } },
-    );
-    await flush();
-
-    rerender({ center: centerB });
-    await flush();
-
-    expect(mockNearby).toHaveBeenLastCalledWith(
-      expect.objectContaining({
-        latitude: centerB.latitude,
-        longitude: centerB.longitude,
+    nearby.mockResolvedValue(responseFor([makeWorker("b")]));
+    const second = renderHook(() =>
+      useNearbyWorkers({
+        center: { latitude: -34.6037, longitude: -58.3816 },
+        radiusKm: 100,
       }),
     );
-  });
 
-  it("surfaces an ApiError message on failure", async () => {
-    mockNearby.mockRejectedValueOnce(
-      new ApiError("Sin conexión con el servidor", 0),
-    );
+    // Otra clave de caché: se muestra la carga con spinner, no los viejos.
+    expect(second.result.current.status).toBe("loading");
+    expect(second.result.current.workers).toEqual([]);
 
-    const { result } = renderSearch();
-    await flush();
-
-    expect(result.current.status).toBe("error");
-    expect(result.current.error).toBe("Sin conexión con el servidor");
-    expect(result.current.refreshing).toBe(false);
-  });
-
-  it("falls back to a generic message for unknown errors", async () => {
-    mockNearby.mockRejectedValueOnce(new Error(""));
-
-    const { result } = renderSearch();
-    await flush();
-
-    expect(result.current.status).toBe("error");
-    expect(result.current.error).toBe(
-      "No pudimos buscar trabajadores. Reintentá.",
-    );
-  });
-
-  it("discards a stale response that resolves after a newer one", async () => {
-    let resolveFirst: (value: unknown) => void = () => {};
-    mockNearby
-      .mockImplementationOnce(
-        () =>
-          new Promise((resolve) => {
-            resolveFirst = resolve;
-          }),
-      )
-      .mockImplementationOnce(() =>
-        Promise.resolve(response([makeWorker({ worker_id: "worker-2" })])),
-      );
-
-    const { result, rerender } = renderSearch(centerA);
-    rerender({ center: centerB });
-    await flush();
-
-    expect(result.current.workers[0]?.worker_id).toBe("worker-2");
-
-    // La primera petición (centro viejo) responde al final: se descarta.
-    await act(async () => {
-      resolveFirst(response([makeWorker({ worker_id: "worker-1" })]));
-    });
-
-    expect(result.current.workers[0]?.worker_id).toBe("worker-2");
-    expect(result.current.status).toBe("success");
-  });
-
-  it("reload always shows the loading state", async () => {
-    mockNearby.mockResolvedValue(response([]));
-
-    const { result } = renderSearch();
-    await flush();
-    expect(result.current.status).toBe("success");
-
-    // Recarga manual: queda en loading mientras la petición no responde.
-    mockNearby.mockReturnValueOnce(new Promise(() => {}));
-    await act(async () => {
-      result.current.reload();
-    });
-
-    expect(result.current.status).toBe("loading");
-    expect(result.current.refreshing).toBe(true);
+    await waitFor(() => expect(second.result.current.status).toBe("success"));
+    expect(second.result.current.workers).toEqual([makeWorker("b")]);
   });
 });

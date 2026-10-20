@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -12,18 +18,24 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { Feather } from "@expo/vector-icons";
 import { UserRole } from "../types/role";
-import { useDeviceLocation } from "../hooks/useDeviceLocation";
 import { useNearbyWorkers } from "../hooks/useNearbyWorkers";
 import { LeafletMap, LeafletMarker } from "../components/location/LeafletMap";
 import { WorkerFilters } from "../components/worker/WorkerFilters";
 import { WorkerCard } from "../components/worker/WorkerCard";
-import { Coordinates } from "../types/location";
+import { Coordinates, SavedLocation } from "../types/location";
 import {
   NearbyWorker,
   NEARBY_FIXED_RADIUS_KM,
   NEARBY_MAX_LIMIT,
 } from "../types/worker";
-import { DEFAULT_CENTER, sameCoordinates, zoomForRadius } from "../utils/map";
+import {
+  COVERAGE_TIER_COLORS,
+  DEFAULT_CENTER,
+  coverageTier,
+  distanceKmBetween,
+  sameCoordinates,
+  zoomForRadius,
+} from "../utils/map";
 import {
   colors,
   spacing,
@@ -34,20 +46,40 @@ import {
 
 export interface WorkerSearchScreenProps {
   role: UserRole;
+  /** Ubicación guardada elegida en Main: define el centro inicial del mapa y
+   * el punto contra el que se compara la cobertura de cada trabajador. */
+  origin?: SavedLocation | null;
   onGoBack: () => void;
   onViewProfile: (worker: NearbyWorker) => void;
 }
 
-/** Tolerancia (~1 m) para reconocer recentrados programáticos en moveend. */
-const CENTER_EPSILON = 1e-5;
+/**
+ * Tolerancia (~20 m) para reconocer recentrados programáticos y micro-paneos
+ * en `moveend`. El redondeo por píxel de Leaflet y los gestos mínimos quedan
+ * dentro de este umbral: sin él, cada micro-movimiento re-consultaba la API y
+ * re-inyectaba setView (temblor/búsquedas de más).
+ */
+const CENTER_EPSILON = 0.0002;
+
+/**
+ * Id del pin que marca la ubicación elegida. No es un trabajador: al tocarlo
+ * no se abre ninguna ficha (el handler no lo encuentra y cierra la actual).
+ */
+const ORIGIN_MARKER_ID = "__search-origin__";
 
 const PLANNED_FEATURE_MESSAGE =
   "El flujo de cotización de servicios estará disponible en una próxima versión.";
 
 /**
  * "Buscar Trabajadores": mapa interactivo (Leaflet + OSM en WebView) con un
- * pin verde por trabajador disponible (el punto azul es tu ubicación), filtro
- * de categoría, contador de resultados y vista de lista alternativa.
+ * pin por trabajador disponible coloreado según su área de cobertura
+ * (verde dentro, verde apagado si está afuera por poco, gris si está lejos),
+ * el pin de la ubicación elegida (mismo estilo que en "Mis Ubicaciones"),
+ * filtro de categoría, contador de resultados y vista de lista alternativa.
+ *
+ * La referencia geográfica es la ubicación guardada que el usuario eligió en
+ * Main (no la ubicación del dispositivo): desde ese punto se centra el mapa
+ * la primera vez y se evalúa la cobertura de cada trabajador.
  *
  * La búsqueda usa GET /workers/nearby con el centro visible del mapa y un
  * radio fijo (sin filtro de distancia): se consulta al cargar y cada vez que
@@ -57,11 +89,11 @@ const PLANNED_FEATURE_MESSAGE =
  */
 export const WorkerSearchScreen: React.FC<WorkerSearchScreenProps> = ({
   role,
+  origin,
   onGoBack,
   onViewProfile,
 }) => {
   const accentColor = roleAccent(role);
-  const device = useDeviceLocation();
 
   // Radio fijo de búsqueda (sin filtro de distancia en la UI).
   const [categoryId, setCategoryId] = useState<string | null>(null);
@@ -70,10 +102,17 @@ export const WorkerSearchScreen: React.FC<WorkerSearchScreenProps> = ({
     null,
   );
 
-  // Centro de búsqueda (lo que viaja a la API): el del dispositivo la primera
-  // vez; después, el centro visible del mapa cuando el usuario lo mueve.
-  const [searchCenter, setSearchCenter] = useState<Coordinates | null>(null);
-  const searchCenterRef = useRef<Coordinates | null>(null);
+  // Centro de búsqueda (lo que viaja a la API): la ubicación elegida al
+  // abrir la pantalla; después, el centro visible del mapa cuando el usuario
+  // lo mueve. Sin origen (solo defensivo) se usa el centro por defecto.
+  const originCoordinates: Coordinates = origin
+    ? { latitude: origin.latitude, longitude: origin.longitude }
+    : DEFAULT_CENTER;
+  const originLatitude = originCoordinates.latitude;
+  const originLongitude = originCoordinates.longitude;
+  const [searchCenter, setSearchCenter] =
+    useState<Coordinates>(originCoordinates);
+  const searchCenterRef = useRef<Coordinates>(originCoordinates);
 
   // Centro/zoom que VE el mapa: se actualiza solo en movimientos
   // programáticos (init o recentrado) y al sincronizar el
@@ -99,21 +138,20 @@ export const WorkerSearchScreen: React.FC<WorkerSearchScreenProps> = ({
     [],
   );
 
-  // Primera ubicación: posición del dispositivo o, si no está disponible,
-  // un centro por defecto para que la búsqueda igual funcione (con banner).
+  // Primera ubicación elegida (o cambio de elección): recentrar el mapa y
+  // re-buscar. El hook se re-consulta solo porque el centro cambió, y la
+  // caché de sesión devuelve al instante si ya se buscó en ese punto.
   useEffect(() => {
-    if (searchCenter) return;
-    const initial = device.coordinates;
-    const fallback = device.denied || device.unavailable;
-    if (!initial && !fallback) return;
-    const center = initial ?? DEFAULT_CENTER;
+    const center = { latitude: originLatitude, longitude: originLongitude };
     searchCenterRef.current = center;
     setSearchCenter(center);
     applyProgrammaticView(
       center,
       zoomForRadius(NEARBY_FIXED_RADIUS_KM, center.latitude),
     );
-  }, [searchCenter, device, applyProgrammaticView]);
+    // La ficha abierta pertenece a la búsqueda anterior.
+    setSelectedWorker(null);
+  }, [originLatitude, originLongitude, applyProgrammaticView]);
 
   const { workers, status, error, refreshing, reload } = useNearbyWorkers({
     center: searchCenter,
@@ -132,48 +170,83 @@ export const WorkerSearchScreen: React.FC<WorkerSearchScreenProps> = ({
     const current = searchCenterRef.current;
     if (current && sameCoordinates(current, center, CENTER_EPSILON)) {
       // Mismo centro que la búsqueda (p. ej. reenvío tras recargar la
-      // WebView): solo se sincroniza el zoom, sin re-consultar.
+      // WebView): solo se sincroniza el zoom en estado, sin re-consultar ni
+      // volver a inyectar setView (evita bucles/parpadeos).
       setMapZoom(zoom);
       return;
     }
     const next = { latitude: center.latitude, longitude: center.longitude };
     searchCenterRef.current = next;
     setSearchCenter(next);
-    // El mapa ya está en (next, zoom): sincronizar los props de vista no lo
-    // mueve, pero permite que un recargo vuelva exactamente acá.
+    // El mapa ya está en (next, zoom): sincronizar los props de vista para
+    // conservar esa posición si la WebView se recarga, pero NO forzamos
+    // un nuevo setView (centerKey no cambia). Forzar setView tras cada
+    // moveend del usuario genera inyecciones redundantes y puede provocar
+    // parpadeos/temblores.
     programmaticRef.current = next;
     setMapCenter(next);
     setMapZoom(zoom);
-    setCenterKey((key) => key + 1);
   }, []);
 
-  const recenterOnDevice = useCallback(() => {
-    const coordinates = device.coordinates;
-    if (!coordinates) {
-      void device.request();
-      return;
-    }
-    searchCenterRef.current = coordinates;
-    setSearchCenter(coordinates);
+  // Recentra en la ubicación elegida (el mapa puede haberse movido a mano
+  // para explorar otra zona).
+  const recenterToOrigin = () => {
+    const center = { latitude: originLatitude, longitude: originLongitude };
+    searchCenterRef.current = center;
+    setSearchCenter(center);
     applyProgrammaticView(
-      coordinates,
-      zoomForRadius(NEARBY_FIXED_RADIUS_KM, coordinates.latitude),
+      center,
+      zoomForRadius(NEARBY_FIXED_RADIUS_KM, center.latitude),
     );
-  }, [device, applyProgrammaticView]);
+  };
 
   const handleRequestService = useCallback(() => {
     Alert.alert("Próximamente", PLANNED_FEATURE_MESSAGE);
   }, []);
 
-  // Pines de trabajadores siempre en verde (colors.workerAccent); el punto
-  // azul de la ubicación del usuario lo dibuja LeafletMap por su cuenta.
-  const markers: LeafletMarker[] = workers.map((worker) => ({
-    id: worker.worker_id,
-    latitude: worker.latitude,
-    longitude: worker.longitude,
-    color: colors.workerAccent,
-    title: worker.full_name,
-  }));
+  // Pines teñidos según el área de cobertura de cada trabajador respecto de
+  // la ubicación elegida: verde si su área la cubre, verde apagado si está
+  // afuera pero por pocos km y gris si está muy lejos (o no definió área).
+  // La referencia es fija durante la sesión (la ubicación que eligió el
+  // usuario), no el centro visible del mapa ni el dispositivo.
+  const coverageRef = origin ? originCoordinates : searchCenter;
+  const markers: LeafletMarker[] = useMemo(
+    () => [
+      // Pin de la ubicación elegida (con el mismo estilo de "Mis
+      // Ubicaciones"): señala el punto de referencia de la búsqueda incluso
+      // cuando el mapa se explora a mano. Al tocarlo no se abre ninguna ficha.
+      {
+        id: ORIGIN_MARKER_ID,
+        latitude: originCoordinates.latitude,
+        longitude: originCoordinates.longitude,
+        color: accentColor,
+        title: origin?.address ?? "Ubicación elegida",
+      },
+      ...workers.map((worker) => {
+        const tier = coverageTier(
+          coverageRef
+            ? distanceKmBetween(coverageRef, worker)
+            : worker.distance_km,
+          worker.coverage_radius_km,
+        );
+        return {
+          id: worker.worker_id,
+          latitude: worker.latitude,
+          longitude: worker.longitude,
+          color: COVERAGE_TIER_COLORS[tier],
+          title: worker.full_name,
+        };
+      }),
+    ],
+    [
+      accentColor,
+      origin?.address,
+      originCoordinates.latitude,
+      originCoordinates.longitude,
+      workers,
+      coverageRef,
+    ],
+  );
 
   const truncated = workers.length >= NEARBY_MAX_LIMIT;
   const countLabel =
@@ -182,20 +255,6 @@ export const WorkerSearchScreen: React.FC<WorkerSearchScreenProps> = ({
       : truncated
         ? `${workers.length}+ trabajadores encontrados`
         : `${workers.length} trabajador${workers.length === 1 ? "" : "es"} encontrado${workers.length === 1 ? "" : "s"}`;
-
-  const locationIssue = device.denied
-    ? {
-        testID: "workers-permission",
-        text: "Activá tu ubicación para buscar trabajadores cerca tuyo.",
-        action: "Activar",
-      }
-    : device.unavailable
-      ? {
-          testID: "workers-location-unavailable",
-          text: "No pudimos obtener tu ubicación. La búsqueda usa una ubicación por defecto.",
-          action: "Reintentar",
-        }
-      : null;
 
   const staleError =
     status === "error" && workers.length > 0 ? (
@@ -250,47 +309,16 @@ export const WorkerSearchScreen: React.FC<WorkerSearchScreenProps> = ({
 
       <WorkerFilters categoryId={categoryId} onCategoryChange={setCategoryId} />
 
-      {/* Fila siempre montada (si hay centro) con altura fija: si aparece o
-          desaparece según los resultados, la WebView cambia de tamaño,
-          Leaflet "invalidateSize" panea el mapa y re-dispara moveend,
-          entrando en un bucle visible de temblor. */}
-      {searchCenter !== null && (
-        <View style={styles.countRow} testID="worker-search-count">
-          {countLabel && <Text style={styles.countText}>{countLabel}</Text>}
-          {refreshing && <ActivityIndicator size="small" color={accentColor} />}
-        </View>
-      )}
+      {/* Fila siempre montada con altura fija: si aparece o desaparece según
+          los resultados, la WebView cambia de tamaño, Leaflet
+          "invalidateSize" panea el mapa y re-dispara moveend, entrando en un
+          bucle visible de temblor. */}
+      <View style={styles.countRow} testID="worker-search-count">
+        {countLabel && <Text style={styles.countText}>{countLabel}</Text>}
+        {refreshing && <ActivityIndicator size="small" color={accentColor} />}
+      </View>
 
-      {locationIssue && (
-        <View style={styles.permissionBanner} testID={locationIssue.testID}>
-          <Feather
-            name="map-pin"
-            size={16}
-            color={colors.onWarningContainer}
-            accessible={false}
-          />
-          <Text style={styles.permissionText}>{locationIssue.text}</Text>
-          <TouchableOpacity
-            onPress={() => {
-              void device.request();
-            }}
-            testID="btn-enable-location"
-            accessibilityRole="button"
-            accessibilityLabel="Activar ubicación"
-          >
-            <Text style={[styles.permissionAction, { color: accentColor }]}>
-              {locationIssue.action}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      )}
-
-      {searchCenter === null ? (
-        <View style={styles.center}>
-          <ActivityIndicator size="large" color={accentColor} />
-          <Text style={styles.centerText}>Obteniendo tu ubicación...</Text>
-        </View>
-      ) : status === "error" && workers.length === 0 ? (
+      {status === "error" && workers.length === 0 ? (
         <View style={styles.center}>
           <Text style={styles.errorText} testID="workers-error">
             {error}
@@ -309,7 +337,6 @@ export const WorkerSearchScreen: React.FC<WorkerSearchScreenProps> = ({
           <LeafletMap
             markers={markers}
             selectable
-            userLocation={device.coordinates}
             center={mapCenter}
             zoom={mapZoom ?? undefined}
             centerKey={centerKey}
@@ -347,10 +374,10 @@ export const WorkerSearchScreen: React.FC<WorkerSearchScreenProps> = ({
 
           <TouchableOpacity
             style={styles.recenterButton}
-            onPress={recenterOnDevice}
+            onPress={recenterToOrigin}
             testID="btn-recenter"
             accessibilityRole="button"
-            accessibilityLabel="Centrar en mi ubicación"
+            accessibilityLabel="Centrar en la ubicación elegida"
           >
             <Feather name="crosshair" size={18} color={accentColor} />
           </TouchableOpacity>
@@ -457,36 +484,12 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSizes.sm,
     fontWeight: typography.fontWeights.semibold,
   },
-  permissionBanner: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.sm,
-    backgroundColor: colors.warningContainer,
-    borderRadius: borderRadius.md,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
-    marginHorizontal: spacing.md,
-    marginBottom: spacing.sm,
-  },
-  permissionText: {
-    flex: 1,
-    color: colors.onWarningContainer,
-    fontSize: typography.fontSizes.sm,
-  },
-  permissionAction: {
-    fontSize: typography.fontSizes.sm,
-    fontWeight: typography.fontWeights.bold,
-  },
   center: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
     padding: spacing.lg,
     gap: spacing.sm,
-  },
-  centerText: {
-    color: colors.textSecondary,
-    fontSize: typography.fontSizes.sm,
   },
   errorText: {
     color: colors.error,

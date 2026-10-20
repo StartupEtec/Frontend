@@ -1,5 +1,8 @@
 import {
+  COVERAGE_NEAR_BAND_KM,
   DEFAULT_CENTER,
+  coverageTier,
+  distanceKmBetween,
   formatDistance,
   sameCoordinates,
 } from "../../src/utils/map";
@@ -22,6 +25,42 @@ describe("formatDistance", () => {
     expect(formatDistance(undefined)).toBe("");
     expect(formatDistance(-1)).toBe("");
     expect(formatDistance(Number.NaN)).toBe("");
+  });
+});
+
+describe("coverageTier", () => {
+  it("classifies the client relative to the worker coverage area", () => {
+    // Dentro del área (el límite incluye).
+    expect(coverageTier(3, 5)).toBe("in");
+    expect(coverageTier(5, 5)).toBe("in");
+    // Fuera pero dentro de la banda de tolerancia (5 km).
+    expect(coverageTier(5.5, 5)).toBe("near");
+    expect(coverageTier(10, 5)).toBe("near");
+    // Más allá de la banda.
+    expect(coverageTier(10.1, 5)).toBe("out");
+    // Sin área definida.
+    expect(coverageTier(99, null)).toBe("unknown");
+    expect(coverageTier(99, undefined)).toBe("unknown");
+  });
+
+  it("exposes the near band as 5 km", () => {
+    expect(COVERAGE_NEAR_BAND_KM).toBe(5);
+  });
+});
+
+describe("distanceKmBetween", () => {
+  it("computes the haversine distance in kilometres", () => {
+    // Centro de Mendoza → Godoy Cruz (la API da ~4.26 km con ST_DistanceSphere).
+    const distance = distanceKmBetween(DEFAULT_CENTER, {
+      latitude: -32.9276,
+      longitude: -68.8415,
+    });
+    expect(distance).toBeGreaterThan(4.2);
+    expect(distance).toBeLessThan(4.4);
+  });
+
+  it("returns zero for the same point", () => {
+    expect(distanceKmBetween(DEFAULT_CENTER, DEFAULT_CENTER)).toBe(0);
   });
 });
 
