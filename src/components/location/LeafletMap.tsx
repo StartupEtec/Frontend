@@ -14,7 +14,11 @@ import {
   View,
   ViewStyle,
 } from "react-native";
-import { WebView, WebViewMessageEvent } from "react-native-webview";
+import {
+  WebView,
+  WebViewMessageEvent,
+  WebViewProps,
+} from "react-native-webview";
 import { Coordinates } from "../../types/location";
 import {
   DEFAULT_CENTER,
@@ -24,6 +28,16 @@ import {
   OSM_TILE_URL,
 } from "../../utils/map";
 import { colors, borderRadius, spacing, typography } from "../../theme/tokens";
+
+/**
+ * react-native-webview 14.0.1 declara `class WebView<P = undefined> extends
+ * Component<WebViewProps & P>`: con el genérico por defecto, `WebViewProps &
+ * undefined` colapsa a `never` y JSX rechaza cualquier prop. Re-tipamos el
+ * componente con sus props reales; el runtime no cambia.
+ */
+const MapWebView = WebView as unknown as React.ComponentType<
+  WebViewProps & React.RefAttributes<WebView>
+>;
 
 export interface LeafletMarker {
   id: string;
@@ -309,7 +323,7 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
 
   return (
     <View style={[styles.root, style]} testID={testID}>
-      <WebView
+      <MapWebView
         ref={webRef}
         originWhitelist={["*"]}
         source={source}

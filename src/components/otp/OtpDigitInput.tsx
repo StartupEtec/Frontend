@@ -1,5 +1,10 @@
 import React, { forwardRef, useState } from "react";
-import { TextInput, View, StyleSheet } from "react-native";
+import {
+  TextInput,
+  View,
+  StyleSheet,
+  type TextInputInstance,
+} from "react-native";
 import { colors, borderRadius, typography } from "../../theme/tokens";
 
 interface OtpDigitInputProps {
@@ -14,7 +19,7 @@ interface OtpDigitInputProps {
  * A single OTP digit input cell.
  * Renders a styled numeric input with animated border feedback and focus indicator.
  */
-export const OtpDigitInput = forwardRef<TextInput, OtpDigitInputProps>(
+export const OtpDigitInput = forwardRef<TextInputInstance, OtpDigitInputProps>(
   ({ index, value, hasError, onChangeText, onKeyPress }, ref) => {
     const [isFocused, setIsFocused] = useState(false);
 

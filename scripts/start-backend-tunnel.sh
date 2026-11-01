@@ -26,7 +26,16 @@ if ! command -v $CLOUDFLARED &> /dev/null; then
     exit 1
 fi
 
-kill $(pgrep -f "cloudflared tunnel") 2>/dev/null || true
+# Verificar que el backend responda antes de exponerlo (un tunel sano hacia un
+# origen caido tambien devuelve 530).
+if ! curl -sf --max-time 3 http://localhost:3000/api/v1/health > /dev/null; then
+    echo "ADVERTENCIA: la API no responde en http://localhost:3000."
+    echo "Levanta el backend (docker compose up -d) antes de usar el tunel."
+fi
+
+# Solo reinicia el tunel del backend: matar todos los "cloudflared tunnel"
+# tambien corta el tunel del frontend y deja a Expo Go con error 530.
+kill $(pgrep -f "^cloudflared tunnel --url http://localhost:3000") 2>/dev/null || true
 sleep 1
 
 echo "=== Iniciando tunnel cloudflared para el backend (puerto 3000) ==="
@@ -48,7 +57,10 @@ for i in $(seq 1 30); do
             echo "Frontend/.env actualizado con: ${BACKEND_URL}/api/v1"
             echo ""
             echo "=== Ahora levanta el Frontend en otra terminal: ==="
-            echo "cd \"$FRONTEND_DIR\" && npm run start:tunnel"
+            echo "cd \"$FRONTEND_DIR\" && ./scripts/start-frontend-tunnel.sh"
+            echo ""
+            echo "IMPORTANTE: si Metro ya estaba corriendo, reinicialo con --clear"
+            echo "para que tome el nuevo EXPO_PUBLIC_API_URL del .env."
             echo ""
             exit 0
         fi

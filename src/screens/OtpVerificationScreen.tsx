@@ -8,7 +8,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  TextInput,
+  type TextInputInstance,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
@@ -45,7 +45,9 @@ export const OtpVerificationScreen: React.FC<OtpVerificationScreenProps> = ({
   } = useOtpVerification({ contact, onVerificationSuccess });
 
   // TextInput refs for imperative focus management
-  const textInputRefs = useRef<Array<TextInput | null>>(Array(6).fill(null));
+  const textInputRefs = useRef<Array<TextInputInstance | null>>(
+    Array(6).fill(null),
+  );
 
   // Wire TextInput refs into the hook's focus controller
   useEffect(() => {
@@ -93,11 +95,21 @@ export const OtpVerificationScreen: React.FC<OtpVerificationScreenProps> = ({
               accessibilityLabel="Volver al registro"
               accessibilityRole="button"
             >
-              <Feather name="arrow-left" size={24} color={colors.textPrimary} accessible={false} />
+              <Feather
+                name="arrow-left"
+                size={24}
+                color={colors.textPrimary}
+                accessible={false}
+              />
             </TouchableOpacity>
 
             <View style={styles.iconBadge}>
-              <Feather name="lock" size={32} color={colors.primary} accessible={false} />
+              <Feather
+                name="lock"
+                size={32}
+                color={colors.primary}
+                accessible={false}
+              />
             </View>
 
             <Text style={styles.title}>Verificar tu identidad</Text>
