@@ -4,7 +4,7 @@ Guia para levantar la app completa (Frontend + Backend) en tu maquina.
 
 ## Requisitos previos
 
-- [Node.js](https://nodejs.org/) (v18+)
+- [Node.js](https://nodejs.org/) (v22.13+; requerido por Expo SDK 58)
 - [Docker](https://docs.docker.com/get-docker/) + Docker Compose
 - [Expo CLI](https://docs.expo.dev/get-started/installation/) (`npm install -g expo-cli`)
 - [Cloudflared](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/) (para el tunel del backend)

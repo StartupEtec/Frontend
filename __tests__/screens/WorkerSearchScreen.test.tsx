@@ -1,6 +1,12 @@
 import React from "react";
 import { Alert } from "react-native";
-import { render, fireEvent, waitFor, act } from "@testing-library/react-native";
+import {
+  render,
+  fireEvent,
+  waitFor,
+  waitForElementToBeRemoved,
+  act,
+} from "@testing-library/react-native";
 import { WorkerSearchScreen } from "../../src/screens/WorkerSearchScreen";
 import { useNearbyWorkers } from "../../src/hooks/useNearbyWorkers";
 import { UserRole } from "../../src/types/role";
@@ -515,9 +521,7 @@ describe("WorkerSearchScreen", () => {
     expect(getByText("Ana Gómez")).toBeTruthy();
 
     // Tras el debounce solo queda el que coincide (sin acentos).
-    await waitFor(() => {
-      expect(queryByText("Ana Gómez")).toBeNull();
-    });
+    await waitForElementToBeRemoved(() => queryByText("Ana Gómez"));
     expect(getByText("José Pérez")).toBeTruthy();
   });
 

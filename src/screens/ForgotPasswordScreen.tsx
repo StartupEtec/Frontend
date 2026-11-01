@@ -8,7 +8,7 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
-  TextInput,
+  type TextInputInstance,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
@@ -67,9 +67,12 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
     inputRefs,
   } = useForgotPassword(onNavigateToLogin);
 
-  const textInputRefs = useRef<Array<TextInput | null>>(Array(6).fill(null));
+  const textInputRefs = useRef<Array<TextInputInstance | null>>(
+    Array(6).fill(null),
+  );
   const [showNewPassword, setShowNewPassword] = useState<boolean>(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
+  const [showConfirmPassword, setShowConfirmPassword] =
+    useState<boolean>(false);
 
   useEffect(() => {
     inputRefs.current = textInputRefs.current.map((ref) =>
@@ -87,7 +90,12 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
           accessibilityLabel="Volver"
           accessibilityRole="button"
         >
-          <Feather name="arrow-left" size={24} color={colors.textPrimary} accessible={false} />
+          <Feather
+            name="arrow-left"
+            size={24}
+            color={colors.textPrimary}
+            accessible={false}
+          />
         </TouchableOpacity>
         <Text style={styles.title}>Recuperar Contraseña</Text>
       </View>
@@ -114,7 +122,12 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
               ]}
             >
               {isDone ? (
-                <Feather name="check" size={14} color="#FFFFFF" accessible={false} />
+                <Feather
+                  name="check"
+                  size={14}
+                  color="#FFFFFF"
+                  accessible={false}
+                />
               ) : (
                 <Text
                   style={[
@@ -168,7 +181,10 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
         testID="btn-send-code"
       >
         {isSubmitting ? (
-          <ActivityIndicator color={colors.onPrimary} testID="loading-spinner" />
+          <ActivityIndicator
+            color={colors.onPrimary}
+            testID="loading-spinner"
+          />
         ) : (
           <Text style={styles.actionButtonText}>Enviar Código</Text>
         )}
@@ -228,7 +244,10 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
         testID="btn-verify-code"
       >
         {isSubmitting ? (
-          <ActivityIndicator color={colors.onPrimary} testID="loading-spinner" />
+          <ActivityIndicator
+            color={colors.onPrimary}
+            testID="loading-spinner"
+          />
         ) : (
           <Text style={styles.actionButtonText}>Verificar</Text>
         )}
@@ -256,9 +275,7 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
         error={passwordError}
         placeholder="••••••••"
         secureTextEntry={!showNewPassword}
-        onToggleSecureTextEntry={() =>
-          setShowNewPassword((prev) => !prev)
-        }
+        onToggleSecureTextEntry={() => setShowNewPassword((prev) => !prev)}
         testID="input-new-password"
       />
 
@@ -279,9 +296,7 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
         error={confirmPasswordError}
         placeholder="••••••••"
         secureTextEntry={!showConfirmPassword}
-        onToggleSecureTextEntry={() =>
-          setShowConfirmPassword((prev) => !prev)
-        }
+        onToggleSecureTextEntry={() => setShowConfirmPassword((prev) => !prev)}
         testID="input-confirm-password"
       />
 
@@ -295,7 +310,10 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
         testID="btn-reset-password"
       >
         {isSubmitting ? (
-          <ActivityIndicator color={colors.onPrimary} testID="loading-spinner" />
+          <ActivityIndicator
+            color={colors.onPrimary}
+            testID="loading-spinner"
+          />
         ) : (
           <Text style={styles.actionButtonText}>Guardar Contraseña</Text>
         )}

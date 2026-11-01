@@ -43,7 +43,8 @@
         {
           "locationWhenInUsePermission": "Permitir a $(PRODUCT_NAME) usar tu ubicación para mostrarte y ordenar tus direcciones guardadas más cercanas."
         }
-      ]
+      ],
+      "expo-font"
     ]
   }
 }
