@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,21 +9,15 @@ import {
   Platform,
   ScrollView,
   type TextInputInstance,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { StatusBar } from "expo-status-bar";
-import { Feather } from "@expo/vector-icons";
-import { OtpVerificationScreenProps } from "../types/auth";
-import { useOtpVerification } from "../hooks/useOtpVerification";
-import { OtpDigitInput } from "../components/otp/OtpDigitInput";
-import { OtpTimer } from "../components/otp/OtpTimer";
-import {
-  colors,
-  spacing,
-  borderRadius,
-  typography,
-  shadows,
-} from "../theme/tokens";
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { StatusBar } from 'expo-status-bar';
+import { Feather } from '@expo/vector-icons';
+import { OtpVerificationScreenProps } from '../types/auth';
+import { useOtpVerification } from '../hooks/useOtpVerification';
+import { OtpDigitInput } from '../components/otp/OtpDigitInput';
+import { OtpTimer } from '../components/otp/OtpTimer';
+import { colors, spacing, borderRadius, typography, shadows } from '../theme/tokens';
 
 export const OtpVerificationScreen: React.FC<OtpVerificationScreenProps> = ({
   contact,
@@ -45,14 +39,12 @@ export const OtpVerificationScreen: React.FC<OtpVerificationScreenProps> = ({
   } = useOtpVerification({ contact, onVerificationSuccess });
 
   // TextInput refs for imperative focus management
-  const textInputRefs = useRef<Array<TextInputInstance | null>>(
-    Array(6).fill(null),
-  );
+  const textInputRefs = useRef<Array<TextInputInstance | null>>(Array(6).fill(null));
 
   // Wire TextInput refs into the hook's focus controller
   useEffect(() => {
     inputRefs.current = textInputRefs.current.map((ref) =>
-      ref ? { focus: () => ref.focus() } : null,
+      ref ? { focus: () => ref.focus() } : null
     );
   }, [inputRefs]);
 
@@ -62,23 +54,23 @@ export const OtpVerificationScreen: React.FC<OtpVerificationScreenProps> = ({
     return () => clearTimeout(timer);
   }, []);
 
-  const isVerifying = status === "verifying";
-  const isResending = status === "resending";
-  const isLocked = status === "locked";
-  const codeComplete = code.every((d) => d !== "");
+  const isVerifying = status === 'verifying';
+  const isResending = status === 'resending';
+  const isLocked = status === 'locked';
+  const codeComplete = code.every((d) => d !== '');
   const hasError = !!errorMessage;
 
   // Mask contact for privacy: show only first 3 chars + asterisks
   const maskedContact =
     contact.length > 6
-      ? `${contact.slice(0, 3)}${"*".repeat(contact.length - 6)}${contact.slice(-3)}`
+      ? `${contact.slice(0, 3)}${'*'.repeat(contact.length - 6)}${contact.slice(-3)}`
       : contact;
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar style="dark" />
       <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.flex}
       >
         <ScrollView
@@ -95,26 +87,16 @@ export const OtpVerificationScreen: React.FC<OtpVerificationScreenProps> = ({
               accessibilityLabel="Volver al registro"
               accessibilityRole="button"
             >
-              <Feather
-                name="arrow-left"
-                size={24}
-                color={colors.textPrimary}
-                accessible={false}
-              />
+              <Feather name="arrow-left" size={24} color={colors.textPrimary} accessible={false} />
             </TouchableOpacity>
 
             <View style={styles.iconBadge}>
-              <Feather
-                name="lock"
-                size={32}
-                color={colors.primary}
-                accessible={false}
-              />
+              <Feather name="lock" size={32} color={colors.primary} accessible={false} />
             </View>
 
             <Text style={styles.title}>Verificar tu identidad</Text>
             <Text style={styles.subtitle}>
-              Ingresá el código de 6 dígitos enviado a{"\n"}
+              Ingresá el código de 6 dígitos enviado a{'\n'}
               <Text style={styles.contactHighlight}>{maskedContact}</Text>
             </Text>
           </View>
@@ -152,8 +134,7 @@ export const OtpVerificationScreen: React.FC<OtpVerificationScreenProps> = ({
           <TouchableOpacity
             style={[
               styles.verifyButton,
-              (!codeComplete || isVerifying || isLocked) &&
-                styles.verifyButtonDisabled,
+              (!codeComplete || isVerifying || isLocked) && styles.verifyButtonDisabled,
             ]}
             onPress={handleVerify}
             disabled={!codeComplete || isVerifying || isLocked}
@@ -162,10 +143,7 @@ export const OtpVerificationScreen: React.FC<OtpVerificationScreenProps> = ({
             accessibilityLabel="Verificar código"
           >
             {isVerifying ? (
-              <ActivityIndicator
-                color={colors.onPrimary}
-                testID="otp-loading-spinner"
-              />
+              <ActivityIndicator color={colors.onPrimary} testID="otp-loading-spinner" />
             ) : (
               <Text style={styles.verifyButtonText}>Verificar</Text>
             )}
@@ -187,17 +165,14 @@ export const OtpVerificationScreen: React.FC<OtpVerificationScreenProps> = ({
                     testID="resend-loading-spinner"
                   />
                 ) : (
-                  <Text style={styles.resendActive}>Reenviar Código</Text>
+                  <Text style={styles.resendActive}>
+                    {secondsRemaining === 0 ? 'Reenviar Nuevo Código' : 'Reenviar Código'}
+                  </Text>
                 )}
               </TouchableOpacity>
             ) : (
-              <Text
-                style={styles.resendDisabled}
-                testID="btn-otp-resend-disabled"
-              >
-                {resendCooldown > 0
-                  ? `Reenviar en ${resendCooldown}s`
-                  : "Código expirado"}
+              <Text style={styles.resendDisabled} testID="btn-otp-resend-disabled">
+                {resendCooldown > 0 ? `Reenviar en ${resendCooldown}s` : 'Reenviar Código'}
               </Text>
             )}
           </View>
@@ -229,9 +204,9 @@ const styles = StyleSheet.create({
   },
 
   // Header
-  header: { alignItems: "center", marginBottom: spacing.lg },
+  header: { alignItems: 'center', marginBottom: spacing.lg },
   backButton: {
-    alignSelf: "flex-start",
+    alignSelf: 'flex-start',
     paddingVertical: spacing.xs,
     paddingRight: spacing.sm,
     marginBottom: spacing.md,
@@ -243,35 +218,35 @@ const styles = StyleSheet.create({
     backgroundColor: colors.cardBackground,
     borderWidth: 1,
     borderColor: colors.cardStroke,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     marginBottom: spacing.md,
   },
   title: {
     color: colors.textPrimary,
     fontSize: typography.fontSizes.xl,
-    fontWeight: "700",
-    textAlign: "center",
+    fontWeight: '700',
+    textAlign: 'center',
     marginBottom: spacing.xs,
   },
   subtitle: {
     color: colors.textSecondary,
     fontSize: typography.fontSizes.sm,
-    textAlign: "center",
+    textAlign: 'center',
     lineHeight: 20,
   },
   contactHighlight: {
     color: colors.primary,
-    fontWeight: "600",
+    fontWeight: '600',
   },
 
   // Timer
-  timerRow: { alignItems: "center", marginBottom: spacing.lg },
+  timerRow: { alignItems: 'center', marginBottom: spacing.lg },
 
   // Digit inputs
   digitRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     marginBottom: spacing.md,
   },
 
@@ -287,7 +262,7 @@ const styles = StyleSheet.create({
   errorText: {
     color: colors.onErrorContainer,
     fontSize: typography.fontSizes.sm,
-    textAlign: "center",
+    textAlign: 'center',
   },
 
   // Verify button
@@ -295,8 +270,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
     height: 52,
     borderRadius: borderRadius.md,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     marginBottom: spacing.md,
     ...shadows.button,
   },
@@ -304,20 +279,20 @@ const styles = StyleSheet.create({
   verifyButtonText: {
     color: colors.onPrimary,
     fontSize: typography.fontSizes.md,
-    fontWeight: "700",
+    fontWeight: '700',
   },
 
   // Resend
   resendRow: {
-    alignItems: "center",
+    alignItems: 'center',
     marginBottom: spacing.sm,
     minHeight: 24,
   },
   resendActive: {
     color: colors.primary,
     fontSize: typography.fontSizes.sm,
-    fontWeight: "700",
-    textDecorationLine: "underline",
+    fontWeight: '700',
+    textDecorationLine: 'underline',
   },
   resendDisabled: {
     color: colors.textMuted,
@@ -325,11 +300,11 @@ const styles = StyleSheet.create({
   },
 
   // Change contact
-  changeContactRow: { alignItems: "center", paddingVertical: spacing.xs },
+  changeContactRow: { alignItems: 'center', paddingVertical: spacing.xs },
   changeContactText: {
     color: colors.textMuted,
     fontSize: typography.fontSizes.xs,
-    textDecorationLine: "underline",
+    textDecorationLine: 'underline',
   },
 });
 

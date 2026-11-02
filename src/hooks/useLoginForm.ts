@@ -120,10 +120,18 @@ export const useLoginForm = (
       if (err instanceof ApiError) {
         switch (err.statusCode) {
           case 401:
-            setServerError("Credenciales incorrectas. Verificá tu email/teléfono y contraseña.");
+            setServerError(
+              err.errorCode === "INVALID_PASSWORD"
+                ? "La contraseña es incorrecta."
+                : "Credenciales incorrectas. Verificá tu email/teléfono y contraseña.",
+            );
             break;
           case 404:
-            setServerError("No se encontró una cuenta con esos datos.");
+            setServerError(
+              err.errorCode === "USER_NOT_FOUND"
+                ? "No existe una cuenta con ese correo electrónico o teléfono."
+                : "No se encontró una cuenta con esos datos.",
+            );
             break;
           case 403:
             setServerError("Tu cuenta aún no fue verificada. Revisa tu correo o teléfono para el código OTP.");

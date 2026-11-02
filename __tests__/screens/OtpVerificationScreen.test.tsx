@@ -193,21 +193,35 @@ describe("OtpVerificationScreen", () => {
 
   // ─── Timer ───────────────────────────────────────────────────────────────────
 
-  it("shows OTP expiry error when the 10-minute countdown reaches zero", () => {
-    const { getAllByText, getByTestId } = render(
+  it("shows OTP expiry state when the 5-minute countdown reaches zero", () => {
+    const { getAllByText, getByTestId, getByText } = render(
       <OtpVerificationScreen {...DEFAULT_PROPS} />,
     );
 
     act(() => {
-      jest.advanceTimersByTime(10 * 60 * 1000 + 500);
+      jest.advanceTimersByTime(5 * 60 * 1000 + 500);
     });
 
-    // Timer shows "Código expirado" AND error banner may also show it — both are correct
-    expect(
-      getAllByText(/[Cc]ódigo expirado|El código ha expirado/).length,
-    ).toBeGreaterThanOrEqual(1);
-    // The timer testID specifically should show "Código expirado"
-    expect(getByTestId("otp-timer").props.children).toBe("Código expirado");
+    // La pantalla no debe decir "Código expirado"; el timer llega a 00:00 y el
+    // banner informa que el código venció.
+    expect(getAllByText(/El código ha expirado/).length).toBeGreaterThanOrEqual(1);
+    expect(getByTestId("otp-timer").props.children).toBe(
+      "Código vence en 00:00",
+    );
+    // El reenvío sigue disponible y pasa a "Reenviar Nuevo Código".
+    expect(getByText("Reenviar Nuevo Código")).toBeTruthy();
+  });
+
+  it("keeps the resend link enabled after the OTP expires", () => {
+    const { getByTestId } = render(
+      <OtpVerificationScreen {...DEFAULT_PROPS} />,
+    );
+
+    act(() => {
+      jest.advanceTimersByTime(5 * 60 * 1000 + 500);
+    });
+
+    expect(getByTestId("btn-otp-resend")).toBeTruthy();
   });
 
   // ─── Resend ──────────────────────────────────────────────────────────────────

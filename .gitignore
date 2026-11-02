@@ -34,3 +34,6 @@ coverage/
 
 # Lock files (optional — keep package-lock.json if team prefers)
 # package-lock.json
+
+*storybook.log
+storybook-static

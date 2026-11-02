@@ -19,7 +19,13 @@ jest.mock("@react-native-async-storage/async-storage", () => ({
 }));
 
 jest.mock("../../src/services/userService", () => ({
-  userService: { switchRole: jest.fn(), getPublicProfile: jest.fn() },
+  userService: {
+    switchRole: jest.fn(),
+    getPublicProfile: jest.fn(),
+    getMe: jest.fn(() =>
+      Promise.resolve({ identity: null, current_role: "worker" }),
+    ),
+  },
 }));
 
 jest.mock("../../src/services/workerSearchService", () => ({
@@ -466,12 +472,9 @@ describe("AppNavigator Flow Integration", () => {
 
     fireEvent.press(getByTestId("role-option-worker"));
 
-    await waitFor(
-      () => {
-        expect(getByText(/Estás en modo Trabajador/)).toBeTruthy();
-      },
-      { timeout: 6000 },
-    );
+    await waitFor(() => {
+      expect(getByText("Modo Trabajador")).toBeTruthy();
+    }, { timeout: 6000 });
 
     expect(userService.switchRole).toHaveBeenCalledWith("user-123", {
       role: "worker",
@@ -480,12 +483,6 @@ describe("AppNavigator Flow Integration", () => {
       "@startup_app/last_role_user-123",
       "worker",
     );
-
-    fireEvent.press(getByTestId("btn-profile-back"));
-
-    await waitFor(() => {
-      expect(getByText("Modo Trabajador")).toBeTruthy();
-    });
   });
 
   it("navigates from Mi Perfil to Editar Perfil and shows the profile data", async () => {
@@ -557,7 +554,7 @@ describe("AppNavigator Flow Integration", () => {
       expect(getByText("juan@example.com")).toBeTruthy();
     });
     expect(getByTestId("edit-profile-first-name").props.children).toBe("Juan");
-    expect(getByTestId("edit-profile-description")).toBeTruthy();
+    expect(getByTestId("input-description").props.value).toBe("Electricista");
   });
 
   it("navigates from Mi Perfil to Mis Ubicaciones and back", async () => {
