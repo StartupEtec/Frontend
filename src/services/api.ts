@@ -8,17 +8,31 @@ export interface ApiErrorData {
   error?: string;
   message?: string;
   statusCode?: number;
+  /**
+   * Campos involucrados en el error (por ejemplo `['email']`, `['phone']` o
+   * `['email', 'phone']` en un 409 de registro). Permite mostrar mensajes
+   * específicos sin ambigüedad.
+   */
+  fields?: string[];
 }
 
 export class ApiError extends Error {
   public statusCode: number;
   public errorCode?: string;
+  /** Campos específicos que originaron el error, si el backend los informa. */
+  public fields?: string[];
 
-  constructor(message: string, statusCode: number, errorCode?: string) {
+  constructor(
+    message: string,
+    statusCode: number,
+    errorCode?: string,
+    fields?: string[],
+  ) {
     super(message);
     this.name = "ApiError";
     this.statusCode = statusCode;
     this.errorCode = errorCode;
+    this.fields = fields;
   }
 }
 
@@ -183,7 +197,12 @@ export async function apiClient<T>(
         );
       }
 
-      throw new ApiError(errorMessage, response.status, errorCode);
+      throw new ApiError(
+        errorMessage,
+        response.status,
+        errorCode,
+        data.fields,
+      );
     }
 
     return data as T;

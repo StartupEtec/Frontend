@@ -1,16 +1,10 @@
-import React, { useState } from "react";
-import {
-  View,
-  Text,
-  Image,
-  TouchableOpacity,
-  StyleSheet,
-  Modal,
-} from "react-native";
-import * as ImagePicker from "expo-image-picker";
-import { Feather } from "@expo/vector-icons";
-import { CameraCapture } from "./CameraCapture";
-import { colors, spacing, borderRadius, typography } from "../../theme/tokens";
+import React, { useState } from 'react';
+import { View, Text, Image, TouchableOpacity, StyleSheet, Modal } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
+import { Feather } from '@expo/vector-icons';
+import { CameraCapture } from './CameraCapture';
+import { compressImage, isImageTooLargeError } from '../../utils/imageCompression';
+import { colors, spacing, borderRadius, typography } from '../../theme/tokens';
 
 const QUALITY = 0.7;
 
@@ -31,15 +25,31 @@ export const PhotoPicker: React.FC<PhotoPickerProps> = ({
 }) => {
   const [visible, setVisible] = useState(false);
   const [cameraVisible, setCameraVisible] = useState(false);
+  const [localError, setLocalError] = useState<string | null>(null);
 
   const handleCamera = () => {
     setVisible(false);
     setCameraVisible(true);
   };
 
+  /** Comprime antes de entregar la foto; valida el máximo de 5 MB. */
+  const handleSelected = async (rawUri: string) => {
+    try {
+      const compressed = await compressImage(rawUri);
+      setLocalError(null);
+      onPhotoSelected(compressed);
+    } catch (err) {
+      if (isImageTooLargeError(err)) {
+        setLocalError(err.message);
+      } else {
+        setLocalError('No se pudo procesar la imagen. Probá con otra foto.');
+      }
+    }
+  };
+
   const handleCameraCapture = (uri: string) => {
     setCameraVisible(false);
-    onPhotoSelected(uri);
+    void handleSelected(uri);
   };
 
   const handleGallery = async () => {
@@ -47,12 +57,12 @@ export const PhotoPicker: React.FC<PhotoPickerProps> = ({
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!perm.granted) return;
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ["images"],
+      mediaTypes: ['images'],
       allowsEditing: true,
       quality: QUALITY,
     });
     if (!result.canceled && result.assets?.[0]) {
-      onPhotoSelected(result.assets[0].uri);
+      await handleSelected(result.assets[0].uri);
     }
   };
 
@@ -77,7 +87,7 @@ export const PhotoPicker: React.FC<PhotoPickerProps> = ({
           <Text style={styles.removeText}>Eliminar</Text>
         </TouchableOpacity>
       )}
-      {error && <Text style={styles.errorText}>{error}</Text>}
+      {(localError ?? error) && <Text style={styles.errorText}>{localError ?? error}</Text>}
 
       <Modal visible={visible} transparent animationType="slide">
         <TouchableOpacity
@@ -91,10 +101,7 @@ export const PhotoPicker: React.FC<PhotoPickerProps> = ({
               <Feather name="camera" size={20} color={accentColor} accessible={false} />
               <Text style={styles.optionText}>Cámara</Text>
             </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.option}
-              onPress={handleGallery}
-            >
+            <TouchableOpacity style={styles.option} onPress={handleGallery}>
               <Feather name="image" size={20} color={accentColor} accessible={false} />
               <Text style={styles.optionText}>Galería</Text>
             </TouchableOpacity>
@@ -102,9 +109,7 @@ export const PhotoPicker: React.FC<PhotoPickerProps> = ({
               style={[styles.option, styles.optionCancel]}
               onPress={() => setVisible(false)}
             >
-              <Text style={[styles.optionText, styles.optionCancelText]}>
-                Cancelar
-              </Text>
+              <Text style={[styles.optionText, styles.optionCancelText]}>Cancelar</Text>
             </TouchableOpacity>
           </View>
         </TouchableOpacity>
@@ -122,33 +127,33 @@ export const PhotoPicker: React.FC<PhotoPickerProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: "center",
+    alignItems: 'center',
     marginBottom: spacing.lg,
   },
   pickerButton: {
     width: 120,
     height: 120,
     borderRadius: 60,
-    overflow: "hidden",
+    overflow: 'hidden',
     backgroundColor: colors.surfaceContainerLow,
     borderWidth: 2,
     borderColor: colors.cardStroke,
-    borderStyle: "dashed",
+    borderStyle: 'dashed',
   },
   avatar: {
-    width: "100%",
-    height: "100%",
+    width: '100%',
+    height: '100%',
   },
   placeholder: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     gap: spacing.xs,
   },
   placeholderText: {
     fontSize: typography.fontSizes.xs,
     color: colors.textSecondary,
-    textAlign: "center",
+    textAlign: 'center',
   },
   removeButton: {
     marginTop: spacing.xs,
@@ -164,12 +169,12 @@ const styles = StyleSheet.create({
     color: colors.error,
     fontSize: typography.fontSizes.xs,
     marginTop: spacing.xs,
-    textAlign: "center",
+    textAlign: 'center',
   },
   overlay: {
     flex: 1,
     backgroundColor: colors.overlayBackground,
-    justifyContent: "flex-end",
+    justifyContent: 'flex-end',
   },
   sheet: {
     backgroundColor: colors.cardBackground,
@@ -182,12 +187,12 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     fontSize: typography.fontSizes.lg,
     fontWeight: typography.fontWeights.semibold,
-    textAlign: "center",
+    textAlign: 'center',
     marginBottom: spacing.md,
   },
   option: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: spacing.md,
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.md,
@@ -200,12 +205,12 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSizes.md,
   },
   optionCancel: {
-    backgroundColor: "transparent",
+    backgroundColor: 'transparent',
     marginTop: spacing.sm,
-    justifyContent: "center",
+    justifyContent: 'center',
   },
   optionCancelText: {
     color: colors.textSecondary,
-    textAlign: "center",
+    textAlign: 'center',
   },
 });

@@ -11,6 +11,31 @@ import { ApiError } from "../services/api";
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_REGEX = /^\+?[0-9]{8,15}$/;
 
+/**
+ * Traduce un 409 de registro a un mensaje claro indicando qué dato está en uso.
+ * El backend devuelve `fields: ['email' | 'phone', ...]`; si no viniera,
+ * se usa el mensaje del servidor como respaldo.
+ */
+function describeConflict(err: ApiError): string {
+  const fields = err.fields ?? [];
+  const emailTaken = fields.includes("email");
+  const phoneTaken = fields.includes("phone");
+
+  if (emailTaken && phoneTaken) {
+    return "El correo electrónico y el número de teléfono ya se encuentran registrados.";
+  }
+  if (emailTaken) {
+    return "El correo electrónico ya se encuentra registrado.";
+  }
+  if (phoneTaken) {
+    return "El número de teléfono ya se encuentra registrado.";
+  }
+  return (
+    err.message ||
+    "El correo electrónico o número de teléfono ya se encuentra registrado."
+  );
+}
+
 export const useRegisterForm = (
   onNavigateToOtp: (contact?: string) => void,
   onNavigateToLogin: () => void,
@@ -163,9 +188,7 @@ export const useRegisterForm = (
     } catch (err: any) {
       if (err instanceof ApiError) {
         if (err.statusCode === 409) {
-          setServerError(
-            "El correo electrónico o número de teléfono ya se encuentra registrado.",
-          );
+          setServerError(describeConflict(err));
         } else {
           setServerError(
             err.message || "Ocurrió un error al procesar el registro.",

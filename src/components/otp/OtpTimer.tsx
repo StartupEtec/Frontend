@@ -15,7 +15,7 @@ export const OtpTimer: React.FC<OtpTimerProps> = ({ secondsRemaining }) => {
   const seconds = secondsRemaining % 60;
   const formatted = `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 
-  const isUrgent = secondsRemaining <= 60 && secondsRemaining > 0;
+  const isUrgent = secondsRemaining <= 60;
   const isExpired = secondsRemaining === 0;
 
   const textColor = isExpired
@@ -30,7 +30,7 @@ export const OtpTimer: React.FC<OtpTimerProps> = ({ secondsRemaining }) => {
       testID="otp-timer"
       accessibilityLabel={`El código vence en ${formatted}`}
     >
-      {isExpired ? "Código expirado" : `Código vence en ${formatted}`}
+      {`Código vence en ${formatted}`}
     </Text>
   );
 };

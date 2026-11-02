@@ -1,16 +1,10 @@
-import React, { useState } from "react";
-import {
-  View,
-  Text,
-  Image,
-  TouchableOpacity,
-  StyleSheet,
-  Modal,
-} from "react-native";
-import * as ImagePicker from "expo-image-picker";
-import { Feather } from "@expo/vector-icons";
-import { CameraCapture } from "./CameraCapture";
-import { colors, spacing, borderRadius, typography } from "../../theme/tokens";
+import React, { useState } from 'react';
+import { View, Text, Image, TouchableOpacity, StyleSheet, Modal } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
+import { Feather } from '@expo/vector-icons';
+import { CameraCapture } from './CameraCapture';
+import { compressImage, isImageTooLargeError } from '../../utils/imageCompression';
+import { colors, spacing, borderRadius, typography } from '../../theme/tokens';
 
 interface DniPhotoPickerProps {
   frontUri: string | null;
@@ -37,19 +31,34 @@ export const DniPhotoPicker: React.FC<DniPhotoPickerProps> = ({
 }) => {
   const [visible, setVisible] = useState(false);
   const [cameraVisible, setCameraVisible] = useState(false);
-  const [activeTarget, setActiveTarget] = useState<"front" | "back" | null>(
-    null,
-  );
+  const [localError, setLocalError] = useState<string | null>(null);
+  const [activeTarget, setActiveTarget] = useState<'front' | 'back' | null>(null);
 
-  const openPicker = (target: "front" | "back") => {
+  const openPicker = (target: 'front' | 'back') => {
     setActiveTarget(target);
     setVisible(true);
   };
 
   const resolveUri = (uri: string) => {
-    if (activeTarget === "front") onFrontSelected(uri);
-    else if (activeTarget === "back") onBackSelected(uri);
+    if (activeTarget === 'front') onFrontSelected(uri);
+    else if (activeTarget === 'back') onBackSelected(uri);
     setActiveTarget(null);
+  };
+
+  /** Comprime antes de entregar la foto; valida el máximo de 5 MB. */
+  const handleSelected = async (rawUri: string) => {
+    try {
+      const compressed = await compressImage(rawUri);
+      setLocalError(null);
+      resolveUri(compressed);
+    } catch (err) {
+      setActiveTarget(null);
+      if (isImageTooLargeError(err)) {
+        setLocalError(err.message);
+      } else {
+        setLocalError('No se pudo procesar la imagen. Probá con otra foto.');
+      }
+    }
   };
 
   const handleCamera = () => {
@@ -59,7 +68,7 @@ export const DniPhotoPicker: React.FC<DniPhotoPickerProps> = ({
 
   const handleCameraCapture = (uri: string) => {
     setCameraVisible(false);
-    resolveUri(uri);
+    void handleSelected(uri);
   };
 
   const handleCameraCancel = () => {
@@ -72,12 +81,12 @@ export const DniPhotoPicker: React.FC<DniPhotoPickerProps> = ({
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!perm.granted) return;
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ["images"],
+      mediaTypes: ['images'],
       allowsEditing: true,
       quality: 0.8,
     });
     if (!result.canceled && result.assets?.[0]) {
-      resolveUri(result.assets[0].uri);
+      await handleSelected(result.assets[0].uri);
     }
   };
 
@@ -89,9 +98,7 @@ export const DniPhotoPicker: React.FC<DniPhotoPickerProps> = ({
   return (
     <View style={styles.container}>
       <Text style={styles.label}>Documento de identidad *</Text>
-      <Text style={styles.hint}>
-        Foto del frente y dorso del DNI o pasaporte
-      </Text>
+      <Text style={styles.hint}>Foto del frente y dorso del DNI o pasaporte</Text>
 
       <View style={styles.row}>
         {/* Columna Frente */}
@@ -102,7 +109,7 @@ export const DniPhotoPicker: React.FC<DniPhotoPickerProps> = ({
               frontUri && styles.slotFilled,
               frontUri && { borderColor: accentColor },
             ]}
-            onPress={() => openPicker("front")}
+            onPress={() => openPicker('front')}
             activeOpacity={0.7}
           >
             {frontUri ? (
@@ -129,7 +136,7 @@ export const DniPhotoPicker: React.FC<DniPhotoPickerProps> = ({
               backUri && styles.slotFilled,
               backUri && { borderColor: accentColor },
             ]}
-            onPress={() => openPicker("back")}
+            onPress={() => openPicker('back')}
             activeOpacity={0.7}
           >
             {backUri ? (
@@ -151,33 +158,26 @@ export const DniPhotoPicker: React.FC<DniPhotoPickerProps> = ({
 
       {frontError && <Text style={styles.errorText}>{frontError}</Text>}
       {backError && <Text style={styles.errorText}>{backError}</Text>}
+      {localError && (
+        <Text style={styles.errorText} testID="dni-error">
+          {localError}
+        </Text>
+      )}
 
       <Modal visible={visible} transparent animationType="slide">
-        <TouchableOpacity
-          style={styles.overlay}
-          activeOpacity={1}
-          onPress={handleCancel}
-        >
+        <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={handleCancel}>
           <View style={styles.sheet}>
             <Text style={styles.sheetTitle}>Seleccionar documento</Text>
             <TouchableOpacity style={styles.option} onPress={handleCamera}>
               <Feather name="camera" size={20} color={accentColor} accessible={false} />
               <Text style={styles.optionText}>Cámara</Text>
             </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.option}
-              onPress={handleGallery}
-            >
+            <TouchableOpacity style={styles.option} onPress={handleGallery}>
               <Feather name="image" size={20} color={accentColor} accessible={false} />
               <Text style={styles.optionText}>Galería</Text>
             </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.option, styles.optionCancel]}
-              onPress={handleCancel}
-            >
-              <Text style={[styles.optionText, styles.optionCancelText]}>
-                Cancelar
-              </Text>
+            <TouchableOpacity style={[styles.option, styles.optionCancel]} onPress={handleCancel}>
+              <Text style={[styles.optionText, styles.optionCancelText]}>Cancelar</Text>
             </TouchableOpacity>
           </View>
         </TouchableOpacity>
@@ -209,33 +209,33 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   row: {
-    flexDirection: "row",
+    flexDirection: 'row',
     gap: spacing.sm,
   },
   column: {
     flex: 1,
-    alignItems: "stretch",
+    alignItems: 'stretch',
   },
   slot: {
     height: 100,
     borderRadius: borderRadius.md,
     borderWidth: 1.5,
     borderColor: colors.cardStroke,
-    borderStyle: "dashed",
+    borderStyle: 'dashed',
     backgroundColor: colors.surfaceContainerLow,
-    overflow: "hidden",
+    overflow: 'hidden',
   },
   slotFilled: {
-    borderStyle: "solid",
+    borderStyle: 'solid',
   },
   slotImage: {
-    width: "100%",
-    height: "100%",
+    width: '100%',
+    height: '100%',
   },
   slotPlaceholder: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     gap: spacing.xs,
   },
   slotText: {
@@ -244,7 +244,7 @@ const styles = StyleSheet.create({
   },
   removeBtn: {
     paddingVertical: spacing.xs,
-    alignItems: "center",
+    alignItems: 'center',
   },
   removeText: {
     color: colors.error,
@@ -259,7 +259,7 @@ const styles = StyleSheet.create({
   overlay: {
     flex: 1,
     backgroundColor: colors.overlayBackground,
-    justifyContent: "flex-end",
+    justifyContent: 'flex-end',
   },
   sheet: {
     backgroundColor: colors.cardBackground,
@@ -272,12 +272,12 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     fontSize: typography.fontSizes.lg,
     fontWeight: typography.fontWeights.semibold,
-    textAlign: "center",
+    textAlign: 'center',
     marginBottom: spacing.md,
   },
   option: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: spacing.md,
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.md,
@@ -290,12 +290,12 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSizes.md,
   },
   optionCancel: {
-    backgroundColor: "transparent",
+    backgroundColor: 'transparent',
     marginTop: spacing.sm,
-    justifyContent: "center",
+    justifyContent: 'center',
   },
   optionCancelText: {
     color: colors.textSecondary,
-    textAlign: "center",
+    textAlign: 'center',
   },
 });
