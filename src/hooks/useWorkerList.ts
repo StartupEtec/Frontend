@@ -1,12 +1,12 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   DEFAULT_WORKER_LIST_FILTERS,
   NearbyWorker,
   WORKER_LIST_PAGE_SIZE,
   WorkerListFilters,
   WorkerSortOption,
-} from "../types/worker";
-import { applyWorkerListFilters, paginateWorkers } from "../utils/workerList";
+} from '../types/worker';
+import { applyWorkerListFilters, paginateWorkers } from '../utils/workerList';
 
 /** Milisegundos de espera antes de aplicar la búsqueda por nombre. */
 export const NAME_SEARCH_DEBOUNCE_MS = 300;
@@ -26,27 +26,20 @@ export const NAME_SEARCH_DEBOUNCE_MS = 300;
  */
 export const useWorkerList = (
   workers: NearbyWorker[],
-  options: { resetKey?: string | null } = {},
+  options: { resetKey?: string | null } = {}
 ) => {
   const { resetKey = null } = options;
 
   // Texto del input (se actualiza en cada tecla) y el valor ya debounced que
   // alimenta el filtrado: evita recalcular en cada pulsación.
-  const [nameInput, setNameInput] = useState("");
-  const [nameQuery, setNameQuery] = useState("");
-  const [minRating, setMinRatingState] = useState(
-    DEFAULT_WORKER_LIST_FILTERS.minRating,
-  );
-  const [sortBy, setSortByState] = useState<WorkerSortOption>(
-    DEFAULT_WORKER_LIST_FILTERS.sortBy,
-  );
+  const [nameInput, setNameInput] = useState('');
+  const [nameQuery, setNameQuery] = useState('');
+  const [minRating, setMinRatingState] = useState(DEFAULT_WORKER_LIST_FILTERS.minRating);
+  const [sortBy, setSortByState] = useState<WorkerSortOption>(DEFAULT_WORKER_LIST_FILTERS.sortBy);
   const [visibleCount, setVisibleCount] = useState(WORKER_LIST_PAGE_SIZE);
 
   useEffect(() => {
-    const handle = setTimeout(
-      () => setNameQuery(nameInput),
-      NAME_SEARCH_DEBOUNCE_MS,
-    );
+    const handle = setTimeout(() => setNameQuery(nameInput), NAME_SEARCH_DEBOUNCE_MS);
     return () => clearTimeout(handle);
   }, [nameInput]);
 
@@ -57,16 +50,13 @@ export const useWorkerList = (
 
   const filters: WorkerListFilters = useMemo(
     () => ({ nameQuery, minRating, sortBy }),
-    [nameQuery, minRating, sortBy],
+    [nameQuery, minRating, sortBy]
   );
 
-  const filtered = useMemo(
-    () => applyWorkerListFilters(workers, filters),
-    [workers, filters],
-  );
+  const filtered = useMemo(() => applyWorkerListFilters(workers, filters), [workers, filters]);
   const { visible, hasMore } = useMemo(
     () => paginateWorkers(filtered, visibleCount),
-    [filtered, visibleCount],
+    [filtered, visibleCount]
   );
 
   const setNameQueryInput = useCallback((value: string) => {
@@ -86,15 +76,15 @@ export const useWorkerList = (
   }, []);
 
   const clearFilters = useCallback(() => {
-    setNameInput("");
-    setNameQuery("");
+    setNameInput('');
+    setNameQuery('');
     setMinRatingState(DEFAULT_WORKER_LIST_FILTERS.minRating);
     setSortByState(DEFAULT_WORKER_LIST_FILTERS.sortBy);
   }, []);
 
   // ¿Los datos crudos tienen resultados pero todos quedaron filtrados afuera?
   // La lista usa esto para distinguir "sin resultados" de "sin coincidencias".
-  const hasActiveFilters = nameQuery.trim() !== "" || minRating > 0;
+  const hasActiveFilters = nameQuery.trim() !== '' || minRating > 0;
 
   return {
     /** Valor del input de búsqueda (con cada tecla). */

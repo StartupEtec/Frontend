@@ -1,19 +1,12 @@
-import React from "react";
-import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { Feather } from "@expo/vector-icons";
+import React from 'react';
+import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Feather } from '@expo/vector-icons';
 import {
   WORKER_MIN_RATING_OPTIONS,
   WORKER_SORT_LABELS,
   WorkerSortOption,
-} from "../../types/worker";
-import { colors, spacing, borderRadius, typography } from "../../theme/tokens";
+} from '../../types/worker';
+import { colors, spacing, borderRadius, typography } from '../../theme/tokens';
 
 export interface WorkerListFiltersProps {
   /** Texto del input de búsqueda por nombre. */
@@ -40,12 +33,12 @@ export interface WorkerListFiltersProps {
 
 /** Formatea la etiqueta de rating: 4.5 → "4,5+", 4 → "4+". */
 function ratingLabel(value: number): string {
-  if (value <= 0) return "Todas";
-  const text = value.toFixed(1).replace(/\.0$/, "").replace(".", ",");
+  if (value <= 0) return 'Todas';
+  const text = value.toFixed(1).replace(/\.0$/, '').replace('.', ',');
   return `${text}+`;
 }
 
-const SORT_OPTIONS: WorkerSortOption[] = ["distance", "rating"];
+const SORT_OPTIONS: WorkerSortOption[] = ['distance', 'rating'];
 
 /**
  * Barra de filtros de la vista de lista (Issue #25): búsqueda por nombre
@@ -64,16 +57,11 @@ export const WorkerListFilters: React.FC<WorkerListFiltersProps> = ({
   totalCount,
   onClearFilters,
   hasActiveFilters,
-  testID = "worker-list-filters",
+  testID = 'worker-list-filters',
 }) => (
   <View style={styles.container} testID={testID}>
     <View style={styles.inputRow}>
-      <Feather
-        name="search"
-        size={18}
-        color={colors.textMuted}
-        accessible={false}
-      />
+      <Feather name="search" size={18} color={colors.textMuted} accessible={false} />
       <TextInput
         style={styles.input}
         value={nameInput}
@@ -87,7 +75,7 @@ export const WorkerListFilters: React.FC<WorkerListFiltersProps> = ({
       />
       {nameInput.length > 0 && (
         <TouchableOpacity
-          onPress={() => onNameChange("")}
+          onPress={() => onNameChange('')}
           testID="btn-worker-list-search-clear"
           accessibilityRole="button"
           accessibilityLabel="Borrar búsqueda"
@@ -114,9 +102,7 @@ export const WorkerListFilters: React.FC<WorkerListFiltersProps> = ({
             accessibilityRole="button"
             accessibilityState={{ selected: active }}
             accessibilityLabel={
-              option <= 0
-                ? "Sin calificación mínima"
-                : `${option} estrellas o más`
+              option <= 0 ? 'Sin calificación mínima' : `${option} estrellas o más`
             }
           >
             <Text style={[styles.pillText, active && styles.pillTextActive]}>
@@ -141,18 +127,8 @@ export const WorkerListFilters: React.FC<WorkerListFiltersProps> = ({
             accessibilityState={{ selected: active }}
             accessibilityLabel={`Ordenar por ${WORKER_SORT_LABELS[option]}`}
           >
-            {active && (
-              <Feather
-                name="check"
-                size={12}
-                color={accentColor}
-                accessible={false}
-              />
-            )}
-            <Text
-              style={[styles.sortText, active && { color: accentColor }]}
-              numberOfLines={1}
-            >
+            {active && <Feather name="check" size={12} color={accentColor} accessible={false} />}
+            <Text style={[styles.sortText, active && { color: accentColor }]} numberOfLines={1}>
               {WORKER_SORT_LABELS[option]}
             </Text>
           </TouchableOpacity>
@@ -171,9 +147,7 @@ export const WorkerListFilters: React.FC<WorkerListFiltersProps> = ({
           accessibilityRole="button"
           accessibilityLabel="Limpiar filtros"
         >
-          <Text style={[styles.clearText, { color: accentColor }]}>
-            Limpiar filtros
-          </Text>
+          <Text style={[styles.clearText, { color: accentColor }]}>Limpiar filtros</Text>
         </TouchableOpacity>
       )}
     </View>
@@ -191,8 +165,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   inputRow: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: spacing.sm,
     borderWidth: 1,
     borderColor: colors.inputBorder,
@@ -211,7 +185,7 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     fontSize: typography.fontSizes.xs,
     fontWeight: typography.fontWeights.semibold,
-    textTransform: "uppercase",
+    textTransform: 'uppercase',
     marginTop: spacing.xs,
   },
   pillRow: {
@@ -236,14 +210,14 @@ const styles = StyleSheet.create({
     fontWeight: typography.fontWeights.semibold,
   },
   sortRow: {
-    flexDirection: "row",
+    flexDirection: 'row',
     gap: spacing.sm,
   },
   sortButton: {
     flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     gap: spacing.xs,
     borderRadius: borderRadius.md,
     borderWidth: 1,
@@ -258,9 +232,9 @@ const styles = StyleSheet.create({
     fontWeight: typography.fontWeights.medium,
   },
   footerRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     marginTop: spacing.xs,
   },
   footerText: {

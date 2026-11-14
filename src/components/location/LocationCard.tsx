@@ -1,21 +1,9 @@
-import React from "react";
-import {
-  ActivityIndicator,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { Feather } from "@expo/vector-icons";
-import { SavedLocation } from "../../types/location";
-import { formatDistance } from "../../utils/map";
-import {
-  colors,
-  spacing,
-  borderRadius,
-  typography,
-  shadows,
-} from "../../theme/tokens";
+import React from 'react';
+import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Feather } from '@expo/vector-icons';
+import { SavedLocation } from '../../types/location';
+import { formatDistance } from '../../utils/map';
+import { colors, spacing, borderRadius, typography, shadows } from '../../theme/tokens';
 
 interface LocationCardProps {
   location: SavedLocation;
@@ -48,18 +36,9 @@ export const LocationCard: React.FC<LocationCardProps> = ({
   return (
     <View style={styles.card} testID={`location-card-${location.id}`}>
       <View style={styles.header}>
-        <Feather
-          name="map-pin"
-          size={18}
-          color={accentColor}
-          accessible={false}
-        />
+        <Feather name="map-pin" size={18} color={accentColor} accessible={false} />
         <View style={styles.headerText}>
-          <Text
-            style={styles.address}
-            numberOfLines={2}
-            testID={`location-address-${location.id}`}
-          >
+          <Text style={styles.address} numberOfLines={2} testID={`location-address-${location.id}`}>
             {location.address}
           </Text>
           <View style={styles.metaRow}>
@@ -86,15 +65,11 @@ export const LocationCard: React.FC<LocationCardProps> = ({
         )}
       </View>
 
-      {role === "worker" &&
+      {role === 'worker' &&
         location.coverage_radius_km != null &&
         location.coverage_radius_km > 0 && (
-          <Text
-            style={styles.radiusText}
-            testID={`location-radius-${location.id}`}
-          >
-            Cobertura:{" "}
-            {location.coverage_radius_km.toFixed(1).replace(".", ",")} km
+          <Text style={styles.radiusText} testID={`location-radius-${location.id}`}>
+            Cobertura: {location.coverage_radius_km.toFixed(1).replace('.', ',')} km
           </Text>
         )}
 
@@ -108,15 +83,8 @@ export const LocationCard: React.FC<LocationCardProps> = ({
             accessibilityRole="button"
             accessibilityLabel={`Marcar ${location.address} como principal`}
           >
-            <Feather
-              name="star"
-              size={15}
-              color={accentColor}
-              accessible={false}
-            />
-            <Text style={[styles.primaryActionText, { color: accentColor }]}>
-              Hacer principal
-            </Text>
+            <Feather name="star" size={15} color={accentColor} accessible={false} />
+            <Text style={[styles.primaryActionText, { color: accentColor }]}>Hacer principal</Text>
           </TouchableOpacity>
         )}
 
@@ -130,12 +98,7 @@ export const LocationCard: React.FC<LocationCardProps> = ({
           accessibilityRole="button"
           accessibilityLabel={`Editar ${location.address}`}
         >
-          <Feather
-            name="edit-2"
-            size={16}
-            color={colors.textSecondary}
-            accessible={false}
-          />
+          <Feather name="edit-2" size={16} color={colors.textSecondary} accessible={false} />
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -149,12 +112,7 @@ export const LocationCard: React.FC<LocationCardProps> = ({
           {deleting ? (
             <ActivityIndicator size="small" color={colors.error} />
           ) : (
-            <Feather
-              name="trash-2"
-              size={16}
-              color={colors.error}
-              accessible={false}
-            />
+            <Feather name="trash-2" size={16} color={colors.error} accessible={false} />
           )}
         </TouchableOpacity>
       </View>
@@ -171,8 +129,8 @@ const styles = StyleSheet.create({
     ...shadows.card,
   },
   header: {
-    flexDirection: "row",
-    alignItems: "flex-start",
+    flexDirection: 'row',
+    alignItems: 'flex-start',
     gap: spacing.sm,
   },
   headerText: {
@@ -189,8 +147,8 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   metaRow: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   distance: {
     fontSize: typography.fontSizes.xs,
@@ -214,13 +172,13 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSizes.xs,
   },
   actions: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     marginTop: spacing.sm,
   },
   primaryAction: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: spacing.xs,
     paddingVertical: spacing.xs,
     paddingRight: spacing.sm,

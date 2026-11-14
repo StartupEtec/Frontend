@@ -37,8 +37,8 @@ export interface OtpResendApiResponse {
 }
 
 export type OtpErrorCode =
-  | "VALIDATION_ERROR"
-  | "INVALID_OTP"
-  | "EXPIRED_OTP"
-  | "OTP_ATTEMPTS_EXCEEDED"
-  | "TOO_MANY_REQUESTS";
+  | 'VALIDATION_ERROR'
+  | 'INVALID_OTP'
+  | 'EXPIRED_OTP'
+  | 'OTP_ATTEMPTS_EXCEEDED'
+  | 'TOO_MANY_REQUESTS';

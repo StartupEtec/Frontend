@@ -1,4 +1,4 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 /**
  * Persistencia local del "radio de cobertura" (km) de las ubicaciones de un
@@ -10,7 +10,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
  * almacenamiento local deja de usarse: basta con que el hook priorice el valor
  * que llega de la API (ya lo hace con `??`).
  */
-const STORAGE_KEY = "@startup_app/coverage_radii";
+const STORAGE_KEY = '@startup_app/coverage_radii';
 
 type RadiusMap = Record<string, number>;
 
@@ -21,7 +21,7 @@ function parse(raw: string | null): RadiusMap {
     const result: RadiusMap = {};
     Object.keys(parsed).forEach((key) => {
       const value = parsed[key];
-      if (typeof value === "number" && Number.isFinite(value)) {
+      if (typeof value === 'number' && Number.isFinite(value)) {
         result[key] = value;
       }
     });

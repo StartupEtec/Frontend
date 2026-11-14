@@ -1,4 +1,4 @@
-import { UserRole } from "../types/role";
+import { UserRole } from '../types/role';
 
 /**
  * Decodificación de JWT en el cliente (solo lectura de claims, SIN verificar
@@ -15,14 +15,13 @@ export interface JwtPayload {
   exp?: number;
 }
 
-const BASE64_ALPHABET =
-  "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+const BASE64_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
 /** Decodifica base64/base64url a un string binario. Null si es inválido. */
 function base64Decode(input: string): string | null {
-  const normalized = input.replace(/-/g, "+").replace(/_/g, "/");
-  const clean = normalized.replace(/=+$/, "");
-  let output = "";
+  const normalized = input.replace(/-/g, '+').replace(/_/g, '/');
+  const clean = normalized.replace(/=+$/, '');
+  let output = '';
   let buffer = 0;
   let bits = 0;
 
@@ -45,9 +44,9 @@ function utf8Decode(binary: string): string {
   try {
     return decodeURIComponent(
       binary
-        .split("")
-        .map((c) => `%${c.charCodeAt(0).toString(16).padStart(2, "0")}`)
-        .join(""),
+        .split('')
+        .map((c) => `%${c.charCodeAt(0).toString(16).padStart(2, '0')}`)
+        .join('')
     );
   } catch {
     return binary;
@@ -55,27 +54,23 @@ function utf8Decode(binary: string): string {
 }
 
 /** Devuelve el payload del JWT, o null si el token no es parseable. */
-export function decodeJwtPayload(
-  token: string | null | undefined,
-): JwtPayload | null {
+export function decodeJwtPayload(token: string | null | undefined): JwtPayload | null {
   if (!token) return null;
-  const parts = token.split(".");
+  const parts = token.split('.');
   if (parts.length < 2) return null;
 
   try {
     const binary = base64Decode(parts[1]);
     if (!binary) return null;
     const payload = JSON.parse(utf8Decode(binary)) as JwtPayload;
-    return payload && typeof payload === "object" ? payload : null;
+    return payload && typeof payload === 'object' ? payload : null;
   } catch {
     return null;
   }
 }
 
 /** Rol activo según el JWT (`current_role`), o null si no es válido/ conocido. */
-export function getCurrentRoleFromJwt(
-  token: string | null | undefined,
-): UserRole | null {
+export function getCurrentRoleFromJwt(token: string | null | undefined): UserRole | null {
   const role = decodeJwtPayload(token)?.current_role;
-  return role === "client" || role === "worker" ? role : null;
+  return role === 'client' || role === 'worker' ? role : null;
 }

@@ -1,32 +1,23 @@
-import React from "react";
-import { View, Text, StyleSheet } from "react-native";
-import { Feather } from "@expo/vector-icons";
-import { colors, spacing, borderRadius, typography } from "../../theme/tokens";
+import React from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import { Feather } from '@expo/vector-icons';
+import { colors, spacing, borderRadius, typography } from '../../theme/tokens';
 
 interface RoleSelectionFooterProps {
   testID?: string;
 }
 
-export const RoleSelectionFooter: React.FC<RoleSelectionFooterProps> = ({
-  testID,
-}) => (
+export const RoleSelectionFooter: React.FC<RoleSelectionFooterProps> = ({ testID }) => (
   <View style={styles.container} testID={testID}>
-    <Feather
-      name="info"
-      size={16}
-      color={colors.primary}
-      accessible={false}
-    />
-    <Text style={styles.text}>
-      Podés cambiar tu rol en cualquier momento desde Configuración
-    </Text>
+    <Feather name="info" size={16} color={colors.primary} accessible={false} />
+    <Text style={styles.text}>Podés cambiar tu rol en cualquier momento desde Configuración</Text>
   </View>
 );
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: colors.surfaceContainerLow,
     padding: spacing.md,
     borderRadius: borderRadius.md,

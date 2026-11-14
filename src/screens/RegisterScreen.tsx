@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   View,
   Text,
@@ -8,23 +8,17 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { StatusBar } from "expo-status-bar";
-import { Feather } from "@expo/vector-icons";
-import { useRegisterForm } from "../hooks/useRegisterForm";
-import { RegisterFormInput } from "../components/register/RegisterFormInput";
-import { PasswordRequirements } from "../components/register/PasswordRequirements";
-import { RegisterTermsRow } from "../components/register/RegisterTermsRow";
-import { TermsModal } from "../components/register/TermsModal";
-import { RegisterScreenProps } from "../types/auth";
-import {
-  colors,
-  spacing,
-  borderRadius,
-  typography,
-  shadows,
-} from "../theme/tokens";
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { StatusBar } from 'expo-status-bar';
+import { Feather } from '@expo/vector-icons';
+import { useRegisterForm } from '../hooks/useRegisterForm';
+import { RegisterFormInput } from '../components/register/RegisterFormInput';
+import { PasswordRequirements } from '../components/register/PasswordRequirements';
+import { RegisterTermsRow } from '../components/register/RegisterTermsRow';
+import { TermsModal } from '../components/register/TermsModal';
+import { RegisterScreenProps } from '../types/auth';
+import { colors, spacing, borderRadius, typography, shadows } from '../theme/tokens';
 
 export const RegisterScreen: React.FC<RegisterScreenProps> = ({
   onNavigateToOtp,
@@ -55,7 +49,7 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
     <SafeAreaView style={styles.safeArea}>
       <StatusBar style="dark" />
       <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.container}
       >
         <ScrollView
@@ -71,7 +65,12 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
                 accessibilityLabel="Volver atrás"
                 accessibilityRole="button"
               >
-                <Feather name="arrow-left" size={24} color={colors.textPrimary} accessible={false} />
+                <Feather
+                  name="arrow-left"
+                  size={24}
+                  color={colors.textPrimary}
+                  accessible={false}
+                />
               </TouchableOpacity>
               <Text style={styles.title}>Crear Cuenta</Text>
             </View>
@@ -89,8 +88,8 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
           <RegisterFormInput
             label="Nombre"
             value={formData.firstName}
-            onChangeText={(t) => handleChange("firstName", t)}
-            onBlur={() => handleBlur("firstName")}
+            onChangeText={(t) => handleChange('firstName', t)}
+            onBlur={() => handleBlur('firstName')}
             error={touched.firstName ? errors.firstName : undefined}
             placeholder="Ej. Juan"
             autoCapitalize="words"
@@ -100,8 +99,8 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
           <RegisterFormInput
             label="Apellido"
             value={formData.lastName}
-            onChangeText={(t) => handleChange("lastName", t)}
-            onBlur={() => handleBlur("lastName")}
+            onChangeText={(t) => handleChange('lastName', t)}
+            onBlur={() => handleBlur('lastName')}
             error={touched.lastName ? errors.lastName : undefined}
             placeholder="Ej. Pérez"
             autoCapitalize="words"
@@ -111,8 +110,8 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
           <RegisterFormInput
             label="Correo Electrónico"
             value={formData.email}
-            onChangeText={(t) => handleChange("email", t)}
-            onBlur={() => handleBlur("email")}
+            onChangeText={(t) => handleChange('email', t)}
+            onBlur={() => handleBlur('email')}
             error={touched.email ? errors.email : undefined}
             placeholder="ejemplo@correo.com"
             keyboardType="email-address"
@@ -123,8 +122,8 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
           <RegisterFormInput
             label="Teléfono Móvil"
             value={formData.phone}
-            onChangeText={(t) => handleChange("phone", t)}
-            onBlur={() => handleBlur("phone")}
+            onChangeText={(t) => handleChange('phone', t)}
+            onBlur={() => handleBlur('phone')}
             error={touched.phone ? errors.phone : undefined}
             placeholder="+5491122334455"
             keyboardType="phone-pad"
@@ -134,8 +133,8 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
           <RegisterFormInput
             label="Contraseña"
             value={formData.password}
-            onChangeText={(t) => handleChange("password", t)}
-            onBlur={() => handleBlur("password")}
+            onChangeText={(t) => handleChange('password', t)}
+            onBlur={() => handleBlur('password')}
             error={touched.password ? errors.password : undefined}
             placeholder="••••••••"
             secureTextEntry={!showPassword}
@@ -148,8 +147,8 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
           <RegisterFormInput
             label="Confirmar Contraseña"
             value={formData.confirmPassword}
-            onChangeText={(t) => handleChange("confirmPassword", t)}
-            onBlur={() => handleBlur("confirmPassword")}
+            onChangeText={(t) => handleChange('confirmPassword', t)}
+            onBlur={() => handleBlur('confirmPassword')}
             error={touched.confirmPassword ? errors.confirmPassword : undefined}
             placeholder="••••••••"
             secureTextEntry={!showConfirmPassword}
@@ -159,9 +158,7 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
 
           <RegisterTermsRow
             acceptedTerms={formData.acceptedTerms}
-            onToggleTerms={() =>
-              handleChange("acceptedTerms", !formData.acceptedTerms)
-            }
+            onToggleTerms={() => handleChange('acceptedTerms', !formData.acceptedTerms)}
             onOpenTermsModal={() => setIsTermsModalOpen(true)}
             touched={touched.acceptedTerms}
             error={errors.acceptedTerms}
@@ -177,10 +174,7 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
             testID="btn-register-submit"
           >
             {isSubmitting ? (
-              <ActivityIndicator
-                color={colors.onPrimary}
-                testID="loading-spinner"
-              />
+              <ActivityIndicator color={colors.onPrimary} testID="loading-spinner" />
             ) : (
               <Text style={styles.submitButtonText}>Registrarse</Text>
             )}
@@ -188,10 +182,7 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
 
           <View style={styles.loginRow}>
             <Text style={styles.loginQuestion}>¿Ya tenés cuenta? </Text>
-            <TouchableOpacity
-              onPress={onNavigateToLogin}
-              testID="btn-go-to-login"
-            >
+            <TouchableOpacity onPress={onNavigateToLogin} testID="btn-go-to-login">
               <Text style={styles.loginLink}>Iniciar Sesión</Text>
             </TouchableOpacity>
           </View>
@@ -212,7 +203,7 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   scrollContent: { padding: spacing.md, paddingBottom: spacing.xxl },
   header: { marginBottom: spacing.lg },
-  titleRow: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
+  titleRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   backButton: {
     paddingRight: spacing.xs,
     paddingVertical: spacing.xs,
@@ -220,7 +211,7 @@ const styles = StyleSheet.create({
   title: {
     color: colors.textPrimary,
     fontSize: typography.fontSizes.xl,
-    fontWeight: "700",
+    fontWeight: '700',
   },
   subtitle: {
     color: colors.textSecondary,
@@ -243,8 +234,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
     height: 50,
     borderRadius: borderRadius.md,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     marginTop: spacing.md,
     ...shadows.button,
   },
@@ -252,11 +243,11 @@ const styles = StyleSheet.create({
   submitButtonText: {
     color: colors.onPrimary,
     fontSize: typography.fontSizes.md,
-    fontWeight: "700",
+    fontWeight: '700',
   },
   loginRow: {
-    flexDirection: "row",
-    justifyContent: "center",
+    flexDirection: 'row',
+    justifyContent: 'center',
     marginTop: spacing.lg,
   },
   loginQuestion: {
@@ -266,7 +257,7 @@ const styles = StyleSheet.create({
   loginLink: {
     color: colors.primary,
     fontSize: typography.fontSizes.sm,
-    fontWeight: "700",
+    fontWeight: '700',
   },
 });
 

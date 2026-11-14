@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   View,
   Text,
@@ -8,20 +8,14 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { StatusBar } from "expo-status-bar";
-import { Feather } from "@expo/vector-icons";
-import { useLoginForm } from "../hooks/useLoginForm";
-import { RegisterFormInput } from "../components/register/RegisterFormInput";
-import { LoginScreenProps } from "../types/auth";
-import {
-  colors,
-  spacing,
-  borderRadius,
-  typography,
-  shadows,
-} from "../theme/tokens";
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { StatusBar } from 'expo-status-bar';
+import { Feather } from '@expo/vector-icons';
+import { useLoginForm } from '../hooks/useLoginForm';
+import { RegisterFormInput } from '../components/register/RegisterFormInput';
+import { LoginScreenProps } from '../types/auth';
+import { colors, spacing, borderRadius, typography, shadows } from '../theme/tokens';
 
 export const LoginScreen: React.FC<LoginScreenProps> = ({
   onNavigateToOtp,
@@ -49,7 +43,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
     <SafeAreaView style={styles.safeArea}>
       <StatusBar style="dark" />
       <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.container}
       >
         <ScrollView
@@ -65,13 +59,16 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
                 accessibilityLabel="Volver atrás"
                 accessibilityRole="button"
               >
-                <Feather name="arrow-left" size={24} color={colors.textPrimary} accessible={false} />
+                <Feather
+                  name="arrow-left"
+                  size={24}
+                  color={colors.textPrimary}
+                  accessible={false}
+                />
               </TouchableOpacity>
               <Text style={styles.title}>Iniciar Sesión</Text>
             </View>
-            <Text style={styles.subtitle}>
-              Ingresá tus credenciales para acceder a tu cuenta.
-            </Text>
+            <Text style={styles.subtitle}>Ingresá tus credenciales para acceder a tu cuenta.</Text>
           </View>
 
           {serverError && (
@@ -83,8 +80,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
           <RegisterFormInput
             label="Correo Electrónico o Teléfono"
             value={formData.emailOrPhone}
-            onChangeText={(t) => handleChange("emailOrPhone", t)}
-            onBlur={() => handleBlur("emailOrPhone")}
+            onChangeText={(t) => handleChange('emailOrPhone', t)}
+            onBlur={() => handleBlur('emailOrPhone')}
             error={touched.emailOrPhone ? errors.emailOrPhone : undefined}
             placeholder="ejemplo@correo.com o +5491122334455"
             keyboardType="email-address"
@@ -95,8 +92,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
           <RegisterFormInput
             label="Contraseña"
             value={formData.password}
-            onChangeText={(t) => handleChange("password", t)}
-            onBlur={() => handleBlur("password")}
+            onChangeText={(t) => handleChange('password', t)}
+            onBlur={() => handleBlur('password')}
             error={touched.password ? errors.password : undefined}
             placeholder="••••••••"
             secureTextEntry={!showPassword}
@@ -112,12 +109,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
               accessibilityRole="checkbox"
               accessibilityState={{ checked: rememberMe }}
             >
-              <View
-                style={[
-                  styles.checkbox,
-                  rememberMe && styles.checkboxChecked,
-                ]}
-              >
+              <View style={[styles.checkbox, rememberMe && styles.checkboxChecked]}>
                 {rememberMe && (
                   <Feather name="check" size={14} color={colors.onPrimary} accessible={false} />
                 )}
@@ -144,10 +136,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
             testID="btn-login-submit"
           >
             {isSubmitting ? (
-              <ActivityIndicator
-                color={colors.onPrimary}
-                testID="loading-spinner"
-              />
+              <ActivityIndicator color={colors.onPrimary} testID="loading-spinner" />
             ) : (
               <Text style={styles.submitButtonText}>Iniciar Sesión</Text>
             )}
@@ -155,10 +144,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
 
           <View style={styles.registerRow}>
             <Text style={styles.registerQuestion}>¿No tenés cuenta? </Text>
-            <TouchableOpacity
-              onPress={onNavigateToRegister}
-              testID="btn-go-to-register"
-            >
+            <TouchableOpacity onPress={onNavigateToRegister} testID="btn-go-to-register">
               <Text style={styles.registerLink}>Registrarse</Text>
             </TouchableOpacity>
           </View>
@@ -173,7 +159,7 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   scrollContent: { padding: spacing.md, paddingBottom: spacing.xxl },
   header: { marginBottom: spacing.lg },
-  titleRow: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
+  titleRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   backButton: {
     paddingRight: spacing.xs,
     paddingVertical: spacing.xs,
@@ -181,7 +167,7 @@ const styles = StyleSheet.create({
   title: {
     color: colors.textPrimary,
     fontSize: typography.fontSizes.xl,
-    fontWeight: "700",
+    fontWeight: '700',
   },
   subtitle: {
     color: colors.textSecondary,
@@ -201,14 +187,14 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSizes.sm,
   },
   optionsRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: spacing.sm,
   },
   rememberRow: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: spacing.sm,
   },
   checkbox: {
@@ -218,8 +204,8 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: colors.inputBorder,
     backgroundColor: colors.surfaceContainerLow,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   checkboxChecked: {
     backgroundColor: colors.primary,
@@ -232,14 +218,14 @@ const styles = StyleSheet.create({
   forgotText: {
     color: colors.primary,
     fontSize: typography.fontSizes.xs,
-    fontWeight: "600",
+    fontWeight: '600',
   },
   submitButton: {
     backgroundColor: colors.primary,
     height: 50,
     borderRadius: borderRadius.md,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     marginTop: spacing.md,
     ...shadows.button,
   },
@@ -247,11 +233,11 @@ const styles = StyleSheet.create({
   submitButtonText: {
     color: colors.onPrimary,
     fontSize: typography.fontSizes.md,
-    fontWeight: "700",
+    fontWeight: '700',
   },
   registerRow: {
-    flexDirection: "row",
-    justifyContent: "center",
+    flexDirection: 'row',
+    justifyContent: 'center',
     marginTop: spacing.lg,
   },
   registerQuestion: {
@@ -261,7 +247,7 @@ const styles = StyleSheet.create({
   registerLink: {
     color: colors.primary,
     fontSize: typography.fontSizes.sm,
-    fontWeight: "700",
+    fontWeight: '700',
   },
 });
 

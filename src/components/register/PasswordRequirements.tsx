@@ -1,36 +1,34 @@
-import React from "react";
-import { View, Text, StyleSheet } from "react-native";
-import { Feather } from "@expo/vector-icons";
-import { PasswordCriteriaStatus } from "../../types/auth";
-import { colors, spacing, borderRadius, typography } from "../../theme/tokens";
+import React from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import { Feather } from '@expo/vector-icons';
+import { PasswordCriteriaStatus } from '../../types/auth';
+import { colors, spacing, borderRadius, typography } from '../../theme/tokens';
 
 interface PasswordRequirementsProps {
   status: PasswordCriteriaStatus;
 }
 
-export const PasswordRequirements: React.FC<PasswordRequirementsProps> = ({
-  status,
-}) => {
+export const PasswordRequirements: React.FC<PasswordRequirementsProps> = ({ status }) => {
   const criteriaList = [
-    { key: "minLength", label: "Mínimo 8 caracteres", isMet: status.minLength },
+    { key: 'minLength', label: 'Mínimo 8 caracteres', isMet: status.minLength },
     {
-      key: "hasUppercase",
-      label: "Al menos una mayúscula (A-Z)",
+      key: 'hasUppercase',
+      label: 'Al menos una mayúscula (A-Z)',
       isMet: status.hasUppercase,
     },
     {
-      key: "hasLowercase",
-      label: "Al menos una minúscula (a-z)",
+      key: 'hasLowercase',
+      label: 'Al menos una minúscula (a-z)',
       isMet: status.hasLowercase,
     },
     {
-      key: "hasNumber",
-      label: "Al menos un número (0-9)",
+      key: 'hasNumber',
+      label: 'Al menos un número (0-9)',
       isMet: status.hasNumber,
     },
     {
-      key: "hasSymbol",
-      label: "Al menos un símbolo (!@#$%^&*)",
+      key: 'hasSymbol',
+      label: 'Al menos un símbolo (!@#$%^&*)',
       isMet: status.hasSymbol,
     },
   ];
@@ -41,17 +39,12 @@ export const PasswordRequirements: React.FC<PasswordRequirementsProps> = ({
       {criteriaList.map((item) => (
         <View key={item.key} style={styles.itemRow}>
           <Feather
-            name={item.isMet ? "check" : "circle"}
+            name={item.isMet ? 'check' : 'circle'}
             size={14}
             color={item.isMet ? colors.success : colors.textMuted}
             accessible={false}
           />
-          <Text
-            style={[
-              styles.itemText,
-              item.isMet ? styles.textMet : styles.textUnmet,
-            ]}
-          >
+          <Text style={[styles.itemText, item.isMet ? styles.textMet : styles.textUnmet]}>
             {item.label}
           </Text>
         </View>
@@ -76,8 +69,8 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs,
   },
   itemRow: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: spacing.sm,
     marginTop: 2,
   },

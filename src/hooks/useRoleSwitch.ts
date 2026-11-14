@@ -1,8 +1,8 @@
-import { useState, useCallback, useEffect, useRef } from "react";
-import { UserRole } from "../types/role";
-import { userService } from "../services/userService";
-import { tokenStorage } from "../services/tokenStorage";
-import { ApiError } from "../services/api";
+import { useState, useCallback, useEffect, useRef } from 'react';
+import { UserRole } from '../types/role';
+import { userService } from '../services/userService';
+import { tokenStorage } from '../services/tokenStorage';
+import { ApiError } from '../services/api';
 
 /** Segundos del aviso naranja antes de cambiar igual de modo. */
 export const CERTIFICATION_COUNTDOWN_SECONDS = 3;
@@ -19,15 +19,13 @@ interface UseRoleSwitchReturn {
 
 export const useRoleSwitch = (
   currentRole: UserRole,
-  onRoleChanged: (newRole: UserRole, newToken: string) => void,
+  onRoleChanged: (newRole: UserRole, newToken: string) => void
 ): UseRoleSwitchReturn => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [countdown, setCountdown] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const pendingRef = useRef<{ newRole: UserRole; newToken: string } | null>(
-    null,
-  );
+  const pendingRef = useRef<{ newRole: UserRole; newToken: string } | null>(null);
 
   const stopTimer = useCallback(() => {
     if (timerRef.current) {
@@ -64,7 +62,7 @@ export const useRoleSwitch = (
       try {
         const userId = await tokenStorage.getUserId();
         if (!userId) {
-          setError("No se encontró el usuario. Iniciá sesión de nuevo.");
+          setError('No se encontró el usuario. Iniciá sesión de nuevo.');
           setIsSubmitting(false);
           return;
         }
@@ -106,7 +104,7 @@ export const useRoleSwitch = (
         // se persistió en el servidor). En vez de bloquear con un popup falso
         // ("Ya estás en ese rol"), se aplica el cambio localmente y se reusa el
         // token actual, para que lo que muestra la app coincida con el backend.
-        if (err instanceof ApiError && err.errorCode === "SAME_ROLE") {
+        if (err instanceof ApiError && err.errorCode === 'SAME_ROLE') {
           const currentToken = await tokenStorage.getAccessToken();
           if (currentToken) {
             setIsSubmitting(false);
@@ -118,28 +116,26 @@ export const useRoleSwitch = (
         if (err instanceof ApiError) {
           const messageMap: Record<string, string> = {
             MISSING_CLIENT_PROFILE:
-              "Necesitás tener un perfil de cliente completado para cambiar de rol.",
+              'Necesitás tener un perfil de cliente completado para cambiar de rol.',
             MISSING_WORKER_PROFILE:
-              "Necesitás tener un perfil de trabajador completado para cambiar de rol.",
+              'Necesitás tener un perfil de trabajador completado para cambiar de rol.',
             WORKER_NOT_CERTIFIED:
-              "Tu perfil de trabajador debe estar aprobado para activar el modo Trabajador.",
-            SAME_ROLE: "Ya estás en ese rol.",
-            USER_NOT_FOUND: "Usuario no encontrado.",
+              'Tu perfil de trabajador debe estar aprobado para activar el modo Trabajador.',
+            SAME_ROLE: 'Ya estás en ese rol.',
+            USER_NOT_FOUND: 'Usuario no encontrado.',
           };
           setError(
-            messageMap[err.errorCode || ""] ||
+            messageMap[err.errorCode || ''] ||
               err.message ||
-              "No se pudo cambiar el rol. Intentá de nuevo.",
+              'No se pudo cambiar el rol. Intentá de nuevo.'
           );
         } else {
-          setError(
-            "Error de conexión. Verificá tu internet e intentá de nuevo.",
-          );
+          setError('Error de conexión. Verificá tu internet e intentá de nuevo.');
         }
         setIsSubmitting(false);
       }
     },
-    [currentRole, onRoleChanged, stopTimer, finishSwitch],
+    [currentRole, onRoleChanged, stopTimer, finishSwitch]
   );
 
   const clearError = useCallback(() => setError(null), []);
@@ -150,8 +146,7 @@ export const useRoleSwitch = (
     setIsSubmitting(false);
   }, [stopTimer]);
 
-  const baseWarning =
-    "Tu perfil de trabajador aún no está aprobado por el equipo";
+  const baseWarning = 'Tu perfil de trabajador aún no está aprobado por el equipo';
 
   return {
     isSubmitting,

@@ -1,8 +1,4 @@
-import {
-  NearbyWorker,
-  WorkerListFilters,
-  WorkerSortOption,
-} from "../types/worker";
+import { NearbyWorker, WorkerListFilters, WorkerSortOption } from '../types/worker';
 
 /**
  * Lógica pura de la vista de lista de trabajadores (Issue #25): filtrado por
@@ -23,8 +19,8 @@ import {
  */
 export function normalizeSearchText(value: string): string {
   return value
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase()
     .trim();
 }
@@ -42,7 +38,7 @@ export function numericRating(worker: NearbyWorker): number | null {
  */
 export function filterWorkers(
   workers: NearbyWorker[],
-  filters: Pick<WorkerListFilters, "nameQuery" | "minRating">,
+  filters: Pick<WorkerListFilters, 'nameQuery' | 'minRating'>
 ): NearbyWorker[] {
   const query = normalizeSearchText(filters.nameQuery);
   const minRating = filters.minRating;
@@ -68,12 +64,8 @@ export function filterWorkers(
  * - distance: más cercano primero.
  * - rating: mejor calificado primero; sin valoraciones al final.
  */
-export function compareWorkers(
-  a: NearbyWorker,
-  b: NearbyWorker,
-  sortBy: WorkerSortOption,
-): number {
-  if (sortBy === "rating") {
+export function compareWorkers(a: NearbyWorker, b: NearbyWorker, sortBy: WorkerSortOption): number {
+  if (sortBy === 'rating') {
     const ra = numericRating(a);
     const rb = numericRating(b);
     if (ra == null && rb == null) return a.distance_km - b.distance_km;
@@ -88,10 +80,7 @@ export function compareWorkers(
 }
 
 /** Devuelve una copia ordenada (no muta la entrada). */
-export function sortWorkers(
-  workers: NearbyWorker[],
-  sortBy: WorkerSortOption,
-): NearbyWorker[] {
+export function sortWorkers(workers: NearbyWorker[], sortBy: WorkerSortOption): NearbyWorker[] {
   return [...workers].sort((a, b) => compareWorkers(a, b, sortBy));
 }
 
@@ -101,7 +90,7 @@ export function sortWorkers(
  */
 export function applyWorkerListFilters(
   workers: NearbyWorker[],
-  filters: WorkerListFilters,
+  filters: WorkerListFilters
 ): NearbyWorker[] {
   return sortWorkers(filterWorkers(workers, filters), filters.sortBy);
 }
@@ -112,7 +101,7 @@ export function applyWorkerListFilters(
  */
 export function paginateWorkers(
   workers: NearbyWorker[],
-  visibleCount: number,
+  visibleCount: number
 ): { visible: NearbyWorker[]; hasMore: boolean } {
   const safeCount = Math.max(0, Math.floor(visibleCount));
   return {

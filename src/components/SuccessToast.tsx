@@ -1,6 +1,6 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Animated, StyleSheet, Text } from "react-native";
-import { colors, spacing, borderRadius, typography } from "../theme/tokens";
+import React, { useEffect, useRef, useState } from 'react';
+import { Animated, StyleSheet, Text } from 'react-native';
+import { colors, spacing, borderRadius, typography } from '../theme/tokens';
 
 interface SuccessToastProps {
   visible: boolean;
@@ -50,11 +50,7 @@ export const SuccessToast: React.FC<SuccessToastProps> = ({
   if (!isRendered) return null;
 
   return (
-    <Animated.View
-      style={[styles.toast, { opacity }]}
-      testID={testID}
-      pointerEvents="none"
-    >
+    <Animated.View style={[styles.toast, { opacity }]} testID={testID} pointerEvents="none">
       <Text style={styles.text}>{message}</Text>
     </Animated.View>
   );
@@ -62,7 +58,7 @@ export const SuccessToast: React.FC<SuccessToastProps> = ({
 
 const styles = StyleSheet.create({
   toast: {
-    position: "absolute",
+    position: 'absolute',
     bottom: spacing.xl,
     left: spacing.md,
     right: spacing.md,
@@ -70,13 +66,13 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.md,
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.lg,
-    alignItems: "center",
+    alignItems: 'center',
   },
   text: {
     color: colors.onPrimary,
     fontSize: typography.fontSizes.md,
     fontWeight: typography.fontWeights.semibold,
-    textAlign: "center",
+    textAlign: 'center',
   },
 });
 

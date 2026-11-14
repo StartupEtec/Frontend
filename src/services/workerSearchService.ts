@@ -1,5 +1,5 @@
-import { apiClient } from "./api";
-import { NearbyWorkersParams, NearbyWorkersResponse } from "../types/worker";
+import { apiClient } from './api';
+import { NearbyWorkersParams, NearbyWorkersResponse } from '../types/worker';
 
 /**
  * Cliente de la búsqueda de trabajadores cercanos (Issue #22 del backend).
@@ -25,10 +25,9 @@ export const workerSearchService = {
     if (params.limit != null) parts.push(`limit=${params.limit}`);
     if (params.offset != null) parts.push(`offset=${params.offset}`);
 
-    const res = await apiClient<NearbyWorkersResponse>(
-      `/workers/nearby?${parts.join("&")}`,
-      { method: "GET" },
-    );
+    const res = await apiClient<NearbyWorkersResponse>(`/workers/nearby?${parts.join('&')}`, {
+      method: 'GET',
+    });
     // Respuesta defensiva: ante un cuerpo inesperado se trata como lista vacía.
     return { ...res, workers: res.workers ?? [] };
   },

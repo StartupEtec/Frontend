@@ -1,24 +1,12 @@
-import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-  StyleSheet,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { StatusBar } from "expo-status-bar";
-import { UserRole } from "../types/role";
-import { RoleSwitchModal } from "../components/RoleSwitchModal";
-import { SuccessToast } from "../components/SuccessToast";
-import { useRoleSwitch } from "../hooks/useRoleSwitch";
-import {
-  colors,
-  spacing,
-  borderRadius,
-  typography,
-  shadows,
-} from "../theme/tokens";
+import React, { useEffect, useState } from 'react';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { StatusBar } from 'expo-status-bar';
+import { UserRole } from '../types/role';
+import { RoleSwitchModal } from '../components/RoleSwitchModal';
+import { SuccessToast } from '../components/SuccessToast';
+import { useRoleSwitch } from '../hooks/useRoleSwitch';
+import { colors, spacing, borderRadius, typography, shadows } from '../theme/tokens';
 
 export interface ProfileScreenProps {
   currentRole: UserRole;
@@ -39,7 +27,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
 }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState('');
 
   const { isSubmitting, error, warning, handleSwitchRole, clearError, clearWarning } =
     useRoleSwitch(currentRole, (newRole, newToken) => {
@@ -48,7 +36,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
       // confirmación visual y no bloquea la UI (antes esperaba ~3s a que
       // terminara la animación para avisar al navegador).
       onRoleChanged(newRole, newToken);
-      const label = newRole === "client" ? "Cliente" : "Trabajador";
+      const label = newRole === 'client' ? 'Cliente' : 'Trabajador';
       setSuccessMessage(`Cambiaste a rol de ${label}`);
       setShowSuccess(true);
     });
@@ -59,7 +47,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
     }
   }, [modalVisible, clearError]);
 
-  const isClient = currentRole === "client";
+  const isClient = currentRole === 'client';
   const accentColor = isClient ? colors.clientAccent : colors.workerAccent;
 
   return (
@@ -86,13 +74,13 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
         >
           <View style={styles.avatarSection}>
             <View style={[styles.avatarCircle, { borderColor: accentColor }]}>
-              <Text style={styles.avatarIcon}>{isClient ? "🔍" : "🛠️"}</Text>
+              <Text style={styles.avatarIcon}>{isClient ? '🔍' : '🛠️'}</Text>
             </View>
             <Text style={styles.greeting}>Hola,</Text>
             <Text style={styles.currentRoleLabel}>
-              Estás en modo{" "}
-              <Text style={{ color: accentColor, fontWeight: "700" }}>
-                {isClient ? "Cliente" : "Trabajador"}
+              Estás en modo{' '}
+              <Text style={{ color: accentColor, fontWeight: '700' }}>
+                {isClient ? 'Cliente' : 'Trabajador'}
               </Text>
             </Text>
           </View>
@@ -109,17 +97,11 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
                 <Text style={styles.menuItemIcon}>🔄</Text>
                 <View>
                   <Text style={styles.menuItemTitle}>Cambiar Rol</Text>
-                  <Text style={styles.menuItemSubtitle}>
-                    Alternar entre Cliente y Trabajador
-                  </Text>
+                  <Text style={styles.menuItemSubtitle}>Alternar entre Cliente y Trabajador</Text>
                 </View>
               </View>
-              <View
-                style={[styles.roleBadge, { backgroundColor: accentColor }]}
-              >
-                <Text style={styles.roleBadgeText}>
-                  {isClient ? "Cliente" : "Trabajador"}
-                </Text>
+              <View style={[styles.roleBadge, { backgroundColor: accentColor }]}>
+                <Text style={styles.roleBadgeText}>{isClient ? 'Cliente' : 'Trabajador'}</Text>
               </View>
             </TouchableOpacity>
 
@@ -134,9 +116,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
                 <Text style={styles.menuItemIcon}>👤</Text>
                 <View>
                   <Text style={styles.menuItemTitle}>Editar Perfil</Text>
-                  <Text style={styles.menuItemSubtitle}>
-                    Actualizá tu información personal
-                  </Text>
+                  <Text style={styles.menuItemSubtitle}>Actualizá tu información personal</Text>
                 </View>
               </View>
               <Text style={styles.menuItemChevron}>›</Text>
@@ -153,9 +133,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
                 <Text style={styles.menuItemIcon}>📍</Text>
                 <View>
                   <Text style={styles.menuItemTitle}>Mis Ubicaciones</Text>
-                  <Text style={styles.menuItemSubtitle}>
-                    Administrá tus direcciones guardadas
-                  </Text>
+                  <Text style={styles.menuItemSubtitle}>Administrá tus direcciones guardadas</Text>
                 </View>
               </View>
               <Text style={styles.menuItemChevron}>›</Text>
@@ -170,9 +148,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
                 <Text style={styles.menuItemIcon}>⚙️</Text>
                 <View>
                   <Text style={styles.menuItemTitle}>Configuración</Text>
-                  <Text style={styles.menuItemSubtitle}>
-                    Notificaciones, idioma y más
-                  </Text>
+                  <Text style={styles.menuItemSubtitle}>Notificaciones, idioma y más</Text>
                 </View>
               </View>
               <Text style={styles.menuItemChevron}>›</Text>
@@ -223,9 +199,9 @@ const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: colors.background },
   container: { flex: 1 },
   header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     borderBottomWidth: 1,
@@ -235,12 +211,12 @@ const styles = StyleSheet.create({
     paddingRight: spacing.sm,
     paddingVertical: spacing.xs,
   },
-  backArrow: { color: colors.textPrimary, fontSize: 24, fontWeight: "bold" },
+  backArrow: { color: colors.textPrimary, fontSize: 24, fontWeight: 'bold' },
   title: {
     color: colors.textPrimary,
     fontSize: typography.fontSizes.lg,
-    fontWeight: "700",
-    textAlign: "center",
+    fontWeight: '700',
+    textAlign: 'center',
   },
   headerSpacer: { width: 40 },
   scrollContent: {
@@ -248,7 +224,7 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.xxl,
   },
   avatarSection: {
-    alignItems: "center",
+    alignItems: 'center',
     paddingVertical: spacing.xl,
     gap: spacing.sm,
   },
@@ -258,8 +234,8 @@ const styles = StyleSheet.create({
     borderRadius: 40,
     borderWidth: 3,
     backgroundColor: colors.cardBackground,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     marginBottom: spacing.xs,
   },
   avatarIcon: { fontSize: 36 },
@@ -270,16 +246,16 @@ const styles = StyleSheet.create({
   currentRoleLabel: {
     color: colors.textPrimary,
     fontSize: typography.fontSizes.lg,
-    fontWeight: "600",
+    fontWeight: '600',
   },
   menuSection: {
     gap: spacing.sm,
     marginBottom: spacing.lg,
   },
   menuItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     backgroundColor: colors.cardBackground,
     borderRadius: borderRadius.md,
     padding: spacing.md,
@@ -290,8 +266,8 @@ const styles = StyleSheet.create({
     borderLeftColor: colors.primary,
   },
   menuItemLeft: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: spacing.md,
     flex: 1,
   },
@@ -299,7 +275,7 @@ const styles = StyleSheet.create({
   menuItemTitle: {
     color: colors.textPrimary,
     fontSize: typography.fontSizes.md,
-    fontWeight: "600",
+    fontWeight: '600',
   },
   menuItemSubtitle: {
     color: colors.textSecondary,
@@ -314,12 +290,12 @@ const styles = StyleSheet.create({
   roleBadgeText: {
     color: colors.textPrimary,
     fontSize: typography.fontSizes.xs,
-    fontWeight: "700",
+    fontWeight: '700',
   },
   menuItemChevron: {
     color: colors.textMuted,
     fontSize: 24,
-    fontWeight: "300",
+    fontWeight: '300',
   },
   logoutSection: {
     marginTop: spacing.md,
@@ -329,12 +305,12 @@ const styles = StyleSheet.create({
     borderColor: colors.error,
     borderRadius: borderRadius.md,
     paddingVertical: spacing.md,
-    alignItems: "center",
+    alignItems: 'center',
   },
   logoutText: {
     color: colors.error,
     fontSize: typography.fontSizes.md,
-    fontWeight: "600",
+    fontWeight: '600',
   },
 });
 

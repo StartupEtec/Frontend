@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -8,25 +8,18 @@ import {
   Text,
   TouchableOpacity,
   View,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { StatusBar } from "expo-status-bar";
-import { Feather } from "@expo/vector-icons";
-import { UserRole } from "../types/role";
-import { NearbyWorker, PublicWorkerProfile } from "../types/worker";
-import { SavedLocation } from "../types/location";
-import { userService } from "../services/userService";
-import { toDisplayUri } from "../services/profileService";
-import { ApiError } from "../services/api";
-import { coverageTier, distanceKmBetween, formatDistance } from "../utils/map";
-import {
-  colors,
-  spacing,
-  borderRadius,
-  typography,
-  shadows,
-  roleAccent,
-} from "../theme/tokens";
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { StatusBar } from 'expo-status-bar';
+import { Feather } from '@expo/vector-icons';
+import { UserRole } from '../types/role';
+import { NearbyWorker, PublicWorkerProfile } from '../types/worker';
+import { SavedLocation } from '../types/location';
+import { userService } from '../services/userService';
+import { toDisplayUri } from '../services/profileService';
+import { ApiError } from '../services/api';
+import { coverageTier, distanceKmBetween, formatDistance } from '../utils/map';
+import { colors, spacing, borderRadius, typography, shadows, roleAccent } from '../theme/tokens';
 
 export interface WorkerProfileScreenProps {
   /** Trabajador elegido en la búsqueda (trae categoría y distancia). */
@@ -38,14 +31,14 @@ export interface WorkerProfileScreenProps {
   onGoBack: () => void;
 }
 
-type ProfileStatus = "loading" | "success" | "error";
+type ProfileStatus = 'loading' | 'success' | 'error';
 
 /** "4.5" → "4,5"; null si no hay valoraciones. */
 function formatRating(value: string | null): string | null {
   if (value == null) return null;
   const rating = Number(value);
   if (!Number.isFinite(rating)) return null;
-  return rating.toFixed(1).replace(".", ",");
+  return rating.toFixed(1).replace('.', ',');
 }
 
 function messageFor(err: unknown, fallback: string): string {
@@ -65,24 +58,24 @@ function messageFor(err: unknown, fallback: string): string {
 export const WorkerProfileScreen: React.FC<WorkerProfileScreenProps> = ({
   worker,
   origin,
-  role = "client",
+  role = 'client',
   onGoBack,
 }) => {
   const accentColor = roleAccent(role);
   const [profile, setProfile] = useState<PublicWorkerProfile | null>(null);
-  const [status, setStatus] = useState<ProfileStatus>("loading");
+  const [status, setStatus] = useState<ProfileStatus>('loading');
   const [error, setError] = useState<string | null>(null);
 
   const loadProfile = useCallback(async () => {
-    setStatus("loading");
+    setStatus('loading');
     setError(null);
     try {
       const result = await userService.getPublicProfile(worker.user_id);
       setProfile(result);
-      setStatus("success");
+      setStatus('success');
     } catch (err: unknown) {
-      setError(messageFor(err, "No pudimos cargar el perfil. Reintentá."));
-      setStatus("error");
+      setError(messageFor(err, 'No pudimos cargar el perfil. Reintentá.'));
+      setStatus('error');
     }
   }, [worker.user_id]);
 
@@ -92,45 +85,38 @@ export const WorkerProfileScreen: React.FC<WorkerProfileScreenProps> = ({
 
   const handleRequestService = useCallback(() => {
     Alert.alert(
-      "Próximamente",
-      "El flujo de cotización de servicios estará disponible en una próxima versión.",
+      'Próximamente',
+      'El flujo de cotización de servicios estará disponible en una próxima versión.'
     );
   }, []);
 
   const avatarUri = toDisplayUri(worker.avatar_url);
-  const rating =
-    formatRating(profile?.average_rating ?? worker.average_rating) ?? null;
+  const rating = formatRating(profile?.average_rating ?? worker.average_rating) ?? null;
 
   // ¿Llega el trabajador hasta la ubicación que elegiste para buscar? La
   // referencia es esa ubicación guardada (misma que colorea los pines del
   // mapa); sin ella se usa la distancia que trae la búsqueda (medida desde
   // el centro de búsqueda).
   const coverageDistanceKm = origin
-    ? distanceKmBetween(
-        { latitude: origin.latitude, longitude: origin.longitude },
-        worker,
-      )
+    ? distanceKmBetween({ latitude: origin.latitude, longitude: origin.longitude }, worker)
     : worker.distance_km;
   const tier = coverageTier(coverageDistanceKm, worker.coverage_radius_km);
 
   let coverageText: string;
   let coverageColor: string;
-  if (tier === "in") {
-    coverageText = "Estás en su área de cobertura";
+  if (tier === 'in') {
+    coverageText = 'Estás en su área de cobertura';
     coverageColor = colors.workerAccent;
-  } else if (tier === "unknown") {
-    coverageText = "Este trabajador no definió su área de cobertura";
+  } else if (tier === 'unknown') {
+    coverageText = 'Este trabajador no definió su área de cobertura';
     coverageColor = colors.textMuted;
   } else {
-    const limitGap = formatDistance(
-      (coverageDistanceKm - (worker.coverage_radius_km ?? 0)) * 1000,
-    );
+    const limitGap = formatDistance((coverageDistanceKm - (worker.coverage_radius_km ?? 0)) * 1000);
     coverageText =
-      tier === "near"
+      tier === 'near'
         ? `Fuera de su área por poco (a ${limitGap} del límite)`
         : `Fuera de su área de cobertura (a ${limitGap} del límite)`;
-    coverageColor =
-      tier === "near" ? colors.workerAccentDim : colors.textSecondary;
+    coverageColor = tier === 'near' ? colors.workerAccentDim : colors.textSecondary;
   }
 
   return (
@@ -150,7 +136,7 @@ export const WorkerProfileScreen: React.FC<WorkerProfileScreenProps> = ({
         <View style={styles.headerSpacer} />
       </View>
 
-      {status === "error" ? (
+      {status === 'error' ? (
         <View style={styles.center}>
           <Text style={styles.errorText} testID="profile-error">
             {error}
@@ -183,42 +169,26 @@ export const WorkerProfileScreen: React.FC<WorkerProfileScreenProps> = ({
               </View>
             )}
             <View style={styles.badgesRow}>
-              <View
-                style={[
-                  styles.badge,
-                  { backgroundColor: colors.successContainer },
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.badgeText,
-                    { color: colors.onSuccessContainer },
-                  ]}
-                >
+              <View style={[styles.badge, { backgroundColor: colors.successContainer }]}>
+                <Text style={[styles.badgeText, { color: colors.onSuccessContainer }]}>
                   Disponible
                 </Text>
               </View>
               <View style={[styles.badge, { backgroundColor: accentColor }]}>
-                <Text style={[styles.badgeText, { color: colors.onPrimary }]}>
-                  Certificado
-                </Text>
+                <Text style={[styles.badgeText, { color: colors.onPrimary }]}>Certificado</Text>
               </View>
             </View>
           </View>
 
           <View style={styles.statsCard}>
             <View style={styles.stat}>
-              <Text style={styles.statValue}>
-                {rating ? `★ ${rating}` : "—"}
-              </Text>
-              <Text style={styles.statLabel}>
-                {rating ? "Calificación" : "Sin valoraciones"}
-              </Text>
+              <Text style={styles.statValue}>{rating ? `★ ${rating}` : '—'}</Text>
+              <Text style={styles.statLabel}>{rating ? 'Calificación' : 'Sin valoraciones'}</Text>
             </View>
             <View style={styles.statDivider} />
             <View style={styles.stat}>
               <Text style={styles.statValue}>
-                {formatDistance(worker.distance_km * 1000) || "—"}
+                {formatDistance(worker.distance_km * 1000) || '—'}
               </Text>
               <Text style={styles.statLabel}>Distancia</Text>
             </View>
@@ -226,25 +196,19 @@ export const WorkerProfileScreen: React.FC<WorkerProfileScreenProps> = ({
 
           {/* Indicador chico de relación con el área de cobertura. */}
           <View style={styles.coverageRow} testID="profile-coverage">
-            <View
-              style={[styles.coverageDot, { backgroundColor: coverageColor }]}
-            />
-            <Text style={[styles.coverageText, { color: coverageColor }]}>
-              {coverageText}
-            </Text>
+            <View style={[styles.coverageDot, { backgroundColor: coverageColor }]} />
+            <Text style={[styles.coverageText, { color: coverageColor }]}>{coverageText}</Text>
           </View>
 
           <Text style={styles.sectionTitle}>Acerca de</Text>
-          {status === "loading" ? (
+          {status === 'loading' ? (
             <View style={styles.bioLoading}>
               <ActivityIndicator size="small" color={accentColor} />
               <Text style={styles.bioLoadingText}>Cargando perfil...</Text>
             </View>
           ) : (
             <Text style={styles.bio} testID="profile-bio">
-              {profile?.bio
-                ? profile.bio
-                : "Este trabajador aún no agregó una biografía."}
+              {profile?.bio ? profile.bio : 'Este trabajador aún no agregó una biografía.'}
             </Text>
           )}
 
@@ -266,9 +230,9 @@ export const WorkerProfileScreen: React.FC<WorkerProfileScreenProps> = ({
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: colors.background },
   header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     borderBottomWidth: 1,
@@ -278,25 +242,25 @@ const styles = StyleSheet.create({
     paddingRight: spacing.sm,
     paddingVertical: spacing.xs,
   },
-  backArrow: { fontSize: 24, fontWeight: "bold" },
+  backArrow: { fontSize: 24, fontWeight: 'bold' },
   title: {
     color: colors.textPrimary,
     fontSize: typography.fontSizes.lg,
-    fontWeight: "700",
-    textAlign: "center",
+    fontWeight: '700',
+    textAlign: 'center',
   },
   headerSpacer: { width: 40 },
   center: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     padding: spacing.lg,
     gap: spacing.sm,
   },
   errorText: {
     color: colors.error,
     fontSize: typography.fontSizes.md,
-    textAlign: "center",
+    textAlign: 'center',
     marginBottom: spacing.sm,
   },
   retryButton: {
@@ -315,7 +279,7 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   hero: {
-    alignItems: "center",
+    alignItems: 'center',
     gap: spacing.sm,
     paddingVertical: spacing.md,
   },
@@ -326,14 +290,14 @@ const styles = StyleSheet.create({
   },
   avatarFallback: {
     backgroundColor: colors.surfaceContainerHigh,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   name: {
     color: colors.textPrimary,
     fontSize: typography.fontSizes.xl,
     fontWeight: typography.fontWeights.bold,
-    textAlign: "center",
+    textAlign: 'center',
   },
   categoryTag: {
     backgroundColor: colors.surfaceContainerLow,
@@ -349,7 +313,7 @@ const styles = StyleSheet.create({
     fontWeight: typography.fontWeights.medium,
   },
   badgesRow: {
-    flexDirection: "row",
+    flexDirection: 'row',
     gap: spacing.sm,
   },
   badge: {
@@ -362,7 +326,7 @@ const styles = StyleSheet.create({
     fontWeight: typography.fontWeights.semibold,
   },
   statsCard: {
-    flexDirection: "row",
+    flexDirection: 'row',
     backgroundColor: colors.cardBackground,
     borderRadius: borderRadius.md,
     borderWidth: 1,
@@ -372,7 +336,7 @@ const styles = StyleSheet.create({
   },
   stat: {
     flex: 1,
-    alignItems: "center",
+    alignItems: 'center',
     gap: 2,
     paddingHorizontal: spacing.xs,
   },
@@ -384,16 +348,16 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     fontSize: typography.fontSizes.md,
     fontWeight: typography.fontWeights.bold,
-    textAlign: "center",
+    textAlign: 'center',
   },
   statLabel: {
     color: colors.textMuted,
     fontSize: typography.fontSizes.xs,
-    textAlign: "center",
+    textAlign: 'center',
   },
   coverageRow: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: spacing.sm,
   },
   coverageDot: {
@@ -412,8 +376,8 @@ const styles = StyleSheet.create({
     marginTop: spacing.xs,
   },
   bioLoading: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: spacing.sm,
   },
   bioLoadingText: {
@@ -429,7 +393,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.md,
     paddingVertical: spacing.md,
     borderRadius: borderRadius.md,
-    alignItems: "center",
+    alignItems: 'center',
     ...shadows.button,
   },
   requestButtonText: {

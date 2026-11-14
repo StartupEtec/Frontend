@@ -162,14 +162,12 @@ export const useEditProfile = ({ role = 'client' }: UseEditProfileOptions = {}) 
   const isValid = useMemo(() => Object.values(errors).every((value) => !value), [errors]);
   const isDirty = useMemo(() => {
     const initial = toForm(data);
-    return (Object.keys(initial) as EditProfileField[]).some(
-      (field) => {
-        if (field === 'categoryIds') {
-          return !arraysEqual(initial[field], form[field]);
-        }
-        return initial[field] !== form[field];
+    return (Object.keys(initial) as EditProfileField[]).some((field) => {
+      if (field === 'categoryIds') {
+        return !arraysEqual(initial[field], form[field]);
       }
-    );
+      return initial[field] !== form[field];
+    });
   }, [data, form]);
   const canSave = isDirty && isValid && !isSaving;
 

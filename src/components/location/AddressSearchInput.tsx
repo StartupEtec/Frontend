@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef } from 'react';
 import {
   ActivityIndicator,
   StyleSheet,
@@ -6,10 +6,10 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-} from "react-native";
-import { Feather } from "@expo/vector-icons";
-import { GeocodeResult } from "../../services/geocodingService";
-import { colors, spacing, borderRadius, typography } from "../../theme/tokens";
+} from 'react-native';
+import { Feather } from '@expo/vector-icons';
+import { GeocodeResult } from '../../services/geocodingService';
+import { colors, spacing, borderRadius, typography } from '../../theme/tokens';
 
 interface AddressSearchInputProps {
   value: string;
@@ -71,12 +71,7 @@ export const AddressSearchInput: React.FC<AddressSearchInputProps> = ({
     <View style={styles.container}>
       <Text style={styles.label}>Dirección</Text>
       <View style={[styles.inputRow, error ? styles.inputRowError : null]}>
-        <Feather
-          name="search"
-          size={18}
-          color={colors.textMuted}
-          accessible={false}
-        />
+        <Feather name="search" size={18} color={colors.textMuted} accessible={false} />
         <TextInput
           style={styles.input}
           value={value}
@@ -106,12 +101,7 @@ export const AddressSearchInput: React.FC<AddressSearchInputProps> = ({
               testID={`address-result-${index}`}
               accessibilityRole="button"
             >
-              <Feather
-                name="map-pin"
-                size={16}
-                color={accentColor}
-                accessible={false}
-              />
+              <Feather name="map-pin" size={16} color={accentColor} accessible={false} />
               <Text style={styles.resultText} numberOfLines={2}>
                 {result.label}
               </Text>
@@ -134,8 +124,8 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs,
   },
   inputRow: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: spacing.sm,
     borderWidth: 1,
     borderColor: colors.inputBorder,
@@ -163,11 +153,11 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     borderRadius: borderRadius.md,
     backgroundColor: colors.cardBackground,
-    overflow: "hidden",
+    overflow: 'hidden',
   },
   resultRow: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: spacing.sm,
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.md,

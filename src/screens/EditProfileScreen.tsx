@@ -39,10 +39,7 @@ const MAX_DESCRIPTION_LENGTH = 500;
  * - Un único botón "Guardar cambios"; la flecha de volver descarta lo no
  *   guardado.
  */
-export const EditProfileScreen: React.FC<EditProfileScreenProps> = ({
-  role,
-  onGoBack,
-}) => {
+export const EditProfileScreen: React.FC<EditProfileScreenProps> = ({ role, onGoBack }) => {
   const {
     data,
     form,
@@ -134,12 +131,7 @@ export const EditProfileScreen: React.FC<EditProfileScreenProps> = ({
           }
         />
         {isMultiline && (
-          <Text
-            style={[
-              styles.charCount,
-              isDescriptionAtLimit && styles.charCountAtLimit,
-            ]}
-          >
+          <Text style={[styles.charCount, isDescriptionAtLimit && styles.charCountAtLimit]}>
             {form.description.length}/{MAX_DESCRIPTION_LENGTH}
           </Text>
         )}
@@ -315,9 +307,7 @@ export const EditProfileScreen: React.FC<EditProfileScreenProps> = ({
                           accessibilityRole="button"
                           accessibilityLabel="Agregar categoría"
                         >
-                          <Text style={styles.chipPlaceholderText}>
-                            Agregar categoría
-                          </Text>
+                          <Text style={styles.chipPlaceholderText}>Agregar categoría</Text>
                         </TouchableOpacity>
                       )}
                     </View>
@@ -387,23 +377,13 @@ export const EditProfileScreen: React.FC<EditProfileScreenProps> = ({
                           testID={`category-option-${item.id}`}
                           accessibilityRole="button"
                         >
-                          <Text style={styles.categoryOptionText}>
-                            {item.name}
-                          </Text>
-                          {isSelected && (
-                            <Feather
-                              name="check"
-                              size={18}
-                              color={accentColor}
-                            />
-                          )}
+                          <Text style={styles.categoryOptionText}>{item.name}</Text>
+                          {isSelected && <Feather name="check" size={18} color={accentColor} />}
                         </TouchableOpacity>
                       );
                     }}
                     ListEmptyComponent={
-                      <Text style={styles.emptyCategories}>
-                        No hay categorías disponibles.
-                      </Text>
+                      <Text style={styles.emptyCategories}>No hay categorías disponibles.</Text>
                     }
                   />
                 )}

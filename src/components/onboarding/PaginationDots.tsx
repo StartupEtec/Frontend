@@ -1,12 +1,9 @@
-import React from "react";
-import { View, StyleSheet } from "react-native";
-import { PaginationDotsProps } from "../../types/onboarding";
-import { colors, spacing, borderRadius } from "../../theme/tokens";
+import React from 'react';
+import { View, StyleSheet } from 'react-native';
+import { PaginationDotsProps } from '../../types/onboarding';
+import { colors, spacing, borderRadius } from '../../theme/tokens';
 
-export const PaginationDots: React.FC<PaginationDotsProps> = ({
-  total,
-  currentIndex,
-}) => {
+export const PaginationDots: React.FC<PaginationDotsProps> = ({ total, currentIndex }) => {
   return (
     <View style={styles.container} accessibilityRole="tablist">
       {Array.from({ length: total }).map((_, index) => {
@@ -17,10 +14,7 @@ export const PaginationDots: React.FC<PaginationDotsProps> = ({
             accessibilityRole="tab"
             accessibilityState={{ selected: isActive }}
             accessibilityLabel={`Slide ${index + 1} de ${total}`}
-            style={[
-              styles.dot,
-              isActive ? styles.dotActive : styles.dotInactive,
-            ]}
+            style={[styles.dot, isActive ? styles.dotActive : styles.dotInactive]}
           />
         );
       })}
@@ -30,9 +24,9 @@ export const PaginationDots: React.FC<PaginationDotsProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     marginVertical: spacing.md,
   },
   dot: {

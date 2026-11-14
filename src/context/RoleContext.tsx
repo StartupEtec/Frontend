@@ -1,15 +1,9 @@
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  useCallback,
-} from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { UserRole } from "../types/role";
-import { roleAccent } from "../theme/tokens";
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { UserRole } from '../types/role';
+import { roleAccent } from '../theme/tokens';
 
-const ASYNC_STORAGE_ROLE_KEY = "@startup_app/selected_role";
+const ASYNC_STORAGE_ROLE_KEY = '@startup_app/selected_role';
 
 interface RoleContextValue {
   currentRole: UserRole | null;
@@ -22,9 +16,7 @@ interface RoleContextValue {
 
 const RoleContext = createContext<RoleContextValue | undefined>(undefined);
 
-export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentRole, setCurrentRole] = useState<UserRole | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -32,7 +24,7 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({
     const loadRole = async () => {
       try {
         const saved = await AsyncStorage.getItem(ASYNC_STORAGE_ROLE_KEY);
-        if (saved === "client" || saved === "worker") {
+        if (saved === 'client' || saved === 'worker') {
           setCurrentRole(saved);
         }
       } catch {
@@ -57,9 +49,7 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({
   const accentColor = roleAccent(currentRole);
 
   return (
-    <RoleContext.Provider
-      value={{ currentRole, setRole, clearRole, isLoading, accentColor }}
-    >
+    <RoleContext.Provider value={{ currentRole, setRole, clearRole, isLoading, accentColor }}>
       {children}
     </RoleContext.Provider>
   );
@@ -68,7 +58,7 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({
 export const useRoleContext = (): RoleContextValue => {
   const ctx = useContext(RoleContext);
   if (!ctx) {
-    throw new Error("useRoleContext must be used within a RoleProvider");
+    throw new Error('useRoleContext must be used within a RoleProvider');
   }
   return ctx;
 };

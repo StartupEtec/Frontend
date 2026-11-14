@@ -2,7 +2,7 @@
  * Role Selection Types
  */
 
-export type UserRole = "client" | "worker";
+export type UserRole = 'client' | 'worker';
 
 export interface RoleCardData {
   role: UserRole;

@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   View,
   Text,
@@ -6,9 +6,9 @@ import {
   TouchableOpacity,
   StyleSheet,
   KeyboardTypeOptions,
-} from "react-native";
-import { Feather } from "@expo/vector-icons";
-import { colors, spacing, borderRadius, typography } from "../../theme/tokens";
+} from 'react-native';
+import { Feather } from '@expo/vector-icons';
+import { colors, spacing, borderRadius, typography } from '../../theme/tokens';
 
 interface RegisterFormInputProps {
   label: string;
@@ -20,7 +20,7 @@ interface RegisterFormInputProps {
   secureTextEntry?: boolean;
   onToggleSecureTextEntry?: () => void;
   keyboardType?: KeyboardTypeOptions;
-  autoCapitalize?: "none" | "sentences" | "words" | "characters";
+  autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
   testID?: string;
   editable?: boolean;
 }
@@ -34,8 +34,8 @@ export const RegisterFormInput: React.FC<RegisterFormInputProps> = ({
   placeholder,
   secureTextEntry,
   onToggleSecureTextEntry,
-  keyboardType = "default",
-  autoCapitalize = "none",
+  keyboardType = 'default',
+  autoCapitalize = 'none',
   testID,
   editable = true,
 }) => {
@@ -63,14 +63,12 @@ export const RegisterFormInput: React.FC<RegisterFormInputProps> = ({
           <TouchableOpacity
             style={styles.toggleButton}
             onPress={onToggleSecureTextEntry}
-            accessibilityLabel={
-              secureTextEntry ? "Mostrar contraseña" : "Ocultar contraseña"
-            }
+            accessibilityLabel={secureTextEntry ? 'Mostrar contraseña' : 'Ocultar contraseña'}
             accessibilityRole="button"
             testID={`${testID}-toggle`}
           >
             <Feather
-              name={secureTextEntry ? "eye" : "eye-off"}
+              name={secureTextEntry ? 'eye' : 'eye-off'}
               size={20}
               color={colors.textMuted}
               accessible={false}
@@ -94,8 +92,8 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs,
   },
   inputWrapper: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: colors.surfaceContainerLow,
     borderWidth: 1,
     borderColor: colors.inputBorder,

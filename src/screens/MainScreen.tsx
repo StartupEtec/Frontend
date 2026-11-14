@@ -1,20 +1,9 @@
-import React from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { StatusBar } from "expo-status-bar";
-import { UserRole } from "../types/role";
-import {
-  colors,
-  spacing,
-  borderRadius,
-  typography,
-  shadows,
-} from "../theme/tokens";
+import React from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { StatusBar } from 'expo-status-bar';
+import { UserRole } from '../types/role';
+import { colors, spacing, borderRadius, typography, shadows } from '../theme/tokens';
 
 export interface MainScreenProps {
   selectedRole: UserRole;
@@ -33,7 +22,7 @@ export const MainScreen: React.FC<MainScreenProps> = ({
   onNavigateToCompleteProfile,
   onResetOnboarding,
 }) => {
-  const isClient = selectedRole === "client";
+  const isClient = selectedRole === 'client';
   const accentColor = isClient ? colors.clientAccent : colors.workerAccent;
 
   return (
@@ -56,7 +45,7 @@ export const MainScreen: React.FC<MainScreenProps> = ({
       <View style={styles.centerContainer}>
         <Text style={styles.welcomeText}>🏠 Pantalla Principal</Text>
         <Text style={[styles.roleLabel, { color: accentColor }]}>
-          {isClient ? "Modo Cliente" : "Modo Trabajador"}
+          {isClient ? 'Modo Cliente' : 'Modo Trabajador'}
         </Text>
 
         {!justCompletedProfile && !profileCompleted && (
@@ -65,9 +54,7 @@ export const MainScreen: React.FC<MainScreenProps> = ({
             onPress={onNavigateToCompleteProfile}
             testID="btn-complete-profile"
           >
-            <Text style={styles.completeProfileText}>
-              Terminar de completar perfil ahora
-            </Text>
+            <Text style={styles.completeProfileText}>Terminar de completar perfil ahora</Text>
           </TouchableOpacity>
         )}
 
@@ -99,9 +86,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   topBar: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     borderBottomWidth: 1,
@@ -111,23 +98,23 @@ const styles = StyleSheet.create({
   topBarTitle: {
     color: colors.textPrimary,
     fontSize: typography.fontSizes.lg,
-    fontWeight: "700",
+    fontWeight: '700',
   },
   profileButton: {
     width: 38,
     height: 38,
     borderRadius: 19,
     backgroundColor: colors.cardBackground,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     borderWidth: 1.5,
     borderColor: colors.border,
   },
   profileButtonIcon: { fontSize: 18 },
   centerContainer: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     padding: spacing.lg,
     gap: spacing.md,
   },
@@ -135,7 +122,7 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     fontSize: typography.fontSizes.xl,
     fontWeight: typography.fontWeights.semibold,
-    textAlign: "center",
+    textAlign: 'center',
   },
   roleLabel: {
     fontSize: typography.fontSizes.md,
@@ -150,15 +137,15 @@ const styles = StyleSheet.create({
     ...shadows.button,
   },
   completeProfileText: {
-    color: "#FFFFFF",
+    color: '#FFFFFF',
     fontSize: typography.fontSizes.sm,
-    fontWeight: "600",
+    fontWeight: '600',
   },
   devEditButton: {
     marginTop: spacing.sm,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
-    backgroundColor: "rgba(30, 41, 59, 0.5)",
+    backgroundColor: 'rgba(30, 41, 59, 0.5)',
     borderRadius: borderRadius.sm,
     borderWidth: 1,
     borderColor: colors.border,
@@ -171,7 +158,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.sm,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
-    backgroundColor: "rgba(30, 41, 59, 0.5)",
+    backgroundColor: 'rgba(30, 41, 59, 0.5)',
     borderRadius: borderRadius.sm,
     borderWidth: 1,
     borderColor: colors.border,

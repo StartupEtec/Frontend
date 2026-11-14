@@ -1,5 +1,5 @@
-import * as Location from "expo-location";
-import { Coordinates } from "../types/location";
+import * as Location from 'expo-location';
+import { Coordinates } from '../types/location';
 
 /**
  * Estado del permiso/lectura de la ubicación del dispositivo.
@@ -11,8 +11,7 @@ import { Coordinates } from "../types/location";
  * - unavailable: permiso concedido pero no se pudo obtener la posición
  *                (GPS apagado, servicio deshabilitado, timeout, etc).
  */
-export type DeviceLocationStatus =
-  "idle" | "requesting" | "granted" | "denied" | "unavailable";
+export type DeviceLocationStatus = 'idle' | 'requesting' | 'granted' | 'denied' | 'unavailable';
 
 export interface DeviceLocationResult {
   status: DeviceLocationStatus;
@@ -40,7 +39,7 @@ function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T | null> {
       (error) => {
         clearTimeout(timer);
         reject(error);
-      },
+      }
     );
   });
 }
@@ -66,16 +65,16 @@ export const deviceLocation = {
   async getCurrent(): Promise<DeviceLocationResult> {
     try {
       const permission = await Location.requestForegroundPermissionsAsync();
-      if (permission.status !== "granted") {
-        return { status: "denied", coordinates: null };
+      if (permission.status !== 'granted') {
+        return { status: 'denied', coordinates: null };
       }
 
       const last = await Location.getLastKnownPositionAsync().catch(
-        (): Location.LocationObject | null => null,
+        (): Location.LocationObject | null => null
       );
       if (last && Date.now() - last.timestamp < LAST_KNOWN_FRESH_MS) {
         // Vigente: se responde sin esperar un fix nuevo (apertura instantánea).
-        return { status: "granted", coordinates: toCoordinates(last) };
+        return { status: 'granted', coordinates: toCoordinates(last) };
       }
 
       let current: Location.LocationObject | null = null;
@@ -83,19 +82,17 @@ export const deviceLocation = {
         const request = Location.getCurrentPositionAsync({
           accuracy: Location.Accuracy.Balanced,
         });
-        current = last
-          ? await withTimeout(request, NEW_FIX_TIMEOUT_MS)
-          : await request;
+        current = last ? await withTimeout(request, NEW_FIX_TIMEOUT_MS) : await request;
       } catch {
         // Permiso concedido pero el servicio no pudo resolver la posición.
         current = null;
       }
 
       const position = current ?? last;
-      if (!position) return { status: "unavailable", coordinates: null };
-      return { status: "granted", coordinates: toCoordinates(position) };
+      if (!position) return { status: 'unavailable', coordinates: null };
+      return { status: 'granted', coordinates: toCoordinates(position) };
     } catch {
-      return { status: "unavailable", coordinates: null };
+      return { status: 'unavailable', coordinates: null };
     }
   },
 };

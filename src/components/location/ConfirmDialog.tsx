@@ -1,19 +1,6 @@
-import React from "react";
-import {
-  ActivityIndicator,
-  Modal,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import {
-  colors,
-  spacing,
-  borderRadius,
-  typography,
-  shadows,
-} from "../../theme/tokens";
+import React from 'react';
+import { ActivityIndicator, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { colors, spacing, borderRadius, typography, shadows } from '../../theme/tokens';
 
 interface ConfirmDialogProps {
   visible: boolean;
@@ -32,19 +19,14 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   visible,
   title,
   message,
-  confirmLabel = "Confirmar",
-  cancelLabel = "Cancelar",
+  confirmLabel = 'Confirmar',
+  cancelLabel = 'Cancelar',
   destructive = true,
   busy = false,
   onConfirm,
   onCancel,
 }) => (
-  <Modal
-    visible={visible}
-    transparent
-    animationType="fade"
-    onRequestClose={onCancel}
-  >
+  <Modal visible={visible} transparent animationType="fade" onRequestClose={onCancel}>
     <View style={styles.overlay}>
       <View style={styles.card} testID="confirm-dialog">
         <Text style={styles.title} testID="confirm-dialog-title">
@@ -84,12 +66,12 @@ const styles = StyleSheet.create({
   overlay: {
     flex: 1,
     backgroundColor: colors.overlayBackground,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     padding: spacing.lg,
   },
   card: {
-    width: "100%",
+    width: '100%',
     maxWidth: 420,
     backgroundColor: colors.cardBackground,
     borderRadius: borderRadius.lg,
@@ -108,8 +90,8 @@ const styles = StyleSheet.create({
     lineHeight: typography.lineHeights.normal * typography.fontSizes.sm,
   },
   actions: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
     gap: spacing.sm,
     marginTop: spacing.lg,
   },
@@ -128,7 +110,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     borderRadius: borderRadius.md,
     minWidth: 96,
-    alignItems: "center",
+    alignItems: 'center',
     backgroundColor: colors.primary,
   },
   confirmDanger: {

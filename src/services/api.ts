@@ -1,4 +1,4 @@
-import { tokenStorage } from "./tokenStorage";
+import { tokenStorage } from './tokenStorage';
 
 /**
  * Centralized API Client with Timeout and Exponential Backoff Retries
@@ -22,14 +22,9 @@ export class ApiError extends Error {
   /** Campos específicos que originaron el error, si el backend los informa. */
   public fields?: string[];
 
-  constructor(
-    message: string,
-    statusCode: number,
-    errorCode?: string,
-    fields?: string[],
-  ) {
+  constructor(message: string, statusCode: number, errorCode?: string, fields?: string[]) {
     super(message);
-    this.name = "ApiError";
+    this.name = 'ApiError';
     this.statusCode = statusCode;
     this.errorCode = errorCode;
     this.fields = fields;
@@ -37,7 +32,7 @@ export class ApiError extends Error {
 }
 
 export const API_CONFIG = {
-  BASE_URL: process.env.EXPO_PUBLIC_API_URL ?? "http://10.0.2.2:3000/api/v1",
+  BASE_URL: process.env.EXPO_PUBLIC_API_URL ?? 'http://10.0.2.2:3000/api/v1',
   DEFAULT_TIMEOUT: 10000, // 10s
   MAX_RETRIES: 2,
   INITIAL_RETRY_DELAY: 500, // ms
@@ -45,7 +40,7 @@ export const API_CONFIG = {
 
 /** Origen sin el sufijo /api/v1 (para mostrar archivos de /uploads/...). */
 export function apiOrigin(): string {
-  return API_CONFIG.BASE_URL.replace(/\/api\/v1\/?$/, "");
+  return API_CONFIG.BASE_URL.replace(/\/api\/v1\/?$/, '');
 }
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -62,11 +57,11 @@ async function doRefresh(): Promise<boolean> {
     ]);
     if (!refreshToken || !userId) return false;
     const res = await fetch(`${API_CONFIG.BASE_URL}/auth/refresh-token`, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        "ngrok-skip-browser-warning": "true",
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        'ngrok-skip-browser-warning': 'true',
       },
       body: JSON.stringify({ refreshToken }),
     });
@@ -109,7 +104,7 @@ export function refreshSession(): Promise<boolean> {
 
 /** Los endpoints de auth nunca intentan refresh (evita loops). */
 function isAuthEndpoint(endpoint: string): boolean {
-  return endpoint.startsWith("/auth/");
+  return endpoint.startsWith('/auth/');
 }
 
 export async function apiClient<T>(
@@ -117,35 +112,29 @@ export async function apiClient<T>(
   options: RequestInit = {},
   retries = API_CONFIG.MAX_RETRIES,
   retryDelay = API_CONFIG.INITIAL_RETRY_DELAY,
-  retriedAfterRefresh = false,
+  retriedAfterRefresh = false
 ): Promise<T> {
-  const url = endpoint.startsWith("http")
-    ? endpoint
-    : `${API_CONFIG.BASE_URL}${endpoint}`;
+  const url = endpoint.startsWith('http') ? endpoint : `${API_CONFIG.BASE_URL}${endpoint}`;
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(
-    () => controller.abort(),
-    API_CONFIG.DEFAULT_TIMEOUT,
-  );
+  const timeoutId = setTimeout(() => controller.abort(), API_CONFIG.DEFAULT_TIMEOUT);
 
   const token = await tokenStorage.getAccessToken();
-  const isFormData =
-    typeof FormData !== "undefined" && options.body instanceof FormData;
+  const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
   const headers: Record<string, string> = {
-    Accept: "application/json",
-    "ngrok-skip-browser-warning": "true",
+    Accept: 'application/json',
+    'ngrok-skip-browser-warning': 'true',
     ...((options.headers as Record<string, string>) || {}),
   };
-  if (!isFormData && !headers["Content-Type"]) {
-    headers["Content-Type"] = "application/json";
+  if (!isFormData && !headers['Content-Type']) {
+    headers['Content-Type'] = 'application/json';
   }
   if (isFormData) {
     // fetch genera el boundary de multipart automáticamente
-    delete headers["Content-Type"];
+    delete headers['Content-Type'];
   }
   if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
+    headers['Authorization'] = `Bearer ${token}`;
   }
 
   try {
@@ -157,14 +146,13 @@ export async function apiClient<T>(
 
     clearTimeout(timeoutId);
 
-    const contentType = response.headers.get("content-type");
-    const isJson = contentType && contentType.includes("application/json");
+    const contentType = response.headers.get('content-type');
+    const isJson = contentType && contentType.includes('application/json');
     const data: ApiErrorData & T = isJson ? await response.json() : {};
 
     if (!response.ok) {
-      const errorMessage =
-        data.message || data.error || `Error HTTP ${response.status}`;
-      const errorCode = data.error || "SERVER_ERROR";
+      const errorMessage = data.message || data.error || `Error HTTP ${response.status}`;
+      const errorCode = data.error || 'SERVER_ERROR';
 
       // Access token expirado o inválido (el backend usa 401 sin token y
       // 403 con token inválido/expirado): refrescar una vez y reintentar.
@@ -179,30 +167,19 @@ export async function apiClient<T>(
           return apiClient<T>(endpoint, options, retries, retryDelay, true);
         }
         throw new ApiError(
-          "Sesión expirada. Volvé a iniciar sesión.",
+          'Sesión expirada. Volvé a iniciar sesión.',
           response.status,
-          "SESSION_EXPIRED",
+          'SESSION_EXPIRED'
         );
       }
 
       // Retry on transient 5xx server errors if retries remaining
       if (response.status >= 500 && retries > 0) {
         await delay(retryDelay);
-        return apiClient<T>(
-          endpoint,
-          options,
-          retries - 1,
-          retryDelay * 2,
-          retriedAfterRefresh,
-        );
+        return apiClient<T>(endpoint, options, retries - 1, retryDelay * 2, retriedAfterRefresh);
       }
 
-      throw new ApiError(
-        errorMessage,
-        response.status,
-        errorCode,
-        data.fields,
-      );
+      throw new ApiError(errorMessage, response.status, errorCode, data.fields);
     }
 
     return data as T;
@@ -214,23 +191,23 @@ export async function apiClient<T>(
     }
 
     // Network timeout or connection drop retries
-    if (retries > 0 && error.name !== "AbortError") {
+    if (retries > 0 && error.name !== 'AbortError') {
       await delay(retryDelay);
       return apiClient<T>(endpoint, options, retries - 1, retryDelay * 2);
     }
 
-    if (error.name === "AbortError") {
+    if (error.name === 'AbortError') {
       throw new ApiError(
-        "La solicitud ha superado el tiempo de espera. Reintenta.",
+        'La solicitud ha superado el tiempo de espera. Reintenta.',
         408,
-        "TIMEOUT",
+        'TIMEOUT'
       );
     }
 
     throw new ApiError(
-      error.message || "Error de conexión a la red. Verifica tu internet.",
+      error.message || 'Error de conexión a la red. Verifica tu internet.',
       0,
-      "NETWORK_ERROR",
+      'NETWORK_ERROR'
     );
   }
 }

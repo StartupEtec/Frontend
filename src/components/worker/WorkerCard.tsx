@@ -1,16 +1,10 @@
-import React from "react";
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { Feather } from "@expo/vector-icons";
-import { NearbyWorker } from "../../types/worker";
-import { toDisplayUri } from "../../services/profileService";
-import { formatDistance } from "../../utils/map";
-import {
-  colors,
-  spacing,
-  borderRadius,
-  typography,
-  shadows,
-} from "../../theme/tokens";
+import React from 'react';
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Feather } from '@expo/vector-icons';
+import { NearbyWorker } from '../../types/worker';
+import { toDisplayUri } from '../../services/profileService';
+import { formatDistance } from '../../utils/map';
+import { colors, spacing, borderRadius, typography, shadows } from '../../theme/tokens';
 
 export interface WorkerCardProps {
   worker: NearbyWorker;
@@ -27,7 +21,7 @@ function formatRating(value: string | null): string | null {
   if (value == null) return null;
   const rating = Number(value);
   if (!Number.isFinite(rating)) return null;
-  return rating.toFixed(1).replace(".", ",");
+  return rating.toFixed(1).replace('.', ',');
 }
 
 /**
@@ -47,10 +41,7 @@ export const WorkerCard: React.FC<WorkerCardProps> = ({
   const rating = formatRating(worker.average_rating);
 
   return (
-    <View
-      style={styles.card}
-      testID={testID ?? `worker-card-${worker.worker_id}`}
-    >
+    <View style={styles.card} testID={testID ?? `worker-card-${worker.worker_id}`}>
       <View style={styles.headerRow}>
         {avatarUri ? (
           <Image source={{ uri: avatarUri }} style={styles.avatar} />
@@ -64,12 +55,10 @@ export const WorkerCard: React.FC<WorkerCardProps> = ({
             {worker.full_name}
           </Text>
           <View style={styles.metaRow}>
-            <Text style={styles.rating}>
-              {rating ? `★ ${rating}` : "Sin valoraciones"}
-            </Text>
+            <Text style={styles.rating}>{rating ? `★ ${rating}` : 'Sin valoraciones'}</Text>
             {worker.distance_km >= 0 && (
               <Text style={styles.metaDot}>
-                {" · "}
+                {' · '}
                 {formatDistance(worker.distance_km * 1000)}
               </Text>
             )}
@@ -130,8 +119,8 @@ const styles = StyleSheet.create({
     ...shadows.card,
   },
   headerRow: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: spacing.sm,
   },
   avatar: {
@@ -141,8 +130,8 @@ const styles = StyleSheet.create({
   },
   avatarFallback: {
     backgroundColor: colors.surfaceContainerHigh,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   headerTexts: {
     flex: 1,
@@ -154,9 +143,9 @@ const styles = StyleSheet.create({
     fontWeight: typography.fontWeights.semibold,
   },
   metaRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    flexWrap: "wrap",
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
   },
   rating: {
     color: colors.textSecondary,
@@ -168,9 +157,9 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSizes.sm,
   },
   tagsRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    flexWrap: "wrap",
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
     gap: spacing.sm,
   },
   tag: {
@@ -187,7 +176,7 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSizes.xs,
   },
   actionsRow: {
-    flexDirection: "row",
+    flexDirection: 'row',
     gap: spacing.sm,
     marginTop: spacing.xs,
   },
@@ -195,7 +184,7 @@ const styles = StyleSheet.create({
     flex: 1,
     borderRadius: borderRadius.md,
     paddingVertical: spacing.sm,
-    alignItems: "center",
+    alignItems: 'center',
   },
   profileButtonText: {
     color: colors.onPrimary,
@@ -206,7 +195,7 @@ const styles = StyleSheet.create({
     flex: 1,
     borderRadius: borderRadius.md,
     paddingVertical: spacing.sm,
-    alignItems: "center",
+    alignItems: 'center',
     borderWidth: 1.5,
     backgroundColor: colors.cardBackground,
   },

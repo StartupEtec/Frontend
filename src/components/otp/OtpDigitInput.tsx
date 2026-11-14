@@ -1,11 +1,6 @@
-import React, { forwardRef, useState } from "react";
-import {
-  TextInput,
-  View,
-  StyleSheet,
-  type TextInputInstance,
-} from "react-native";
-import { colors, borderRadius, typography } from "../../theme/tokens";
+import React, { forwardRef, useState } from 'react';
+import { TextInput, View, StyleSheet, type TextInputInstance } from 'react-native';
+import { colors, borderRadius, typography } from '../../theme/tokens';
 
 interface OtpDigitInputProps {
   index: number;
@@ -31,17 +26,11 @@ export const OtpDigitInput = forwardRef<TextInputInstance, OtpDigitInputProps>(
           ? colors.primary
           : colors.inputBorder;
 
-    const backgroundColor = isFocused
-      ? colors.surfaceContainerLowest
-      : colors.surfaceContainerLow;
+    const backgroundColor = isFocused ? colors.surfaceContainerLowest : colors.surfaceContainerLow;
 
     return (
       <View
-        style={[
-          styles.cell,
-          { borderColor, backgroundColor },
-          isFocused && styles.cellFocused,
-        ]}
+        style={[styles.cell, { borderColor, backgroundColor }, isFocused && styles.cellFocused]}
         testID={`otp-cell-container-${index}`}
       >
         <TextInput
@@ -63,10 +52,10 @@ export const OtpDigitInput = forwardRef<TextInputInstance, OtpDigitInputProps>(
         {isFocused && <View style={styles.focusIndicator} />}
       </View>
     );
-  },
+  }
 );
 
-OtpDigitInput.displayName = "OtpDigitInput";
+OtpDigitInput.displayName = 'OtpDigitInput';
 
 const styles = StyleSheet.create({
   cell: {
@@ -74,8 +63,8 @@ const styles = StyleSheet.create({
     height: 58,
     borderRadius: borderRadius.md,
     borderWidth: 1.5,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   cellFocused: {
     borderWidth: 2,
@@ -83,14 +72,14 @@ const styles = StyleSheet.create({
   input: {
     color: colors.textPrimary,
     fontSize: typography.fontSizes.xl,
-    fontWeight: "700",
-    textAlign: "center",
-    width: "100%",
-    height: "100%",
+    fontWeight: '700',
+    textAlign: 'center',
+    width: '100%',
+    height: '100%',
     padding: 0,
   },
   focusIndicator: {
-    position: "absolute",
+    position: 'absolute',
     bottom: 4,
     width: 16,
     height: 3,

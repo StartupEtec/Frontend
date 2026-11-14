@@ -1,16 +1,10 @@
-import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { StatusBar } from "expo-status-bar";
-import { Feather } from "@expo/vector-icons";
-import { AuthWelcomeScreenProps } from "../types/auth";
-import {
-  colors,
-  spacing,
-  borderRadius,
-  typography,
-  shadows,
-} from "../theme/tokens";
+import React from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { StatusBar } from 'expo-status-bar';
+import { Feather } from '@expo/vector-icons';
+import { AuthWelcomeScreenProps } from '../types/auth';
+import { colors, spacing, borderRadius, typography, shadows } from '../theme/tokens';
 
 export const AuthWelcomeScreen: React.FC<AuthWelcomeScreenProps> = ({
   onNavigateToRegister,
@@ -29,8 +23,7 @@ export const AuthWelcomeScreen: React.FC<AuthWelcomeScreenProps> = ({
 
         <Text style={styles.title}>Te Damos la Bienvenida</Text>
         <Text style={styles.subtitle}>
-          Conecta con profesionales e independientes en una sola plataforma
-          segura y flexible.
+          Conecta con profesionales e independientes en una sola plataforma segura y flexible.
         </Text>
 
         <View style={styles.actionsContainer}>
@@ -76,16 +69,16 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.xl,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   logoBadge: {
     width: 72,
     height: 72,
     borderRadius: 36,
     backgroundColor: colors.cardBackground,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     marginBottom: spacing.lg,
     borderWidth: 1,
     borderColor: colors.cardStroke,
@@ -94,28 +87,28 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     fontSize: typography.fontSizes.xxl,
     fontWeight: typography.fontWeights.bold,
-    textAlign: "center",
+    textAlign: 'center',
     marginBottom: spacing.xs,
   },
   subtitle: {
     color: colors.textSecondary,
     fontSize: typography.fontSizes.md,
-    textAlign: "center",
+    textAlign: 'center',
     lineHeight: 24,
     marginBottom: spacing.xl,
     maxWidth: 320,
   },
   actionsContainer: {
-    width: "100%",
+    width: '100%',
     gap: spacing.md,
     marginBottom: spacing.xl,
   },
   button: {
     height: 52,
     borderRadius: borderRadius.md,
-    justifyContent: "center",
-    alignItems: "center",
-    width: "100%",
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
   },
   primaryButton: {
     backgroundColor: colors.primary,
@@ -137,8 +130,8 @@ const styles = StyleSheet.create({
     fontWeight: typography.fontWeights.semibold,
   },
   replayButton: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: spacing.xs,
     paddingVertical: spacing.xs,
     paddingHorizontal: spacing.md,
@@ -147,7 +140,7 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     fontSize: typography.fontSizes.xs,
     fontWeight: typography.fontWeights.medium,
-    textDecorationLine: "underline",
+    textDecorationLine: 'underline',
   },
 });
 

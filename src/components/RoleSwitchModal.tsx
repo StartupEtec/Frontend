@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -7,15 +7,9 @@ import {
   ActivityIndicator,
   StyleSheet,
   Animated,
-} from "react-native";
-import { UserRole } from "../types/role";
-import {
-  colors,
-  spacing,
-  borderRadius,
-  typography,
-  shadows,
-} from "../theme/tokens";
+} from 'react-native';
+import { UserRole } from '../types/role';
+import { colors, spacing, borderRadius, typography, shadows } from '../theme/tokens';
 
 interface RoleSwitchModalProps {
   visible: boolean;
@@ -59,7 +53,7 @@ export const RoleSwitchModal: React.FC<RoleSwitchModalProps> = ({
     }
   }, [visible, scaleAnim, opacityAnim]);
 
-  const isClient = currentRole === "client";
+  const isClient = currentRole === 'client';
 
   return (
     <Modal
@@ -69,17 +63,10 @@ export const RoleSwitchModal: React.FC<RoleSwitchModalProps> = ({
       onRequestClose={onDismiss}
       testID="role-switch-modal"
     >
-      <Animated.View
-        style={[styles.overlay, { opacity: opacityAnim }]}
-        testID="modal-overlay"
-      >
-        <Animated.View
-          style={[styles.modalContainer, { transform: [{ scale: scaleAnim }] }]}
-        >
+      <Animated.View style={[styles.overlay, { opacity: opacityAnim }]} testID="modal-overlay">
+        <Animated.View style={[styles.modalContainer, { transform: [{ scale: scaleAnim }] }]}>
           <Text style={styles.title}>Cambiar Rol</Text>
-          <Text style={styles.subtitle}>
-            Seleccioná el modo en el que querés usar la app
-          </Text>
+          <Text style={styles.subtitle}>Seleccioná el modo en el que querés usar la app</Text>
 
           <View style={styles.optionsContainer}>
             <TouchableOpacity
@@ -87,9 +74,9 @@ export const RoleSwitchModal: React.FC<RoleSwitchModalProps> = ({
                 styles.roleOption,
                 isClient && styles.roleOptionActive,
                 { borderColor: colors.clientAccent },
-                isClient && { backgroundColor: "rgba(59,130,246,0.15)" },
+                isClient && { backgroundColor: 'rgba(59,130,246,0.15)' },
               ]}
-              onPress={() => onSelectRole("client")}
+              onPress={() => onSelectRole('client')}
               disabled={isSubmitting}
               testID="role-option-client"
               accessibilityRole="radio"
@@ -97,14 +84,7 @@ export const RoleSwitchModal: React.FC<RoleSwitchModalProps> = ({
             >
               <Text style={styles.roleIcon}>🔍</Text>
               <View style={styles.roleInfo}>
-                <Text
-                  style={[
-                    styles.roleTitle,
-                    { color: colors.clientAccent },
-                  ]}
-                >
-                  Cliente
-                </Text>
+                <Text style={[styles.roleTitle, { color: colors.clientAccent }]}>Cliente</Text>
                 <Text style={styles.roleDescription}>
                   Encontrá trabajadores para lo que necesités
                 </Text>
@@ -122,10 +102,10 @@ export const RoleSwitchModal: React.FC<RoleSwitchModalProps> = ({
                 !isClient && styles.roleOptionActive,
                 { borderColor: colors.workerAccent },
                 !isClient && {
-                  backgroundColor: "rgba(16,185,129,0.15)",
+                  backgroundColor: 'rgba(16,185,129,0.15)',
                 },
               ]}
-              onPress={() => onSelectRole("worker")}
+              onPress={() => onSelectRole('worker')}
               disabled={isSubmitting}
               testID="role-option-worker"
               accessibilityRole="radio"
@@ -133,25 +113,11 @@ export const RoleSwitchModal: React.FC<RoleSwitchModalProps> = ({
             >
               <Text style={styles.roleIcon}>🛠️</Text>
               <View style={styles.roleInfo}>
-                <Text
-                  style={[
-                    styles.roleTitle,
-                    { color: colors.workerAccent },
-                  ]}
-                >
-                  Trabajador
-                </Text>
-                <Text style={styles.roleDescription}>
-                  Ofrecé tus servicios y ganá dinero
-                </Text>
+                <Text style={[styles.roleTitle, { color: colors.workerAccent }]}>Trabajador</Text>
+                <Text style={styles.roleDescription}>Ofrecé tus servicios y ganá dinero</Text>
               </View>
               {!isClient && (
-                <View
-                  style={[
-                    styles.activeIndicator,
-                    { backgroundColor: colors.workerAccent },
-                  ]}
-                >
+                <View style={[styles.activeIndicator, { backgroundColor: colors.workerAccent }]}>
                   <Text style={styles.activeCheck}>✓</Text>
                 </View>
               )}
@@ -195,12 +161,12 @@ const styles = StyleSheet.create({
   overlay: {
     flex: 1,
     backgroundColor: colors.overlayBackground,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     padding: spacing.lg,
   },
   modalContainer: {
-    width: "100%",
+    width: '100%',
     maxWidth: 380,
     backgroundColor: colors.cardBackground,
     borderRadius: borderRadius.lg,
@@ -211,13 +177,13 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     fontSize: typography.fontSizes.xl,
     fontWeight: typography.fontWeights.bold,
-    textAlign: "center",
+    textAlign: 'center',
     marginBottom: spacing.xs,
   },
   subtitle: {
     color: colors.textSecondary,
     fontSize: typography.fontSizes.sm,
-    textAlign: "center",
+    textAlign: 'center',
     marginBottom: spacing.lg,
     lineHeight: 20,
   },
@@ -225,8 +191,8 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   roleOption: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     borderWidth: 1.5,
     borderRadius: borderRadius.md,
     padding: spacing.md,
@@ -256,8 +222,8 @@ const styles = StyleSheet.create({
     height: 24,
     borderRadius: 12,
     backgroundColor: colors.clientAccent,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   activeCheck: {
     color: colors.textPrimary,
@@ -265,7 +231,7 @@ const styles = StyleSheet.create({
     fontWeight: typography.fontWeights.bold,
   },
   errorBox: {
-    backgroundColor: "rgba(239, 68, 68, 0.15)",
+    backgroundColor: 'rgba(239, 68, 68, 0.15)',
     borderColor: colors.error,
     borderWidth: 1,
     borderRadius: borderRadius.md,
@@ -275,7 +241,7 @@ const styles = StyleSheet.create({
   errorText: {
     color: colors.error,
     fontSize: typography.fontSizes.sm,
-    textAlign: "center",
+    textAlign: 'center',
   },
   warningBox: {
     backgroundColor: colors.warningContainer,
@@ -288,12 +254,12 @@ const styles = StyleSheet.create({
   warningText: {
     color: colors.warning,
     fontSize: typography.fontSizes.sm,
-    textAlign: "center",
+    textAlign: 'center',
   },
   loadingRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     gap: spacing.sm,
     marginTop: spacing.md,
   },
@@ -304,7 +270,7 @@ const styles = StyleSheet.create({
   cancelButton: {
     marginTop: spacing.lg,
     paddingVertical: spacing.sm,
-    alignItems: "center",
+    alignItems: 'center',
   },
   cancelText: {
     color: colors.textMuted,

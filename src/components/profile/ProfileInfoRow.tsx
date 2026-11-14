@@ -1,7 +1,7 @@
-import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { Feather } from "@expo/vector-icons";
-import { colors, spacing, typography } from "../../theme/tokens";
+import React from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { Feather } from '@expo/vector-icons';
+import { colors, spacing, typography } from '../../theme/tokens';
 
 interface ProfileInfoRowProps {
   label: string;
@@ -44,12 +44,7 @@ export const ProfileInfoRow: React.FC<ProfileInfoRowProps> = ({
           accessibilityLabel={editAccessibilityLabel ?? `Editar ${label}`}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         >
-          <Feather
-            name="edit-2"
-            size={16}
-            color={accentColor}
-            accessible={false}
-          />
+          <Feather name="edit-2" size={16} color={accentColor} accessible={false} />
         </TouchableOpacity>
       )}
     </View>
@@ -58,7 +53,7 @@ export const ProfileInfoRow: React.FC<ProfileInfoRowProps> = ({
       testID={testID}
       accessibilityLabel={label}
     >
-      {value || "No definido"}
+      {value || 'No definido'}
     </Text>
   </View>
 );
@@ -72,9 +67,9 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.border,
   },
   topRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   label: {
     fontSize: typography.fontSizes.xs,
@@ -92,7 +87,7 @@ const styles = StyleSheet.create({
   },
   valueEmpty: {
     color: colors.textMuted,
-    fontStyle: "italic",
+    fontStyle: 'italic',
   },
 });
 

@@ -1,19 +1,17 @@
-import { useState, useMemo, useCallback, useEffect } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { LoginFormData, LoginFormErrors, LoginFieldKey } from "../types/auth";
-import { authService } from "../services/authService";
-import { ApiError } from "../services/api";
+import { useState, useMemo, useCallback, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { LoginFormData, LoginFormErrors, LoginFieldKey } from '../types/auth';
+import { authService } from '../services/authService';
+import { ApiError } from '../services/api';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_REGEX = /^\+?[0-9]{8,15}$/;
-const REMEMBERED_CONTACT_KEY = "@startup_app/remembered_contact";
+const REMEMBERED_CONTACT_KEY = '@startup_app/remembered_contact';
 
-export const useLoginForm = (
-  onNavigateToOtp: (contact?: string) => void,
-) => {
+export const useLoginForm = (onNavigateToOtp: (contact?: string) => void) => {
   const [formData, setFormData] = useState<LoginFormData>({
-    emailOrPhone: "",
-    password: "",
+    emailOrPhone: '',
+    password: '',
   });
 
   const [touched, setTouched] = useState<Record<LoginFieldKey, boolean>>({
@@ -46,19 +44,19 @@ export const useLoginForm = (
     const value = formData.emailOrPhone.trim();
 
     if (!value) {
-      errs.emailOrPhone = "El correo electrónico o teléfono es obligatorio";
+      errs.emailOrPhone = 'El correo electrónico o teléfono es obligatorio';
     } else {
       const isEmail = EMAIL_REGEX.test(value);
-      const isPhone = PHONE_REGEX.test(value.replace(/\s+/g, ""));
+      const isPhone = PHONE_REGEX.test(value.replace(/\s+/g, ''));
       if (!isEmail && !isPhone) {
-        errs.emailOrPhone = "Ingresá un correo electrónico o teléfono válido";
+        errs.emailOrPhone = 'Ingresá un correo electrónico o teléfono válido';
       }
     }
 
     if (!formData.password) {
-      errs.password = "La contraseña es obligatoria";
+      errs.password = 'La contraseña es obligatoria';
     } else if (formData.password.length < 6) {
-      errs.password = "La contraseña debe tener al menos 6 caracteres";
+      errs.password = 'La contraseña debe tener al menos 6 caracteres';
     }
 
     return errs;
@@ -68,13 +66,10 @@ export const useLoginForm = (
     return Object.keys(errors).length === 0;
   }, [errors]);
 
-  const handleChange = useCallback(
-    (field: LoginFieldKey, value: string | boolean) => {
-      setFormData((prev) => ({ ...prev, [field]: value }));
-      setServerError(null);
-    },
-    [],
-  );
+  const handleChange = useCallback((field: LoginFieldKey, value: string | boolean) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    setServerError(null);
+  }, []);
 
   const handleBlur = useCallback((field: LoginFieldKey) => {
     setTouched((prev) => ({ ...prev, [field]: true }));
@@ -98,11 +93,11 @@ export const useLoginForm = (
 
     const value = formData.emailOrPhone.trim();
     const isEmail = EMAIL_REGEX.test(value);
-    PHONE_REGEX.test(value.replace(/\s+/g, ""));
+    PHONE_REGEX.test(value.replace(/\s+/g, ''));
 
     const payload = {
       password: formData.password,
-      ...(isEmail ? { email: value } : { phone: value.replace(/\s+/g, "") }),
+      ...(isEmail ? { email: value } : { phone: value.replace(/\s+/g, '') }),
     };
 
     try {
@@ -114,36 +109,38 @@ export const useLoginForm = (
         await AsyncStorage.removeItem(REMEMBERED_CONTACT_KEY);
       }
 
-      const contact = isEmail ? value : value.replace(/\s+/g, "");
+      const contact = isEmail ? value : value.replace(/\s+/g, '');
       onNavigateToOtp(contact);
     } catch (err: any) {
       if (err instanceof ApiError) {
         switch (err.statusCode) {
           case 401:
             setServerError(
-              err.errorCode === "INVALID_PASSWORD"
-                ? "La contraseña es incorrecta."
-                : "Credenciales incorrectas. Verificá tu email/teléfono y contraseña.",
+              err.errorCode === 'INVALID_PASSWORD'
+                ? 'La contraseña es incorrecta.'
+                : 'Credenciales incorrectas. Verificá tu email/teléfono y contraseña.'
             );
             break;
           case 404:
             setServerError(
-              err.errorCode === "USER_NOT_FOUND"
-                ? "No existe una cuenta con ese correo electrónico o teléfono."
-                : "No se encontró una cuenta con esos datos.",
+              err.errorCode === 'USER_NOT_FOUND'
+                ? 'No existe una cuenta con ese correo electrónico o teléfono.'
+                : 'No se encontró una cuenta con esos datos.'
             );
             break;
           case 403:
-            setServerError("Tu cuenta aún no fue verificada. Revisa tu correo o teléfono para el código OTP.");
+            setServerError(
+              'Tu cuenta aún no fue verificada. Revisa tu correo o teléfono para el código OTP.'
+            );
             break;
           case 429:
-            setServerError("Demasiados intentos. Esperá unos minutos y volvé a intentar.");
+            setServerError('Demasiados intentos. Esperá unos minutos y volvé a intentar.');
             break;
           default:
-            setServerError(err.message || "Ocurrió un error al iniciar sesión.");
+            setServerError(err.message || 'Ocurrió un error al iniciar sesión.');
         }
       } else {
-        setServerError("Error de conexión. Verificá tu internet y reintenta.");
+        setServerError('Error de conexión. Verificá tu internet y reintenta.');
       }
     } finally {
       setIsSubmitting(false);

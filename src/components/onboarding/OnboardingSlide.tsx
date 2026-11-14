@@ -1,27 +1,18 @@
-import React from "react";
-import { View, Text, StyleSheet } from "react-native";
-import { Feather } from "@expo/vector-icons";
-import { OnboardingSlideProps } from "../../types/onboarding";
-import { colors, spacing, borderRadius, typography, shadows } from "../../theme/tokens";
+import React from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import { Feather } from '@expo/vector-icons';
+import { OnboardingSlideProps } from '../../types/onboarding';
+import { colors, spacing, borderRadius, typography, shadows } from '../../theme/tokens';
 
-export const OnboardingSlide: React.FC<OnboardingSlideProps> = ({
-  item,
-  width,
-  height,
-}) => {
+export const OnboardingSlide: React.FC<OnboardingSlideProps> = ({ item, width, height }) => {
   // Render visual graphic badge according to slide type
   const renderGraphic = () => {
     switch (item.svgPlaceholderType) {
-      case "platform":
+      case 'platform':
         return (
           <View style={styles.graphicContainer}>
             <View style={[styles.outerCircle, { borderColor: colors.primary }]}>
-              <View
-                style={[
-                  styles.innerCard,
-                  { backgroundColor: colors.cardBackground },
-                ]}
-              >
+              <View style={[styles.innerCard, { backgroundColor: colors.cardBackground }]}>
                 <View style={[styles.iconCircle, styles.iconCirclePrimary]}>
                   <Feather name="zap" size={24} color={colors.primary} />
                 </View>
@@ -31,18 +22,11 @@ export const OnboardingSlide: React.FC<OnboardingSlideProps> = ({
             </View>
           </View>
         );
-      case "client":
+      case 'client':
         return (
           <View style={styles.graphicContainer}>
-            <View
-              style={[styles.outerCircle, { borderColor: colors.clientAccent }]}
-            >
-              <View
-                style={[
-                  styles.innerCard,
-                  { backgroundColor: colors.cardBackground },
-                ]}
-              >
+            <View style={[styles.outerCircle, { borderColor: colors.clientAccent }]}>
+              <View style={[styles.innerCard, { backgroundColor: colors.cardBackground }]}>
                 <View style={[styles.badgeTag, styles.badgeTagClient]}>
                   <Text style={styles.badgeTagText}>CLIENTE</Text>
                 </View>
@@ -58,21 +42,12 @@ export const OnboardingSlide: React.FC<OnboardingSlideProps> = ({
             </View>
           </View>
         );
-      case "worker":
+      case 'worker':
         return (
           <View style={styles.graphicContainer}>
-            <View
-              style={[styles.outerCircle, { borderColor: colors.workerAccent }]}
-            >
-              <View
-                style={[
-                  styles.innerCard,
-                  { backgroundColor: colors.cardBackground },
-                ]}
-              >
-                <View
-                  style={[styles.badgeTag, { backgroundColor: colors.workerAccent }]}
-                >
+            <View style={[styles.outerCircle, { borderColor: colors.workerAccent }]}>
+              <View style={[styles.innerCard, { backgroundColor: colors.cardBackground }]}>
+                <View style={[styles.badgeTag, { backgroundColor: colors.workerAccent }]}>
                   <Text style={styles.badgeTagText}>PROVEEDOR</Text>
                 </View>
                 <View style={[styles.iconCircle, styles.iconCircleWorker]}>
@@ -87,19 +62,12 @@ export const OnboardingSlide: React.FC<OnboardingSlideProps> = ({
             </View>
           </View>
         );
-      case "welcome":
+      case 'welcome':
       default:
         return (
           <View style={styles.graphicContainer}>
-            <View
-              style={[styles.outerCircle, { borderColor: colors.primary }]}
-            >
-              <View
-                style={[
-                  styles.innerCard,
-                  { backgroundColor: colors.cardBackground },
-                ]}
-              >
+            <View style={[styles.outerCircle, { borderColor: colors.primary }]}>
+              <View style={[styles.innerCard, { backgroundColor: colors.cardBackground }]}>
                 <View style={[styles.iconCircle, styles.iconCirclePrimary]}>
                   <Feather name="repeat" size={24} color={colors.primary} />
                 </View>
@@ -136,15 +104,15 @@ export const OnboardingSlide: React.FC<OnboardingSlideProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
     paddingHorizontal: spacing.lg,
   },
   graphicContainer: {
     height: 240,
-    width: "100%",
-    alignItems: "center",
-    justifyContent: "center",
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: spacing.lg,
   },
   outerCircle: {
@@ -152,16 +120,16 @@ const styles = StyleSheet.create({
     height: 210,
     borderRadius: 105,
     borderWidth: 2,
-    borderStyle: "dashed",
-    alignItems: "center",
-    justifyContent: "center",
+    borderStyle: 'dashed',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   innerCard: {
     width: 170,
     height: 170,
     borderRadius: borderRadius.lg,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
     padding: spacing.md,
     ...shadows.card,
     borderWidth: 1,
@@ -171,8 +139,8 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: spacing.xs,
   },
   iconCirclePrimary: {
@@ -199,7 +167,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.xs,
   },
   badgeTag: {
-    position: "absolute",
+    position: 'absolute',
     top: 8,
     paddingHorizontal: 8,
     paddingVertical: 2,
@@ -209,20 +177,20 @@ const styles = StyleSheet.create({
     backgroundColor: colors.clientAccent,
   },
   badgeTagText: {
-    color: "#FFF",
+    color: '#FFF',
     fontSize: 9,
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
   cardTitleMock: {
     color: colors.textPrimary,
     fontSize: 13,
-    fontWeight: "600",
+    fontWeight: '600',
     marginTop: 4,
-    textAlign: "center",
+    textAlign: 'center',
   },
   priceTag: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     marginTop: 6,
     backgroundColor: colors.primaryFixed,
     paddingHorizontal: 8,
@@ -232,11 +200,11 @@ const styles = StyleSheet.create({
   priceTagText: {
     color: colors.primary,
     fontSize: 11,
-    fontWeight: "600",
+    fontWeight: '600',
   },
   incomeBadge: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     marginTop: 6,
     backgroundColor: colors.successContainer,
     paddingHorizontal: 8,
@@ -246,11 +214,11 @@ const styles = StyleSheet.create({
   incomeText: {
     color: colors.success,
     fontSize: 11,
-    fontWeight: "600",
+    fontWeight: '600',
   },
   dualPill: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     marginTop: 6,
     backgroundColor: colors.primaryFixed,
     paddingHorizontal: 10,
@@ -260,12 +228,12 @@ const styles = StyleSheet.create({
   dualPillText: {
     color: colors.primary,
     fontSize: 11,
-    fontWeight: "700",
+    fontWeight: '700',
   },
 
   // Text Box
   textContainer: {
-    alignItems: "center",
+    alignItems: 'center',
     paddingHorizontal: spacing.md,
   },
   badge: {
@@ -275,17 +243,17 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   badgeText: {
-    color: "#FFFFFF",
+    color: '#FFFFFF',
     fontSize: typography.fontSizes.xs,
     fontWeight: typography.fontWeights.bold,
-    textTransform: "uppercase",
+    textTransform: 'uppercase',
     letterSpacing: 1,
   },
   title: {
     color: colors.textPrimary,
     fontSize: typography.fontSizes.xl,
     fontWeight: typography.fontWeights.bold,
-    textAlign: "center",
+    textAlign: 'center',
     marginBottom: spacing.sm,
     lineHeight: 28,
   },
@@ -293,7 +261,7 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     fontSize: typography.fontSizes.md,
     fontWeight: typography.fontWeights.regular,
-    textAlign: "center",
+    textAlign: 'center',
     lineHeight: 24,
     paddingHorizontal: spacing.xs,
   },

@@ -1,9 +1,6 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  deviceLocation,
-  DeviceLocationStatus,
-} from "../services/deviceLocation";
-import { Coordinates } from "../types/location";
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { deviceLocation, DeviceLocationStatus } from '../services/deviceLocation';
+import { Coordinates } from '../types/location';
 
 interface UseDeviceLocationOptions {
   /**
@@ -18,11 +15,9 @@ interface UseDeviceLocationOptions {
  * Expone la ubicación del dispositivo como referencia para ordenar/filtrar
  * las ubicaciones guardadas por cercanía, además del estado del permiso.
  */
-export const useDeviceLocation = ({
-  autoRequest = true,
-}: UseDeviceLocationOptions = {}) => {
+export const useDeviceLocation = ({ autoRequest = true }: UseDeviceLocationOptions = {}) => {
   const [coordinates, setCoordinates] = useState<Coordinates | null>(null);
-  const [status, setStatus] = useState<DeviceLocationStatus>("idle");
+  const [status, setStatus] = useState<DeviceLocationStatus>('idle');
   const mountedRef = useRef(true);
 
   useEffect(() => {
@@ -33,7 +28,7 @@ export const useDeviceLocation = ({
   }, []);
 
   const request = useCallback(async (): Promise<Coordinates | null> => {
-    setStatus("requesting");
+    setStatus('requesting');
     const result = await deviceLocation.getCurrent();
     if (!mountedRef.current) return result.coordinates;
 
@@ -51,11 +46,11 @@ export const useDeviceLocation = ({
     coordinates,
     status,
     /** true mientras se espera el permiso / la posición. */
-    loading: status === "requesting",
+    loading: status === 'requesting',
     /** El usuario rechazó el permiso. */
-    denied: status === "denied",
+    denied: status === 'denied',
     /** Permiso concedido pero sin posición (GPS apagado, timeout, etc). */
-    unavailable: status === "unavailable",
+    unavailable: status === 'unavailable',
     /** Vuelve a pedir el permiso y la posición. */
     request,
   };
