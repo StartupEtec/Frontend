@@ -1,5 +1,6 @@
 const tseslint = require("@typescript-eslint/eslint-plugin");
 const tsParser = require("@typescript-eslint/parser");
+const reactHooks = require("eslint-plugin-react-hooks");
 
 module.exports = [
   {
@@ -9,6 +10,7 @@ module.exports = [
     files: ["**/*.ts", "**/*.tsx"],
     plugins: {
       "@typescript-eslint": tseslint,
+      "react-hooks": reactHooks,
     },
     languageOptions: {
       parser: tsParser,
@@ -17,7 +19,11 @@ module.exports = [
     },
     rules: {
       "@typescript-eslint/no-explicit-any": "warn",
-      "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
+      ],
+      "react-hooks/exhaustive-deps": "warn",
     },
   },
 ];

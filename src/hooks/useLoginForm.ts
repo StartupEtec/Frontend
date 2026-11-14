@@ -98,7 +98,7 @@ export const useLoginForm = (
 
     const value = formData.emailOrPhone.trim();
     const isEmail = EMAIL_REGEX.test(value);
-    const isPhone = PHONE_REGEX.test(value.replace(/\s+/g, ""));
+    PHONE_REGEX.test(value.replace(/\s+/g, ""));
 
     const payload = {
       password: formData.password,
@@ -106,7 +106,7 @@ export const useLoginForm = (
     };
 
     try {
-      const response = await authService.login(payload);
+      await authService.login(payload);
 
       if (rememberMe) {
         await AsyncStorage.setItem(REMEMBERED_CONTACT_KEY, value);

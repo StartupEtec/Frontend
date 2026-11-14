@@ -72,7 +72,7 @@ export const EditProfileScreen: React.FC<EditProfileScreenProps> = ({
 
   const [categoryModalVisible, setCategoryModalVisible] = useState(false);
   /** Altura dinámica del TextInput de descripción para auto-ajuste. */
-  const [descriptionHeight, setDescriptionHeight] = useState(100);
+  const [_descriptionHeight, setDescriptionHeight] = useState(100);
 
   const handleAvatarChange = (uri: string) => {
     void saveAvatar(uri);
@@ -151,10 +151,6 @@ export const EditProfileScreen: React.FC<EditProfileScreenProps> = ({
       </View>
     );
   };
-
-  const selectedCategoryNames = form.categoryIds
-    .map((id) => categories.find((c) => c.id === id)?.name)
-    .filter(Boolean);
 
   return (
     <SafeAreaView style={styles.safeArea}>

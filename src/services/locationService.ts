@@ -50,7 +50,7 @@ function stripRadius<T extends object>(
  * Envía la mutación con `coverage_radius_km`. Si el backend no soporta el
  * campo, reintenta una vez sin él.
  */
-async function sendMutation<T>(
+async function sendMutation(
   endpoint: string,
   method: "POST" | "PATCH",
   payload: CreateLocationPayload | UpdateLocationPayload,

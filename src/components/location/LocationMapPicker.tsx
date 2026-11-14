@@ -70,9 +70,7 @@ export const LocationMapPicker: React.FC<LocationMapPickerProps> = ({
     coordinates ?? userLocation ?? DEFAULT_CENTER,
   );
   const [locateNonce, setLocateNonce] = useState(0);
-  const [locating, setLocating] = useState(false);
-  // Guarda el último punto emitido por el propio mapa para distinguir un
-  // cambio "eco" (no recentrar) de uno externo (sí recentrar).
+  const [locating, _setLocating] = useState(false);
   const lastEmittedRef = useRef<Coordinates | null>(null);
 
   useEffect(() => {

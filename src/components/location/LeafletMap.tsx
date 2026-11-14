@@ -291,7 +291,6 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
       inject(`window.__leaflet.setView(${centerLat}, ${centerLng}, ${zoom})`);
     }
     // `centerKey` permite forzar el recentrado con las mismas coordenadas.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [centerLat, centerLng, zoom, centerKey, inject]);
 
   useEffect(() => {
