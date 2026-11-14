@@ -1,4 +1,4 @@
-import { UserRole } from "./role";
+import { UserRole } from './role';
 
 export interface ProfileFormData {
   selfieUri: string | null;
@@ -33,7 +33,7 @@ export interface ClientProfilePayload {
 
 export interface WorkerProfilePayload extends ClientProfilePayload {
   category_id?: string | null;
-  availability_status?: "AVAILABLE" | "BUSY" | "OFFLINE";
+  availability_status?: 'AVAILABLE' | 'BUSY' | 'OFFLINE';
 }
 
 export type CreateClientProfilePayload = ClientProfilePayload;
@@ -83,7 +83,7 @@ export interface ProfileUpdateApiResponse {
 }
 
 /** Identidad incluida en GET /users/me (presente solo cuando está completa). */
-export type PrivateIdentity = Omit<IdentityPayload, "is_complete">;
+export type PrivateIdentity = Omit<IdentityPayload, 'is_complete'>;
 
 /** Perfil por rol (cliente o trabajador) tal como lo devuelve GET /users/me. */
 export interface PrivateRoleProfile {
@@ -93,6 +93,8 @@ export interface PrivateRoleProfile {
   bio: string | null;
   availability_status?: string | null;
   certification_status?: string | null;
+  category_id?: string | null;
+  category_name?: string | null;
 }
 
 /**
@@ -101,6 +103,7 @@ export interface PrivateRoleProfile {
  */
 export interface PrivateProfileResponse {
   id: string;
+  full_name: string | null;
   email: string;
   phone: string;
   current_role: UserRole;

@@ -1,4 +1,4 @@
-import { apiClient } from "./api";
+import { apiClient } from './api';
 import {
   RegisterApiPayload,
   RegisterApiResponse,
@@ -10,13 +10,13 @@ import {
   VerifyResetCodeApiResponse,
   ResetPasswordApiPayload,
   ResetPasswordApiResponse,
-} from "../types/auth";
+} from '../types/auth';
 import {
   OtpVerifyApiPayload,
   OtpVerifyApiResponse,
   OtpResendApiPayload,
   OtpResendApiResponse,
-} from "../types/otp";
+} from '../types/otp';
 
 export const authService = {
   /**
@@ -24,8 +24,8 @@ export const authService = {
    * POST /auth/register
    */
   async register(payload: RegisterApiPayload): Promise<RegisterApiResponse> {
-    return apiClient<RegisterApiResponse>("/auth/register", {
-      method: "POST",
+    return apiClient<RegisterApiResponse>('/auth/register', {
+      method: 'POST',
       body: JSON.stringify(payload),
     });
   },
@@ -38,8 +38,8 @@ export const authService = {
    * EXPIRED_OTP (410), OTP_ATTEMPTS_EXCEEDED (429), TOO_MANY_REQUESTS (429).
    */
   async verifyOtp(payload: OtpVerifyApiPayload): Promise<OtpVerifyApiResponse> {
-    return apiClient<OtpVerifyApiResponse>("/auth/verify-otp", {
-      method: "POST",
+    return apiClient<OtpVerifyApiResponse>('/auth/verify-otp', {
+      method: 'POST',
       body: JSON.stringify(payload),
     });
   },
@@ -52,8 +52,8 @@ export const authService = {
    * el usuario no exista (anti-enumeración).
    */
   async resendOtp(payload: OtpResendApiPayload): Promise<OtpResendApiResponse> {
-    return apiClient<OtpResendApiResponse>("/auth/resend-otp", {
-      method: "POST",
+    return apiClient<OtpResendApiResponse>('/auth/resend-otp', {
+      method: 'POST',
       body: JSON.stringify(payload),
     });
   },
@@ -63,8 +63,8 @@ export const authService = {
    * POST /auth/login
    */
   async login(payload: LoginApiPayload): Promise<LoginApiResponse> {
-    return apiClient<LoginApiResponse>("/auth/login", {
-      method: "POST",
+    return apiClient<LoginApiResponse>('/auth/login', {
+      method: 'POST',
       body: JSON.stringify(payload),
     });
   },
@@ -73,11 +73,9 @@ export const authService = {
    * Request a password reset code by email or phone
    * POST /auth/forgot-password
    */
-  async forgotPassword(
-    payload: ForgotPasswordApiPayload,
-  ): Promise<ForgotPasswordApiResponse> {
-    return apiClient<ForgotPasswordApiResponse>("/auth/forgot-password", {
-      method: "POST",
+  async forgotPassword(payload: ForgotPasswordApiPayload): Promise<ForgotPasswordApiResponse> {
+    return apiClient<ForgotPasswordApiResponse>('/auth/forgot-password', {
+      method: 'POST',
       body: JSON.stringify(payload),
     });
   },
@@ -86,11 +84,9 @@ export const authService = {
    * Verify the password reset code
    * POST /auth/verify-reset-code
    */
-  async verifyResetCode(
-    payload: VerifyResetCodeApiPayload,
-  ): Promise<VerifyResetCodeApiResponse> {
-    return apiClient<VerifyResetCodeApiResponse>("/auth/verify-reset-code", {
-      method: "POST",
+  async verifyResetCode(payload: VerifyResetCodeApiPayload): Promise<VerifyResetCodeApiResponse> {
+    return apiClient<VerifyResetCodeApiResponse>('/auth/verify-reset-code', {
+      method: 'POST',
       body: JSON.stringify(payload),
     });
   },
@@ -99,11 +95,9 @@ export const authService = {
    * Set a new password using the temporal token
    * POST /auth/reset-password
    */
-  async resetPassword(
-    payload: ResetPasswordApiPayload,
-  ): Promise<ResetPasswordApiResponse> {
-    return apiClient<ResetPasswordApiResponse>("/auth/reset-password", {
-      method: "POST",
+  async resetPassword(payload: ResetPasswordApiPayload): Promise<ResetPasswordApiResponse> {
+    return apiClient<ResetPasswordApiResponse>('/auth/reset-password', {
+      method: 'POST',
       body: JSON.stringify(payload),
     });
   },

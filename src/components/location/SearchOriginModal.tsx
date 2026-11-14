@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -7,17 +7,11 @@ import {
   ActivityIndicator,
   StyleSheet,
   Animated,
-} from "react-native";
-import { SavedLocation } from "../../types/location";
-import { locationService } from "../../services/locationService";
-import { tokenStorage } from "../../services/tokenStorage";
-import {
-  colors,
-  spacing,
-  borderRadius,
-  typography,
-  shadows,
-} from "../../theme/tokens";
+} from 'react-native';
+import { SavedLocation } from '../../types/location';
+import { locationService } from '../../services/locationService';
+import { tokenStorage } from '../../services/tokenStorage';
+import { colors, spacing, borderRadius, typography, shadows } from '../../theme/tokens';
 
 interface SearchOriginModalProps {
   /** true cuando el usuario pidió elegir desde dónde buscar. */
@@ -31,7 +25,7 @@ interface SearchOriginModalProps {
   onDismiss: () => void;
 }
 
-type OriginStatus = "loading" | "ready" | "error";
+type OriginStatus = 'loading' | 'ready' | 'error';
 
 /**
  * Pop-up de selección de la ubicación de referencia para "Buscar
@@ -53,7 +47,7 @@ export const SearchOriginModal: React.FC<SearchOriginModalProps> = ({
   const scaleAnim = useRef(new Animated.Value(0.9)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
 
-  const [status, setStatus] = useState<OriginStatus>("loading");
+  const [status, setStatus] = useState<OriginStatus>('loading');
   const [locations, setLocations] = useState<SavedLocation[]>([]);
   // Bump para reintentar sin reabrir el modal.
   const [reloadKey, setReloadKey] = useState(0);
@@ -83,24 +77,21 @@ export const SearchOriginModal: React.FC<SearchOriginModalProps> = ({
   useEffect(() => {
     if (!visible) return;
     let cancelled = false;
-    setStatus("loading");
+    setStatus('loading');
     setLocations([]);
     (async () => {
       try {
         const userId = await tokenStorage.getUserId();
-        if (!userId) throw new Error("Sesión inválida");
+        if (!userId) throw new Error('Sesión inválida');
         const list = await locationService.list(userId);
         if (cancelled) return;
         // La principal primero; el resto en el orden que devuelve la API.
         setLocations(
-          [...list].sort(
-            (a, b) =>
-              Number(b.is_primary ?? false) - Number(a.is_primary ?? false),
-          ),
+          [...list].sort((a, b) => Number(b.is_primary ?? false) - Number(a.is_primary ?? false))
         );
-        setStatus("ready");
+        setStatus('ready');
       } catch {
-        if (!cancelled) setStatus("error");
+        if (!cancelled) setStatus('error');
       }
     })();
     return () => {
@@ -118,32 +109,23 @@ export const SearchOriginModal: React.FC<SearchOriginModalProps> = ({
       onRequestClose={onDismiss}
       testID="search-origin-modal"
     >
-      <Animated.View
-        style={[styles.overlay, { opacity: opacityAnim }]}
-        testID="modal-overlay"
-      >
-        <Animated.View
-          style={[styles.modalContainer, { transform: [{ scale: scaleAnim }] }]}
-        >
+      <Animated.View style={[styles.overlay, { opacity: opacityAnim }]} testID="modal-overlay">
+        <Animated.View style={[styles.modalContainer, { transform: [{ scale: scaleAnim }] }]}>
           <Text style={styles.title}>¿Dónde necesitás el servicio?</Text>
           <Text style={styles.subtitle}>
             Elegí una ubicación para buscar trabajadores cerca de ahí.
           </Text>
 
-          {status === "loading" && (
+          {status === 'loading' && (
             <View style={styles.loadingRow} testID="search-origin-loading">
               <ActivityIndicator size="small" color={colors.primary} />
-              <Text style={styles.loadingText}>
-                Cargando tus ubicaciones...
-              </Text>
+              <Text style={styles.loadingText}>Cargando tus ubicaciones...</Text>
             </View>
           )}
 
-          {status === "error" && (
+          {status === 'error' && (
             <View style={styles.errorBox} testID="search-origin-error">
-              <Text style={styles.errorText}>
-                No pudimos cargar tus ubicaciones.
-              </Text>
+              <Text style={styles.errorText}>No pudimos cargar tus ubicaciones.</Text>
               <TouchableOpacity
                 onPress={handleRetry}
                 testID="btn-search-origin-retry"
@@ -154,13 +136,13 @@ export const SearchOriginModal: React.FC<SearchOriginModalProps> = ({
             </View>
           )}
 
-          {status === "ready" && locations.length === 0 && (
+          {status === 'ready' && locations.length === 0 && (
             <Text style={styles.emptyText} testID="search-origin-empty">
               Todavía no guardaste ninguna ubicación.
             </Text>
           )}
 
-          {status === "ready" &&
+          {status === 'ready' &&
             locations.map((location) => {
               const isActive = location.id === selectedId;
               return (
@@ -177,9 +159,7 @@ export const SearchOriginModal: React.FC<SearchOriginModalProps> = ({
                     <Text style={styles.optionAddress} numberOfLines={2}>
                       {location.address}
                     </Text>
-                    {location.is_primary && (
-                      <Text style={styles.primaryBadge}>Principal</Text>
-                    )}
+                    {location.is_primary && <Text style={styles.primaryBadge}>Principal</Text>}
                   </View>
                   {isActive && (
                     <View style={styles.activeIndicator}>
@@ -219,12 +199,12 @@ const styles = StyleSheet.create({
   overlay: {
     flex: 1,
     backgroundColor: colors.overlayBackground,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     padding: spacing.lg,
   },
   modalContainer: {
-    width: "100%",
+    width: '100%',
     maxWidth: 380,
     backgroundColor: colors.cardBackground,
     borderRadius: borderRadius.lg,
@@ -235,20 +215,20 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     fontSize: typography.fontSizes.xl,
     fontWeight: typography.fontWeights.bold,
-    textAlign: "center",
+    textAlign: 'center',
     marginBottom: spacing.xs,
   },
   subtitle: {
     color: colors.textSecondary,
     fontSize: typography.fontSizes.sm,
-    textAlign: "center",
+    textAlign: 'center',
     marginBottom: spacing.lg,
     lineHeight: 20,
   },
   loadingRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     gap: spacing.sm,
     paddingVertical: spacing.md,
   },
@@ -257,18 +237,18 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSizes.sm,
   },
   errorBox: {
-    backgroundColor: "rgba(239, 68, 68, 0.15)",
+    backgroundColor: 'rgba(239, 68, 68, 0.15)',
     borderColor: colors.error,
     borderWidth: 1,
     borderRadius: borderRadius.md,
     padding: spacing.md,
-    alignItems: "center",
+    alignItems: 'center',
     gap: spacing.xs,
   },
   errorText: {
     color: colors.error,
     fontSize: typography.fontSizes.sm,
-    textAlign: "center",
+    textAlign: 'center',
   },
   retryText: {
     color: colors.error,
@@ -278,12 +258,12 @@ const styles = StyleSheet.create({
   emptyText: {
     color: colors.textSecondary,
     fontSize: typography.fontSizes.sm,
-    textAlign: "center",
+    textAlign: 'center',
     paddingVertical: spacing.md,
   },
   option: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     borderWidth: 1.5,
     borderColor: colors.border,
     borderRadius: borderRadius.md,
@@ -293,7 +273,7 @@ const styles = StyleSheet.create({
   },
   optionActive: {
     borderColor: colors.workerAccent,
-    backgroundColor: "rgba(16,185,129,0.10)",
+    backgroundColor: 'rgba(16,185,129,0.10)',
   },
   optionIcon: {
     fontSize: 22,
@@ -310,7 +290,7 @@ const styles = StyleSheet.create({
   primaryBadge: {
     color: colors.textMuted,
     fontSize: typography.fontSizes.xs,
-    textTransform: "uppercase",
+    textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
   activeIndicator: {
@@ -318,8 +298,8 @@ const styles = StyleSheet.create({
     height: 24,
     borderRadius: 12,
     backgroundColor: colors.workerAccent,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   activeCheck: {
     color: colors.onPrimary,
@@ -329,10 +309,10 @@ const styles = StyleSheet.create({
   addButton: {
     marginTop: spacing.sm,
     paddingVertical: spacing.sm,
-    alignItems: "center",
+    alignItems: 'center',
     borderRadius: borderRadius.md,
     borderWidth: 1,
-    borderStyle: "dashed",
+    borderStyle: 'dashed',
     borderColor: colors.primary,
   },
   addText: {
@@ -343,7 +323,7 @@ const styles = StyleSheet.create({
   cancelButton: {
     marginTop: spacing.md,
     paddingVertical: spacing.sm,
-    alignItems: "center",
+    alignItems: 'center',
   },
   cancelText: {
     color: colors.textMuted,

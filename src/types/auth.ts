@@ -94,7 +94,7 @@ export interface LoginApiPayload {
 }
 
 export interface LoginApiResponse {
-  status: "PENDING_VERIFICATION";
+  status: 'PENDING_VERIFICATION';
   message: string;
   user: {
     id: string;

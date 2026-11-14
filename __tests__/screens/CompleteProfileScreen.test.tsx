@@ -37,6 +37,7 @@ const DEFAULT_MOCK = {
   },
   errors: {},
   status: "idle" as const,
+  canSave: true,
   updateField: jest.fn(),
   handleSave: jest.fn(),
 };
@@ -98,6 +99,23 @@ describe("CompleteProfileScreen", () => {
     const { getByText } = render(<CompleteProfileScreen {...DEFAULT_PROPS} />);
     fireEvent.press(getByText("Guardar perfil"));
     expect(handleSave).toHaveBeenCalled();
+  });
+
+  it("disables the save button until the required fields are complete", () => {
+    const handleSave = jest.fn();
+    (useCompleteProfile as jest.Mock).mockReturnValue({
+      ...DEFAULT_MOCK,
+      canSave: false,
+      handleSave,
+    });
+
+    const { getByTestId } = render(
+      <CompleteProfileScreen {...DEFAULT_PROPS} />,
+    );
+    const button = getByTestId("btn-save-profile");
+    expect(button.props.accessibilityState.disabled).toBe(true);
+    fireEvent.press(button);
+    expect(handleSave).not.toHaveBeenCalled();
   });
 
   it("calls onGoBack when back arrow is pressed", () => {

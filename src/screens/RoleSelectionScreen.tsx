@@ -1,37 +1,33 @@
-import React from "react";
-import { View, Text, StyleSheet, ActivityIndicator } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { StatusBar } from "expo-status-bar";
-import { RoleCard } from "../components/role/RoleCard";
-import { RoleSelectionFooter } from "../components/role/RoleSelectionFooter";
-import { useRoleSelection } from "../hooks/useRoleSelection";
-import { RoleSelectionScreenProps } from "../types/role";
-import { colors, spacing, borderRadius, typography } from "../theme/tokens";
+import React from 'react';
+import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { StatusBar } from 'expo-status-bar';
+import { RoleCard } from '../components/role/RoleCard';
+import { RoleSelectionFooter } from '../components/role/RoleSelectionFooter';
+import { useRoleSelection } from '../hooks/useRoleSelection';
+import { RoleSelectionScreenProps } from '../types/role';
+import { colors, spacing, borderRadius, typography } from '../theme/tokens';
 
 const CLIENT_ROLE = {
-  role: "client" as const,
-  title: "Cliente",
-  description: "Encontrá profesionales verificados para todo lo que necesités.",
-  iconName: "search",
+  role: 'client' as const,
+  title: 'Cliente',
+  description: 'Encontrá profesionales verificados para todo lo que necesités.',
+  iconName: 'search',
   accentColor: colors.clientAccent,
 };
 
 const WORKER_ROLE = {
-  role: "worker" as const,
-  title: "Trabajador",
-  description:
-    "Publicá tus servicios, elegí tus horarios y cobrá con seguridad.",
-  iconName: "tool",
+  role: 'worker' as const,
+  title: 'Trabajador',
+  description: 'Publicá tus servicios, elegí tus horarios y cobrá con seguridad.',
+  iconName: 'tool',
   accentColor: colors.workerAccent,
 };
 
-export const RoleSelectionScreen: React.FC<RoleSelectionScreenProps> = ({
-  onRoleSelected,
-}) => {
-  const { isSaving, error, handleSelectRole, confirmSelection } =
-    useRoleSelection(onRoleSelected);
+export const RoleSelectionScreen: React.FC<RoleSelectionScreenProps> = ({ onRoleSelected }) => {
+  const { isSaving, error, handleSelectRole, confirmSelection } = useRoleSelection(onRoleSelected);
 
-  const handleCardSelect = (role: "client" | "worker") => {
+  const handleCardSelect = (role: 'client' | 'worker') => {
     if (isSaving) return;
     handleSelectRole(role);
     confirmSelection();
@@ -44,8 +40,8 @@ export const RoleSelectionScreen: React.FC<RoleSelectionScreenProps> = ({
         <View style={styles.header}>
           <Text style={styles.title}>Elegí tu Rol</Text>
           <Text style={styles.subtitle}>
-            Seleccioná cómo querés usar la plataforma. Podés alternar entre
-            ambos en cualquier momento.
+            Seleccioná cómo querés usar la plataforma. Podés alternar entre ambos en cualquier
+            momento.
           </Text>
         </View>
 
@@ -56,16 +52,8 @@ export const RoleSelectionScreen: React.FC<RoleSelectionScreenProps> = ({
         )}
 
         <View style={styles.cardsRow}>
-          <RoleCard
-            {...CLIENT_ROLE}
-            onSelect={handleCardSelect}
-            testID="card-client"
-          />
-          <RoleCard
-            {...WORKER_ROLE}
-            onSelect={handleCardSelect}
-            testID="card-worker"
-          />
+          <RoleCard {...CLIENT_ROLE} onSelect={handleCardSelect} testID="card-client" />
+          <RoleCard {...WORKER_ROLE} onSelect={handleCardSelect} testID="card-worker" />
         </View>
 
         {isSaving && (
@@ -85,26 +73,26 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: spacing.md,
-    justifyContent: "center",
+    justifyContent: 'center',
   },
   header: { marginBottom: spacing.xl },
   title: {
     color: colors.textPrimary,
     fontSize: typography.fontSizes.xxl,
     fontWeight: typography.fontWeights.bold,
-    textAlign: "center",
+    textAlign: 'center',
     marginBottom: spacing.sm,
   },
   subtitle: {
     color: colors.textSecondary,
     fontSize: typography.fontSizes.md,
-    textAlign: "center",
+    textAlign: 'center',
     lineHeight: 24,
     paddingHorizontal: spacing.sm,
   },
   cardsRow: {
-    flexDirection: "row",
-    justifyContent: "center",
+    flexDirection: 'row',
+    justifyContent: 'center',
   },
   errorBox: {
     backgroundColor: colors.errorContainer,
@@ -117,13 +105,13 @@ const styles = StyleSheet.create({
   errorText: {
     color: colors.onErrorContainer,
     fontSize: typography.fontSizes.sm,
-    textAlign: "center",
+    textAlign: 'center',
   },
   savingOverlay: {
     ...StyleSheet.absoluteFill,
     backgroundColor: colors.overlayBackground,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     borderRadius: borderRadius.md,
     marginTop: spacing.xl,
   },

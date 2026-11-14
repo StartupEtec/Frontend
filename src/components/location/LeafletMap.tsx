@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   StyleProp,
@@ -13,21 +7,17 @@ import {
   TouchableOpacity,
   View,
   ViewStyle,
-} from "react-native";
-import {
-  WebView,
-  WebViewMessageEvent,
-  WebViewProps,
-} from "react-native-webview";
-import { Coordinates } from "../../types/location";
+} from 'react-native';
+import { WebView, WebViewMessageEvent, WebViewProps } from 'react-native-webview';
+import { Coordinates } from '../../types/location';
 import {
   DEFAULT_CENTER,
   DEFAULT_ZOOM,
   OSM_ATTRIBUTION,
   OSM_MAX_ZOOM,
   OSM_TILE_URL,
-} from "../../utils/map";
-import { colors, borderRadius, spacing, typography } from "../../theme/tokens";
+} from '../../utils/map';
+import { colors, borderRadius, spacing, typography } from '../../theme/tokens';
 
 /**
  * react-native-webview 14.0.1 declara `class WebView<P = undefined> extends
@@ -93,15 +83,14 @@ interface LeafletMapProps {
 }
 
 interface LeafletMessage {
-  type:
-    "ready" | "error" | "press" | "markerPress" | "markerDragEnd" | "moveend";
+  type: 'ready' | 'error' | 'press' | 'markerPress' | 'markerDragEnd' | 'moveend';
   id?: string;
   latitude?: number;
   longitude?: number;
   zoom?: number;
 }
 
-type LoadStatus = "loading" | "ready" | "error";
+type LoadStatus = 'loading' | 'ready' | 'error';
 
 /** Tiempo máximo de espera a que Leaflet/OSM carguen antes de mostrar error. */
 const LOAD_TIMEOUT_MS = 12000;
@@ -132,11 +121,11 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
   onMarkerDragEnd,
   onMoveEnd,
   style,
-  testID = "leaflet-map",
+  testID = 'leaflet-map',
 }) => {
   const webRef = useRef<WebView | null>(null);
   const readyRef = useRef(false);
-  const [status, setStatus] = useState<LoadStatus>("loading");
+  const [status, setStatus] = useState<LoadStatus>('loading');
 
   // Serializa los markers; al ser un string, el efecto solo se dispara cuando
   // el contenido cambia (no en cada render por una nueva identidad de array).
@@ -148,7 +137,7 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
       color: marker.color ?? null,
       title: marker.title ?? null,
       draggable: Boolean(marker.draggable),
-    })),
+    }))
   );
 
   const userLat = userLocation?.latitude ?? null;
@@ -164,11 +153,11 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
           latitude: c.latitude,
           longitude: c.longitude,
           radiusKm: c.radiusKm,
-          color: c.color ?? "#f97316",
+          color: c.color ?? '#f97316',
           fillOpacity: c.fillOpacity ?? 0.2,
-        })),
+        }))
       ),
-    [circles],
+    [circles]
   );
 
   const inject = useCallback((js: string) => {
@@ -177,14 +166,14 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
 
   // Reenvía todo el estado actual (tras cargar o recargar la WebView).
   const pushState = useCallback(() => {
-    inject(`window.__leaflet.setSelectable(${selectable ? "true" : "false"})`);
+    inject(`window.__leaflet.setSelectable(${selectable ? 'true' : 'false'})`);
     inject(`window.__leaflet.setMarkers(${markersJson})`);
     inject(`window.__leaflet.setCircles(${circlesJson})`);
     inject(`window.__leaflet.setUserLocation(${userLat}, ${userLng})`);
     if (centerLat != null && centerLng != null) {
       inject(`window.__leaflet.setView(${centerLat}, ${centerLng}, ${zoom})`);
     } else if (fitKey) {
-      inject("window.__leaflet.fitMarkers()");
+      inject('window.__leaflet.fitMarkers()');
     }
   }, [
     inject,
@@ -208,22 +197,22 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
         return;
       }
 
-      if (message.type === "ready") {
+      if (message.type === 'ready') {
         readyRef.current = true;
-        setStatus("ready");
+        setStatus('ready');
         pushState();
         return;
       }
 
-      if (message.type === "error") {
-        setStatus("error");
+      if (message.type === 'error') {
+        setStatus('error');
         return;
       }
 
       if (
-        message.type === "press" &&
-        typeof message.latitude === "number" &&
-        typeof message.longitude === "number"
+        message.type === 'press' &&
+        typeof message.latitude === 'number' &&
+        typeof message.longitude === 'number'
       ) {
         onPress?.({
           latitude: message.latitude,
@@ -232,16 +221,16 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
         return;
       }
 
-      if (message.type === "markerPress" && typeof message.id === "string") {
+      if (message.type === 'markerPress' && typeof message.id === 'string') {
         onMarkerPress?.(message.id);
         return;
       }
 
       if (
-        message.type === "markerDragEnd" &&
-        typeof message.id === "string" &&
-        typeof message.latitude === "number" &&
-        typeof message.longitude === "number"
+        message.type === 'markerDragEnd' &&
+        typeof message.id === 'string' &&
+        typeof message.latitude === 'number' &&
+        typeof message.longitude === 'number'
       ) {
         onMarkerDragEnd?.(message.id, {
           latitude: message.latitude,
@@ -251,24 +240,22 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
       }
 
       if (
-        message.type === "moveend" &&
-        typeof message.latitude === "number" &&
-        typeof message.longitude === "number"
+        message.type === 'moveend' &&
+        typeof message.latitude === 'number' &&
+        typeof message.longitude === 'number'
       ) {
         onMoveEnd?.(
           { latitude: message.latitude, longitude: message.longitude },
-          typeof message.zoom === "number" ? message.zoom : zoom,
+          typeof message.zoom === 'number' ? message.zoom : zoom
         );
       }
     },
-    [pushState, onPress, onMarkerPress, onMarkerDragEnd, onMoveEnd, zoom],
+    [pushState, onPress, onMarkerPress, onMarkerDragEnd, onMoveEnd, zoom]
   );
 
   useEffect(() => {
     if (readyRef.current) {
-      inject(
-        `window.__leaflet.setSelectable(${selectable ? "true" : "false"})`,
-      );
+      inject(`window.__leaflet.setSelectable(${selectable ? 'true' : 'false'})`);
     }
   }, [selectable, inject]);
 
@@ -291,45 +278,44 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
       inject(`window.__leaflet.setView(${centerLat}, ${centerLng}, ${zoom})`);
     }
     // `centerKey` permite forzar el recentrado con las mismas coordenadas.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [centerLat, centerLng, zoom, centerKey, inject]);
 
   useEffect(() => {
-    if (readyRef.current && fitKey) inject("window.__leaflet.fitMarkers()");
+    if (readyRef.current && fitKey) inject('window.__leaflet.fitMarkers()');
   }, [fitKey, inject]);
 
   // Si Leaflet/OSM no terminan de cargar a tiempo, se muestra un error con
   // opción de reintentar en lugar de dejar el spinner para siempre.
   useEffect(() => {
-    if (status !== "loading") return;
+    if (status !== 'loading') return;
     const timer = setTimeout(() => {
-      if (!readyRef.current) setStatus("error");
+      if (!readyRef.current) setStatus('error');
     }, LOAD_TIMEOUT_MS);
     return () => clearTimeout(timer);
   }, [status]);
 
   const handleRetry = useCallback(() => {
     readyRef.current = false;
-    setStatus("loading");
+    setStatus('loading');
     webRef.current?.reload();
   }, []);
 
   // Fuente estable: si el objeto `source` cambia de identidad en cada render,
   // la WebView puede recargarse y perder el mapa.
   const source = useMemo(
-    () => ({ html: LEAFLET_HTML, baseUrl: "https://tile.openstreetmap.org" }),
-    [],
+    () => ({ html: LEAFLET_HTML, baseUrl: 'https://tile.openstreetmap.org' }),
+    []
   );
 
   return (
     <View style={[styles.root, style]} testID={testID}>
       <MapWebView
         ref={webRef}
-        originWhitelist={["*"]}
+        originWhitelist={['*']}
         source={source}
         onMessage={handleMessage}
         onLayout={() => {
-          if (readyRef.current) inject("window.__leaflet.invalidate()");
+          if (readyRef.current) inject('window.__leaflet.invalidate()');
         }}
         scrollEnabled={false}
         javaScriptEnabled
@@ -338,12 +324,12 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
         style={styles.webview}
         testID={`${testID}-webview`}
       />
-      {status === "loading" && (
+      {status === 'loading' && (
         <View pointerEvents="none" style={styles.overlay}>
           <ActivityIndicator size="small" color={colors.primary} />
         </View>
       )}
-      {status === "error" && (
+      {status === 'error' && (
         <View style={styles.overlay}>
           <Text style={styles.errorText}>No pudimos cargar el mapa.</Text>
           <TouchableOpacity
@@ -372,20 +358,20 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surfaceContainerLow,
   },
   overlay: {
-    position: "absolute",
+    position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: colors.surfaceContainerLow,
     padding: spacing.md,
   },
   errorText: {
     color: colors.textSecondary,
     fontSize: typography.fontSizes.sm,
-    textAlign: "center",
+    textAlign: 'center',
     marginBottom: spacing.sm,
   },
   retryButton: {

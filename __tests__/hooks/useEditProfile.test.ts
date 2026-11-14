@@ -346,4 +346,164 @@ describe("useEditProfile Hook", () => {
     });
     expect(result.current.saveError).toBeNull();
   });
+
+  describe("formulario de edición", () => {
+    it("starts clean, with no changes to save", async () => {
+      const { result } = renderHook(() => useEditProfile({ role: "client" }));
+      await flush();
+
+      expect(result.current.isDirty).toBe(false);
+      expect(result.current.isValid).toBe(true);
+      expect(result.current.canSave).toBe(false);
+    });
+
+    it("validates fields in real time", async () => {
+      const { result } = renderHook(() => useEditProfile({ role: "client" }));
+      await flush();
+
+      act(() => {
+        result.current.setField("firstName", "");
+      });
+
+      expect(result.current.errors.firstName).toBe("Ingresá tu nombre");
+      expect(result.current.isValid).toBe(false);
+      expect(result.current.canSave).toBe(false);
+
+      act(() => {
+        result.current.setField("firstName", "Juana");
+      });
+
+      expect(result.current.errors.firstName).toBeUndefined();
+      expect(result.current.isDirty).toBe(true);
+      expect(result.current.canSave).toBe(true);
+    });
+
+    it("requires a category for workers", async () => {
+      const { result } = renderHook(() => useEditProfile({ role: "worker" }));
+      await flush();
+
+      // El perfil de prueba no tiene categoría.
+      expect(result.current.errors.categoryIds).toBe(
+        "Seleccioná al menos una categoría"
+      );
+      expect(result.current.canSave).toBe(false);
+
+      act(() => {
+        result.current.setField("categoryIds", ["cat-2"]);
+      });
+
+      expect(result.current.errors.categoryIds).toBeUndefined();
+    });
+
+    it("saves the full name through the identity endpoint", async () => {
+      (profileService.upsertIdentity as jest.Mock).mockResolvedValue({
+        message: "ok",
+      });
+
+      const { result } = renderHook(() => useEditProfile({ role: "client" }));
+      await flush();
+
+      act(() => {
+        result.current.setField("firstName", "Juana");
+        result.current.setField("lastName", "Gómez");
+      });
+
+      let ok = false;
+      await act(async () => {
+        ok = await result.current.save();
+      });
+
+      expect(ok).toBe(true);
+      expect(profileService.upsertIdentity).toHaveBeenCalledWith("user-123", {
+        full_name: "Juana Gómez",
+      });
+      expect(result.current.isDirty).toBe(false);
+      expect(result.current.saveSuccess).toBe(true);
+      expect(result.current.data.firstName).toBe("Juana");
+    });
+
+    it("saves bio and category for workers in a single PATCH", async () => {
+      (profileService.updateWorkerProfile as jest.Mock).mockResolvedValue({
+        message: "ok",
+      });
+
+      const { result } = renderHook(() => useEditProfile({ role: "worker" }));
+      await flush();
+
+      act(() => {
+        result.current.setField("description", "Nueva bio");
+        result.current.setField("categoryIds", ["cat-2"]);
+      });
+
+      let ok = false;
+      await act(async () => {
+        ok = await result.current.save();
+      });
+
+      expect(ok).toBe(true);
+      expect(profileService.updateWorkerProfile).toHaveBeenCalledWith(
+        "user-123",
+        { bio: "Nueva bio", category_id: "cat-2" },
+      );
+      expect(result.current.data.description).toBe("Nueva bio");
+      expect(result.current.data.categoryIds).toEqual(["cat-2"]);
+    });
+
+    it("does not call the API when there are validation errors", async () => {
+      const { result } = renderHook(() => useEditProfile({ role: "worker" }));
+      await flush();
+
+      let ok = true;
+      await act(async () => {
+        ok = await result.current.save();
+      });
+
+      expect(ok).toBe(false);
+      expect(profileService.upsertIdentity).not.toHaveBeenCalled();
+      expect(profileService.updateWorkerProfile).not.toHaveBeenCalled();
+      // Al intentar guardar se muestran todos los errores.
+      expect(result.current.touched.categoryIds).toBe(true);
+    });
+
+    it("surfaces a server error and keeps the changes", async () => {
+      (profileService.upsertIdentity as jest.Mock).mockRejectedValue(
+        new ApiError("No se pudo guardar", 500, "SERVER_ERROR"),
+      );
+
+      const { result } = renderHook(() => useEditProfile({ role: "client" }));
+      await flush();
+
+      act(() => {
+        result.current.setField("firstName", "Juana");
+      });
+
+      let ok = true;
+      await act(async () => {
+        ok = await result.current.save();
+      });
+
+      expect(ok).toBe(false);
+      expect(result.current.saveError).toBe("No se pudo guardar");
+      expect(result.current.isDirty).toBe(true);
+      expect(result.current.saveSuccess).toBe(false);
+    });
+
+    it("resetForm discards the local changes", async () => {
+      const { result } = renderHook(() => useEditProfile({ role: "client" }));
+      await flush();
+
+      act(() => {
+        result.current.setField("firstName", "Juana");
+      });
+      expect(result.current.isDirty).toBe(true);
+
+      act(() => {
+        result.current.resetForm();
+      });
+
+      expect(result.current.form.firstName).toBe("Juan");
+      expect(result.current.isDirty).toBe(false);
+      expect(result.current.touched.firstName).toBeUndefined();
+    });
+  });
 });

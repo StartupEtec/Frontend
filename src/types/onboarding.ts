@@ -10,7 +10,7 @@ export interface OnboardingSlideData {
   highlightText?: string;
   description: string;
   iconName: string;
-  svgPlaceholderType: "platform" | "client" | "worker" | "welcome";
+  svgPlaceholderType: 'platform' | 'client' | 'worker' | 'welcome';
 }
 
 export interface UseOnboardingReturn {
@@ -22,9 +22,7 @@ export interface UseOnboardingReturn {
   handleNext: () => void;
   handlePrev: () => void;
   handleSkip: () => Promise<void>;
-  handleComplete: (
-    targetRoute?: "AuthWelcome" | "Register" | "Login",
-  ) => Promise<void>;
+  handleComplete: (targetRoute?: 'AuthWelcome' | 'Register' | 'Login') => Promise<void>;
   handleScrollEnd: (index: number) => void;
 }
 
@@ -53,7 +51,5 @@ export interface OnboardingFooterProps {
 }
 
 export interface OnboardingScreenProps {
-  onFinishOnboarding?: (
-    route: "AuthWelcome" | "Register" | "Login" | "Main",
-  ) => void;
+  onFinishOnboarding?: (route: 'AuthWelcome' | 'Register' | 'Login' | 'Main') => void;
 }

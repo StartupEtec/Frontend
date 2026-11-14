@@ -1,16 +1,16 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { tokenStorage } from "../services/tokenStorage";
-import { locationService } from "../services/locationService";
-import { coverageRadiusStorage } from "../services/coverageRadiusStorage";
-import { ApiError } from "../services/api";
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { tokenStorage } from '../services/tokenStorage';
+import { locationService } from '../services/locationService';
+import { coverageRadiusStorage } from '../services/coverageRadiusStorage';
+import { ApiError } from '../services/api';
 import {
   Coordinates,
   CreateLocationPayload,
   SavedLocation,
   UpdateLocationPayload,
-} from "../types/location";
+} from '../types/location';
 
-export type LocationsStatus = "loading" | "success" | "error";
+export type LocationsStatus = 'loading' | 'success' | 'error';
 
 /** Muestra primero la ubicación principal; el resto conserva el orden original. */
 function sortPrimaryFirst(list: SavedLocation[]): SavedLocation[] {
@@ -24,10 +24,7 @@ function sortPrimaryFirst(list: SavedLocation[]): SavedLocation[] {
  *
  * Sin referencia se mantiene el criterio histórico: principal primero.
  */
-function sortLocations(
-  list: SavedLocation[],
-  reference: Coordinates | null,
-): SavedLocation[] {
+function sortLocations(list: SavedLocation[], reference: Coordinates | null): SavedLocation[] {
   if (!reference) return sortPrimaryFirst(list);
 
   return [...list].sort((a, b) => {
@@ -46,7 +43,7 @@ function sortLocations(
 function applyMutation(
   list: SavedLocation[],
   updated: SavedLocation,
-  reference: Coordinates | null,
+  reference: Coordinates | null
 ): SavedLocation[] {
   const next = list.some((l) => l.id === updated.id)
     ? list.map((l) => (l.id === updated.id ? updated : l))
@@ -70,16 +67,11 @@ function messageFor(err: unknown, fallback: string): string {
  * almacenamiento local y lo superponemos a la respuesta de la API. Si algún día
  * el backend devuelve `coverage_radius_km`, el valor de la API tiene prioridad.
  */
-function applyRadiusOverlay(
-  list: SavedLocation[],
-  radii: Record<string, number>,
-): SavedLocation[] {
+function applyRadiusOverlay(list: SavedLocation[], radii: Record<string, number>): SavedLocation[] {
   return list.map((location) => {
     if (location.coverage_radius_km != null) return location;
     const radius = radii[location.id];
-    return radius == null
-      ? location
-      : { ...location, coverage_radius_km: radius };
+    return radius == null ? location : { ...location, coverage_radius_km: radius };
   });
 }
 
@@ -96,7 +88,7 @@ function applyRadiusOverlay(
  */
 export const useLocations = (reference?: Coordinates | null) => {
   const [locations, setLocations] = useState<SavedLocation[]>([]);
-  const [status, setStatus] = useState<LocationsStatus>("loading");
+  const [status, setStatus] = useState<LocationsStatus>('loading');
   const [error, setError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -122,11 +114,7 @@ export const useLocations = (reference?: Coordinates | null) => {
   const requireUserId = useCallback(async (): Promise<string> => {
     const userId = userIdRef.current ?? (await tokenStorage.getUserId());
     if (!userId) {
-      throw new ApiError(
-        "Sesión expirada. Volvé a iniciar sesión.",
-        401,
-        "SESSION_EXPIRED",
-      );
+      throw new ApiError('Sesión expirada. Volvé a iniciar sesión.', 401, 'SESSION_EXPIRED');
     }
     userIdRef.current = userId;
     return userId;
@@ -134,7 +122,7 @@ export const useLocations = (reference?: Coordinates | null) => {
 
   const fetchList = useCallback(
     async (showLoading: boolean) => {
-      if (showLoading) setStatus("loading");
+      if (showLoading) setStatus('loading');
       setError(null);
       try {
         const userId = await requireUserId();
@@ -143,16 +131,12 @@ export const useLocations = (reference?: Coordinates | null) => {
           ? await locationService.list(userId, ref)
           : await locationService.list(userId);
         const radii = await coverageRadiusStorage.getAll();
-        setLocations(
-          sortLocations(applyRadiusOverlay(list, radii), referenceRef.current),
-        );
-        setStatus("success");
+        setLocations(sortLocations(applyRadiusOverlay(list, radii), referenceRef.current));
+        setStatus('success');
         hasLoadedRef.current = true;
       } catch (err: unknown) {
-        setError(
-          messageFor(err, "No pudimos cargar tus ubicaciones. Reintentá."),
-        );
-        setStatus("error");
+        setError(messageFor(err, 'No pudimos cargar tus ubicaciones. Reintentá.'));
+        setStatus('error');
       } finally {
         setRefreshing(false);
       }
@@ -160,7 +144,7 @@ export const useLocations = (reference?: Coordinates | null) => {
     // referenceLat/Lng no se usan dentro, pero fuerzan una nueva identidad de
     // fetchList al cambiar la referencia → el efecto de abajo recarga la lista.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [requireUserId, referenceLat, referenceLng],
+    [requireUserId, referenceLat, referenceLng]
   );
 
   useEffect(() => {
@@ -187,38 +171,27 @@ export const useLocations = (reference?: Coordinates | null) => {
         const radius = payload.coverage_radius_km ?? null;
         if (radius != null) await coverageRadiusStorage.set(created.id, radius);
         setLocations((prev) =>
-          applyMutation(
-            prev,
-            { ...created, coverage_radius_km: radius },
-            referenceRef.current,
-          ),
+          applyMutation(prev, { ...created, coverage_radius_km: radius }, referenceRef.current)
         );
         return { ...created, coverage_radius_km: radius };
       } catch (err: unknown) {
-        setActionError(
-          messageFor(err, "No pudimos guardar la ubicación. Reintentá."),
-        );
+        setActionError(messageFor(err, 'No pudimos guardar la ubicación. Reintentá.'));
         return null;
       } finally {
         setSaving(false);
       }
     },
-    [requireUserId],
+    [requireUserId]
   );
 
   const updateLocation = useCallback(
-    async (
-      locationId: string,
-      payload: UpdateLocationPayload,
-    ): Promise<SavedLocation | null> => {
+    async (locationId: string, payload: UpdateLocationPayload): Promise<SavedLocation | null> => {
       setSaving(true);
       setActionError(null);
       try {
         const updated = await locationService.update(locationId, payload);
         const incomingRadius =
-          payload.coverage_radius_km !== undefined
-            ? payload.coverage_radius_km
-            : undefined;
+          payload.coverage_radius_km !== undefined ? payload.coverage_radius_km : undefined;
         if (incomingRadius !== undefined) {
           await coverageRadiusStorage.set(locationId, incomingRadius);
         }
@@ -227,9 +200,7 @@ export const useLocations = (reference?: Coordinates | null) => {
           const merged: SavedLocation = {
             ...updated,
             coverage_radius_km:
-              incomingRadius !== undefined
-                ? incomingRadius
-                : (prior?.coverage_radius_km ?? null),
+              incomingRadius !== undefined ? incomingRadius : (prior?.coverage_radius_km ?? null),
           };
           return applyMutation(prev, merged, referenceRef.current);
         });
@@ -238,15 +209,13 @@ export const useLocations = (reference?: Coordinates | null) => {
           coverage_radius_km: incomingRadius ?? updated.coverage_radius_km,
         };
       } catch (err: unknown) {
-        setActionError(
-          messageFor(err, "No pudimos guardar la ubicación. Reintentá."),
-        );
+        setActionError(messageFor(err, 'No pudimos guardar la ubicación. Reintentá.'));
         return null;
       } finally {
         setSaving(false);
       }
     },
-    [],
+    []
   );
 
   const setPrimary = useCallback(
@@ -254,27 +223,24 @@ export const useLocations = (reference?: Coordinates | null) => {
       const updated = await updateLocation(locationId, { is_primary: true });
       return updated !== null;
     },
-    [updateLocation],
+    [updateLocation]
   );
 
-  const deleteLocation = useCallback(
-    async (locationId: string): Promise<boolean> => {
-      setDeletingId(locationId);
-      setActionError(null);
-      try {
-        await locationService.remove(locationId);
-        await coverageRadiusStorage.remove(locationId);
-        setLocations((prev) => prev.filter((l) => l.id !== locationId));
-        return true;
-      } catch (err: unknown) {
-        setActionError(messageFor(err, "No pudimos eliminar la ubicación."));
-        return false;
-      } finally {
-        setDeletingId(null);
-      }
-    },
-    [],
-  );
+  const deleteLocation = useCallback(async (locationId: string): Promise<boolean> => {
+    setDeletingId(locationId);
+    setActionError(null);
+    try {
+      await locationService.remove(locationId);
+      await coverageRadiusStorage.remove(locationId);
+      setLocations((prev) => prev.filter((l) => l.id !== locationId));
+      return true;
+    } catch (err: unknown) {
+      setActionError(messageFor(err, 'No pudimos eliminar la ubicación.'));
+      return false;
+    } finally {
+      setDeletingId(null);
+    }
+  }, []);
 
   return {
     locations,

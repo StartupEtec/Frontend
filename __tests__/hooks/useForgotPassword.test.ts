@@ -186,6 +186,8 @@ describe("useForgotPassword", () => {
   });
 
   it("resets the password and navigates to login", async () => {
+    jest.useFakeTimers();
+
     (authService.resetPassword as jest.Mock).mockResolvedValueOnce({
       message: "Contraseña restablecida correctamente.",
     });
@@ -232,7 +234,14 @@ describe("useForgotPassword", () => {
       token: "temp-token-123",
       password: "NewPass1!",
     });
+
+    // La navegación ocurre tras el toast de éxito (3 s).
+    act(() => {
+      jest.advanceTimersByTime(3000);
+    });
     expect(mockNavigateToLogin).toHaveBeenCalled();
+
+    jest.useRealTimers();
   });
 
   it("rejects mismatched confirm password", async () => {

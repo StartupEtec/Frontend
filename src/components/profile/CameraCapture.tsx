@@ -1,17 +1,10 @@
-import React, { useEffect, useRef, useState } from "react";
-import {
-  ActivityIndicator,
-  Modal,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { CameraView, useCameraPermissions } from "expo-camera";
-import type { CameraType } from "expo-camera";
-import { Feather } from "@expo/vector-icons";
-import { colors, spacing, borderRadius, typography } from "../../theme/tokens";
+import React, { useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { CameraView, useCameraPermissions } from 'expo-camera';
+import type { CameraType } from 'expo-camera';
+import { Feather } from '@expo/vector-icons';
+import { colors, spacing, borderRadius, typography } from '../../theme/tokens';
 
 interface CameraCaptureProps {
   visible: boolean;
@@ -33,7 +26,7 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
   visible,
   onClose,
   onCapture,
-  initialFacing = "back",
+  initialFacing = 'back',
 }) => {
   const cameraRef = useRef<CameraView>(null);
   const [permission, requestPermission] = useCameraPermissions();
@@ -55,7 +48,7 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
   const handleFlip = () => {
     setReady(false);
     setError(null);
-    setFacing((prev) => (prev === "back" ? "front" : "back"));
+    setFacing((prev) => (prev === 'back' ? 'front' : 'back'));
   };
 
   const handleCapture = async () => {
@@ -67,10 +60,10 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
       if (photo?.uri) {
         onCapture(photo.uri);
       } else {
-        setError("No se pudo capturar la foto.");
+        setError('No se pudo capturar la foto.');
       }
     } catch {
-      setError("No se pudo capturar la foto. Probá de nuevo.");
+      setError('No se pudo capturar la foto. Probá de nuevo.');
     } finally {
       setCapturing(false);
     }
@@ -94,15 +87,8 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
           </View>
         ) : !permissionGranted ? (
           <View style={styles.centered}>
-            <Feather
-              name="camera-off"
-              size={40}
-              color={colors.cardBackground}
-              accessible={false}
-            />
-            <Text style={styles.permissionText}>
-              Necesitamos permiso para usar la cámara.
-            </Text>
+            <Feather name="camera-off" size={40} color={colors.cardBackground} accessible={false} />
+            <Text style={styles.permissionText}>Necesitamos permiso para usar la cámara.</Text>
             <TouchableOpacity
               style={styles.permissionButton}
               onPress={() => requestPermission()}
@@ -119,15 +105,11 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
             facing={facing}
             testID="camera-view"
             onCameraReady={() => setReady(true)}
-            onMountError={() => setError("No se pudo iniciar la cámara.")}
+            onMountError={() => setError('No se pudo iniciar la cámara.')}
           />
         )}
 
-        <SafeAreaView
-          style={styles.overlay}
-          edges={["top", "bottom"]}
-          pointerEvents="box-none"
-        >
+        <SafeAreaView style={styles.overlay} edges={['top', 'bottom']} pointerEvents="box-none">
           <View style={styles.topBar} pointerEvents="box-none">
             <TouchableOpacity
               style={styles.iconButton}
@@ -135,12 +117,7 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
               activeOpacity={0.7}
               testID="camera-close"
             >
-              <Feather
-                name="x"
-                size={26}
-                color={colors.cardBackground}
-                accessible={false}
-              />
+              <Feather name="x" size={26} color={colors.cardBackground} accessible={false} />
             </TouchableOpacity>
           </View>
 
@@ -169,10 +146,7 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={[
-                  styles.shutter,
-                  shutterDisabled && styles.shutterDisabled,
-                ]}
+                style={[styles.shutter, shutterDisabled && styles.shutterDisabled]}
                 onPress={handleCapture}
                 disabled={shutterDisabled}
                 activeOpacity={0.8}
@@ -201,19 +175,19 @@ const CONTROL_SIZE = 56;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#000",
+    backgroundColor: '#000',
   },
   centered: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
     paddingHorizontal: spacing.xl,
     gap: spacing.md,
   },
   permissionText: {
     color: colors.cardBackground,
     fontSize: typography.fontSizes.md,
-    textAlign: "center",
+    textAlign: 'center',
   },
   permissionButton: {
     marginTop: spacing.sm,
@@ -228,28 +202,28 @@ const styles = StyleSheet.create({
     fontWeight: typography.fontWeights.semibold,
   },
   overlay: {
-    position: "absolute",
+    position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    justifyContent: "space-between",
+    justifyContent: 'space-between',
   },
   topBar: {
-    flexDirection: "row",
-    justifyContent: "flex-start",
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
     paddingHorizontal: spacing.md,
     paddingTop: spacing.sm,
   },
   centerArea: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   bottomBar: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: spacing.xl,
     paddingBottom: spacing.lg,
   },
@@ -257,9 +231,9 @@ const styles = StyleSheet.create({
     width: CONTROL_SIZE,
     height: CONTROL_SIZE,
     borderRadius: CONTROL_SIZE / 2,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.35)",
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.35)',
   },
   shutter: {
     width: 76,
@@ -267,8 +241,8 @@ const styles = StyleSheet.create({
     borderRadius: 38,
     borderWidth: 4,
     borderColor: colors.cardBackground,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   shutterDisabled: {
     opacity: 0.5,
@@ -280,7 +254,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.cardBackground,
   },
   errorBanner: {
-    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.lg,
     borderRadius: borderRadius.md,
@@ -289,6 +263,6 @@ const styles = StyleSheet.create({
   errorText: {
     color: colors.error,
     fontSize: typography.fontSizes.sm,
-    textAlign: "center",
+    textAlign: 'center',
   },
 });

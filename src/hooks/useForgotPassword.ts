@@ -1,16 +1,17 @@
-import { useState, useMemo, useCallback, useEffect, useRef } from "react";
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import {
   PasswordResetStep,
   ForgotPasswordApiPayload,
   VerifyResetCodeApiPayload,
-} from "../types/auth";
-import { authService } from "../services/authService";
-import { ApiError } from "../services/api";
+} from '../types/auth';
+import { authService } from '../services/authService';
+import { ApiError } from '../services/api';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_REGEX = /^\+?[0-9]{8,15}$/;
-const RESET_CODE_EXPIRY_SECONDS = 30 * 60; // 30 minutes
-const PASSWORD_PATTERN = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
+const RESET_CODE_EXPIRY_SECONDS = 5 * 60; // 5 minutes
+const PASSWORD_PATTERN =
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
 
 interface UseForgotPasswordReturn {
   step: PasswordResetStep;
@@ -26,6 +27,8 @@ interface UseForgotPasswordReturn {
   secondsRemaining: number;
   isSubmitting: boolean;
   serverError: string | null;
+  /** true mientras se muestra el toast de éxito antes de volver al login */
+  isResetSuccess: boolean;
   canSubmitStep1: boolean;
   canSubmitStep2: boolean;
   canSubmitStep3: boolean;
@@ -42,24 +45,33 @@ interface UseForgotPasswordReturn {
   inputRefs: React.MutableRefObject<Array<{ focus: () => void } | null>>;
 }
 
-export const useForgotPassword = (
-  onNavigateToLogin: () => void,
-): UseForgotPasswordReturn => {
+export const useForgotPassword = (onNavigateToLogin: () => void): UseForgotPasswordReturn => {
   const [step, setStep] = useState<PasswordResetStep>(1);
-  const [contact, setContact] = useState("");
+  const [contact, setContact] = useState('');
   const [contactTouched, setContactTouched] = useState(false);
-  const [code, setCode] = useState<string[]>(Array(6).fill(""));
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [secondsRemaining, setSecondsRemaining] = useState<number>(
-    RESET_CODE_EXPIRY_SECONDS,
-  );
+  const [code, setCode] = useState<string[]>(Array(6).fill(''));
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [secondsRemaining, setSecondsRemaining] = useState<number>(RESET_CODE_EXPIRY_SECONDS);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [serverError, setServerError] = useState<string | null>(null);
-  const [resetToken, setResetToken] = useState<string>("");
+  const [resetToken, setResetToken] = useState<string>('');
+  const [isResetSuccess, setIsResetSuccess] = useState<boolean>(false);
+  /** Solo se marca al intentar verificar, para no mostrar el código en rojo al escribir. */
+  const [codeAttempted, setCodeAttempted] = useState<boolean>(false);
 
-  const inputRefs = useRef<Array<{ focus: () => void } | null>>(
-    Array(6).fill(null),
+  const inputRefs = useRef<Array<{ focus: () => void } | null>>(Array(6).fill(null));
+  const navigateTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  /** Momento absoluto en que expira el código de recuperación (step 2). */
+  const resetCodeExpiresAtRef = useRef<number | null>(null);
+
+  useEffect(
+    () => () => {
+      if (navigateTimeoutRef.current) {
+        clearTimeout(navigateTimeoutRef.current);
+      }
+    },
+    []
   );
 
   // Source of the contact (email vs phone) to send to backend
@@ -68,19 +80,27 @@ export const useForgotPassword = (
     if (EMAIL_REGEX.test(value)) {
       return { email: value };
     }
-    if (PHONE_REGEX.test(value.replace(/\s+/g, ""))) {
-      return { phone: value.replace(/\s+/g, "") };
+    if (PHONE_REGEX.test(value.replace(/\s+/g, ''))) {
+      return { phone: value.replace(/\s+/g, '') };
     }
     return {};
   }, [contact]);
 
-  // ----- Countdown for step 2 -----
+  // ----- Countdown for step 2 based on absolute timestamp -----
 
   useEffect(() => {
     if (step !== 2) return;
 
     const interval = setInterval(() => {
-      setSecondsRemaining((prev) => (prev > 0 ? prev - 1 : 0));
+      const now = Date.now();
+      const expiresAt = resetCodeExpiresAtRef.current;
+      if (expiresAt == null) {
+        clearInterval(interval);
+        return;
+      }
+
+      const remaining = Math.max(0, Math.floor((expiresAt - now) / 1000));
+      setSecondsRemaining(remaining);
     }, 1000);
 
     return () => clearInterval(interval);
@@ -92,10 +112,10 @@ export const useForgotPassword = (
     if (!contactTouched) return undefined;
     const value = contact.trim();
     if (!value) {
-      return "El correo electrónico o teléfono es obligatorio";
+      return 'El correo electrónico o teléfono es obligatorio';
     }
-    if (!EMAIL_REGEX.test(value) && !PHONE_REGEX.test(value.replace(/\s+/g, ""))) {
-      return "Ingresá un correo electrónico o teléfono válido";
+    if (!EMAIL_REGEX.test(value) && !PHONE_REGEX.test(value.replace(/\s+/g, ''))) {
+      return 'Ingresá un correo electrónico o teléfono válido';
     }
     return undefined;
   }, [contact, contactTouched]);
@@ -106,12 +126,12 @@ export const useForgotPassword = (
 
   // ----- Step 2 validation -----
 
-  const codeComplete = code.every((d) => d !== "");
+  const codeComplete = code.every((d) => d !== '');
   const codeError = useMemo(() => {
+    if (!codeAttempted) return undefined;
     if (codeComplete) return undefined;
-    if (code.every((d) => d === "")) return undefined;
-    return "Ingresá los 6 dígitos del código";
-  }, [code, codeComplete]);
+    return 'Ingresá los 6 dígitos del código';
+  }, [code, codeComplete, codeAttempted]);
 
   const canSubmitStep2 = codeComplete;
 
@@ -120,10 +140,10 @@ export const useForgotPassword = (
   const passwordError = useMemo(() => {
     if (!newPassword) return undefined;
     if (newPassword.length < 8) {
-      return "La contraseña debe tener al menos 8 caracteres";
+      return 'La contraseña debe tener al menos 8 caracteres';
     }
     if (!PASSWORD_PATTERN.test(newPassword)) {
-      return "Debe incluir mayúscula, minúscula, número y símbolo";
+      return 'Debe incluir mayúscula, minúscula, número y símbolo';
     }
     return undefined;
   }, [newPassword]);
@@ -131,7 +151,7 @@ export const useForgotPassword = (
   const confirmPasswordError = useMemo(() => {
     if (!confirmPassword) return undefined;
     if (confirmPassword !== newPassword) {
-      return "Las contraseñas no coinciden";
+      return 'Las contraseñas no coinciden';
     }
     return undefined;
   }, [confirmPassword, newPassword]);
@@ -157,13 +177,14 @@ export const useForgotPassword = (
   }, []);
 
   const handleDigitChange = useCallback((index: number, digit: string) => {
-    const sanitized = digit.replace(/[^0-9]/g, "").slice(-1);
+    const sanitized = digit.replace(/[^0-9]/g, '').slice(-1);
     setCode((prev) => {
       const next = [...prev];
       next[index] = sanitized;
       return next;
     });
     setServerError(null);
+    setCodeAttempted(false);
     if (sanitized && index < 5) {
       inputRefs.current[index + 1]?.focus();
     }
@@ -171,11 +192,11 @@ export const useForgotPassword = (
 
   const handleDigitKeyPress = useCallback(
     (index: number, key: string) => {
-      if (key === "Backspace" && !code[index] && index > 0) {
+      if (key === 'Backspace' && !code[index] && index > 0) {
         inputRefs.current[index - 1]?.focus();
       }
     },
-    [code],
+    [code]
   );
 
   const handleNewPasswordChange = useCallback((value: string) => {
@@ -195,25 +216,22 @@ export const useForgotPassword = (
     try {
       await authService.forgotPassword(contactPayload);
       setStep(2);
+      // Guardar el momento absoluto de expiración para que el temporizador
+      // siga siendo correcto aunque la app se cierre y se reabra.
+      resetCodeExpiresAtRef.current = Date.now() + RESET_CODE_EXPIRY_SECONDS * 1000;
       setSecondsRemaining(RESET_CODE_EXPIRY_SECONDS);
       setTimeout(() => inputRefs.current[0]?.focus(), 300);
     } catch (err: any) {
       if (err instanceof ApiError) {
         if (err.statusCode === 404) {
-          setServerError(
-            "El correo electrónico o teléfono no está registrado",
-          );
+          setServerError('El correo electrónico o teléfono no está registrado');
         } else if (err.statusCode === 429) {
-          setServerError(
-            "Demasiadas solicitudes. Esperá unos minutos y volvé a intentar.",
-          );
+          setServerError('Demasiadas solicitudes. Esperá unos minutos y volvé a intentar.');
         } else {
-          setServerError(
-            err.message || "No se pudo enviar el código. Reintentá.",
-          );
+          setServerError(err.message || 'No se pudo enviar el código. Reintentá.');
         }
       } else {
-        setServerError("Error de conexión. Verificá tu internet e intentá de nuevo.");
+        setServerError('Error de conexión. Verificá tu internet e intentá de nuevo.');
       }
     } finally {
       setIsSubmitting(false);
@@ -221,13 +239,14 @@ export const useForgotPassword = (
   }, [contactPayload]);
 
   const handleVerifyCode = useCallback(async () => {
+    setCodeAttempted(true);
     if (!canSubmitStep2) return;
     setServerError(null);
     setIsSubmitting(true);
 
     const payload: VerifyResetCodeApiPayload = {
       ...contactPayload,
-      reset_code: code.join(""),
+      reset_code: code.join(''),
     };
 
     try {
@@ -237,14 +256,12 @@ export const useForgotPassword = (
     } catch (err: any) {
       if (err instanceof ApiError) {
         if (err.statusCode === 400) {
-          setServerError("Código de recuperación inválido o expirado");
+          setServerError('Código de recuperación inválido o expirado');
         } else {
-          setServerError(
-            err.message || "No se pudo verificar el código. Reintentá.",
-          );
+          setServerError(err.message || 'No se pudo verificar el código. Reintentá.');
         }
       } else {
-        setServerError("Error de conexión. Verificá tu internet e intentá de nuevo.");
+        setServerError('Error de conexión. Verificá tu internet e intentá de nuevo.');
       }
     } finally {
       setIsSubmitting(false);
@@ -261,20 +278,22 @@ export const useForgotPassword = (
         token: resetToken,
         password: newPassword,
       });
-      onNavigateToLogin();
+      // El toast de éxito se muestra 3 s y luego navega al login.
+      setIsResetSuccess(true);
+      navigateTimeoutRef.current = setTimeout(() => {
+        onNavigateToLogin();
+      }, 3000);
     } catch (err: any) {
       if (err instanceof ApiError) {
-        if (err.statusCode === 400) {
-          setServerError(
-            "El token temporal es inválido o ya fue utilizado. Volvé a comenzar.",
-          );
+        if (err.errorCode === 'PASSWORD_REUSE') {
+          setServerError(err.message || 'La nueva contraseña debe ser diferente a la anterior.');
+        } else if (err.statusCode === 400) {
+          setServerError('El token temporal es inválido o ya fue utilizado. Volvé a comenzar.');
         } else {
-          setServerError(
-            err.message || "No se pudo restablecer la contraseña. Reintentá.",
-          );
+          setServerError(err.message || 'No se pudo restablecer la contraseña. Reintentá.');
         }
       } else {
-        setServerError("Error de conexión. Verificá tu internet e intentá de nuevo.");
+        setServerError('Error de conexión. Verificá tu internet e intentá de nuevo.');
       }
     } finally {
       setIsSubmitting(false);
@@ -287,7 +306,7 @@ export const useForgotPassword = (
       // handled by navigator (go back to login/welcome)
     } else if (step === 2) {
       setStep(1);
-      setCode(Array(6).fill(""));
+      setCode(Array(6).fill(''));
     } else {
       setStep(2);
     }
@@ -307,6 +326,7 @@ export const useForgotPassword = (
     secondsRemaining,
     isSubmitting,
     serverError,
+    isResetSuccess,
     canSubmitStep1,
     canSubmitStep2,
     canSubmitStep3,

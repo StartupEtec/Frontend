@@ -1,24 +1,17 @@
-import React, { useEffect, useRef, useState } from "react";
-import {
-  ActivityIndicator,
-  Modal,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { Feather } from "@expo/vector-icons";
-import { LeafletMap, LeafletMarker } from "./LeafletMap";
-import { Coordinates } from "../../types/location";
+import React, { useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Feather } from '@expo/vector-icons';
+import { LeafletMap, LeafletMarker } from './LeafletMap';
+import { Coordinates } from '../../types/location';
 import {
   DEFAULT_CENTER,
   DEFAULT_ZOOM,
   POINT_ZOOM,
   REFERENCE_ZOOM,
   sameCoordinates,
-} from "../../utils/map";
-import { colors, spacing, borderRadius, typography } from "../../theme/tokens";
+} from '../../utils/map';
+import { colors, spacing, borderRadius, typography } from '../../theme/tokens';
 
 interface LocationMapPickerProps {
   /** Pin actual o null si todavía no se eligió. */
@@ -63,16 +56,14 @@ export const LocationMapPicker: React.FC<LocationMapPickerProps> = ({
   userLocation,
   expandable = true,
   circles = [],
-  testID = "location-map-picker",
+  testID = 'location-map-picker',
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [viewCenter, setViewCenter] = useState<Coordinates>(
-    coordinates ?? userLocation ?? DEFAULT_CENTER,
+    coordinates ?? userLocation ?? DEFAULT_CENTER
   );
   const [locateNonce, setLocateNonce] = useState(0);
-  const [locating, setLocating] = useState(false);
-  // Guarda el último punto emitido por el propio mapa para distinguir un
-  // cambio "eco" (no recentrar) de uno externo (sí recentrar).
+  const [locating, _setLocating] = useState(false);
   const lastEmittedRef = useRef<Coordinates | null>(null);
 
   useEffect(() => {
@@ -103,7 +94,7 @@ export const LocationMapPicker: React.FC<LocationMapPickerProps> = ({
   const markers: LeafletMarker[] = coordinates
     ? [
         {
-          id: "picker",
+          id: 'picker',
           latitude: coordinates.latitude,
           longitude: coordinates.longitude,
           color: accentColor,
@@ -112,11 +103,7 @@ export const LocationMapPicker: React.FC<LocationMapPickerProps> = ({
       ]
     : [];
 
-  const zoom = coordinates
-    ? POINT_ZOOM
-    : userLocation
-      ? REFERENCE_ZOOM
-      : DEFAULT_ZOOM;
+  const zoom = coordinates ? POINT_ZOOM : userLocation ? REFERENCE_ZOOM : DEFAULT_ZOOM;
 
   const renderMap = (fullscreen: boolean) => (
     <LeafletMap
@@ -166,9 +153,7 @@ export const LocationMapPicker: React.FC<LocationMapPickerProps> = ({
 
       {!coordinates && (
         <View pointerEvents="none" style={styles.hint}>
-          <Text style={styles.hintText}>
-            Tocá el mapa o buscá una dirección
-          </Text>
+          <Text style={styles.hintText}>Tocá el mapa o buscá una dirección</Text>
         </View>
       )}
 
@@ -179,7 +164,7 @@ export const LocationMapPicker: React.FC<LocationMapPickerProps> = ({
           onRequestClose={() => setExpanded(false)}
           presentationStyle="fullScreen"
         >
-          <SafeAreaView style={styles.fullscreen} edges={["top", "bottom"]}>
+          <SafeAreaView style={styles.fullscreen} edges={['top', 'bottom']}>
             <View style={styles.fullscreenHeader}>
               <Text style={styles.fullscreenTitle}>Ajustar ubicación</Text>
               <TouchableOpacity
@@ -189,9 +174,7 @@ export const LocationMapPicker: React.FC<LocationMapPickerProps> = ({
                 accessibilityRole="button"
                 accessibilityLabel="Listo"
               >
-                <Text style={[styles.fullscreenDone, { color: accentColor }]}>
-                  Listo
-                </Text>
+                <Text style={[styles.fullscreenDone, { color: accentColor }]}>Listo</Text>
               </TouchableOpacity>
             </View>
 
@@ -205,11 +188,7 @@ export const LocationMapPicker: React.FC<LocationMapPickerProps> = ({
                   accessibilityRole="button"
                   accessibilityLabel="Centrar en mi ubicación"
                 >
-                  <Feather
-                    name="crosshair"
-                    size={18}
-                    color={colors.textPrimary}
-                  />
+                  <Feather name="crosshair" size={18} color={colors.textPrimary} />
                 </TouchableOpacity>
               )}
             </View>
@@ -226,61 +205,61 @@ export const LocationMapPicker: React.FC<LocationMapPickerProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    width: "100%",
+    width: '100%',
     borderRadius: borderRadius.md,
-    overflow: "hidden",
+    overflow: 'hidden',
     backgroundColor: colors.surfaceContainerLow,
     borderWidth: 1,
     borderColor: colors.border,
   },
   expandButton: {
-    position: "absolute",
+    position: 'absolute',
     top: spacing.sm,
     right: spacing.sm,
     width: 36,
     height: 36,
     borderRadius: borderRadius.md,
-    backgroundColor: "rgba(255, 255, 255, 0.92)",
-    alignItems: "center",
-    justifyContent: "center",
+    backgroundColor: 'rgba(255, 255, 255, 0.92)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   locateButton: {
-    position: "absolute",
+    position: 'absolute',
     right: spacing.sm,
     bottom: spacing.sm,
     width: 40,
     height: 40,
     borderRadius: borderRadius.pill,
-    backgroundColor: "rgba(255, 255, 255, 0.92)",
-    alignItems: "center",
-    justifyContent: "center",
+    backgroundColor: 'rgba(255, 255, 255, 0.92)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   hint: {
-    position: "absolute",
+    position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   hintText: {
     color: colors.textMuted,
     fontSize: typography.fontSizes.sm,
-    backgroundColor: "rgba(255, 255, 255, 0.85)",
+    backgroundColor: 'rgba(255, 255, 255, 0.85)',
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     borderRadius: borderRadius.pill,
-    textAlign: "center",
+    textAlign: 'center',
   },
   fullscreen: {
     flex: 1,
     backgroundColor: colors.background,
   },
   fullscreenHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     borderBottomWidth: 1,
@@ -301,12 +280,12 @@ const styles = StyleSheet.create({
   },
   fullscreenMap: {
     flex: 1,
-    position: "relative",
+    position: 'relative',
   },
   fullscreenHint: {
     color: colors.textMuted,
     fontSize: typography.fontSizes.xs,
-    textAlign: "center",
+    textAlign: 'center',
     paddingVertical: spacing.sm,
   },
 });

@@ -1,5 +1,5 @@
 import { authService } from "../../src/services/authService";
-import { apiClient, ApiError } from "../../src/services/api";
+import { apiClient } from "../../src/services/api";
 
 jest.mock("../../src/services/api", () => {
   const original = jest.requireActual("../../src/services/api");

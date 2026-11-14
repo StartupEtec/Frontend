@@ -147,13 +147,16 @@ describe("ForgotPasswordScreen Component", () => {
     fireEvent.changeText(getByTestId("input-confirm-password"), "NewPass1!");
     fireEvent.press(getByTestId("btn-reset-password"));
 
-    await waitFor(() => {
-      expect(authService.resetPassword).toHaveBeenCalledWith({
-        token: "temp-token-123",
-        password: "NewPass1!",
-      });
-      expect(mockNavigateToLogin).toHaveBeenCalled();
+    // El restablecimiento se llama inmediatamente al presionar guardar.
+    expect(authService.resetPassword).toHaveBeenCalledWith({
+      token: "temp-token-123",
+      password: "NewPass1!",
     });
+
+    // La navegación al login ocurre tras el toast de éxito (3 s).
+    await waitFor(() => {
+      expect(mockNavigateToLogin).toHaveBeenCalled();
+    }, { timeout: 5000 });
   });
 
   it("toggles visibility of the new password field", async () => {

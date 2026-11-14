@@ -1,5 +1,5 @@
-import { Coordinates } from "../types/location";
-import { colors } from "../theme/tokens";
+import { Coordinates } from '../types/location';
+import { colors } from '../theme/tokens';
 
 /** Centro inicial cuando todavía no hay coordenadas (Ciudad de Mendoza, AR). */
 export const DEFAULT_CENTER: Coordinates = {
@@ -23,8 +23,8 @@ export const OSM_MAX_ZOOM = 19;
  * `components/location/LeafletMap.tsx`). Este proveedor no requiere API key y
  * funciona en Expo Go, a diferencia del mapa nativo de Google en Android.
  */
-export const OSM_TILE_URL = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
-export const OSM_ATTRIBUTION = "&copy; OpenStreetMap";
+export const OSM_TILE_URL = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+export const OSM_ATTRIBUTION = '&copy; OpenStreetMap';
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max);
@@ -42,12 +42,11 @@ export function clampLongitude(longitude: number): number {
 export function sameCoordinates(
   a: Coordinates | null | undefined,
   b: Coordinates | null | undefined,
-  epsilon = 1e-9,
+  epsilon = 1e-9
 ): boolean {
   if (!a || !b) return false;
   return (
-    Math.abs(a.latitude - b.latitude) < epsilon &&
-    Math.abs(a.longitude - b.longitude) < epsilon
+    Math.abs(a.latitude - b.latitude) < epsilon && Math.abs(a.longitude - b.longitude) < epsilon
   );
 }
 
@@ -56,12 +55,12 @@ export function sameCoordinates(
  * Devuelve "" si el valor no es válido (p. ej. backend sin referencia).
  */
 export function formatDistance(meters: number | null | undefined): string {
-  if (meters == null || !Number.isFinite(meters) || meters < 0) return "";
+  if (meters == null || !Number.isFinite(meters) || meters < 0) return '';
   if (meters < 1000) return `${Math.round(meters)} m`;
 
   const km = meters / 1000;
   const decimals = km < 10 ? 1 : 0;
-  return `${km.toFixed(decimals).replace(".", ",")} km`;
+  return `${km.toFixed(decimals).replace('.', ',')} km`;
 }
 
 /** Zoom aproximado para que un círculo de `radiusKm` de radio entre en pantalla.
@@ -73,7 +72,7 @@ export function formatDistance(meters: number | null | undefined): string {
  */
 export function zoomForRadius(
   radiusKm: number,
-  latitude: number = DEFAULT_CENTER.latitude,
+  latitude: number = DEFAULT_CENTER.latitude
 ): number {
   const radiusMeters = Math.max(radiusKm, 0.1) * 1000;
   const metersPerPixel = radiusMeters / 300;
@@ -87,7 +86,7 @@ export function zoomForRadius(
 export const COVERAGE_NEAR_BAND_KM = 5;
 
 /** Relación entre el cliente y el área de cobertura de un trabajador. */
-export type CoverageTier = "in" | "near" | "out" | "unknown";
+export type CoverageTier = 'in' | 'near' | 'out' | 'unknown';
 
 /** Color de pin/etiqueta para cada nivel de cobertura. */
 export const COVERAGE_TIER_COLORS: Record<CoverageTier, string> = {
@@ -109,9 +108,7 @@ export function distanceKmBetween(a: Coordinates, b: Coordinates): number {
   const dLng = toRadians(b.longitude - a.longitude);
   const lat1 = toRadians(a.latitude);
   const lat2 = toRadians(b.latitude);
-  const h =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
   return 2 * EARTH_RADIUS_KM * Math.asin(Math.min(1, Math.sqrt(h)));
 }
 
@@ -122,10 +119,10 @@ export function distanceKmBetween(a: Coordinates, b: Coordinates): number {
  */
 export function coverageTier(
   distanceKm: number,
-  coverageRadiusKm: number | null | undefined,
+  coverageRadiusKm: number | null | undefined
 ): CoverageTier {
-  if (coverageRadiusKm == null) return "unknown";
-  if (distanceKm <= coverageRadiusKm) return "in";
-  if (distanceKm <= coverageRadiusKm + COVERAGE_NEAR_BAND_KM) return "near";
-  return "out";
+  if (coverageRadiusKm == null) return 'unknown';
+  if (distanceKm <= coverageRadiusKm) return 'in';
+  if (distanceKm <= coverageRadiusKm + COVERAGE_NEAR_BAND_KM) return 'near';
+  return 'out';
 }

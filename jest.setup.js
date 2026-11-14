@@ -2,15 +2,21 @@ jest.mock('@react-native-async-storage/async-storage', () =>
   require('@react-native-async-storage/async-storage/jest/async-storage-mock')
 );
 
+// SecureStore no existe en el entorno de tests (jest-expo). Se simula como
+// "no disponible" para que secureTokenStorage use el fallback de AsyncStorage,
+// igual que en web.
+jest.mock('expo-secure-store', () => ({
+  isAvailableAsync: jest.fn(() => Promise.resolve(false)),
+  getItemAsync: jest.fn(() => Promise.resolve(null)),
+  setItemAsync: jest.fn(() => Promise.resolve()),
+  deleteItemAsync: jest.fn(() => Promise.resolve()),
+}));
+
 jest.mock('expo-image-picker', () => ({
   launchCameraAsync: jest.fn(),
   launchImageLibraryAsync: jest.fn(),
-  requestCameraPermissionsAsync: jest.fn(() =>
-    Promise.resolve({ granted: true })
-  ),
-  requestMediaLibraryPermissionsAsync: jest.fn(() =>
-    Promise.resolve({ granted: true })
-  ),
+  requestCameraPermissionsAsync: jest.fn(() => Promise.resolve({ granted: true })),
+  requestMediaLibraryPermissionsAsync: jest.fn(() => Promise.resolve({ granted: true })),
   MediaTypeOptions: { Images: 'Images' },
 }));
 
@@ -41,29 +47,35 @@ jest.mock('expo-camera', () => {
 });
 
 jest.mock('expo-file-system', () => ({
-  getInfoAsync: jest.fn(() =>
-    Promise.resolve({ exists: true, size: 1024 })
-  ),
+  getInfoAsync: jest.fn(() => Promise.resolve({ exists: true, size: 1024 })),
   uploadAsync: jest.fn(() =>
-    Promise.resolve({ status: 201, body: JSON.stringify({ message: 'OK', url: '/uploads/profiles/mock.jpg' }) })
+    Promise.resolve({
+      status: 201,
+      body: JSON.stringify({ message: 'OK', url: '/uploads/profiles/mock.jpg' }),
+    })
   ),
   FileSystemUploadType: { BINARY_CONTENT: 0, MULTIPART: 1 },
   UploadType: { BINARY_CONTENT: 0, MULTIPART: 1 },
   File: jest.fn().mockImplementation((uri) => ({
     uri,
     upload: jest.fn(() =>
-      Promise.resolve({ status: 201, body: JSON.stringify({ message: 'OK', url: '/uploads/profiles/mock.jpg' }), headers: {} })
+      Promise.resolve({
+        status: 201,
+        body: JSON.stringify({ message: 'OK', url: '/uploads/profiles/mock.jpg' }),
+        headers: {},
+      })
     ),
   })),
 }));
 
 jest.mock('expo-file-system/legacy', () => ({
   cacheDirectory: 'file:///cache/',
-  getInfoAsync: jest.fn(() =>
-    Promise.resolve({ exists: true, size: 1024 })
-  ),
+  getInfoAsync: jest.fn(() => Promise.resolve({ exists: true, size: 1024 })),
   uploadAsync: jest.fn(() =>
-    Promise.resolve({ status: 201, body: JSON.stringify({ message: 'OK', url: '/uploads/profiles/mock.jpg' }) })
+    Promise.resolve({
+      status: 201,
+      body: JSON.stringify({ message: 'OK', url: '/uploads/profiles/mock.jpg' }),
+    })
   ),
   copyAsync: jest.fn(() => Promise.resolve()),
   makeDirectoryAsync: jest.fn(() => Promise.resolve()),
@@ -71,10 +83,24 @@ jest.mock('expo-file-system/legacy', () => ({
   FileSystemUploadType: { BINARY_CONTENT: 0, MULTIPART: 1 },
 }));
 
+// Las categorías se sirven por red; en tests se resuelven vacías salvo que el
+// test las mockee explícitamente.
+jest.mock('./src/services/categoryService', () => ({
+  categoryService: {
+    listCategories: jest.fn(() => Promise.resolve([])),
+    resetCache: jest.fn(),
+  },
+}));
+
+jest.mock('expo-image-manipulator', () => ({
+  // Mantiene la URI de entrada para que los tests existentes sigan viendo la
+  // misma ruta; en la app real devuelve el archivo comprimido.
+  manipulateAsync: jest.fn((uri) => Promise.resolve({ uri, width: 1600, height: 1200 })),
+  SaveFormat: { JPEG: 'jpeg', PNG: 'png' },
+}));
+
 jest.mock('expo-document-picker', () => ({
-  getDocumentAsync: jest.fn(() =>
-    Promise.resolve({ canceled: true, assets: [] })
-  ),
+  getDocumentAsync: jest.fn(() => Promise.resolve({ canceled: true, assets: [] })),
 }));
 
 jest.mock('@react-native-community/datetimepicker', () => {
@@ -128,7 +154,6 @@ jest.mock('@expo/vector-icons', () => {
   const React = require('react');
   const { Text } = require('react-native');
   return {
-    Feather: ({ name, testID, ...props }) =>
-      React.createElement(Text, { ...props, testID }, name),
+    Feather: ({ name, testID, ...props }) => React.createElement(Text, { ...props, testID }, name),
   };
 });

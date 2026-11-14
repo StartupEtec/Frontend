@@ -1,4 +1,4 @@
-import { ApiError, apiClient } from "./api";
+import { ApiError, apiClient } from './api';
 import {
   CreateLocationPayload,
   DeleteLocationApiResponse,
@@ -6,7 +6,7 @@ import {
   LocationMutationApiResponse,
   SavedLocation,
   UpdateLocationPayload,
-} from "../types/location";
+} from '../types/location';
 
 /**
  * Cliente del módulo de ubicaciones guardadas.
@@ -32,14 +32,12 @@ function isUnsupportedRadiusError(error: unknown): boolean {
   return (
     error instanceof ApiError &&
     error.statusCode === 400 &&
-    error.message.includes("coverage_radius_km")
+    error.message.includes('coverage_radius_km')
   );
 }
 
 /** Copia del payload sin `coverage_radius_km` (fallback para backend viejo). */
-function stripRadius<T extends object>(
-  payload: T,
-): Omit<T, "coverage_radius_km"> {
+function stripRadius<T extends object>(payload: T): Omit<T, 'coverage_radius_km'> {
   const { coverage_radius_km: _omitted, ...rest } = payload as T & {
     coverage_radius_km?: unknown;
   };
@@ -50,10 +48,10 @@ function stripRadius<T extends object>(
  * Envía la mutación con `coverage_radius_km`. Si el backend no soporta el
  * campo, reintenta una vez sin él.
  */
-async function sendMutation<T>(
+async function sendMutation(
   endpoint: string,
-  method: "POST" | "PATCH",
-  payload: CreateLocationPayload | UpdateLocationPayload,
+  method: 'POST' | 'PATCH',
+  payload: CreateLocationPayload | UpdateLocationPayload
 ): Promise<SavedLocation> {
   const call = (body: object) =>
     apiClient<LocationMutationApiResponse>(endpoint, {
@@ -75,35 +73,26 @@ export const locationService = {
   /** Lista las ubicaciones del usuario autenticado. */
   async list(
     userId: string,
-    reference?: { latitude: number; longitude: number },
+    reference?: { latitude: number; longitude: number }
   ): Promise<SavedLocation[]> {
-    const query = reference
-      ? `?lat=${reference.latitude}&lng=${reference.longitude}`
-      : "";
-    const res = await apiClient<LocationListApiResponse>(
-      `/users/${userId}/locations${query}`,
-      { method: "GET" },
-    );
+    const query = reference ? `?lat=${reference.latitude}&lng=${reference.longitude}` : '';
+    const res = await apiClient<LocationListApiResponse>(`/users/${userId}/locations${query}`, {
+      method: 'GET',
+    });
     return res.locations ?? [];
   },
 
-  async create(
-    userId: string,
-    payload: CreateLocationPayload,
-  ): Promise<SavedLocation> {
-    return sendMutation(`/users/${userId}/locations`, "POST", payload);
+  async create(userId: string, payload: CreateLocationPayload): Promise<SavedLocation> {
+    return sendMutation(`/users/${userId}/locations`, 'POST', payload);
   },
 
-  async update(
-    locationId: string,
-    payload: UpdateLocationPayload,
-  ): Promise<SavedLocation> {
-    return sendMutation(`/locations/${locationId}`, "PATCH", payload);
+  async update(locationId: string, payload: UpdateLocationPayload): Promise<SavedLocation> {
+    return sendMutation(`/locations/${locationId}`, 'PATCH', payload);
   },
 
   async remove(locationId: string): Promise<void> {
     await apiClient<DeleteLocationApiResponse>(`/locations/${locationId}`, {
-      method: "DELETE",
+      method: 'DELETE',
     });
   },
 };

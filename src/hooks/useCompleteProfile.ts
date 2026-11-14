@@ -1,14 +1,9 @@
-import { useState, useCallback, useEffect } from "react";
-import { UserRole } from "../types/role";
-import { ProfileFormData, ProfileFormErrors } from "../types/profile";
-import {
-  profileService,
-  toDisplayUri,
-  toStoredUrl,
-  isLocalUri,
-} from "../services/profileService";
-import { tokenStorage } from "../services/tokenStorage";
-import { ApiError } from "../services/api";
+import { useState, useCallback, useEffect, useMemo } from 'react';
+import { UserRole } from '../types/role';
+import { ProfileFormData, ProfileFormErrors } from '../types/profile';
+import { profileService, toDisplayUri, toStoredUrl, isLocalUri } from '../services/profileService';
+import { tokenStorage } from '../services/tokenStorage';
+import { ApiError } from '../services/api';
 
 interface UseCompleteProfileOptions {
   /** Solo visual (color de acento). El guardado es único, sin bifurcar por rol. */
@@ -16,7 +11,7 @@ interface UseCompleteProfileOptions {
   onCompleted: () => void;
 }
 
-export type ProfileStatus = "idle" | "saving" | "success" | "error";
+export type ProfileStatus = 'idle' | 'saving' | 'success' | 'error';
 
 interface StoredIdentity {
   date_of_birth?: string | null;
@@ -29,8 +24,8 @@ interface StoredIdentity {
 /** Date -> "YYYY-MM-DD" con getters locales (sin corrimiento UTC). */
 export function toIsoDateOnly(date: Date): string {
   const yyyy = date.getFullYear();
-  const mm = String(date.getMonth() + 1).padStart(2, "0");
-  const dd = String(date.getDate()).padStart(2, "0");
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const dd = String(date.getDate()).padStart(2, '0');
   return `${yyyy}-${mm}-${dd}`;
 }
 
@@ -45,9 +40,9 @@ function isoToLocalDate(iso: string | null | undefined): Date | null {
 
 /** "YYYY-MM-DD" -> "DD/MM/YYYY" para mostrar. */
 function isoToDisplay(iso: string | null | undefined): string {
-  if (!iso) return "";
+  if (!iso) return '';
   const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso);
-  if (!m) return "";
+  if (!m) return '';
   return `${m[3]}/${m[2]}/${m[1]}`;
 }
 
@@ -62,21 +57,19 @@ function isValidBirthDate(date: Date): boolean {
   return d >= lo && d <= hi;
 }
 
-export const useCompleteProfile = ({
-  role: _role,
-}: UseCompleteProfileOptions) => {
+export const useCompleteProfile = ({ role: _role }: UseCompleteProfileOptions) => {
   void _role;
   const [formData, setFormData] = useState<ProfileFormData>({
     selfieUri: null,
     dniFrontUri: null,
     dniBackUri: null,
-    dateOfBirth: "",
+    dateOfBirth: '',
     dateOfBirthDate: null,
   });
   const [errors, setErrors] = useState<ProfileFormErrors>({});
-  const [status, setStatus] = useState<ProfileStatus>("idle");
+  const [status, setStatus] = useState<ProfileStatus>('idle');
   const [loading, setLoading] = useState(true);
-  const [isNew, setIsNew] = useState(true);
+  const [, setIsNew] = useState(true);
 
   // Precarga única: la identidad vale para ambos roles. Se precarga lo que
   // haya (aunque esté parcial por backfill) y solo se considera existente
@@ -87,8 +80,7 @@ export const useCompleteProfile = ({
       try {
         const userId = await tokenStorage.getUserId();
         if (!userId) return;
-        const identity =
-          (await profileService.getIdentity(userId)) as StoredIdentity | null;
+        const identity = (await profileService.getIdentity(userId)) as StoredIdentity | null;
         if (cancelled || !identity) return;
         setFormData({
           selfieUri: toDisplayUri(identity.avatar_url),
@@ -118,44 +110,54 @@ export const useCompleteProfile = ({
         general: undefined,
       }));
     },
-    [],
+    []
   );
 
   const validate = useCallback((): boolean => {
     const newErrors: ProfileFormErrors = {};
 
     if (!formData.selfieUri) {
-      newErrors.selfieUri = "La foto de perfil es obligatoria.";
+      newErrors.selfieUri = 'La foto de perfil es obligatoria.';
     }
 
     if (!formData.dniFrontUri) {
-      newErrors.dniFrontUri =
-        "La foto del frente del documento es obligatoria.";
+      newErrors.dniFrontUri = 'La foto del frente del documento es obligatoria.';
     }
 
     if (!formData.dniBackUri) {
-      newErrors.dniBackUri = "La foto del dorso del documento es obligatoria.";
+      newErrors.dniBackUri = 'La foto del dorso del documento es obligatoria.';
     }
 
     if (!formData.dateOfBirthDate) {
-      newErrors.dateOfBirth = "La fecha de nacimiento es obligatoria.";
+      newErrors.dateOfBirth = 'La fecha de nacimiento es obligatoria.';
     } else if (!isValidBirthDate(formData.dateOfBirthDate)) {
-      newErrors.dateOfBirth = "La fecha de nacimiento no es válida.";
+      newErrors.dateOfBirth = 'La fecha de nacimiento no es válida.';
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   }, [formData]);
 
+  /** Habilita "Guardar perfil" solo con todos los obligatorios completos. */
+  const canSave = useMemo(
+    () =>
+      status !== 'saving' &&
+      Boolean(formData.selfieUri) &&
+      Boolean(formData.dniFrontUri) &&
+      Boolean(formData.dniBackUri) &&
+      Boolean(formData.dateOfBirthDate && isValidBirthDate(formData.dateOfBirthDate)),
+    [formData, status]
+  );
+
   const handleSave = useCallback(async () => {
     if (!validate()) return;
 
-    setStatus("saving");
+    setStatus('saving');
     try {
       const userId = await tokenStorage.getUserId();
       if (!userId) {
-        setErrors({ general: "Sesión expirada. Volvé a iniciar sesión." });
-        setStatus("error");
+        setErrors({ general: 'Sesión expirada. Volvé a iniciar sesión.' });
+        setStatus('error');
         return;
       }
 
@@ -163,10 +165,7 @@ export const useCompleteProfile = ({
 
       // Solo se suben las imágenes nuevas (file://, content://); las que
       // ya están guardadas (URLs remotas) se reutilizan tal cual.
-      const resolveUrl = async (
-        uri: string,
-        prefix: string,
-      ): Promise<string> => {
+      const resolveUrl = async (uri: string, prefix: string): Promise<string> => {
         if (isLocalUri(uri)) {
           return profileService.uploadProfileImage(uri, prefix);
         }
@@ -177,15 +176,9 @@ export const useCompleteProfile = ({
       let dniFrontUrl: string;
       let dniBackUrl: string;
       try {
-        avatarUrl = await resolveUrl(formData.selfieUri as string, "selfie");
-        dniFrontUrl = await resolveUrl(
-          formData.dniFrontUri as string,
-          "dni-front",
-        );
-        dniBackUrl = await resolveUrl(
-          formData.dniBackUri as string,
-          "dni-back",
-        );
+        avatarUrl = await resolveUrl(formData.selfieUri as string, 'selfie');
+        dniFrontUrl = await resolveUrl(formData.dniFrontUri as string, 'dni-front');
+        dniBackUrl = await resolveUrl(formData.dniBackUri as string, 'dni-back');
       } catch (uploadErr: unknown) {
         // Mostrar siempre el mensaje real (ApiError o nativo) para no
         // esconder la causa detrás de un genérico.
@@ -194,9 +187,9 @@ export const useCompleteProfile = ({
             ? uploadErr.message
             : uploadErr instanceof Error && uploadErr.message
               ? `No se pudo subir: ${uploadErr.message}`
-              : "No se pudieron subir las imágenes. Reintentá.";
+              : 'No se pudieron subir las imágenes. Reintentá.';
         setErrors({ general: msg });
-        setStatus("error");
+        setStatus('error');
         return;
       }
 
@@ -210,14 +203,12 @@ export const useCompleteProfile = ({
       });
       setIsNew(false);
 
-      setStatus("success");
+      setStatus('success');
     } catch (err: unknown) {
       const msg =
-        err instanceof ApiError
-          ? err.message
-          : "No se pudo guardar el perfil. Reintentá.";
+        err instanceof ApiError ? err.message : 'No se pudo guardar el perfil. Reintentá.';
       setErrors({ general: msg });
-      setStatus("error");
+      setStatus('error');
     }
   }, [formData, validate]);
 
@@ -226,6 +217,7 @@ export const useCompleteProfile = ({
     errors,
     status,
     loading,
+    canSave,
     updateField,
     handleSave,
   };

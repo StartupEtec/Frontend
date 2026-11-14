@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   RefreshControl,
@@ -7,29 +7,19 @@ import {
   Text,
   TouchableOpacity,
   View,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { StatusBar } from "expo-status-bar";
-import { Feather } from "@expo/vector-icons";
-import { UserRole } from "../types/role";
-import { useLocations } from "../hooks/useLocations";
-import { useDeviceLocation } from "../hooks/useDeviceLocation";
-import { LocationCard } from "../components/location/LocationCard";
-import { LocationsMapPreview } from "../components/location/LocationsMapPreview";
-import { LocationFormModal } from "../components/location/LocationFormModal";
-import { ConfirmDialog } from "../components/location/ConfirmDialog";
-import {
-  CreateLocationPayload,
-  MAX_LOCATIONS_PER_USER,
-  SavedLocation,
-} from "../types/location";
-import {
-  colors,
-  spacing,
-  borderRadius,
-  typography,
-  roleAccent,
-} from "../theme/tokens";
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { StatusBar } from 'expo-status-bar';
+import { Feather } from '@expo/vector-icons';
+import { UserRole } from '../types/role';
+import { useLocations } from '../hooks/useLocations';
+import { useDeviceLocation } from '../hooks/useDeviceLocation';
+import { LocationCard } from '../components/location/LocationCard';
+import { LocationsMapPreview } from '../components/location/LocationsMapPreview';
+import { LocationFormModal } from '../components/location/LocationFormModal';
+import { ConfirmDialog } from '../components/location/ConfirmDialog';
+import { CreateLocationPayload, MAX_LOCATIONS_PER_USER, SavedLocation } from '../types/location';
+import { colors, spacing, borderRadius, typography, roleAccent } from '../theme/tokens';
 
 export interface LocationsScreenProps {
   role: UserRole;
@@ -70,9 +60,7 @@ export const LocationsScreen: React.FC<LocationsScreenProps> = ({
 
   const [formVisible, setFormVisible] = useState(false);
   const [editing, setEditing] = useState<SavedLocation | null>(null);
-  const [pendingDelete, setPendingDelete] = useState<SavedLocation | null>(
-    null,
-  );
+  const [pendingDelete, setPendingDelete] = useState<SavedLocation | null>(null);
 
   const limitReached = locations.length >= MAX_LOCATIONS_PER_USER;
 
@@ -137,14 +125,14 @@ export const LocationsScreen: React.FC<LocationsScreenProps> = ({
         <View style={styles.headerSpacer} />
       </View>
 
-      {status === "loading" && (
+      {status === 'loading' && (
         <View style={styles.center}>
           <ActivityIndicator size="large" color={accentColor} />
           <Text style={styles.centerText}>Cargando ubicaciones...</Text>
         </View>
       )}
 
-      {status === "error" && (
+      {status === 'error' && (
         <View style={styles.center}>
           <Text style={styles.errorText} testID="locations-error">
             {error}
@@ -160,7 +148,7 @@ export const LocationsScreen: React.FC<LocationsScreenProps> = ({
         </View>
       )}
 
-      {status === "success" && (
+      {status === 'success' && (
         <>
           <ScrollView
             contentContainerStyle={styles.scrollContent}
@@ -183,8 +171,7 @@ export const LocationsScreen: React.FC<LocationsScreenProps> = ({
                   accessible={false}
                 />
                 <Text style={styles.locationBannerText}>
-                  Activá tu ubicación para ver primero las direcciones más
-                  cercanas.
+                  Activá tu ubicación para ver primero las direcciones más cercanas.
                 </Text>
                 <TouchableOpacity
                   onPress={() => {
@@ -194,14 +181,7 @@ export const LocationsScreen: React.FC<LocationsScreenProps> = ({
                   accessibilityRole="button"
                   accessibilityLabel="Activar ubicación"
                 >
-                  <Text
-                    style={[
-                      styles.locationBannerAction,
-                      { color: accentColor },
-                    ]}
-                  >
-                    Activar
-                  </Text>
+                  <Text style={[styles.locationBannerAction, { color: accentColor }]}>Activar</Text>
                 </TouchableOpacity>
               </View>
             )}
@@ -217,9 +197,7 @@ export const LocationsScreen: React.FC<LocationsScreenProps> = ({
             {locations.length === 0 ? (
               <View style={styles.empty} testID="locations-empty">
                 <Text style={styles.emptyIcon}>📍</Text>
-                <Text style={styles.emptyTitle}>
-                  No tenés ubicaciones guardadas
-                </Text>
+                <Text style={styles.emptyTitle}>No tenés ubicaciones guardadas</Text>
                 <Text style={styles.emptyText}>
                   Agregá una dirección para usarla en tus órdenes.
                 </Text>
@@ -276,7 +254,7 @@ export const LocationsScreen: React.FC<LocationsScreenProps> = ({
 
           <LocationFormModal
             visible={formVisible}
-            mode={editing ? "edit" : "create"}
+            mode={editing ? 'edit' : 'create'}
             initial={editing}
             saving={saving}
             error={actionError}
@@ -294,7 +272,7 @@ export const LocationsScreen: React.FC<LocationsScreenProps> = ({
             message={
               pendingDelete
                 ? `¿Querés eliminar "${pendingDelete.address}"? Esta acción no se puede deshacer.`
-                : ""
+                : ''
             }
             confirmLabel="Eliminar"
             onConfirm={handleConfirmDelete}
@@ -310,9 +288,9 @@ export const LocationsScreen: React.FC<LocationsScreenProps> = ({
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: colors.background },
   header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     borderBottomWidth: 1,
@@ -322,18 +300,18 @@ const styles = StyleSheet.create({
     paddingRight: spacing.sm,
     paddingVertical: spacing.xs,
   },
-  backArrow: { fontSize: 24, fontWeight: "bold" },
+  backArrow: { fontSize: 24, fontWeight: 'bold' },
   title: {
     color: colors.textPrimary,
     fontSize: typography.fontSizes.lg,
-    fontWeight: "700",
-    textAlign: "center",
+    fontWeight: '700',
+    textAlign: 'center',
   },
   headerSpacer: { width: 40 },
   center: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     padding: spacing.lg,
     gap: spacing.sm,
   },
@@ -344,7 +322,7 @@ const styles = StyleSheet.create({
   errorText: {
     color: colors.error,
     fontSize: typography.fontSizes.md,
-    textAlign: "center",
+    textAlign: 'center',
     marginBottom: spacing.sm,
   },
   retryButton: {
@@ -370,11 +348,11 @@ const styles = StyleSheet.create({
   bannerText: {
     color: colors.onErrorContainer,
     fontSize: typography.fontSizes.sm,
-    textAlign: "center",
+    textAlign: 'center',
   },
   locationBanner: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: spacing.sm,
     backgroundColor: colors.warningContainer,
     borderRadius: borderRadius.md,
@@ -392,7 +370,7 @@ const styles = StyleSheet.create({
     fontWeight: typography.fontWeights.bold,
   },
   empty: {
-    alignItems: "center",
+    alignItems: 'center',
     paddingVertical: spacing.xxl,
     gap: spacing.sm,
   },
@@ -401,12 +379,12 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     fontSize: typography.fontSizes.md,
     fontWeight: typography.fontWeights.semibold,
-    textAlign: "center",
+    textAlign: 'center',
   },
   emptyText: {
     color: colors.textSecondary,
     fontSize: typography.fontSizes.sm,
-    textAlign: "center",
+    textAlign: 'center',
   },
   list: {
     marginTop: spacing.md,
@@ -414,14 +392,14 @@ const styles = StyleSheet.create({
   limitNote: {
     color: colors.textSecondary,
     fontSize: typography.fontSizes.sm,
-    textAlign: "center",
+    textAlign: 'center',
     marginTop: spacing.md,
   },
   addButton: {
     marginTop: spacing.lg,
     paddingVertical: spacing.md,
     borderRadius: borderRadius.md,
-    alignItems: "center",
+    alignItems: 'center',
   },
   addButtonText: {
     color: colors.onPrimary,

@@ -70,7 +70,7 @@ describe("SearchOriginModal", () => {
     // primero.
     mockList.mockResolvedValue([secondary, primary]);
 
-    const { getByTestId, getByText, getAllByTestId } = renderModal();
+    const { getByText, getAllByTestId } = renderModal();
 
     await waitFor(() =>
       expect(getByText("Av. Olascoaga 1700, Mendoza")).toBeTruthy(),

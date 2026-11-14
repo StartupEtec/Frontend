@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useRef } from "react";
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -12,20 +12,13 @@ import {
   Modal,
   FlatList,
   Animated,
-} from "react-native";
-import { UserRole } from "../types/role";
-import { useCompleteProfile } from "../hooks/useCompleteProfile";
-import { PhotoPicker } from "../components/profile/PhotoPicker";
-import { DniPhotoPicker } from "../components/profile/DniPhotoPicker";
-import { Feather } from "@expo/vector-icons";
-import {
-  colors,
-  spacing,
-  borderRadius,
-  typography,
-  shadows,
-  roleAccent,
-} from "../theme/tokens";
+} from 'react-native';
+import { UserRole } from '../types/role';
+import { useCompleteProfile } from '../hooks/useCompleteProfile';
+import { PhotoPicker } from '../components/profile/PhotoPicker';
+import { DniPhotoPicker } from '../components/profile/DniPhotoPicker';
+import { Feather } from '@expo/vector-icons';
+import { colors, spacing, borderRadius, typography, shadows, roleAccent } from '../theme/tokens';
 
 export interface CompleteProfileScreenProps {
   role: UserRole;
@@ -34,20 +27,20 @@ export interface CompleteProfileScreenProps {
 }
 
 const MONTH_NAMES = [
-  "Enero",
-  "Febrero",
-  "Marzo",
-  "Abril",
-  "Mayo",
-  "Junio",
-  "Julio",
-  "Agosto",
-  "Septiembre",
-  "Octubre",
-  "Noviembre",
-  "Diciembre",
+  'Enero',
+  'Febrero',
+  'Marzo',
+  'Abril',
+  'Mayo',
+  'Junio',
+  'Julio',
+  'Agosto',
+  'Septiembre',
+  'Octubre',
+  'Noviembre',
+  'Diciembre',
 ];
-const DAY_LABELS = ["Lu", "Ma", "Mi", "Ju", "Vi", "Sa", "Do"];
+const DAY_LABELS = ['Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa', 'Do'];
 
 const MIN_YEAR = new Date().getFullYear() - 100;
 const CELL_HEIGHT = 44;
@@ -55,8 +48,8 @@ const GRID_ROWS = 7; // 1 header + 6 max week rows
 const GRID_FIXED_HEIGHT = GRID_ROWS * CELL_HEIGHT;
 
 function formatDate(d: Date): string {
-  const dd = String(d.getDate()).padStart(2, "0");
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, '0');
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
   const yyyy = d.getFullYear();
   return `${dd}/${mm}/${yyyy}`;
 }
@@ -133,12 +126,7 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
         <View key={rowIdx} style={calStyles.row}>
           {row.map((day, cellIdx) => {
             if (day === null)
-              return (
-                <View
-                  key={`empty-${rowIdx}-${cellIdx}`}
-                  style={calStyles.cell}
-                />
-              );
+              return <View key={`empty-${rowIdx}-${cellIdx}`} style={calStyles.cell} />;
             const date = new Date(year, month, day);
             const isFuture = date > maxDate;
             const isSelected =
@@ -224,21 +212,11 @@ const YearPicker: React.FC<YearPickerProps> = ({
           const isActive = y === selectedYear;
           return (
             <TouchableOpacity
-              style={[
-                yearStyles.yearItem,
-                isActive && { backgroundColor: accentColor },
-              ]}
+              style={[yearStyles.yearItem, isActive && { backgroundColor: accentColor }]}
               onPress={() => onSelect(y)}
               activeOpacity={0.6}
             >
-              <Text
-                style={[
-                  yearStyles.yearText,
-                  isActive && yearStyles.yearTextActive,
-                ]}
-              >
-                {y}
-              </Text>
+              <Text style={[yearStyles.yearText, isActive && yearStyles.yearTextActive]}>{y}</Text>
             </TouchableOpacity>
           );
         }}
@@ -253,7 +231,7 @@ export const CompleteProfileScreen: React.FC<CompleteProfileScreenProps> = ({
   onProfileCompleted,
   onGoBack,
 }) => {
-  const { formData, errors, status, loading, updateField, handleSave } =
+  const { formData, errors, status, loading, canSave, updateField, handleSave } =
     useCompleteProfile({ role, onCompleted: onProfileCompleted });
 
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -268,7 +246,7 @@ export const CompleteProfileScreen: React.FC<CompleteProfileScreenProps> = ({
   const toastOpacity = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    if (status === "success") {
+    if (status === 'success') {
       setShowSuccess(true);
       toastOpacity.setValue(0);
       Animated.sequence([
@@ -302,12 +280,12 @@ export const CompleteProfileScreen: React.FC<CompleteProfileScreenProps> = ({
   }
 
   const selectedDate = formData.dateOfBirthDate;
-  const displayDate = selectedDate ? formatDate(selectedDate) : "";
+  const displayDate = selectedDate ? formatDate(selectedDate) : '';
   const maxDate = getMaxDate();
 
   const handleDateSelect = (date: Date) => {
-    updateField("dateOfBirthDate", date);
-    updateField("dateOfBirth", formatDate(date));
+    updateField('dateOfBirthDate', date);
+    updateField('dateOfBirth', formatDate(date));
     setShowDatePicker(false);
   };
 
@@ -341,7 +319,7 @@ export const CompleteProfileScreen: React.FC<CompleteProfileScreenProps> = ({
   return (
     <KeyboardAvoidingView
       style={styles.root}
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <ScrollView
         style={styles.scroll}
@@ -358,9 +336,7 @@ export const CompleteProfileScreen: React.FC<CompleteProfileScreenProps> = ({
           >
             <Feather name="arrow-left" size={24} color={accentColor} accessible={false} />
           </TouchableOpacity>
-          <Text style={[styles.title, { color: accentColor }]}>
-            Completá tu perfil
-          </Text>
+          <Text style={[styles.title, { color: accentColor }]}>Completá tu perfil</Text>
         </View>
 
         <View style={styles.header}>
@@ -379,8 +355,8 @@ export const CompleteProfileScreen: React.FC<CompleteProfileScreenProps> = ({
           <Text style={styles.label}>Foto tuya *</Text>
           <PhotoPicker
             uri={formData.selfieUri}
-            onPhotoSelected={(uri) => updateField("selfieUri", uri)}
-            onPhotoRemoved={() => updateField("selfieUri", null)}
+            onPhotoSelected={(uri) => updateField('selfieUri', uri)}
+            onPhotoRemoved={() => updateField('selfieUri', null)}
             error={errors.selfieUri}
             accentColor={accentColor}
           />
@@ -389,10 +365,10 @@ export const CompleteProfileScreen: React.FC<CompleteProfileScreenProps> = ({
         <DniPhotoPicker
           frontUri={formData.dniFrontUri}
           backUri={formData.dniBackUri}
-          onFrontSelected={(uri) => updateField("dniFrontUri", uri)}
-          onBackSelected={(uri) => updateField("dniBackUri", uri)}
-          onFrontRemoved={() => updateField("dniFrontUri", null)}
-          onBackRemoved={() => updateField("dniBackUri", null)}
+          onFrontSelected={(uri) => updateField('dniFrontUri', uri)}
+          onBackSelected={(uri) => updateField('dniBackUri', uri)}
+          onFrontRemoved={() => updateField('dniFrontUri', null)}
+          onBackRemoved={() => updateField('dniBackUri', null)}
           frontError={errors.dniFrontUri}
           backError={errors.dniBackUri}
           accentColor={accentColor}
@@ -401,29 +377,34 @@ export const CompleteProfileScreen: React.FC<CompleteProfileScreenProps> = ({
         <View style={styles.field}>
           <Text style={styles.label}>Fecha de nacimiento *</Text>
           <TouchableOpacity
-            style={[
-              styles.dateButton,
-              errors.dateOfBirth && styles.dateButtonError,
-            ]}
+            style={[styles.dateButton, errors.dateOfBirth && styles.dateButtonError]}
             onPress={() => setShowDatePicker(true)}
             activeOpacity={0.7}
           >
-            <Text
-              style={selectedDate ? styles.dateText : styles.datePlaceholder}
-            >
-              {displayDate || "Seleccionar fecha"}
+            <Text style={selectedDate ? styles.dateText : styles.datePlaceholder}>
+              {displayDate || 'Seleccionar fecha'}
             </Text>
             <Feather name="calendar" size={20} color={accentColor} accessible={false} />
           </TouchableOpacity>
-          {errors.dateOfBirth && (
-            <Text style={styles.errorText}>{errors.dateOfBirth}</Text>
-          )}
+          {errors.dateOfBirth && <Text style={styles.errorText}>{errors.dateOfBirth}</Text>}
           {selectedDate && (
-            <View style={[styles.ageInfo, calculateAge(selectedDate) >= 18 ? styles.ageInfoAdult : styles.ageInfoMinor]}>
-              <Text style={[styles.ageInfoText, calculateAge(selectedDate) >= 18 ? styles.ageInfoTextAdult : styles.ageInfoTextMinor]}>
+            <View
+              style={[
+                styles.ageInfo,
+                calculateAge(selectedDate) >= 18 ? styles.ageInfoAdult : styles.ageInfoMinor,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.ageInfoText,
+                  calculateAge(selectedDate) >= 18
+                    ? styles.ageInfoTextAdult
+                    : styles.ageInfoTextMinor,
+                ]}
+              >
                 {calculateAge(selectedDate) >= 18
-                  ? "Tenes toda la app desbloqueada"
-                  : "Solo podes usar la app en modo cliente"}
+                  ? 'Tenes toda la app desbloqueada'
+                  : 'Solo podes usar la app en modo cliente'}
               </Text>
             </View>
           )}
@@ -436,10 +417,7 @@ export const CompleteProfileScreen: React.FC<CompleteProfileScreenProps> = ({
               style={styles.dateOverlayBackdrop}
               onPress={() => setShowDatePicker(false)}
             />
-            <View
-              style={styles.dateModal}
-              onStartShouldSetResponder={() => true}
-            >
+            <View style={styles.dateModal} onStartShouldSetResponder={() => true}>
               <View style={styles.dateModalHeader}>
                 <TouchableOpacity onPress={() => setShowDatePicker(false)}>
                   <Text style={styles.dateModalCancel}>Cancelar</Text>
@@ -449,48 +427,54 @@ export const CompleteProfileScreen: React.FC<CompleteProfileScreenProps> = ({
               </View>
 
               {showYearPicker ? (
-<YearPicker
-                selectedYear={calMonth.year}
-                maxYear={maxDate.getFullYear()}
-                onSelect={handleYearSelect}
-                accentColor={accentColor}
-              />
+                <YearPicker
+                  selectedYear={calMonth.year}
+                  maxYear={maxDate.getFullYear()}
+                  onSelect={handleYearSelect}
+                  accentColor={accentColor}
+                />
               ) : (
                 <>
                   <View style={calStyles.monthNav}>
-                    <TouchableOpacity
-                      onPress={() => navigateMonth(-1)}
-                      style={calStyles.navBtn}
-                    >
-                      <Feather name="chevron-left" size={24} color={accentColor} accessible={false} />
+                    <TouchableOpacity onPress={() => navigateMonth(-1)} style={calStyles.navBtn}>
+                      <Feather
+                        name="chevron-left"
+                        size={24}
+                        color={accentColor}
+                        accessible={false}
+                      />
                     </TouchableOpacity>
-                    <TouchableOpacity
-                      onPress={() => setShowYearPicker(true)}
-                      activeOpacity={0.6}
-                    >
+                    <TouchableOpacity onPress={() => setShowYearPicker(true)} activeOpacity={0.6}>
                       <View style={calStyles.monthTitleRow}>
                         <Text style={calStyles.monthTitle}>
                           {MONTH_NAMES[calMonth.month]} {calMonth.year}
                         </Text>
-                        <Feather name="chevron-down" size={14} color={colors.textSecondary} accessible={false} />
+                        <Feather
+                          name="chevron-down"
+                          size={14}
+                          color={colors.textSecondary}
+                          accessible={false}
+                        />
                       </View>
                     </TouchableOpacity>
-                    <TouchableOpacity
-                      onPress={() => navigateMonth(1)}
-                      style={calStyles.navBtn}
-                    >
-                      <Feather name="chevron-right" size={24} color={accentColor} accessible={false} />
+                    <TouchableOpacity onPress={() => navigateMonth(1)} style={calStyles.navBtn}>
+                      <Feather
+                        name="chevron-right"
+                        size={24}
+                        color={accentColor}
+                        accessible={false}
+                      />
                     </TouchableOpacity>
                   </View>
 
                   <CalendarGrid
-                year={calMonth.year}
-                month={calMonth.month}
-                selectedDate={selectedDate}
-                maxDate={maxDate}
-                onSelect={handleDateSelect}
-                accentColor={accentColor}
-              />
+                    year={calMonth.year}
+                    month={calMonth.month}
+                    selectedDate={selectedDate}
+                    maxDate={maxDate}
+                    onSelect={handleDateSelect}
+                    accentColor={accentColor}
+                  />
                 </>
               )}
             </View>
@@ -499,12 +483,8 @@ export const CompleteProfileScreen: React.FC<CompleteProfileScreenProps> = ({
 
         {/* Success toast */}
         {showSuccess && (
-          <Animated.View
-            style={[styles.successToast, { opacity: toastOpacity }]}
-          >
-            <Text style={styles.successToastText}>
-              ¡Completaste el perfil! ¡Felicitaciones!
-            </Text>
+          <Animated.View style={[styles.successToast, { opacity: toastOpacity }]}>
+            <Text style={styles.successToastText}>¡Completaste el perfil! ¡Felicitaciones!</Text>
           </Animated.View>
         )}
 
@@ -512,13 +492,15 @@ export const CompleteProfileScreen: React.FC<CompleteProfileScreenProps> = ({
           style={[
             styles.saveButton,
             { backgroundColor: accentColor },
-            status === "saving" && styles.saveButtonDisabled,
+            !canSave && styles.saveButtonDisabled,
           ]}
           onPress={handleSave}
-          disabled={status === "saving"}
+          disabled={!canSave}
           activeOpacity={0.8}
+          testID="btn-save-profile"
+          accessibilityState={{ disabled: !canSave }}
         >
-          {status === "saving" ? (
+          {status === 'saving' ? (
             <ActivityIndicator color="#FFFFFF" />
           ) : (
             <Text style={styles.saveButtonText}>Guardar perfil</Text>
@@ -532,9 +514,9 @@ export const CompleteProfileScreen: React.FC<CompleteProfileScreenProps> = ({
 /* ─── Calendar styles ─── */
 const calStyles = StyleSheet.create({
   monthNav: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
   },
@@ -542,8 +524,8 @@ const calStyles = StyleSheet.create({
     padding: spacing.sm,
   },
   monthTitleRow: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: spacing.xs,
   },
   monthTitle: {
@@ -554,16 +536,16 @@ const calStyles = StyleSheet.create({
   grid: {
     paddingHorizontal: spacing.sm,
     paddingBottom: spacing.md,
-    overflow: "hidden",
+    overflow: 'hidden',
   },
   row: {
-    flexDirection: "row",
+    flexDirection: 'row',
     height: CELL_HEIGHT,
   },
   cell: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   cellSelected: {
     borderRadius: borderRadius.sm,
@@ -597,13 +579,13 @@ const yearStyles = StyleSheet.create({
     color: colors.textSecondary,
     fontSize: typography.fontSizes.xs,
     fontWeight: typography.fontWeights.medium,
-    textAlign: "center",
+    textAlign: 'center',
     marginBottom: spacing.sm,
   },
   yearItem: {
     height: 44,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     borderRadius: borderRadius.sm,
   },
   yearText: {
@@ -630,8 +612,8 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.xxl * 2,
   },
   topBar: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: spacing.sm,
     marginTop: spacing.xl,
     marginBottom: spacing.sm,
@@ -664,7 +646,7 @@ const styles = StyleSheet.create({
   errorBannerText: {
     color: colors.onErrorContainer,
     fontSize: typography.fontSizes.sm,
-    textAlign: "center",
+    textAlign: 'center',
   },
   field: {
     marginBottom: spacing.md,
@@ -682,9 +664,9 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.md,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   dateButtonError: {
     borderColor: colors.error,
@@ -705,7 +687,7 @@ const styles = StyleSheet.create({
   saveButton: {
     borderRadius: borderRadius.md,
     paddingVertical: spacing.md,
-    alignItems: "center",
+    alignItems: 'center',
     marginTop: spacing.lg,
     ...shadows.button,
   },
@@ -719,7 +701,7 @@ const styles = StyleSheet.create({
   },
   dateOverlay: {
     flex: 1,
-    justifyContent: "flex-end",
+    justifyContent: 'flex-end',
   },
   dateOverlayBackdrop: {
     flex: 1,
@@ -732,9 +714,9 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.lg,
   },
   dateModalHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
     borderBottomWidth: 1,
@@ -755,7 +737,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.lg,
     marginTop: spacing.sm,
-    alignItems: "center",
+    alignItems: 'center',
   },
   successToastText: {
     color: colors.onPrimary,
@@ -779,7 +761,7 @@ const styles = StyleSheet.create({
   },
   ageInfoText: {
     fontSize: typography.fontSizes.xs,
-    textAlign: "center",
+    textAlign: 'center',
   },
   ageInfoTextAdult: {
     color: colors.success,
@@ -790,8 +772,8 @@ const styles = StyleSheet.create({
   loadingContainer: {
     flex: 1,
     backgroundColor: colors.background,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     gap: spacing.sm,
   },
   loadingText: {

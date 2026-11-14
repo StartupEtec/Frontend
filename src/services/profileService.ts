@@ -1,7 +1,7 @@
-import { apiClient, API_CONFIG, apiOrigin, ApiError, refreshSession } from "./api";
-import { tokenStorage } from "./tokenStorage";
-import * as FileSystem from "expo-file-system/legacy";
-import { File, UploadType } from "expo-file-system";
+import { apiClient, API_CONFIG, apiOrigin, ApiError, refreshSession } from './api';
+import { tokenStorage } from './tokenStorage';
+import * as FileSystem from 'expo-file-system/legacy';
+import { File, UploadType } from 'expo-file-system';
 import {
   UpdateProfilePayload,
   CreateClientProfilePayload,
@@ -15,21 +15,21 @@ import {
   PrivateProfileResponse,
   ProfileUpdateApiResponse,
   UploadImageApiResponse,
-} from "../types/profile";
+} from '../types/profile';
 
 function mimeTypeFromUri(uri: string): string {
-  const lower = uri.split("?")[0].toLowerCase();
-  if (lower.endsWith(".png")) return "image/png";
-  return "image/jpeg";
+  const lower = uri.split('?')[0].toLowerCase();
+  if (lower.endsWith('.png')) return 'image/png';
+  return 'image/jpeg';
 }
 
 async function authHeaders(): Promise<Record<string, string>> {
   const token = await tokenStorage.getAccessToken();
   const headers: Record<string, string> = {
-    "ngrok-skip-browser-warning": "true",
+    'ngrok-skip-browser-warning': 'true',
   };
   if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
+    headers['Authorization'] = `Bearer ${token}`;
   }
   return headers;
 }
@@ -40,7 +40,7 @@ async function authHeaders(): Promise<Record<string, string>> {
  */
 export function toDisplayUri(url: string | null | undefined): string | null {
   if (!url) return null;
-  if (url.startsWith("/")) return `${apiOrigin()}${url}`;
+  if (url.startsWith('/')) return `${apiOrigin()}${url}`;
   return url;
 }
 
@@ -50,35 +50,35 @@ export function toDisplayUri(url: string | null | undefined): string | null {
  */
 export function toStoredUrl(url: string): string {
   const origin = apiOrigin();
-  if (url.startsWith(origin + "/")) return url.slice(origin.length);
+  if (url.startsWith(origin + '/')) return url.slice(origin.length);
   return url;
 }
 
 /** ¿Es un archivo local que todavía hay que subir? */
 export function isLocalUri(uri: string): boolean {
-  return uri.startsWith("file://") || uri.startsWith("content://");
+  return uri.startsWith('file://') || uri.startsWith('content://');
 }
 
 async function attemptUpload(
   url: string,
   dest: string,
   mimeType: string,
-  headers: Record<string, string>,
+  headers: Record<string, string>
 ): Promise<{ status: number; body: string }> {
   try {
     const result = await FileSystem.uploadAsync(url, dest, {
-      httpMethod: "POST",
+      httpMethod: 'POST',
       uploadType: FileSystem.FileSystemUploadType.MULTIPART,
-      fieldName: "file",
+      fieldName: 'file',
       mimeType,
       headers,
     });
     return { status: result.status, body: result.body };
   } catch {
     const result = await new File(dest).upload(url, {
-      httpMethod: "POST",
+      httpMethod: 'POST',
       uploadType: UploadType.MULTIPART,
-      fieldName: "file",
+      fieldName: 'file',
       mimeType,
       headers,
     });
@@ -88,15 +88,15 @@ async function attemptUpload(
 
 function parseUploadBody(
   status: number,
-  body: string,
+  body: string
 ): UploadImageApiResponse & { error?: string } {
   try {
     return JSON.parse(body) as UploadImageApiResponse & { error?: string };
   } catch {
     throw new ApiError(
-      "Respuesta inválida del servidor al subir la imagen.",
+      'Respuesta inválida del servidor al subir la imagen.',
       status,
-      "UPLOAD_ERROR",
+      'UPLOAD_ERROR'
     );
   }
 }
@@ -109,7 +109,7 @@ export const profileService = {
   async getIdentity(userId: string): Promise<IdentityPayload | null> {
     try {
       return await apiClient<IdentityPayload>(`/users/${userId}/identity`, {
-        method: "GET",
+        method: 'GET',
       });
     } catch (e: unknown) {
       // 404 = usuario inexistente (o backend viejo). Los parciales vienen
@@ -121,10 +121,10 @@ export const profileService = {
 
   async upsertIdentity(
     userId: string,
-    data: CreateIdentityPayload | UpdateIdentityPayload,
+    data: CreateIdentityPayload | UpdateIdentityPayload
   ): Promise<IdentityApiResponse> {
     return apiClient<IdentityApiResponse>(`/users/${userId}/identity`, {
-      method: "PATCH",
+      method: 'PATCH',
       body: JSON.stringify(data),
     });
   },
@@ -135,81 +135,69 @@ export const profileService = {
    */
   async getPrivateProfile(): Promise<PrivateProfileResponse> {
     return apiClient<PrivateProfileResponse>(`/users/me`, {
-      method: "GET",
+      method: 'GET',
     });
   },
 
   async updateProfile(
     userId: string,
-    data: UpdateProfilePayload,
+    data: UpdateProfilePayload
   ): Promise<ProfileUpdateApiResponse> {
     return apiClient<ProfileUpdateApiResponse>(`/users/${userId}`, {
-      method: "PATCH",
+      method: 'PATCH',
       body: JSON.stringify(data),
     });
   },
 
   async createClientProfile(
     userId: string,
-    data: CreateClientProfilePayload,
+    data: CreateClientProfilePayload
   ): Promise<ProfileUpdateApiResponse> {
-    return apiClient<ProfileUpdateApiResponse>(
-      `/users/${userId}/client-profile`,
-      {
-        method: "POST",
-        body: JSON.stringify(data),
-      },
-    );
+    return apiClient<ProfileUpdateApiResponse>(`/users/${userId}/client-profile`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
   },
 
   async createWorkerProfile(
     userId: string,
-    data: CreateWorkerProfilePayload,
+    data: CreateWorkerProfilePayload
   ): Promise<ProfileUpdateApiResponse> {
-    return apiClient<ProfileUpdateApiResponse>(
-      `/users/${userId}/worker-profile`,
-      {
-        method: "POST",
-        body: JSON.stringify(data),
-      },
-    );
+    return apiClient<ProfileUpdateApiResponse>(`/users/${userId}/worker-profile`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
   },
 
   async updateClientProfile(
     userId: string,
-    data: UpdateClientProfilePayload,
+    data: UpdateClientProfilePayload
   ): Promise<ProfileUpdateApiResponse> {
-    return apiClient<ProfileUpdateApiResponse>(
-      `/users/${userId}/client-profile`,
-      {
-        method: "PATCH",
-        body: JSON.stringify(data),
-      },
-    );
+    return apiClient<ProfileUpdateApiResponse>(`/users/${userId}/client-profile`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
   },
 
   async updateWorkerProfile(
     userId: string,
-    data: UpdateWorkerProfilePayload,
+    data: UpdateWorkerProfilePayload
   ): Promise<ProfileUpdateApiResponse> {
-    return apiClient<ProfileUpdateApiResponse>(
-      `/users/${userId}/worker-profile`,
-      {
-        method: "PATCH",
-        body: JSON.stringify(data),
-      },
-    );
+    return apiClient<ProfileUpdateApiResponse>(`/users/${userId}/worker-profile`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
   },
 
   async getClientProfile(userId: string): Promise<unknown> {
     return apiClient(`/users/${userId}/client-profile`, {
-      method: "GET",
+      method: 'GET',
     });
   },
 
   async getWorkerProfile(userId: string): Promise<unknown> {
     return apiClient(`/users/${userId}/worker-profile`, {
-      method: "GET",
+      method: 'GET',
     });
   },
 
@@ -226,10 +214,8 @@ export const profileService = {
    * falla (ej. "isn't readable" en Android), reintenta con la API nueva
    * (File.upload), que usa otro camino nativo.
    */
-  async uploadProfileImage(uri: string, prefix = "profile"): Promise<string> {
-    const ext = uri.split("?")[0].toLowerCase().endsWith(".png")
-      ? "png"
-      : "jpg";
+  async uploadProfileImage(uri: string, prefix = 'profile'): Promise<string> {
+    const ext = uri.split('?')[0].toLowerCase().endsWith('.png') ? 'png' : 'jpg';
     const mimeType = mimeTypeFromUri(uri);
     const url = `${API_CONFIG.BASE_URL}/uploads/profile-image`;
 
@@ -241,14 +227,14 @@ export const profileService = {
     // el mensaje original (el hook lo muestra en el banner).
     const cacheDir = FileSystem.cacheDirectory;
     if (!cacheDir) {
-      throw new ApiError("No hay almacenamiento disponible.", 0, "NO_CACHE");
+      throw new ApiError('No hay almacenamiento disponible.', 0, 'NO_CACHE');
     }
     const dir = `${cacheDir}profile-uploads/`;
     let dest: string;
     try {
       const info = await FileSystem.getInfoAsync(uri);
       if (!info.exists) {
-        throw new Error("archivo inexistente");
+        throw new Error('archivo inexistente');
       }
       await FileSystem.makeDirectoryAsync(dir, { intermediates: true });
       dest = `${dir}${prefix}-${Date.now()}.${ext}`;
@@ -257,17 +243,9 @@ export const profileService = {
       if (e instanceof ApiError) throw e;
       const detail = e instanceof Error ? e.message : String(e);
       if (/inexistente/.test(detail)) {
-        throw new ApiError(
-          "La imagen ya no está disponible. Elegila de nuevo.",
-          0,
-          "FILE_MISSING",
-        );
+        throw new ApiError('La imagen ya no está disponible. Elegila de nuevo.', 0, 'FILE_MISSING');
       }
-      throw new ApiError(
-        `No se pudo preparar la imagen: ${detail}`,
-        0,
-        "FILE_PREP_ERROR",
-      );
+      throw new ApiError(`No se pudo preparar la imagen: ${detail}`, 0, 'FILE_PREP_ERROR');
     }
 
     // 3. Subir: vía legacy primero, vía nueva API como fallback. Si el token
@@ -284,11 +262,7 @@ export const profileService = {
         body = retry.body;
       }
     } catch {
-      throw new ApiError(
-        "No se pudo subir la imagen. Probá con otra foto.",
-        0,
-        "NETWORK_ERROR",
-      );
+      throw new ApiError('No se pudo subir la imagen. Probá con otra foto.', 0, 'NETWORK_ERROR');
     }
 
     // Limpieza best-effort de la copia temporal.
@@ -300,17 +274,13 @@ export const profileService = {
 
     const data = parseUploadBody(status, body);
     if (status === 401 || status === 403) {
-      throw new ApiError(
-        "Sesión expirada. Volvé a iniciar sesión.",
-        status,
-        "SESSION_EXPIRED",
-      );
+      throw new ApiError('Sesión expirada. Volvé a iniciar sesión.', status, 'SESSION_EXPIRED');
     }
     if (status < 200 || status >= 300 || !data.url) {
       throw new ApiError(
         data.message || data.error || `Error HTTP ${status}`,
         status,
-        data.error || "UPLOAD_ERROR",
+        data.error || 'UPLOAD_ERROR'
       );
     }
     return data.url;

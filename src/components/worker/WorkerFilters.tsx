@@ -1,13 +1,7 @@
-import React from "react";
-import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { WORKER_CATEGORIES } from "../../types/worker";
-import { colors, spacing, borderRadius, typography } from "../../theme/tokens";
+import React from 'react';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { WORKER_CATEGORIES } from '../../types/worker';
+import { colors, spacing, borderRadius, typography } from '../../theme/tokens';
 
 export interface WorkerFiltersProps {
   /** Categoría activa (null = todas). */
@@ -24,7 +18,7 @@ export interface WorkerFiltersProps {
 export const WorkerFilters: React.FC<WorkerFiltersProps> = ({
   categoryId,
   onCategoryChange,
-  testID = "worker-filters",
+  testID = 'worker-filters',
 }) => (
   <View style={styles.container} testID={testID}>
     <Text style={styles.label}>Categoría</Text>
@@ -34,23 +28,13 @@ export const WorkerFilters: React.FC<WorkerFiltersProps> = ({
       contentContainerStyle={styles.categoryRow}
     >
       <TouchableOpacity
-        style={[
-          styles.pill,
-          categoryId === null && { backgroundColor: colors.primary },
-        ]}
+        style={[styles.pill, categoryId === null && { backgroundColor: colors.primary }]}
         onPress={() => onCategoryChange(null)}
         testID="filter-category-all"
         accessibilityRole="button"
         accessibilityState={{ selected: categoryId === null }}
       >
-        <Text
-          style={[
-            styles.pillText,
-            categoryId === null && styles.pillTextActive,
-          ]}
-        >
-          Todas
-        </Text>
+        <Text style={[styles.pillText, categoryId === null && styles.pillTextActive]}>Todas</Text>
       </TouchableOpacity>
       {WORKER_CATEGORIES.map((category, index) => {
         const active = category.id === categoryId;
@@ -64,9 +48,7 @@ export const WorkerFilters: React.FC<WorkerFiltersProps> = ({
             accessibilityState={{ selected: active }}
             accessibilityLabel={`Filtrar por ${category.name}`}
           >
-            <Text style={[styles.pillText, active && styles.pillTextActive]}>
-              {category.name}
-            </Text>
+            <Text style={[styles.pillText, active && styles.pillTextActive]}>{category.name}</Text>
           </TouchableOpacity>
         );
       })}
@@ -88,7 +70,7 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     fontSize: typography.fontSizes.xs,
     fontWeight: typography.fontWeights.semibold,
-    textTransform: "uppercase",
+    textTransform: 'uppercase',
     marginTop: spacing.xs,
   },
   categoryRow: {

@@ -1,10 +1,6 @@
-import { useCallback, useRef, useState } from "react";
-import { geocodingService, GeocodeResult } from "../services/geocodingService";
-import {
-  Coordinates,
-  CreateLocationPayload,
-  SavedLocation,
-} from "../types/location";
+import { useCallback, useRef, useState } from 'react';
+import { geocodingService, GeocodeResult } from '../services/geocodingService';
+import { Coordinates, CreateLocationPayload, SavedLocation } from '../types/location';
 
 export interface LocationFormErrors {
   address?: string;
@@ -23,19 +19,13 @@ export const MIN_ADDRESS_LENGTH = 3;
  * reverse-geocoding al mover el pin en el mapa.
  */
 export const useLocationForm = (initial?: SavedLocation | null) => {
-  const [address, setAddress] = useState(initial?.address ?? "");
+  const [address, setAddress] = useState(initial?.address ?? '');
   const [coordinates, setCoordinatesState] = useState<Coordinates | null>(
-    initial
-      ? { latitude: initial.latitude, longitude: initial.longitude }
-      : null,
+    initial ? { latitude: initial.latitude, longitude: initial.longitude } : null
   );
-  const [isPrimary, setIsPrimary] = useState<boolean>(
-    initial?.is_primary ?? false,
-  );
+  const [isPrimary, setIsPrimary] = useState<boolean>(initial?.is_primary ?? false);
   const [coverageRadiusKm, setCoverageRadiusKm] = useState<string>(
-    initial?.coverage_radius_km == null
-      ? ""
-      : initial.coverage_radius_km.toString(),
+    initial?.coverage_radius_km == null ? '' : initial.coverage_radius_km.toString()
   );
   const [errors, setErrors] = useState<LocationFormErrors>({});
 
@@ -49,16 +39,10 @@ export const useLocationForm = (initial?: SavedLocation | null) => {
   const searchTokenRef = useRef(0);
 
   const reset = useCallback((next?: SavedLocation | null) => {
-    setAddress(next?.address ?? "");
-    setCoordinatesState(
-      next ? { latitude: next.latitude, longitude: next.longitude } : null,
-    );
+    setAddress(next?.address ?? '');
+    setCoordinatesState(next ? { latitude: next.latitude, longitude: next.longitude } : null);
     setIsPrimary(next?.is_primary ?? false);
-    setCoverageRadiusKm(
-      next?.coverage_radius_km == null
-        ? ""
-        : next.coverage_radius_km.toString(),
-    );
+    setCoverageRadiusKm(next?.coverage_radius_km == null ? '' : next.coverage_radius_km.toString());
     setErrors({});
     setResults([]);
     setSearchError(null);
@@ -104,9 +88,7 @@ export const useLocationForm = (initial?: SavedLocation | null) => {
     } catch (err: unknown) {
       if (token !== searchTokenRef.current) return;
       setSearchError(
-        err instanceof Error && err.message
-          ? err.message
-          : "No pudimos buscar direcciones.",
+        err instanceof Error && err.message ? err.message : 'No pudimos buscar direcciones.'
       );
       setResults([]);
     } finally {
@@ -147,10 +129,7 @@ export const useLocationForm = (initial?: SavedLocation | null) => {
 
       setResolving(true);
       try {
-        const label = await geocodingService.reverse(
-          coords.latitude,
-          coords.longitude,
-        );
+        const label = await geocodingService.reverse(coords.latitude, coords.longitude);
         if (label) setAddress(label);
       } catch {
         // se conserva la dirección actual
@@ -158,22 +137,22 @@ export const useLocationForm = (initial?: SavedLocation | null) => {
         setResolving(false);
       }
     },
-    [setCoordinates],
+    [setCoordinates]
   );
 
   const validate = useCallback((): boolean => {
     const next: LocationFormErrors = {};
     if (address.trim().length < MIN_ADDRESS_LENGTH) {
-      next.address = "Ingresá una dirección válida (mínimo 3 caracteres).";
+      next.address = 'Ingresá una dirección válida (mínimo 3 caracteres).';
     }
     if (!coordinates) {
-      next.coordinates = "Seleccioná la ubicación en el mapa.";
+      next.coordinates = 'Seleccioná la ubicación en el mapa.';
     }
     if (coverageRadiusKm.trim()) {
-      const normalized = coverageRadiusKm.replace(",", ".");
+      const normalized = coverageRadiusKm.replace(',', '.');
       const value = Number(normalized);
       if (!Number.isFinite(value) || value < 0) {
-        next.coverageRadiusKm = "Ingresá un radio válido (ej. 5 o 2,5).";
+        next.coverageRadiusKm = 'Ingresá un radio válido (ej. 5 o 2,5).';
       }
     }
     setErrors(next);
@@ -184,7 +163,7 @@ export const useLocationForm = (initial?: SavedLocation | null) => {
   const buildPayload = useCallback((): CreateLocationPayload => {
     let radius: number | null | undefined;
     if (coverageRadiusKm.trim()) {
-      const normalized = coverageRadiusKm.replace(",", ".");
+      const normalized = coverageRadiusKm.replace(',', '.');
       const value = Number(normalized);
       if (Number.isFinite(value) && value >= 0) {
         radius = Number(value.toFixed(3));

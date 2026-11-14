@@ -1,18 +1,17 @@
-import { useState, useEffect, useCallback, useRef } from "react";
-import { authService } from "../services/authService";
-import { ApiError } from "../services/api";
-import { tokenStorage } from "../services/tokenStorage";
-import { toContactIdentifier } from "../utils/contact";
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { authService } from '../services/authService';
+import { ApiError } from '../services/api';
+import { tokenStorage } from '../services/tokenStorage';
+import { toContactIdentifier } from '../utils/contact';
 
 /** Duration of the full OTP validity window in seconds */
-const OTP_EXPIRY_SECONDS = 10 * 60; // 10 minutes
+const OTP_EXPIRY_SECONDS = 5 * 60; // 5 minutes
 /** Time (in seconds) the resend button stays disabled after sending */
 const RESEND_COOLDOWN_SECONDS = 30;
 /** Maximum number of invalid code attempts before locking */
 const MAX_ATTEMPTS = 5;
 
-export type OtpStatus =
-  "idle" | "verifying" | "resending" | "success" | "locked";
+export type OtpStatus = 'idle' | 'verifying' | 'resending' | 'success' | 'locked';
 
 interface UseOtpVerificationOptions {
   contact: string;
@@ -43,36 +42,48 @@ export const useOtpVerification = ({
   contact,
   onVerificationSuccess,
 }: UseOtpVerificationOptions): UseOtpVerificationReturn => {
-  const [code, setCode] = useState<string[]>(Array(6).fill(""));
-  const [status, setStatus] = useState<OtpStatus>("idle");
+  const [code, setCode] = useState<string[]>(Array(6).fill(''));
+  const [status, setStatus] = useState<OtpStatus>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [secondsRemaining, setSecondsRemaining] =
-    useState<number>(OTP_EXPIRY_SECONDS);
-  const [resendCooldown, setResendCooldown] = useState<number>(
-    RESEND_COOLDOWN_SECONDS,
-  );
+  const [secondsRemaining, setSecondsRemaining] = useState<number>(OTP_EXPIRY_SECONDS);
+  const [resendCooldown, setResendCooldown] = useState<number>(RESEND_COOLDOWN_SECONDS);
   const [attemptsLeft, setAttemptsLeft] = useState<number>(MAX_ATTEMPTS);
 
-  const inputRefs = useRef<Array<{ focus: () => void } | null>>(
-    Array(6).fill(null),
-  );
+  const inputRefs = useRef<Array<{ focus: () => void } | null>>(Array(6).fill(null));
 
-  // ---------- Countdown timers ----------
+  /** Momento absoluto (ms de epoch) en que expira el OTP activo. Se guarda
+   *  al iniciar o reenviar para que, aunque la app se cierre, al volver se
+   *  calcule el tiempo real restante sin depender de un setInterval local. */
+  const expiresAtRef = useRef<number | null>(null);
+  /** Momento absoluto en que vence el cooldown de reenvío. */
+  const resendExpiresAtRef = useRef<number | null>(null);
+
+  // Initialize the absolute expiry timestamp on mount
+  useEffect(() => {
+    expiresAtRef.current = Date.now() + OTP_EXPIRY_SECONDS * 1000;
+    resendExpiresAtRef.current = Date.now() + RESEND_COOLDOWN_SECONDS * 1000;
+  }, []);
+
+  // ---------- Countdown timers based on absolute timestamps ----------
 
   useEffect(() => {
-    if (status === "locked" || status === "success") return;
+    if (status === 'locked' || status === 'success') return;
 
     const interval = setInterval(() => {
-      setSecondsRemaining((prev) => {
-        if (prev <= 1) {
-          clearInterval(interval);
-          setErrorMessage(
-            "El código ha expirado. Por favor solicitá uno nuevo.",
-          );
-          return 0;
-        }
-        return prev - 1;
-      });
+      const now = Date.now();
+      const expiresAt = expiresAtRef.current;
+      if (expiresAt == null) {
+        clearInterval(interval);
+        return;
+      }
+
+      const remaining = Math.max(0, Math.floor((expiresAt - now) / 1000));
+      setSecondsRemaining(remaining);
+
+      if (remaining <= 0) {
+        clearInterval(interval);
+        setErrorMessage('El código ha expirado. Por favor solicitá uno nuevo.');
+      }
     }, 1000);
 
     return () => clearInterval(interval);
@@ -82,7 +93,15 @@ export const useOtpVerification = ({
     if (resendCooldown <= 0) return;
 
     const interval = setInterval(() => {
-      setResendCooldown((prev) => Math.max(prev - 1, 0));
+      const now = Date.now();
+      const resendExpiresAt = resendExpiresAtRef.current;
+      if (resendExpiresAt == null) {
+        clearInterval(interval);
+        return;
+      }
+
+      const remaining = Math.max(0, Math.floor((resendExpiresAt - now) / 1000));
+      setResendCooldown(remaining);
     }, 1000);
 
     return () => clearInterval(interval);
@@ -90,14 +109,16 @@ export const useOtpVerification = ({
 
   // ---------- Derived state ----------
 
-  const canResend =
-    resendCooldown === 0 && secondsRemaining > 0 && status !== "locked";
+  // El reenvío se mantiene habilitado aunque el código haya expirado: es
+  // justamente cuando el usuario más lo necesita. Solo se bloquea durante el
+  // cooldown y cuando se superó el máximo de intentos.
+  const canResend = resendCooldown === 0 && status !== 'locked' && status !== 'resending';
 
   // ---------- Digit handling ----------
 
   const handleDigitChange = useCallback((index: number, digit: string) => {
     // Only accept single numeric characters
-    const sanitized = digit.replace(/[^0-9]/g, "").slice(-1);
+    const sanitized = digit.replace(/[^0-9]/g, '').slice(-1);
 
     setCode((prev) => {
       const next = [...prev];
@@ -114,30 +135,30 @@ export const useOtpVerification = ({
 
   const handleDigitKeyPress = useCallback(
     (index: number, key: string) => {
-      if (key === "Backspace" && !code[index] && index > 0) {
+      if (key === 'Backspace' && !code[index] && index > 0) {
         inputRefs.current[index - 1]?.focus();
       }
     },
-    [code],
+    [code]
   );
 
   // ---------- Verify OTP ----------
 
   const handleVerify = useCallback(async () => {
-    const fullCode = code.join("");
+    const fullCode = code.join('');
 
     if (fullCode.length < 6) {
-      setErrorMessage("Ingresá los 6 dígitos del código.");
+      setErrorMessage('Ingresá los 6 dígitos del código.');
       return;
     }
 
-    if (status === "locked") return;
+    if (status === 'locked') return;
     if (secondsRemaining === 0) {
-      setErrorMessage("El código ha expirado. Por favor solicitá uno nuevo.");
+      setErrorMessage('El código ha expirado. Por favor solicitá uno nuevo.');
       return;
     }
 
-    setStatus("verifying");
+    setStatus('verifying');
     setErrorMessage(null);
 
     try {
@@ -154,42 +175,35 @@ export const useOtpVerification = ({
       if (result.user?.id) {
         await tokenStorage.setUserId(result.user.id);
       }
-      setStatus("success");
+      setStatus('success');
       onVerificationSuccess();
     } catch (err: any) {
-      setStatus("idle");
+      setStatus('idle');
 
       if (err instanceof ApiError) {
         const errorCode = err.errorCode;
 
-        if (errorCode === "VALIDATION_ERROR") {
+        if (errorCode === 'VALIDATION_ERROR') {
           setErrorMessage(
-            err.message ||
-              "Hay un error en los datos enviados. Verificá e intentá de nuevo.",
+            err.message || 'Hay un error en los datos enviados. Verificá e intentá de nuevo.'
           );
           return;
         }
 
-        if (errorCode === "EXPIRED_OTP" || err.statusCode === 410) {
-          setErrorMessage(
-            "El código ha expirado. Por favor solicitá uno nuevo.",
-          );
+        if (errorCode === 'EXPIRED_OTP' || err.statusCode === 410) {
+          setErrorMessage('El código ha expirado. Por favor solicitá uno nuevo.');
           return;
         }
 
-        if (errorCode === "OTP_ATTEMPTS_EXCEEDED") {
+        if (errorCode === 'OTP_ATTEMPTS_EXCEEDED') {
           setAttemptsLeft(0);
-          setStatus("locked");
-          setErrorMessage(
-            "Demasiados intentos fallidos. Solicitá un nuevo código.",
-          );
+          setStatus('locked');
+          setErrorMessage('Demasiados intentos fallidos. Solicitá un nuevo código.');
           return;
         }
 
-        if (errorCode === "TOO_MANY_REQUESTS" || err.statusCode === 429) {
-          setErrorMessage(
-            err.message || "Demasiados intentos. Reintentá más tarde.",
-          );
+        if (errorCode === 'TOO_MANY_REQUESTS' || err.statusCode === 429) {
+          setErrorMessage(err.message || 'Demasiados intentos. Reintentá más tarde.');
           return;
         }
       }
@@ -199,63 +213,53 @@ export const useOtpVerification = ({
       setAttemptsLeft(newAttemptsLeft);
 
       if (newAttemptsLeft <= 0) {
-        setStatus("locked");
-        setErrorMessage(
-          "Superaste el número máximo de intentos. Solicitá un nuevo código.",
-        );
+        setStatus('locked');
+        setErrorMessage('Superaste el número máximo de intentos. Solicitá un nuevo código.');
         return;
       }
 
       if (err instanceof ApiError) {
         setErrorMessage(
-          err.errorCode === "INVALID_OTP" || err.statusCode === 400
-            ? `Código incorrecto. Te quedan ${newAttemptsLeft} intento${newAttemptsLeft === 1 ? "" : "s"}.`
-            : err.message ||
-                "Error del servidor. Reintentá en unos instantes.",
+          err.errorCode === 'INVALID_OTP' || err.statusCode === 400
+            ? `Código incorrecto. Te quedan ${newAttemptsLeft} intento${newAttemptsLeft === 1 ? '' : 's'}.`
+            : err.message || 'Error del servidor. Reintentá en unos instantes.'
         );
       } else {
-        setErrorMessage(
-          "Error de conexión. Verificá tu internet e intentá de nuevo.",
-        );
+        setErrorMessage('Error de conexión. Verificá tu internet e intentá de nuevo.');
       }
     }
-  }, [
-    code,
-    contact,
-    status,
-    secondsRemaining,
-    attemptsLeft,
-    onVerificationSuccess,
-  ]);
+  }, [code, contact, status, secondsRemaining, attemptsLeft, onVerificationSuccess]);
 
   // ---------- Resend OTP ----------
 
   const handleResend = useCallback(async () => {
     if (!canResend) return;
 
-    setStatus("resending");
+    setStatus('resending');
     setErrorMessage(null);
 
     try {
       await authService.resendOtp(toContactIdentifier(contact));
 
-      // Reset timers and attempts
+      // Reset timers and attempts using absolute timestamps so the countdown
+      // keeps being correct even if the app is closed and reopened.
+      const now = Date.now();
+      expiresAtRef.current = now + OTP_EXPIRY_SECONDS * 1000;
+      resendExpiresAtRef.current = now + RESEND_COOLDOWN_SECONDS * 1000;
       setSecondsRemaining(OTP_EXPIRY_SECONDS);
       setResendCooldown(RESEND_COOLDOWN_SECONDS);
       setAttemptsLeft(MAX_ATTEMPTS);
-      setCode(Array(6).fill(""));
-      setStatus("idle");
+      setCode(Array(6).fill(''));
+      setStatus('idle');
 
       // Focus first digit
       inputRefs.current[0]?.focus();
     } catch (err: any) {
-      setStatus("idle");
+      setStatus('idle');
       if (err instanceof ApiError) {
-        setErrorMessage(
-          err.message || "No se pudo reenviar el código. Reintentá más tarde.",
-        );
+        setErrorMessage(err.message || 'No se pudo reenviar el código. Reintentá más tarde.');
       } else {
-        setErrorMessage("Error de conexión al intentar reenviar el código.");
+        setErrorMessage('Error de conexión al intentar reenviar el código.');
       }
     }
   }, [canResend, contact]);

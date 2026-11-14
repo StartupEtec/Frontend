@@ -50,7 +50,7 @@ export interface PublicWorkerProfile {
   avatar_url: string | null;
   bio: string | null;
   average_rating: string | null;
-  role: "worker" | "client";
+  role: 'worker' | 'client';
 }
 
 export interface WorkerCategory {
@@ -66,91 +66,91 @@ export interface WorkerCategory {
  * vive en el frontend. Si el seed cambia, actualizar acá.
  */
 export const WORKER_CATEGORIES: WorkerCategory[] = [
-  { id: "d9b936d5-a3d5-45d6-b4d6-a4c3f5d6f001", name: "Limpieza" },
-  { id: "d9b936d5-a3d5-45d6-b4d6-a4c3f5d6f002", name: "Plomería" },
-  { id: "d9b936d5-a3d5-45d6-b4d6-a4c3f5d6f003", name: "Electricidad" },
+  { id: 'd9b936d5-a3d5-45d6-b4d6-a4c3f5d6f001', name: 'Limpieza' },
+  { id: 'd9b936d5-a3d5-45d6-b4d6-a4c3f5d6f002', name: 'Plomería' },
+  { id: 'd9b936d5-a3d5-45d6-b4d6-a4c3f5d6f003', name: 'Electricidad' },
   {
-    id: "d9b936d5-a3d5-45d6-b4d6-a4c3f5d6f004",
-    name: "Jardinería y Paisajismo",
+    id: 'd9b936d5-a3d5-45d6-b4d6-a4c3f5d6f004',
+    name: 'Jardinería y Paisajismo',
   },
-  { id: "d9b936d5-a3d5-45d6-b4d6-a4c3f5d6f005", name: "Pintura" },
-  { id: "d9b936d5-a3d5-45d6-b4d6-a4c3f5d6f006", name: "Carpintería" },
+  { id: 'd9b936d5-a3d5-45d6-b4d6-a4c3f5d6f005', name: 'Pintura' },
+  { id: 'd9b936d5-a3d5-45d6-b4d6-a4c3f5d6f006', name: 'Carpintería' },
   {
-    id: "d9b936d5-a3d5-45d6-b4d6-a4c3f5d6f007",
-    name: "Climatización y Refrigeración",
+    id: 'd9b936d5-a3d5-45d6-b4d6-a4c3f5d6f007',
+    name: 'Climatización y Refrigeración',
   },
-  { id: "d9b936d5-a3d5-45d6-b4d6-a4c3f5d6f008", name: "Cuidado de Mascotas" },
+  { id: 'd9b936d5-a3d5-45d6-b4d6-a4c3f5d6f008', name: 'Cuidado de Mascotas' },
   {
-    id: "d9b936d5-a3d5-45d6-b4d6-a4c3f5d6f009",
-    name: "Soporte Técnico e Informática",
+    id: 'd9b936d5-a3d5-45d6-b4d6-a4c3f5d6f009',
+    name: 'Soporte Técnico e Informática',
   },
-  { id: "d9b936d5-a3d5-45d6-b4d6-a4c3f5d6f010", name: "Cerrajería" },
-  { id: "d9b936d5-a3d5-45d6-b4d6-a4c3f5d6f011", name: "Gasista Matriculado" },
-  { id: "d9b936d5-a3d5-45d6-b4d6-a4c3f5d6f012", name: "Mudanzas y Fletes" },
+  { id: 'd9b936d5-a3d5-45d6-b4d6-a4c3f5d6f010', name: 'Cerrajería' },
+  { id: 'd9b936d5-a3d5-45d6-b4d6-a4c3f5d6f011', name: 'Gasista Matriculado' },
+  { id: 'd9b936d5-a3d5-45d6-b4d6-a4c3f5d6f012', name: 'Mudanzas y Fletes' },
   {
-    id: "d9b936d5-a3d5-45d6-b4d6-a4c3f5d6f013",
-    name: "Albañilería y Construcción",
+    id: 'd9b936d5-a3d5-45d6-b4d6-a4c3f5d6f013',
+    name: 'Albañilería y Construcción',
   },
-  { id: "d9b936d5-a3d5-45d6-b4d6-a4c3f5d6f014", name: "Herrería y Soldadura" },
+  { id: 'd9b936d5-a3d5-45d6-b4d6-a4c3f5d6f014', name: 'Herrería y Soldadura' },
   {
-    id: "d9b936d5-a3d5-45d6-b4d6-a4c3f5d6f015",
-    name: "Techista y Reparación de Techos",
-  },
-  {
-    id: "d9b936d5-a3d5-45d6-b4d6-a4c3f5d6f016",
-    name: "Fumigación y Control de Plagas",
+    id: 'd9b936d5-a3d5-45d6-b4d6-a4c3f5d6f015',
+    name: 'Techista y Reparación de Techos',
   },
   {
-    id: "d9b936d5-a3d5-45d6-b4d6-a4c3f5d6f017",
-    name: "Seguridad y Cámaras (CCTV)",
+    id: 'd9b936d5-a3d5-45d6-b4d6-a4c3f5d6f016',
+    name: 'Fumigación y Control de Plagas',
   },
   {
-    id: "d9b936d5-a3d5-45d6-b4d6-a4c3f5d6f018",
-    name: "Reparación de Electrodomésticos",
-  },
-  { id: "d9b936d5-a3d5-45d6-b4d6-a4c3f5d6f019", name: "Durlock y Yesería" },
-  {
-    id: "d9b936d5-a3d5-45d6-b4d6-a4c3f5d6f020",
-    name: "Tapicería y Restauración",
+    id: 'd9b936d5-a3d5-45d6-b4d6-a4c3f5d6f017',
+    name: 'Seguridad y Cámaras (CCTV)',
   },
   {
-    id: "d9b936d5-a3d5-45d6-b4d6-a4c3f5d6f021",
-    name: "Pulido y Plastificado de Pisos",
+    id: 'd9b936d5-a3d5-45d6-b4d6-a4c3f5d6f018',
+    name: 'Reparación de Electrodomésticos',
   },
-  { id: "d9b936d5-a3d5-45d6-b4d6-a4c3f5d6f022", name: "Impermeabilización" },
+  { id: 'd9b936d5-a3d5-45d6-b4d6-a4c3f5d6f019', name: 'Durlock y Yesería' },
   {
-    id: "d9b936d5-a3d5-45d6-b4d6-a4c3f5d6f023",
-    name: "Cuidado de Adultos Mayores",
-  },
-  {
-    id: "d9b936d5-a3d5-45d6-b4d6-a4c3f5d6f024",
-    name: "Cuidado Infantil y Niñera",
-  },
-  { id: "d9b936d5-a3d5-45d6-b4d6-a4c3f5d6f025", name: "Clases Particulares" },
-  {
-    id: "d9b936d5-a3d5-45d6-b4d6-a4c3f5d6f026",
-    name: "Diseño y Decoración de Interiores",
+    id: 'd9b936d5-a3d5-45d6-b4d6-a4c3f5d6f020',
+    name: 'Tapicería y Restauración',
   },
   {
-    id: "d9b936d5-a3d5-45d6-b4d6-a4c3f5d6f027",
-    name: "Organización de Espacios",
+    id: 'd9b936d5-a3d5-45d6-b4d6-a4c3f5d6f021',
+    name: 'Pulido y Plastificado de Pisos',
+  },
+  { id: 'd9b936d5-a3d5-45d6-b4d6-a4c3f5d6f022', name: 'Impermeabilización' },
+  {
+    id: 'd9b936d5-a3d5-45d6-b4d6-a4c3f5d6f023',
+    name: 'Cuidado de Adultos Mayores',
   },
   {
-    id: "d9b936d5-a3d5-45d6-b4d6-a4c3f5d6f028",
-    name: "Peluquería y Barbería a Domicilio",
+    id: 'd9b936d5-a3d5-45d6-b4d6-a4c3f5d6f024',
+    name: 'Cuidado Infantil y Niñera',
   },
-  { id: "d9b936d5-a3d5-45d6-b4d6-a4c3f5d6f029", name: "Masajes y Estética" },
+  { id: 'd9b936d5-a3d5-45d6-b4d6-a4c3f5d6f025', name: 'Clases Particulares' },
   {
-    id: "d9b936d5-a3d5-45d6-b4d6-a4c3f5d6f030",
-    name: "Catering y Chef a Domicilio",
-  },
-  {
-    id: "d9b936d5-a3d5-45d6-b4d6-a4c3f5d6f031",
-    name: "Mantenimiento de Piletas / Piscinas",
+    id: 'd9b936d5-a3d5-45d6-b4d6-a4c3f5d6f026',
+    name: 'Diseño y Decoración de Interiores',
   },
   {
-    id: "d9b936d5-a3d5-45d6-b4d6-a4c3f5d6f032",
-    name: "Vidriería y Cerramientos",
+    id: 'd9b936d5-a3d5-45d6-b4d6-a4c3f5d6f027',
+    name: 'Organización de Espacios',
+  },
+  {
+    id: 'd9b936d5-a3d5-45d6-b4d6-a4c3f5d6f028',
+    name: 'Peluquería y Barbería a Domicilio',
+  },
+  { id: 'd9b936d5-a3d5-45d6-b4d6-a4c3f5d6f029', name: 'Masajes y Estética' },
+  {
+    id: 'd9b936d5-a3d5-45d6-b4d6-a4c3f5d6f030',
+    name: 'Catering y Chef a Domicilio',
+  },
+  {
+    id: 'd9b936d5-a3d5-45d6-b4d6-a4c3f5d6f031',
+    name: 'Mantenimiento de Piletas / Piscinas',
+  },
+  {
+    id: 'd9b936d5-a3d5-45d6-b4d6-a4c3f5d6f032',
+    name: 'Vidriería y Cerramientos',
   },
 ];
 
@@ -179,12 +179,12 @@ export const NEARBY_MAX_LIMIT = 100;
 export const WORKER_LIST_PAGE_SIZE = 10;
 
 /** Criterios de ordenamiento de la vista de lista. */
-export type WorkerSortOption = "distance" | "rating";
+export type WorkerSortOption = 'distance' | 'rating';
 
 /** Etiqueta legible de cada criterio de ordenamiento. */
 export const WORKER_SORT_LABELS: Record<WorkerSortOption, string> = {
-  distance: "Distancia",
-  rating: "Calificación",
+  distance: 'Distancia',
+  rating: 'Calificación',
 };
 
 /**
@@ -202,9 +202,9 @@ export interface WorkerListFilters {
 
 /** Filtros de lista por defecto: sin nombre, sin rating mínimo, por cercanía. */
 export const DEFAULT_WORKER_LIST_FILTERS: WorkerListFilters = {
-  nameQuery: "",
+  nameQuery: '',
   minRating: 0,
-  sortBy: "distance",
+  sortBy: 'distance',
 };
 
 /** Opciones de calificación mínima ofrecidas en la UI (estrellas). */

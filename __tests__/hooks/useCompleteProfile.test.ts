@@ -89,7 +89,7 @@ describe("useCompleteProfile Hook", () => {
       dni_front_url: "/uploads/profiles/dni-front.jpg",
       dni_back_url: "/uploads/profiles/dni-back.jpg",
     });
-    const { result } = renderHook(() =>
+    renderHook(() =>
       useCompleteProfile({ role: "client", onCompleted: mockOnCompleted }),
     );
     await flush();

@@ -19,7 +19,7 @@ export function toContactIdentifier(contact: string): ContactIdentifier {
   if (EMAIL_REGEX.test(value)) {
     return { email: value };
   }
-  const phone = value.replace(/\s+/g, "");
+  const phone = value.replace(/\s+/g, '');
   if (PHONE_REGEX.test(phone)) {
     return { phone };
   }

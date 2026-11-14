@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -13,23 +7,19 @@ import {
   Text,
   TouchableOpacity,
   View,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { StatusBar } from "expo-status-bar";
-import { Feather } from "@expo/vector-icons";
-import { UserRole } from "../types/role";
-import { useNearbyWorkers } from "../hooks/useNearbyWorkers";
-import { useWorkerList } from "../hooks/useWorkerList";
-import { LeafletMap, LeafletMarker } from "../components/location/LeafletMap";
-import { WorkerFilters } from "../components/worker/WorkerFilters";
-import { WorkerListFilters } from "../components/worker/WorkerListFilters";
-import { WorkerCard } from "../components/worker/WorkerCard";
-import { Coordinates, SavedLocation } from "../types/location";
-import {
-  NearbyWorker,
-  NEARBY_FIXED_RADIUS_KM,
-  NEARBY_MAX_LIMIT,
-} from "../types/worker";
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { StatusBar } from 'expo-status-bar';
+import { Feather } from '@expo/vector-icons';
+import { UserRole } from '../types/role';
+import { useNearbyWorkers } from '../hooks/useNearbyWorkers';
+import { useWorkerList } from '../hooks/useWorkerList';
+import { LeafletMap, LeafletMarker } from '../components/location/LeafletMap';
+import { WorkerFilters } from '../components/worker/WorkerFilters';
+import { WorkerListFilters } from '../components/worker/WorkerListFilters';
+import { WorkerCard } from '../components/worker/WorkerCard';
+import { Coordinates, SavedLocation } from '../types/location';
+import { NearbyWorker, NEARBY_FIXED_RADIUS_KM, NEARBY_MAX_LIMIT } from '../types/worker';
 import {
   COVERAGE_TIER_COLORS,
   DEFAULT_CENTER,
@@ -37,14 +27,8 @@ import {
   distanceKmBetween,
   sameCoordinates,
   zoomForRadius,
-} from "../utils/map";
-import {
-  colors,
-  spacing,
-  borderRadius,
-  typography,
-  roleAccent,
-} from "../theme/tokens";
+} from '../utils/map';
+import { colors, spacing, borderRadius, typography, roleAccent } from '../theme/tokens';
 
 export interface WorkerSearchScreenProps {
   role: UserRole;
@@ -67,10 +51,10 @@ const CENTER_EPSILON = 0.0002;
  * Id del pin que marca la ubicación elegida. No es un trabajador: al tocarlo
  * no se abre ninguna ficha (el handler no lo encuentra y cierra la actual).
  */
-const ORIGIN_MARKER_ID = "__search-origin__";
+const ORIGIN_MARKER_ID = '__search-origin__';
 
 const PLANNED_FEATURE_MESSAGE =
-  "El flujo de cotización de servicios estará disponible en una próxima versión.";
+  'El flujo de cotización de servicios estará disponible en una próxima versión.';
 
 /**
  * "Buscar Trabajadores": mapa interactivo (Leaflet + OSM en WebView) con un
@@ -99,10 +83,8 @@ export const WorkerSearchScreen: React.FC<WorkerSearchScreenProps> = ({
 
   // Radio fijo de búsqueda (sin filtro de distancia en la UI).
   const [categoryId, setCategoryId] = useState<string | null>(null);
-  const [view, setView] = useState<"map" | "list">("map");
-  const [selectedWorker, setSelectedWorker] = useState<NearbyWorker | null>(
-    null,
-  );
+  const [view, setView] = useState<'map' | 'list'>('map');
+  const [selectedWorker, setSelectedWorker] = useState<NearbyWorker | null>(null);
 
   // Centro de búsqueda (lo que viaja a la API): la ubicación elegida al
   // abrir la pantalla; después, el centro visible del mapa cuando el usuario
@@ -112,8 +94,7 @@ export const WorkerSearchScreen: React.FC<WorkerSearchScreenProps> = ({
     : DEFAULT_CENTER;
   const originLatitude = originCoordinates.latitude;
   const originLongitude = originCoordinates.longitude;
-  const [searchCenter, setSearchCenter] =
-    useState<Coordinates>(originCoordinates);
+  const [searchCenter, setSearchCenter] = useState<Coordinates>(originCoordinates);
   const searchCenterRef = useRef<Coordinates>(originCoordinates);
 
   // Centro/zoom que VE el mapa: se actualiza solo en movimientos
@@ -127,18 +108,15 @@ export const WorkerSearchScreen: React.FC<WorkerSearchScreenProps> = ({
   // centro, no se re-busca (evita bucles al recentrar por código).
   const programmaticRef = useRef<Coordinates | null>(null);
 
-  const applyProgrammaticView = useCallback(
-    (center: Coordinates, zoom: number) => {
-      programmaticRef.current = {
-        latitude: center.latitude,
-        longitude: center.longitude,
-      };
-      setMapCenter(center);
-      setMapZoom(zoom);
-      setCenterKey((key) => key + 1);
-    },
-    [],
-  );
+  const applyProgrammaticView = useCallback((center: Coordinates, zoom: number) => {
+    programmaticRef.current = {
+      latitude: center.latitude,
+      longitude: center.longitude,
+    };
+    setMapCenter(center);
+    setMapZoom(zoom);
+    setCenterKey((key) => key + 1);
+  }, []);
 
   // Primera ubicación elegida (o cambio de elección): recentrar el mapa y
   // re-buscar. El hook se re-consulta solo porque el centro cambió, y la
@@ -147,10 +125,7 @@ export const WorkerSearchScreen: React.FC<WorkerSearchScreenProps> = ({
     const center = { latitude: originLatitude, longitude: originLongitude };
     searchCenterRef.current = center;
     setSearchCenter(center);
-    applyProgrammaticView(
-      center,
-      zoomForRadius(NEARBY_FIXED_RADIUS_KM, center.latitude),
-    );
+    applyProgrammaticView(center, zoomForRadius(NEARBY_FIXED_RADIUS_KM, center.latitude));
     // La ficha abierta pertenece a la búsqueda anterior.
     setSelectedWorker(null);
   }, [originLatitude, originLongitude, applyProgrammaticView]);
@@ -164,7 +139,7 @@ export const WorkerSearchScreen: React.FC<WorkerSearchScreenProps> = ({
   // Vista de lista (Issue #25): filtros por nombre/calificación, ordenamiento y
   // paginación en cliente sobre los resultados ya traídos. La paginación se
   // reinicia cuando cambia el conjunto consultado (centro o categoría).
-  const listResetKey = `${searchCenter.latitude},${searchCenter.longitude},${categoryId ?? ""}`;
+  const listResetKey = `${searchCenter.latitude},${searchCenter.longitude},${categoryId ?? ''}`;
   const {
     nameInput: listNameInput,
     filters: listFilters,
@@ -215,14 +190,11 @@ export const WorkerSearchScreen: React.FC<WorkerSearchScreenProps> = ({
     const center = { latitude: originLatitude, longitude: originLongitude };
     searchCenterRef.current = center;
     setSearchCenter(center);
-    applyProgrammaticView(
-      center,
-      zoomForRadius(NEARBY_FIXED_RADIUS_KM, center.latitude),
-    );
+    applyProgrammaticView(center, zoomForRadius(NEARBY_FIXED_RADIUS_KM, center.latitude));
   };
 
   const handleRequestService = useCallback(() => {
-    Alert.alert("Próximamente", PLANNED_FEATURE_MESSAGE);
+    Alert.alert('Próximamente', PLANNED_FEATURE_MESSAGE);
   }, []);
 
   // Pines teñidos según el área de cobertura de cada trabajador respecto de
@@ -241,14 +213,12 @@ export const WorkerSearchScreen: React.FC<WorkerSearchScreenProps> = ({
         latitude: originCoordinates.latitude,
         longitude: originCoordinates.longitude,
         color: accentColor,
-        title: origin?.address ?? "Ubicación elegida",
+        title: origin?.address ?? 'Ubicación elegida',
       },
       ...workers.map((worker) => {
         const tier = coverageTier(
-          coverageRef
-            ? distanceKmBetween(coverageRef, worker)
-            : worker.distance_km,
-          worker.coverage_radius_km,
+          coverageRef ? distanceKmBetween(coverageRef, worker) : worker.distance_km,
+          worker.coverage_radius_km
         );
         return {
           id: worker.worker_id,
@@ -266,7 +236,7 @@ export const WorkerSearchScreen: React.FC<WorkerSearchScreenProps> = ({
       originCoordinates.longitude,
       workers,
       coverageRef,
-    ],
+    ]
   );
 
   const truncated = workers.length >= NEARBY_MAX_LIMIT;
@@ -275,22 +245,16 @@ export const WorkerSearchScreen: React.FC<WorkerSearchScreenProps> = ({
       ? null
       : truncated
         ? `${workers.length}+ trabajadores encontrados`
-        : `${workers.length} trabajador${workers.length === 1 ? "" : "es"} encontrado${workers.length === 1 ? "" : "s"}`;
+        : `${workers.length} trabajador${workers.length === 1 ? '' : 'es'} encontrado${workers.length === 1 ? '' : 's'}`;
 
   const staleError =
-    status === "error" && workers.length > 0 ? (
+    status === 'error' && workers.length > 0 ? (
       <View style={styles.staleBanner} testID="workers-stale-error">
         <Text style={styles.staleBannerText} numberOfLines={2}>
           {error}
         </Text>
-        <TouchableOpacity
-          onPress={reload}
-          testID="btn-workers-retry"
-          accessibilityRole="button"
-        >
-          <Text style={[styles.staleRetry, { color: accentColor }]}>
-            Reintentar
-          </Text>
+        <TouchableOpacity onPress={reload} testID="btn-workers-retry" accessibilityRole="button">
+          <Text style={[styles.staleRetry, { color: accentColor }]}>Reintentar</Text>
         </TouchableOpacity>
       </View>
     ) : null;
@@ -310,21 +274,15 @@ export const WorkerSearchScreen: React.FC<WorkerSearchScreenProps> = ({
         </TouchableOpacity>
         <Text style={styles.title}>Buscar Trabajadores</Text>
         <TouchableOpacity
-          onPress={() => setView(view === "map" ? "list" : "map")}
+          onPress={() => setView(view === 'map' ? 'list' : 'map')}
           style={styles.viewButton}
           testID="btn-toggle-view"
           accessibilityRole="button"
           accessibilityLabel={
-            view === "map"
-              ? "Cambiar a vista de lista"
-              : "Cambiar a vista de mapa"
+            view === 'map' ? 'Cambiar a vista de lista' : 'Cambiar a vista de mapa'
           }
         >
-          <Feather
-            name={view === "map" ? "list" : "map"}
-            size={20}
-            color={accentColor}
-          />
+          <Feather name={view === 'map' ? 'list' : 'map'} size={20} color={accentColor} />
         </TouchableOpacity>
       </View>
 
@@ -339,7 +297,7 @@ export const WorkerSearchScreen: React.FC<WorkerSearchScreenProps> = ({
         {refreshing && <ActivityIndicator size="small" color={accentColor} />}
       </View>
 
-      {status === "error" && workers.length === 0 ? (
+      {status === 'error' && workers.length === 0 ? (
         <View style={styles.center}>
           <Text style={styles.errorText} testID="workers-error">
             {error}
@@ -353,7 +311,7 @@ export const WorkerSearchScreen: React.FC<WorkerSearchScreenProps> = ({
             <Text style={styles.retryText}>Reintentar</Text>
           </TouchableOpacity>
         </View>
-      ) : view === "map" ? (
+      ) : view === 'map' ? (
         <View style={styles.mapWrap} testID="workers-map-view">
           <LeafletMap
             markers={markers}
@@ -372,24 +330,16 @@ export const WorkerSearchScreen: React.FC<WorkerSearchScreenProps> = ({
 
           {staleError}
 
-          {status === "loading" && (
-            <View
-              style={styles.mapLoading}
-              pointerEvents="none"
-              testID="workers-loading"
-            >
+          {status === 'loading' && (
+            <View style={styles.mapLoading} pointerEvents="none" testID="workers-loading">
               <ActivityIndicator size="small" color={accentColor} />
-              <Text style={styles.mapLoadingText}>
-                Buscando trabajadores...
-              </Text>
+              <Text style={styles.mapLoadingText}>Buscando trabajadores...</Text>
             </View>
           )}
 
-          {status === "success" && workers.length === 0 && (
+          {status === 'success' && workers.length === 0 && (
             <View style={styles.mapEmpty} pointerEvents="none">
-              <Text style={styles.mapEmptyText}>
-                No hay trabajadores disponibles por ahora.
-              </Text>
+              <Text style={styles.mapEmptyText}>No hay trabajadores disponibles por ahora.</Text>
             </View>
           )}
 
@@ -444,7 +394,7 @@ export const WorkerSearchScreen: React.FC<WorkerSearchScreenProps> = ({
 
           <ScrollView contentContainerStyle={styles.listContent}>
             {staleError}
-            {status === "loading" ? (
+            {status === 'loading' ? (
               <View style={styles.empty} testID="workers-loading">
                 <ActivityIndicator size="large" color={accentColor} />
                 <Text style={styles.emptyText}>Buscando trabajadores...</Text>
@@ -462,8 +412,7 @@ export const WorkerSearchScreen: React.FC<WorkerSearchScreenProps> = ({
                 <Text style={styles.emptyIcon}>🔎</Text>
                 <Text style={styles.emptyTitle}>Sin coincidencias</Text>
                 <Text style={styles.emptyText}>
-                  No hay trabajadores que coincidan con la búsqueda o la
-                  calificación mínima.
+                  No hay trabajadores que coincidan con la búsqueda o la calificación mínima.
                 </Text>
                 <TouchableOpacity
                   style={[styles.retryButton, { backgroundColor: accentColor }]}
@@ -487,18 +436,13 @@ export const WorkerSearchScreen: React.FC<WorkerSearchScreenProps> = ({
                 ))}
                 {hasMore && (
                   <TouchableOpacity
-                    style={[
-                      styles.loadMoreButton,
-                      { borderColor: accentColor },
-                    ]}
+                    style={[styles.loadMoreButton, { borderColor: accentColor }]}
                     onPress={loadMore}
                     testID="btn-worker-list-load-more"
                     accessibilityRole="button"
                     accessibilityLabel="Cargar más trabajadores"
                   >
-                    <Text style={[styles.loadMoreText, { color: accentColor }]}>
-                      Cargar más
-                    </Text>
+                    <Text style={[styles.loadMoreText, { color: accentColor }]}>Cargar más</Text>
                   </TouchableOpacity>
                 )}
               </>
@@ -507,10 +451,7 @@ export const WorkerSearchScreen: React.FC<WorkerSearchScreenProps> = ({
             {/* Refresco en segundo plano (cambio de centro/categoría o
                 revalidación de caché) sin vaciar la lista visible. */}
             {refreshing && visibleWorkers.length > 0 && (
-              <View
-                style={styles.listRefreshing}
-                testID="workers-list-refreshing"
-              >
+              <View style={styles.listRefreshing} testID="workers-list-refreshing">
                 <ActivityIndicator size="small" color={accentColor} />
                 <Text style={styles.emptyText}>Actualizando resultados...</Text>
               </View>
@@ -525,9 +466,9 @@ export const WorkerSearchScreen: React.FC<WorkerSearchScreenProps> = ({
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: colors.background },
   header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     borderBottomWidth: 1,
@@ -537,29 +478,29 @@ const styles = StyleSheet.create({
     paddingRight: spacing.sm,
     paddingVertical: spacing.xs,
   },
-  backArrow: { fontSize: 24, fontWeight: "bold" },
+  backArrow: { fontSize: 24, fontWeight: 'bold' },
   title: {
     flex: 1,
     color: colors.textPrimary,
     fontSize: typography.fontSizes.lg,
-    fontWeight: "700",
-    textAlign: "center",
+    fontWeight: '700',
+    textAlign: 'center',
   },
   viewButton: {
     width: 40,
     height: 40,
     borderRadius: borderRadius.md,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: colors.surfaceContainerLow,
   },
   countRow: {
     // Altura fija: el alto del contenedor del mapa no debe variar con el
     // estado de la búsqueda (ver comentario en el JSX sobre el temblor).
     height: 36,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: spacing.md,
     gap: spacing.sm,
   },
@@ -570,15 +511,15 @@ const styles = StyleSheet.create({
   },
   center: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     padding: spacing.lg,
     gap: spacing.sm,
   },
   errorText: {
     color: colors.error,
     fontSize: typography.fontSizes.md,
-    textAlign: "center",
+    textAlign: 'center',
     marginBottom: spacing.sm,
   },
   retryButton: {
@@ -593,14 +534,14 @@ const styles = StyleSheet.create({
   },
   mapWrap: {
     flex: 1,
-    position: "relative",
+    position: 'relative',
   },
   mapEmpty: {
-    position: "absolute",
+    position: 'absolute',
     top: spacing.md,
     left: spacing.md,
     right: spacing.md,
-    backgroundColor: "rgba(255, 255, 255, 0.94)",
+    backgroundColor: 'rgba(255, 255, 255, 0.94)',
     borderRadius: borderRadius.md,
     borderWidth: 1,
     borderColor: colors.border,
@@ -610,18 +551,18 @@ const styles = StyleSheet.create({
   mapEmptyText: {
     color: colors.textSecondary,
     fontSize: typography.fontSizes.sm,
-    textAlign: "center",
+    textAlign: 'center',
   },
   mapLoading: {
-    position: "absolute",
+    position: 'absolute',
     top: spacing.md,
     left: spacing.md,
     right: spacing.md,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     gap: spacing.sm,
-    backgroundColor: "rgba(255, 255, 255, 0.94)",
+    backgroundColor: 'rgba(255, 255, 255, 0.94)',
     borderRadius: borderRadius.md,
     borderWidth: 1,
     borderColor: colors.border,
@@ -633,12 +574,12 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSizes.sm,
   },
   staleBanner: {
-    position: "absolute",
+    position: 'absolute',
     top: spacing.md,
     left: spacing.md,
     right: spacing.md,
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: spacing.sm,
     backgroundColor: colors.errorContainer,
     borderRadius: borderRadius.md,
@@ -655,36 +596,36 @@ const styles = StyleSheet.create({
     fontWeight: typography.fontWeights.bold,
   },
   recenterButton: {
-    position: "absolute",
+    position: 'absolute',
     right: spacing.md,
     bottom: spacing.md,
     width: 40,
     height: 40,
     borderRadius: borderRadius.md,
-    backgroundColor: "rgba(255, 255, 255, 0.94)",
+    backgroundColor: 'rgba(255, 255, 255, 0.94)',
     borderWidth: 1,
     borderColor: colors.border,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   sheet: {
-    position: "absolute",
+    position: 'absolute',
     left: spacing.md,
     right: spacing.md,
     bottom: spacing.md,
     gap: spacing.xs,
   },
   sheetHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: spacing.xs,
   },
   sheetTitle: {
     color: colors.textSecondary,
     fontSize: typography.fontSizes.xs,
     fontWeight: typography.fontWeights.semibold,
-    textTransform: "uppercase",
+    textTransform: 'uppercase',
   },
   listContent: {
     padding: spacing.md,
@@ -695,7 +636,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   loadMoreButton: {
-    alignSelf: "center",
+    alignSelf: 'center',
     borderRadius: borderRadius.md,
     borderWidth: 1.5,
     paddingVertical: spacing.sm,
@@ -707,14 +648,14 @@ const styles = StyleSheet.create({
     fontWeight: typography.fontWeights.semibold,
   },
   listRefreshing: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     gap: spacing.sm,
     paddingVertical: spacing.sm,
   },
   empty: {
-    alignItems: "center",
+    alignItems: 'center',
     paddingVertical: spacing.xxl,
     gap: spacing.sm,
   },
@@ -723,12 +664,12 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     fontSize: typography.fontSizes.md,
     fontWeight: typography.fontWeights.semibold,
-    textAlign: "center",
+    textAlign: 'center',
   },
   emptyText: {
     color: colors.textSecondary,
     fontSize: typography.fontSizes.sm,
-    textAlign: "center",
+    textAlign: 'center',
   },
 });
 

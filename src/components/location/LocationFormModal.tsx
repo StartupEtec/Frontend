@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Modal,
@@ -9,23 +9,19 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { Feather } from "@expo/vector-icons";
-import { AddressSearchInput } from "./AddressSearchInput";
-import { LocationMapPicker } from "./LocationMapPicker";
-import { useLocationForm } from "../../hooks/useLocationForm";
-import {
-  Coordinates,
-  CreateLocationPayload,
-  SavedLocation,
-} from "../../types/location";
-import { colors, spacing, borderRadius, typography } from "../../theme/tokens";
-import { UserRole } from "../../types/role";
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Feather } from '@expo/vector-icons';
+import { AddressSearchInput } from './AddressSearchInput';
+import { LocationMapPicker } from './LocationMapPicker';
+import { useLocationForm } from '../../hooks/useLocationForm';
+import { Coordinates, CreateLocationPayload, SavedLocation } from '../../types/location';
+import { colors, spacing, borderRadius, typography } from '../../theme/tokens';
+import { UserRole } from '../../types/role';
 
 interface LocationFormModalProps {
   visible: boolean;
-  mode: "create" | "edit";
+  mode: 'create' | 'edit';
   /** Ubicación a editar (solo en modo edit). */
   initial?: SavedLocation | null;
   saving: boolean;
@@ -87,9 +83,7 @@ export const LocationFormModal: React.FC<LocationFormModalProps> = ({
       }
     }
     if (!coords) {
-      setLocationError(
-        "No pudimos obtener tu ubicación. Revisá los permisos del dispositivo.",
-      );
+      setLocationError('No pudimos obtener tu ubicación. Revisá los permisos del dispositivo.');
       return;
     }
     await form.moveToCoordinates(coords, { force: true });
@@ -102,10 +96,10 @@ export const LocationFormModal: React.FC<LocationFormModalProps> = ({
       onRequestClose={onDismiss}
       presentationStyle="pageSheet"
     >
-      <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
+      <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
         <View style={styles.header}>
           <Text style={styles.title}>
-            {mode === "create" ? "Agregar ubicación" : "Editar ubicación"}
+            {mode === 'create' ? 'Agregar ubicación' : 'Editar ubicación'}
           </Text>
           <TouchableOpacity
             onPress={onDismiss}
@@ -140,7 +134,7 @@ export const LocationFormModal: React.FC<LocationFormModalProps> = ({
             accentColor={accentColor}
             userLocation={userLocation}
             circles={
-              role === "worker" &&
+              role === 'worker' &&
               initial &&
               initial.coverage_radius_km != null &&
               initial.coverage_radius_km > 0
@@ -199,13 +193,11 @@ export const LocationFormModal: React.FC<LocationFormModalProps> = ({
             </Text>
           )}
 
-          {role === "worker" && (
+          {role === 'worker' && (
             <View style={styles.switchRow}>
               <View style={styles.switchLabel}>
                 <Text style={styles.switchText}>Radio de cobertura</Text>
-                <Text style={styles.switchHint}>
-                  Área circular en kilómetros (ej. 5 o 2,5 km)
-                </Text>
+                <Text style={styles.switchHint}>Área circular en kilómetros (ej. 5 o 2,5 km)</Text>
               </View>
               <TextInput
                 style={styles.radiusInput}
@@ -220,7 +212,7 @@ export const LocationFormModal: React.FC<LocationFormModalProps> = ({
             </View>
           )}
 
-          {role === "worker" && form.errors.coverageRadiusKm && (
+          {role === 'worker' && form.errors.coverageRadiusKm && (
             <Text style={styles.error} testID="location-radius-error">
               {form.errors.coverageRadiusKm}
             </Text>
@@ -229,9 +221,7 @@ export const LocationFormModal: React.FC<LocationFormModalProps> = ({
           <View style={styles.switchRow}>
             <View style={styles.switchLabel}>
               <Text style={styles.switchText}>Ubicación predeterminada</Text>
-              <Text style={styles.switchHint}>
-                Se usará por defecto en nuevas órdenes
-              </Text>
+              <Text style={styles.switchHint}>Se usará por defecto en nuevas órdenes</Text>
             </View>
             <Switch
               value={form.isPrimary}
@@ -262,7 +252,7 @@ export const LocationFormModal: React.FC<LocationFormModalProps> = ({
               <ActivityIndicator color={colors.onPrimary} />
             ) : (
               <Text style={styles.submitText}>
-                {mode === "create" ? "Guardar ubicación" : "Guardar cambios"}
+                {mode === 'create' ? 'Guardar ubicación' : 'Guardar cambios'}
               </Text>
             )}
           </TouchableOpacity>
@@ -278,9 +268,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     borderBottomWidth: 1,
@@ -303,8 +293,8 @@ const styles = StyleSheet.create({
     minHeight: 20,
   },
   resolvingRow: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: spacing.sm,
   },
   resolvingText: {
@@ -316,9 +306,9 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSizes.xs,
   },
   locationButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     gap: spacing.sm,
     marginTop: spacing.sm,
     paddingVertical: spacing.sm,
@@ -343,14 +333,14 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     borderRadius: borderRadius.md,
     paddingHorizontal: spacing.sm,
-    textAlign: "right",
+    textAlign: 'right',
     color: colors.textPrimary,
     backgroundColor: colors.cardBackground,
   },
   switchRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     marginTop: spacing.lg,
     gap: spacing.md,
   },
@@ -371,7 +361,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.xl,
     paddingVertical: spacing.md,
     borderRadius: borderRadius.md,
-    alignItems: "center",
+    alignItems: 'center',
   },
   submitDisabled: {
     opacity: 0.7,

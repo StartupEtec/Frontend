@@ -1,6 +1,6 @@
-import { useState, useCallback } from "react";
-import { UserRole } from "../types/role";
-import { useRoleContext } from "../context/RoleContext";
+import { useState, useCallback } from 'react';
+import { UserRole } from '../types/role';
+import { useRoleContext } from '../context/RoleContext';
 
 interface UseRoleSelectionReturn {
   selectedRole: UserRole | null;
@@ -11,7 +11,7 @@ interface UseRoleSelectionReturn {
 }
 
 export const useRoleSelection = (
-  onRoleSelected: (role: UserRole) => void,
+  onRoleSelected: (role: UserRole) => void
 ): UseRoleSelectionReturn => {
   const { setRole } = useRoleContext();
   const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
@@ -33,7 +33,7 @@ export const useRoleSelection = (
       await setRole(selectedRole);
       onRoleSelected(selectedRole);
     } catch {
-      setError("No se pudo guardar tu selección. Intentá de nuevo.");
+      setError('No se pudo guardar tu selección. Intentá de nuevo.');
     } finally {
       setIsSaving(false);
     }

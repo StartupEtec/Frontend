@@ -1,17 +1,11 @@
-import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { Feather } from "@expo/vector-icons";
-import type { ComponentProps } from "react";
-import { RoleCardProps } from "../../types/role";
-import {
-  colors,
-  spacing,
-  borderRadius,
-  typography,
-  shadows,
-} from "../../theme/tokens";
+import React from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { Feather } from '@expo/vector-icons';
+import type { ComponentProps } from 'react';
+import { RoleCardProps } from '../../types/role';
+import { colors, spacing, borderRadius, typography, shadows } from '../../theme/tokens';
 
-type FeatherName = ComponentProps<typeof Feather>["name"];
+type FeatherName = ComponentProps<typeof Feather>['name'];
 
 export const RoleCard: React.FC<RoleCardProps> = ({
   title,
@@ -31,9 +25,7 @@ export const RoleCard: React.FC<RoleCardProps> = ({
       accessibilityLabel={`Seleccionar rol ${title}`}
       accessibilityRole="button"
     >
-      <View
-        style={[styles.iconCircle, { backgroundColor: accentColor + "20" }]}
-      >
+      <View style={[styles.iconCircle, { backgroundColor: accentColor + '20' }]}>
         <Feather name={iconName as FeatherName} size={28} color={accentColor} />
       </View>
 
@@ -55,7 +47,7 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.lg,
     paddingVertical: spacing.lg,
     paddingHorizontal: spacing.md,
-    alignItems: "center",
+    alignItems: 'center',
     marginHorizontal: spacing.sm,
     minHeight: 220,
     ...shadows.card,
@@ -64,33 +56,33 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: spacing.md,
   },
   title: {
     color: colors.textPrimary,
     fontSize: typography.fontSizes.lg,
     fontWeight: typography.fontWeights.bold,
-    textAlign: "center",
+    textAlign: 'center',
     marginBottom: spacing.xs,
   },
   description: {
     color: colors.textSecondary,
     fontSize: typography.fontSizes.sm,
-    textAlign: "center",
+    textAlign: 'center',
     lineHeight: 20,
     marginBottom: spacing.md,
     flexShrink: 1,
   },
   selectButton: {
-    width: "100%",
+    width: '100%',
     paddingVertical: spacing.sm + 2,
     borderRadius: borderRadius.md,
-    alignItems: "center",
+    alignItems: 'center',
   },
   selectButtonText: {
-    color: "#FFFFFF",
+    color: '#FFFFFF',
     fontSize: typography.fontSizes.md,
     fontWeight: typography.fontWeights.bold,
   },

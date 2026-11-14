@@ -1,4 +1,4 @@
-import { ApiError } from "./api";
+import { ApiError } from './api';
 
 /**
  * Geocoding con OpenStreetMap Nominatim (sin API key).
@@ -16,12 +16,10 @@ import { ApiError } from "./api";
  * adelante se migra a Google Geocoding u otro proveedor).
  */
 export const GEOCODING_CONFIG = {
-  BASE_URL:
-    process.env.EXPO_PUBLIC_GEOCODING_URL ??
-    "https://nominatim.openstreetmap.org",
+  BASE_URL: process.env.EXPO_PUBLIC_GEOCODING_URL ?? 'https://nominatim.openstreetmap.org',
   TIMEOUT: 10000,
   MAX_RESULTS: 5,
-  USER_AGENT: "StartupApp/1.0",
+  USER_AGENT: 'StartupApp/1.0',
 } as const;
 
 export interface GeocodeResult {
@@ -36,13 +34,13 @@ interface NominatimItem {
   lon?: string | number;
 }
 
-const ACCEPT_LANGUAGE = "es";
+const ACCEPT_LANGUAGE = 'es';
 
 function buildHeaders(): Record<string, string> {
   return {
-    Accept: "application/json",
-    "Accept-Language": ACCEPT_LANGUAGE,
-    "User-Agent": GEOCODING_CONFIG.USER_AGENT,
+    Accept: 'application/json',
+    'Accept-Language': ACCEPT_LANGUAGE,
+    'User-Agent': GEOCODING_CONFIG.USER_AGENT,
   };
 }
 
@@ -53,32 +51,32 @@ async function fetchJson(url: string): Promise<unknown> {
 
   try {
     const response = await fetch(url, {
-      method: "GET",
+      method: 'GET',
       headers: buildHeaders(),
       signal: controller.signal,
     });
 
     if (!response.ok) {
       throw new ApiError(
-        "No pudimos buscar direcciones. Reintentá.",
+        'No pudimos buscar direcciones. Reintentá.',
         response.status,
-        "GEOCODING_ERROR",
+        'GEOCODING_ERROR'
       );
     }
     return await response.json();
   } catch (err: unknown) {
     if (err instanceof ApiError) throw err;
-    if (err instanceof Error && err.name === "AbortError") {
+    if (err instanceof Error && err.name === 'AbortError') {
       throw new ApiError(
-        "La búsqueda de direcciones tardó demasiado. Reintentá.",
+        'La búsqueda de direcciones tardó demasiado. Reintentá.',
         408,
-        "GEOCODING_TIMEOUT",
+        'GEOCODING_TIMEOUT'
       );
     }
     throw new ApiError(
-      "No pudimos conectar con el servicio de direcciones.",
+      'No pudimos conectar con el servicio de direcciones.',
       0,
-      "GEOCODING_NETWORK_ERROR",
+      'GEOCODING_NETWORK_ERROR'
     );
   } finally {
     clearTimeout(timer);
@@ -86,9 +84,7 @@ async function fetchJson(url: string): Promise<unknown> {
 }
 
 /** Normaliza lat/lon de Nominatim; null si faltan o quedan fuera de rango. */
-function toCoordinates(
-  item: NominatimItem,
-): { latitude: number; longitude: number } | null {
+function toCoordinates(item: NominatimItem): { latitude: number; longitude: number } | null {
   const latitude = Number(item.lat);
   const longitude = Number(item.lon);
   if (
@@ -117,10 +113,10 @@ export const geocodingService = {
       `${GEOCODING_CONFIG.BASE_URL}/search?` +
       new URLSearchParams({
         q: trimmed,
-        format: "jsonv2",
-        addressdetails: "0",
+        format: 'jsonv2',
+        addressdetails: '0',
         limit: String(GEOCODING_CONFIG.MAX_RESULTS),
-        "accept-language": ACCEPT_LANGUAGE,
+        'accept-language': ACCEPT_LANGUAGE,
       }).toString();
 
     const data = (await fetchJson(url)) as NominatimItem[];
@@ -129,7 +125,7 @@ export const geocodingService = {
     const results: GeocodeResult[] = [];
     for (const item of data) {
       const coordinates = toCoordinates(item);
-      const label = item.display_name?.trim() ?? "";
+      const label = item.display_name?.trim() ?? '';
       if (!coordinates || !label) continue;
       results.push({ label, ...coordinates });
     }
@@ -143,8 +139,8 @@ export const geocodingService = {
       new URLSearchParams({
         lat: String(latitude),
         lon: String(longitude),
-        format: "jsonv2",
-        "accept-language": ACCEPT_LANGUAGE,
+        format: 'jsonv2',
+        'accept-language': ACCEPT_LANGUAGE,
       }).toString();
 
     try {

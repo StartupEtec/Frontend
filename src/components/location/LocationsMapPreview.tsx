@@ -1,12 +1,12 @@
-import React, { useState } from "react";
-import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { Feather } from "@expo/vector-icons";
-import { LeafletMap, LeafletMarker } from "./LeafletMap";
-import { Coordinates, SavedLocation } from "../../types/location";
-import { DEFAULT_CENTER, DEFAULT_ZOOM, REFERENCE_ZOOM } from "../../utils/map";
-import { colors, borderRadius, spacing, typography } from "../../theme/tokens";
-import { UserRole } from "../../types/role";
+import React, { useState } from 'react';
+import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Feather } from '@expo/vector-icons';
+import { LeafletMap, LeafletMarker } from './LeafletMap';
+import { Coordinates, SavedLocation } from '../../types/location';
+import { DEFAULT_CENTER, DEFAULT_ZOOM, REFERENCE_ZOOM } from '../../utils/map';
+import { colors, borderRadius, spacing, typography } from '../../theme/tokens';
+import { UserRole } from '../../types/role';
 
 interface LocationsMapPreviewProps {
   locations: SavedLocation[];
@@ -22,7 +22,7 @@ interface LocationsMapPreviewProps {
 }
 
 /** Color por defecto del pin cuando la ubicación no es la principal. */
-const MARKER_COLOR = "#e5533d";
+const MARKER_COLOR = '#e5533d';
 
 /**
  * Mapa de solo lectura con un pin por ubicación guardada (Leaflet + OSM en
@@ -37,7 +37,7 @@ export const LocationsMapPreview: React.FC<LocationsMapPreviewProps> = ({
   userLocation,
   expandable = true,
   role,
-  testID = "locations-map-preview",
+  testID = 'locations-map-preview',
 }) => {
   const [expanded, setExpanded] = useState(false);
 
@@ -50,12 +50,10 @@ export const LocationsMapPreview: React.FC<LocationsMapPreviewProps> = ({
   }));
 
   const circles =
-    role === "worker"
+    role === 'worker'
       ? locations
           .filter(
-            (location) =>
-              location.coverage_radius_km != null &&
-              location.coverage_radius_km > 0,
+            (location) => location.coverage_radius_km != null && location.coverage_radius_km > 0
           )
           .map((location) => ({
             id: `circle-${location.id}`,
@@ -69,7 +67,7 @@ export const LocationsMapPreview: React.FC<LocationsMapPreviewProps> = ({
 
   const hasMarkers = markers.length > 0;
   const fitKey = hasMarkers
-    ? markers.map((m) => `${m.id}:${m.latitude}:${m.longitude}`).join("|")
+    ? markers.map((m) => `${m.id}:${m.latitude}:${m.longitude}`).join('|')
     : null;
   const center = hasMarkers ? null : (userLocation ?? DEFAULT_CENTER);
   const zoom = userLocation ? REFERENCE_ZOOM : DEFAULT_ZOOM;
@@ -113,7 +111,7 @@ export const LocationsMapPreview: React.FC<LocationsMapPreviewProps> = ({
           onRequestClose={() => setExpanded(false)}
           presentationStyle="fullScreen"
         >
-          <SafeAreaView style={styles.fullscreen} edges={["top", "bottom"]}>
+          <SafeAreaView style={styles.fullscreen} edges={['top', 'bottom']}>
             <View style={styles.fullscreenHeader}>
               <Text style={styles.fullscreenTitle}>Tus ubicaciones</Text>
               <TouchableOpacity
@@ -136,32 +134,32 @@ export const LocationsMapPreview: React.FC<LocationsMapPreviewProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    width: "100%",
+    width: '100%',
     borderRadius: borderRadius.md,
-    overflow: "hidden",
+    overflow: 'hidden',
     backgroundColor: colors.surfaceContainerLow,
     borderWidth: 1,
     borderColor: colors.border,
   },
   expandButton: {
-    position: "absolute",
+    position: 'absolute',
     top: spacing.sm,
     right: spacing.sm,
     width: 36,
     height: 36,
     borderRadius: borderRadius.md,
-    backgroundColor: "rgba(255, 255, 255, 0.92)",
-    alignItems: "center",
-    justifyContent: "center",
+    backgroundColor: 'rgba(255, 255, 255, 0.92)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   fullscreen: {
     flex: 1,
     backgroundColor: colors.background,
   },
   fullscreenHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     borderBottomWidth: 1,
@@ -177,7 +175,7 @@ const styles = StyleSheet.create({
   },
   fullscreenMap: {
     flex: 1,
-    position: "relative",
+    position: 'relative',
   },
 });
 

@@ -28,7 +28,7 @@ describe("LoginScreen Component", () => {
   });
 
   it("renders title, inputs, and disabled submit button initially", () => {
-    const { getByText, getByTestId, getAllByText } = render(
+    const { getByTestId, getAllByText } = render(
       <LoginScreen
         onNavigateToOtp={mockNavigateToOtp}
         onNavigateToRegister={mockNavigateToRegister}

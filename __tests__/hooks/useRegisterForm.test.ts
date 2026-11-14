@@ -165,7 +165,7 @@ describe("useRegisterForm Hook", () => {
 
   it("handles 409 duplicate email error gracefully", async () => {
     (authService.register as jest.Mock).mockRejectedValueOnce(
-      new ApiError("Email exists", 409, "CONFLICT"),
+      new ApiError("Email exists", 409, "CONFLICT", ["email"]),
     );
 
     const { result } = renderHook(() =>
@@ -187,7 +187,7 @@ describe("useRegisterForm Hook", () => {
     });
 
     expect(result.current.serverError).toBe(
-      "El correo electrónico o número de teléfono ya se encuentra registrado.",
+      "El correo electrónico ya se encuentra registrado.",
     );
   });
 });
