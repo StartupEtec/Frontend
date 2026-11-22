@@ -1,27 +1,22 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { WorkerStars } from './WorkerStars';
-import { formatRating, ratingStars } from '../../utils/rating';
-import { colors, spacing, typography } from '../../theme/tokens';
+import { formatRating } from '../../utils/rating';
+import { colors, typography } from '../../theme/tokens';
 
 export interface WorkerRatingSummaryProps {
   rating?: string | null;
   totalReviews?: number | null;
-  accentColor?: string;
 }
 
-/** Resumen de calificación: estrellas + promedio + cantidad de reseñas. */
+/** Resumen de calificación: valor y cantidad de reseñas (sin estrellas). */
 export const WorkerRatingSummary: React.FC<WorkerRatingSummaryProps> = ({
   rating,
   totalReviews,
-  accentColor = colors.primary,
 }) => {
   const ratingValue = formatRating(rating ?? null);
-  const stars = ratingStars(rating ? Number(rating) : null);
 
   return (
     <View style={styles.container} accessibilityLabel="Calificación del trabajador">
-      <WorkerStars stars={stars} size={18} activeColor={accentColor} />
       <View style={styles.textRow}>
         <Text style={styles.value}>{ratingValue ? `★ ${ratingValue}` : 'Sin valoraciones'}</Text>
         {totalReviews != null && (
@@ -39,11 +34,11 @@ export const WorkerRatingSummary: React.FC<WorkerRatingSummaryProps> = ({
 };
 
 const styles = StyleSheet.create({
-  container: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  textRow: { flexDirection: 'column', justifyContent: 'center' },
+  container: { alignItems: 'center' },
+  textRow: { flexDirection: 'column', justifyContent: 'center', gap: 2 },
   value: {
     color: colors.textPrimary,
-    fontSize: typography.fontSizes.lg,
+    fontSize: typography.fontSizes.md,
     fontWeight: typography.fontWeights.bold,
   },
   count: {

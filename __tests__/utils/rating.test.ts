@@ -17,10 +17,12 @@ describe('formatRating', () => {
 
 describe('ratingStars', () => {
   it('returns the number of filled stars rounded', () => {
-    expect(ratingStars(4.5)).toBe(5);
-    expect(ratingStars(4.4)).toBe(4);
+    expect(ratingStars(4.5)).toBe(4.5);
+    expect(ratingStars(4.4)).toBe(4.5);
+    expect(ratingStars(4.0)).toBe(4);
     expect(ratingStars(0)).toBe(0);
     expect(ratingStars(5)).toBe(5);
+    expect(ratingStars(2.3)).toBe(2.5);
   });
 
   it('clamps to 0-5 and returns 0 for invalid values', () => {

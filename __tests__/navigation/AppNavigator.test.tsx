@@ -732,6 +732,7 @@ describe('AppNavigator Flow Integration', () => {
     await waitFor(() => {
       expect(getByText('Perfil del Trabajador')).toBeTruthy();
     });
+    // La biografía está visible directamente (sección empieza expandida).
     await waitFor(() => {
       expect(getByText(/Electricista matriculada/)).toBeTruthy();
     });

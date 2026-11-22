@@ -13,10 +13,11 @@ export function formatRating(value: string | number | null | undefined): string 
   return rating.toFixed(1).replace('.', ',');
 }
 
-/** Cantidad de estrellas llenas (0..5) para un promedio, redondeado. */
+/** Cantidad de estrellas (0..5, medio paso) para un promedio.
+ * Devuelve 0, 0.5, 1, 1.5, ..., 5 para permitir relleno parcial. */
 export function ratingStars(value: number | null | undefined): number {
   if (value == null || !Number.isFinite(value)) return 0;
-  return Math.min(5, Math.max(0, Math.round(value)));
+  return Math.min(5, Math.max(0, Math.round(value * 2) / 2));
 }
 
 /** ISO → "22/11/2026" (fecha local); "" si el valor no es una fecha válida. */

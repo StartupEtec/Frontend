@@ -34,7 +34,7 @@ export const WorkerReviewCard: React.FC<WorkerReviewCardProps> = ({
           <Text style={styles.author}>{review.rater.full_name ?? 'Anónimo'}</Text>
           <View style={styles.metaRow}>
             <WorkerStars
-              stars={review.rating_stars}
+              rating={review.rating_stars}
               size={14}
               activeColor={accentColor}
               showValue

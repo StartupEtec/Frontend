@@ -10,13 +10,23 @@ export interface WorkerProfileHeaderProps {
   profileName?: string | null;
 }
 
-/** Avatar grande, nombre, categoría y badges de estado/certificación. */
+/** Avatar grande, nombre, categoría(s) y badges de estado/certificación. */
 export const WorkerProfileHeader: React.FC<WorkerProfileHeaderProps> = ({
   worker,
   profileName,
 }) => {
   const avatarUri = toDisplayUri(worker.avatar_url);
   const name = profileName ?? worker.full_name;
+
+  // Nombres de categorías: preferir el arreglo si viene, sino usar el único.
+  const categoryNames: string[] = worker.category_names
+    ? worker.category_names.filter(Boolean)
+    : worker.category_name
+      ? [worker.category_name]
+      : [];
+
+  const isAvailable = worker.availability_status === 'AVAILABLE';
+  const isCertified = worker.certification_status === 'APPROVED';
 
   return (
     <View style={styles.hero}>
@@ -28,20 +38,29 @@ export const WorkerProfileHeader: React.FC<WorkerProfileHeaderProps> = ({
         </View>
       )}
       <Text style={styles.name}>{name}</Text>
-      {worker.category_name && (
-        <View style={styles.categoryTag}>
-          <Text style={styles.categoryText}>{worker.category_name}</Text>
+      {categoryNames.length > 0 && (
+        <View style={styles.categoryRow}>
+          {categoryNames.map((cat, index) => (
+            <View key={index} style={styles.categoryTag}>
+              <Text style={styles.categoryText}>{cat}</Text>
+            </View>
+          ))}
         </View>
       )}
       <View style={styles.badgesRow}>
-        <View style={[styles.badge]}>
-          <Text style={styles.badgeText}>
-            {worker.availability_status === 'AVAILABLE' ? 'Disponible' : 'No disponible'}
+        <View style={[styles.badge, isAvailable ? styles.badgeAvailable : styles.badgeUnavailable]}>
+          <Text
+            style={[
+              styles.badgeText,
+              isAvailable ? styles.badgeTextAvailable : styles.badgeTextUnavailable,
+            ]}
+          >
+            {isAvailable ? 'Disponible' : 'No disponible'}
           </Text>
         </View>
-        {worker.certification_status === 'APPROVED' && (
-          <View style={[styles.badge]}>
-            <Text style={[styles.badgeText, { color: colors.onPrimary }]}>Certificado</Text>
+        {isCertified && (
+          <View style={[styles.badge, styles.badgeCertified]}>
+            <Text style={[styles.badgeText, styles.badgeTextAvailable]}>Certificado</Text>
           </View>
         )}
       </View>
@@ -63,6 +82,12 @@ const styles = StyleSheet.create({
     fontWeight: typography.fontWeights.bold,
     textAlign: 'center',
   },
+  categoryRow: {
+    flexDirection: 'row',
+    gap: spacing.xs,
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+  },
   categoryTag: {
     backgroundColor: colors.surfaceContainerLow,
     borderRadius: borderRadius.pill,
@@ -81,9 +106,25 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.pill,
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs / 2,
+    minWidth: 70,
+    alignItems: 'center',
+  },
+  badgeAvailable: {
+    backgroundColor: colors.workerAccent,
+  },
+  badgeUnavailable: {
+    backgroundColor: colors.surfaceContainerHigh,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  badgeCertified: {
+    backgroundColor: colors.primary,
   },
   badgeText: {
     fontSize: typography.fontSizes.xs,
     fontWeight: typography.fontWeights.semibold,
+    textAlign: 'center',
   },
+  badgeTextAvailable: { color: colors.onPrimary },
+  badgeTextUnavailable: { color: colors.textPrimary },
 });

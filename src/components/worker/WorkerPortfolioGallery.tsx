@@ -1,5 +1,5 @@
-import React from 'react';
-import { Image, Text, View, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { Image, Text, TouchableOpacity, View, StyleSheet } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { WorkerPortfolioItem } from '../../types/worker';
 import { colors, spacing, borderRadius, typography } from '../../theme/tokens';
@@ -8,9 +8,13 @@ export interface WorkerPortfolioGalleryProps {
   portfolio?: WorkerPortfolioItem[] | null;
 }
 
-/** Galería horizontal de trabajos anteriores. Si no hay, muestra placeholder. */
+/** Galería horizontal de trabajos anteriores. Si no hay, muestra placeholder.
+ * Muestra las primeras 3 imágenes y un botón "Mostrar más" si hay más. */
 export const WorkerPortfolioGallery: React.FC<WorkerPortfolioGalleryProps> = ({ portfolio }) => {
   const items = portfolio ?? [];
+  const [showAll, setShowAll] = useState(false);
+  const visibleItems = showAll ? items : items.slice(0, 3);
+  const hasMore = items.length > 3 && !showAll;
 
   if (items.length === 0) {
     return (
@@ -27,12 +31,23 @@ export const WorkerPortfolioGallery: React.FC<WorkerPortfolioGalleryProps> = ({ 
     <View>
       <Text style={styles.sectionTitle}>Trabajos anteriores</Text>
       <View style={styles.gallery}>
-        {items.map((item) => (
+        {visibleItems.map((item) => (
           <View key={item.id} style={styles.galleryItem}>
             <Image source={{ uri: item.image_url }} style={styles.image} />
           </View>
         ))}
       </View>
+      {hasMore && (
+        <TouchableOpacity
+          style={styles.showMoreButton}
+          onPress={() => setShowAll(true)}
+          testID="gallery-show-more"
+          accessibilityRole="button"
+          accessibilityLabel="Mostrar más trabajos anteriores"
+        >
+          <Text style={styles.showMoreText}>Mostrar más</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 };
@@ -61,4 +76,13 @@ const styles = StyleSheet.create({
   },
   galleryItem: { width: 120, height: 120, borderRadius: borderRadius.md },
   image: { width: '100%', height: '100%', borderRadius: borderRadius.md },
+  showMoreButton: {
+    marginTop: spacing.xs,
+    alignItems: 'center',
+  },
+  showMoreText: {
+    color: colors.primary,
+    fontSize: typography.fontSizes.sm,
+    fontWeight: typography.fontWeights.semibold,
+  },
 });

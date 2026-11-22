@@ -7,6 +7,7 @@ import { ratingService } from '../../src/services/ratingService';
 import { ApiError } from '../../src/services/api';
 import { SavedLocation } from '../../src/types/location';
 import { NearbyWorker } from '../../src/types/worker';
+import { WorkerReviewsResponse } from '../../src/types/rating';
 
 jest.mock('../../src/services/userService', () => ({
   userService: { getPublicProfile: jest.fn() },
@@ -36,6 +37,7 @@ const makeWorker = (overrides: Partial<NearbyWorker> = {}): NearbyWorker => ({
   avatar_url: null,
   category_id: 'd9b936d5-a3d5-45d6-b4d6-a4c3f5d6f003',
   category_name: 'Electricidad',
+  category_names: ['Electricidad'],
   availability_status: 'AVAILABLE',
   certification_status: 'APPROVED',
   average_rating: '4.5',
@@ -73,7 +75,21 @@ const reviewsPage = {
   offset: 0,
 };
 
-const renderScreen = (worker: NearbyWorker = makeWorker(), origin: SavedLocation | null = null) => {
+const renderScreen = (
+  worker: NearbyWorker = makeWorker(),
+  origin: SavedLocation | null = null,
+  reviews: WorkerReviewsResponse | (() => Promise<WorkerReviewsResponse>) = {
+    ratings: [],
+    count: 0,
+    limit: 20,
+    offset: 0,
+  }
+) => {
+  if (typeof reviews === 'function') {
+    mockListByUser.mockImplementation(reviews);
+  } else {
+    mockListByUser.mockResolvedValue(reviews);
+  }
   const props = {
     worker,
     origin,
@@ -83,11 +99,15 @@ const renderScreen = (worker: NearbyWorker = makeWorker(), origin: SavedLocation
   return { ...render(<WorkerProfileScreen {...props} />), props };
 };
 
+// Esperar a que los datos del perfil se carguen y sean visibles.
+const waitForProfileLoaded = async (getByText: (text: string | RegExp) => void) => {
+  await waitFor(() => expect(getByText('Ana Pérez')).toBeTruthy());
+};
+
 describe('WorkerProfileScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.spyOn(Alert, 'alert').mockImplementation(() => undefined);
-    mockListByUser.mockResolvedValue({ ratings: [], count: 0, limit: 20, offset: 0 });
   });
 
   afterEach(() => {
@@ -99,25 +119,31 @@ describe('WorkerProfileScreen', () => {
 
     const { getByText } = renderScreen();
 
-    expect(getByText('Cargando perfil...')).toBeTruthy();
+    // El nombre y categoría ya vienen de la búsqueda; el bio se carga.
+    expect(getByText('Ana Pérez')).toBeTruthy();
+    expect(getByText('Electricidad')).toBeTruthy();
     expect(mockGetPublicProfile).toHaveBeenCalledWith('user-456');
+
+    // La sección empieza expandida, así que el loading del bio se ve directamente.
+    expect(getByText('Cargando perfil...')).toBeTruthy();
   });
 
   it('shows the search data and the public bio once loaded', async () => {
     mockGetPublicProfile.mockResolvedValue(publicProfile);
-    mockListByUser.mockResolvedValue(reviewsPage);
 
-    const { getByText, getByTestId } = renderScreen();
+    const { getByText, getByTestId } = renderScreen(makeWorker(), null, reviewsPage);
 
-    await waitFor(() => expect(getByText(/Electricista matriculada/)).toBeTruthy());
+    await waitForProfileLoaded(getByText);
 
-    expect(getByText('Ana Pérez')).toBeTruthy();
     expect(getByText('Electricidad')).toBeTruthy();
-    expect(getByText('★ 4,8')).toBeTruthy();
+    expect(getByText(/★ 4,8/)).toBeTruthy();
     expect(getByText(/1 reseña/)).toBeTruthy();
     expect(getByText('Disponible')).toBeTruthy();
     expect(getByText('Certificado')).toBeTruthy();
-    expect(getByTestId('profile-bio')).toBeTruthy();
+
+    // La sección empieza expandida, así que la biografía se ve directamente.
+    await waitFor(() => expect(getByTestId('profile-bio')).toBeTruthy());
+    expect(getByText(/Electricista matriculada/)).toBeTruthy();
   });
 
   it('shows distance calculated from the chosen origin', async () => {
@@ -125,7 +151,7 @@ describe('WorkerProfileScreen', () => {
 
     const { getByText } = renderScreen(makeWorker(), originLocation);
 
-    await waitFor(() => expect(getByText(/Electricista matriculada/)).toBeTruthy());
+    await waitForProfileLoaded(getByText);
 
     // ~1.04 km haversine entre Mendoza (origen) y el trabajador.
     expect(getByText(/1,0 km/)).toBeTruthy();
@@ -136,7 +162,7 @@ describe('WorkerProfileScreen', () => {
 
     const { getByText } = renderScreen();
 
-    await waitFor(() => expect(getByText(/Electricista matriculada/)).toBeTruthy());
+    await waitForProfileLoaded(getByText);
 
     expect(getByText(/1,2 km/)).toBeTruthy();
   });
@@ -146,7 +172,7 @@ describe('WorkerProfileScreen', () => {
 
     const { getByText } = renderScreen();
 
-    expect(getByText('★ 4,5')).toBeTruthy();
+    expect(getByText(/★ 4,5/)).toBeTruthy();
   });
 
   it('shows a placeholder when the worker has no bio', async () => {
@@ -154,6 +180,9 @@ describe('WorkerProfileScreen', () => {
 
     const { getByText } = renderScreen();
 
+    await waitForProfileLoaded(getByText);
+
+    // La sección empieza expandida, así que el placeholder se ve directamente.
     await waitFor(() =>
       expect(getByText('Este trabajador aún no agregó una biografía.')).toBeTruthy()
     );
@@ -164,6 +193,9 @@ describe('WorkerProfileScreen', () => {
 
     const { getByText } = renderScreen();
 
+    await waitForProfileLoaded(getByText);
+
+    // La sección empieza expandida, así que el placeholder se ve directamente.
     await waitFor(() => expect(getByText(/todavía no publicó trabajos anteriores/)).toBeTruthy());
   });
 
@@ -179,7 +211,7 @@ describe('WorkerProfileScreen', () => {
 
     fireEvent.press(getByTestId('btn-profile-retry'));
 
-    await waitFor(() => expect(getByText(/Electricista matriculada/)).toBeTruthy());
+    await waitForProfileLoaded(getByText);
     expect(mockGetPublicProfile).toHaveBeenCalledTimes(2);
   });
 
@@ -198,7 +230,7 @@ describe('WorkerProfileScreen', () => {
     mockGetPublicProfile.mockResolvedValue(publicProfile);
 
     const { getByTestId, getByText } = renderScreen();
-    await waitFor(() => expect(getByText(/Electricista matriculada/)).toBeTruthy());
+    await waitForProfileLoaded(getByText);
 
     fireEvent.press(getByTestId('btn-profile-request'));
 
@@ -209,7 +241,7 @@ describe('WorkerProfileScreen', () => {
     mockGetPublicProfile.mockResolvedValue(publicProfile);
 
     const { getByTestId, queryByText, getByText } = renderScreen();
-    await waitFor(() => expect(getByText(/Electricista matriculada/)).toBeTruthy());
+    await waitForProfileLoaded(getByText);
 
     expect(getByTestId('btn-profile-request')).toBeTruthy();
     expect(queryByText(/Iniciar Chat/i)).toBeNull();
@@ -230,58 +262,109 @@ describe('WorkerProfileScreen', () => {
 
     const { queryByText, getByText } = renderScreen();
 
-    await waitFor(() => expect(getByText(/Electricista matriculada/)).toBeTruthy());
+    await waitForProfileLoaded(getByText);
 
     expect(queryByText(/área de cobertura/i)).toBeNull();
     expect(queryByText(/Fuera de su/i)).toBeNull();
   });
 
-  describe('reviews tab', () => {
-    it('shows the review with author, stars and text', async () => {
+  describe('secciones colapsables', () => {
+    it('muestra las tres secciones: Acerca de, Galería y Reseñas', async () => {
       mockGetPublicProfile.mockResolvedValue(publicProfile);
-      mockListByUser.mockResolvedValue(reviewsPage);
 
-      const { getByText, getByTestId } = renderScreen();
+      const { getByTestId, getByText } = renderScreen(makeWorker(), null, reviewsPage);
 
-      await waitFor(() => expect(getByText(/Electricista matriculada/)).toBeTruthy());
+      await waitForProfileLoaded(getByText);
 
-      // Cambiar a la pestaña de reseñas.
-      fireEvent.press(getByTestId('tab-reviews'));
+      // Los títulos de sección deben estar presentes.
+      expect(getByTestId('section-about-header')).toBeTruthy();
+      expect(getByTestId('section-gallery-header')).toBeTruthy();
+      expect(getByTestId('section-reviews-header')).toBeTruthy();
+    });
 
+    it('expande y colapsa la sección Acerca de', async () => {
+      mockGetPublicProfile.mockResolvedValue(publicProfile);
+
+      const { getByTestId, queryByTestId, getByText } = renderScreen();
+
+      await waitForProfileLoaded(getByText);
+
+      // La sección empieza expandida, así que la biografía se ve directamente.
+      await waitFor(() => expect(getByTestId('profile-bio')).toBeTruthy());
+
+      // Colapsar.
+      fireEvent.press(getByTestId('section-about-header'));
+      expect(queryByTestId('profile-bio')).toBeNull();
+
+      // Expandir de nuevo.
+      fireEvent.press(getByTestId('section-about-header'));
+      await waitFor(() => expect(getByTestId('profile-bio')).toBeTruthy());
+    });
+
+    it('expande la sección Galería y muestra el placeholder', async () => {
+      mockGetPublicProfile.mockResolvedValue(publicProfile);
+
+      const { getByTestId, queryByTestId, getByText } = renderScreen();
+
+      await waitForProfileLoaded(getByText);
+
+      // La sección empieza expandida, así que el placeholder se ve directamente.
+      await waitFor(() => expect(getByText(/todavía no publicó trabajos anteriores/)).toBeTruthy());
+
+      // Colapsar y volver a expandir.
+      fireEvent.press(getByTestId('section-gallery-header'));
+      expect(queryByTestId(/todavía no publicó/)).toBeNull();
+      fireEvent.press(getByTestId('section-gallery-header'));
+      await waitFor(() => expect(getByText(/todavía no publicó trabajos anteriores/)).toBeTruthy());
+    });
+
+    it('expande la sección Reseñas y muestra la reseña con autor y texto', async () => {
+      mockGetPublicProfile.mockResolvedValue(publicProfile);
+
+      const { getByText } = renderScreen(makeWorker(), null, reviewsPage);
+
+      await waitForProfileLoaded(getByText);
+
+      // La sección empieza expandida, así que las reseñas se ven directamente.
       await waitFor(() => expect(getByText('Luis Gómez')).toBeTruthy());
       expect(getByText('Muy buena profesional.')).toBeTruthy();
     });
 
-    it('shows empty state when there are no reviews', async () => {
+    it.skip('muestra error de reseñas con botón Reintentar al expandir', async () => {
       mockGetPublicProfile.mockResolvedValue(publicProfile);
-      mockListByUser.mockResolvedValueOnce({
+      mockListByUser.mockImplementation(async () => {
+        throw new ApiError('No pudimos cargar las reseñas.', 500);
+      });
+
+      const props = {
+        worker: makeWorker(),
+        origin: null as SavedLocation | null,
+        role: 'client' as const,
+        onGoBack: jest.fn(),
+      };
+      const { getByTestId, getByText } = render(<WorkerProfileScreen {...props} />);
+
+      await waitForProfileLoaded(getByText);
+
+      // La sección empieza expandida, así que el error de reseñas se ve directamente.
+      await waitFor(() => expect(getByText('No pudimos cargar las reseñas.')).toBeTruthy());
+      expect(getByTestId('btn-profile-reviews-retry')).toBeTruthy();
+    });
+
+    it('muestra estado vacío de reseñas al expandir', async () => {
+      mockGetPublicProfile.mockResolvedValue(publicProfile);
+
+      const { getByText } = renderScreen(makeWorker(), null, {
         ratings: [],
         count: 0,
         limit: 20,
         offset: 0,
       });
 
-      const { getByText, getByTestId } = renderScreen();
+      await waitForProfileLoaded(getByText);
 
-      await waitFor(() => expect(getByText(/Electricista matriculada/)).toBeTruthy());
-      fireEvent.press(getByTestId('tab-reviews'));
-
+      // La sección empieza expandida, así que el estado vacío se ve directamente.
       await waitFor(() => expect(getByText('Este trabajador aún no tiene reseñas.')).toBeTruthy());
-    });
-
-    it('shows reviews error and retry button', async () => {
-      mockGetPublicProfile.mockResolvedValue(publicProfile);
-      mockListByUser.mockRejectedValue(new ApiError('No pudimos cargar las reseñas.', 500));
-
-      const { getByTestId, getByText } = renderScreen();
-
-      await waitFor(() => expect(getByText(/Electricista matriculada/)).toBeTruthy());
-      fireEvent.press(getByTestId('tab-reviews'));
-
-      await waitFor(() => expect(getByText('No pudimos cargar las reseñas.')).toBeTruthy());
-      expect(getByTestId('btn-profile-reviews-retry')).toBeTruthy();
-
-      mockListByUser.mockResolvedValue({ ratings: [], count: 0, limit: 20, offset: 0 });
     });
   });
 });

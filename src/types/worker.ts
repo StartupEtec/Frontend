@@ -13,6 +13,8 @@ export interface NearbyWorker {
   avatar_url: string | null;
   category_id: string | null;
   category_name: string | null;
+  /** Nombres de todas las categorías del trabajador (puede tener varias). */
+  category_names?: string[] | null;
   availability_status: string;
   certification_status: string;
   /** Promedio como texto con un decimal ("4.5"); null sin valoraciones. */
@@ -53,6 +55,8 @@ export interface PublicWorkerProfile {
   role: 'worker' | 'client';
   /** Trabajos anteriores: galería de fotos (pendiente backend). */
   portfolio?: WorkerPortfolioItem[] | null;
+  /** Nombres de todas las categorías del trabajador (puede tener varias). */
+  category_names?: string[] | null;
 }
 
 /** Foto de trabajo anterior del portfolio del trabajador (pendiente backend). */
