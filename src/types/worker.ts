@@ -51,6 +51,15 @@ export interface PublicWorkerProfile {
   bio: string | null;
   average_rating: string | null;
   role: 'worker' | 'client';
+  /** Trabajos anteriores: galería de fotos (pendiente backend). */
+  portfolio?: WorkerPortfolioItem[] | null;
+}
+
+/** Foto de trabajo anterior del portfolio del trabajador (pendiente backend). */
+export interface WorkerPortfolioItem {
+  id: string;
+  image_url: string;
+  title?: string | null;
 }
 
 export interface WorkerCategory {
