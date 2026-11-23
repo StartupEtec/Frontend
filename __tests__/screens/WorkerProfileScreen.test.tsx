@@ -17,6 +17,11 @@ jest.mock('../../src/services/ratingService', () => ({
   ratingService: { listByUser: jest.fn() },
 }));
 
+jest.mock('react-native-safe-area-context', () => ({
+  SafeAreaView: ({ children }: any) => children,
+  useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
+}));
+
 const mockGetPublicProfile = userService.getPublicProfile as jest.Mock;
 const mockListByUser = ratingService.listByUser as jest.Mock;
 
@@ -95,6 +100,7 @@ const renderScreen = (
     origin,
     role: 'client' as const,
     onGoBack: jest.fn(),
+    onNavigateToConversation: jest.fn(),
   };
   return { ...render(<WorkerProfileScreen {...props} />), props };
 };
@@ -226,15 +232,15 @@ describe('WorkerProfileScreen', () => {
     );
   });
 
-  it("shows 'Próximamente' when requesting the service", async () => {
+  it('navigates to chat when requesting the service', async () => {
     mockGetPublicProfile.mockResolvedValue(publicProfile);
 
-    const { getByTestId, getByText } = renderScreen();
+    const { getByTestId, getByText, props } = renderScreen();
     await waitForProfileLoaded(getByText);
 
     fireEvent.press(getByTestId('btn-profile-request'));
 
-    expect(Alert.alert).toHaveBeenCalledWith('Próximamente', expect.stringContaining('cotización'));
+    expect(props.onNavigateToConversation).toHaveBeenCalledWith('user-456');
   });
 
   it("has a single 'Solicitar Servicio' button and no 'Iniciar Chat'", async () => {

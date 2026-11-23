@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   ScrollView,
   StyleSheet,
   Text,
@@ -52,9 +51,6 @@ const CENTER_EPSILON = 0.0002;
  * no se abre ninguna ficha (el handler no lo encuentra y cierra la actual).
  */
 const ORIGIN_MARKER_ID = '__search-origin__';
-
-const PLANNED_FEATURE_MESSAGE =
-  'El flujo de cotización de servicios estará disponible en una próxima versión.';
 
 /**
  * "Buscar Trabajadores": mapa interactivo (Leaflet + OSM en WebView) con un
@@ -192,10 +188,6 @@ export const WorkerSearchScreen: React.FC<WorkerSearchScreenProps> = ({
     setSearchCenter(center);
     applyProgrammaticView(center, zoomForRadius(NEARBY_FIXED_RADIUS_KM, center.latitude));
   };
-
-  const handleRequestService = useCallback(() => {
-    Alert.alert('Próximamente', PLANNED_FEATURE_MESSAGE);
-  }, []);
 
   // Pines teñidos según el área de cobertura de cada trabajador respecto de
   // la ubicación elegida: verde si su área la cubre, verde apagado si está
@@ -370,7 +362,6 @@ export const WorkerSearchScreen: React.FC<WorkerSearchScreenProps> = ({
                 worker={selectedWorker}
                 accentColor={accentColor}
                 onViewProfile={() => onViewProfile(selectedWorker)}
-                onRequestService={handleRequestService}
                 testID={`worker-info-${selectedWorker.worker_id}`}
               />
             </View>
@@ -431,7 +422,6 @@ export const WorkerSearchScreen: React.FC<WorkerSearchScreenProps> = ({
                     worker={worker}
                     accentColor={accentColor}
                     onViewProfile={() => onViewProfile(worker)}
-                    onRequestService={handleRequestService}
                   />
                 ))}
                 {hasMore && (

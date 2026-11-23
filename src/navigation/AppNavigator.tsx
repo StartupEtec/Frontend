@@ -16,6 +16,8 @@ import { EditProfileScreen } from '../screens/EditProfileScreen';
 import { LocationsScreen } from '../screens/LocationsScreen';
 import { WorkerSearchScreen } from '../screens/WorkerSearchScreen';
 import { WorkerProfileScreen } from '../screens/WorkerProfileScreen';
+import { ChatsScreen } from '../screens/ChatsScreen';
+import { ConversationPlaceholderScreen } from '../screens/ConversationPlaceholderScreen';
 import { NavBar } from '../components/NavBar';
 import { SearchOriginModal } from '../components/location/SearchOriginModal';
 import { ASYNC_STORAGE_ONBOARDING_KEY } from '../i18n/onboardingContent';
@@ -47,6 +49,8 @@ export type AppRoute =
   | 'Locations'
   | 'WorkerSearch'
   | 'WorkerProfile'
+  | 'Chats'
+  | 'ConversationPlaceholder'
   | 'Main';
 
 export const AppNavigator: React.FC = () => {
@@ -393,12 +397,31 @@ export const AppNavigator: React.FC = () => {
         role={selectedRole}
         origin={searchOrigin}
         onGoBack={() => setCurrentRoute('WorkerSearch')}
+        onNavigateToConversation={(_chatId) => {
+          setCurrentRoute('ConversationPlaceholder');
+        }}
       />
     );
+  } else if (currentRoute === 'Chats') {
+    content = (
+      <ChatsScreen
+        role={selectedRole}
+        onGoBack={() => setCurrentRoute('Main')}
+        onNavigateToConversation={(_chatId) => {
+          setCurrentRoute('ConversationPlaceholder');
+        }}
+      />
+    );
+  } else if (currentRoute === 'ConversationPlaceholder') {
+    content = <ConversationPlaceholderScreen onGoBack={() => setCurrentRoute('Chats')} />;
   } else {
     content = (
       <SafeAreaView style={styles.mainContainer}>
-        <NavBar currentRole={selectedRole} onNavigateToProfile={() => setCurrentRoute('Profile')} />
+        <NavBar
+          currentRole={selectedRole}
+          onNavigateToProfile={() => setCurrentRoute('Profile')}
+          onNavigateToChats={() => setCurrentRoute('Chats')}
+        />
 
         <View style={styles.centerContainer}>
           <View style={styles.welcomeRow}>
