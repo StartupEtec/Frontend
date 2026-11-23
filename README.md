@@ -95,6 +95,17 @@ Los mapas **no** usan `react-native-maps`. Se dibujan con **Leaflet** dentro de 
 - **Manejo de errores**: 404 → "Trabajador no encontrado."; 5xx/red → mensaje genérico con botón "Reintentar". El error de reseñas solo afecta la pestaña de reseñas, no el perfil.
 - **Endpoints**: `GET /users/:id` (perfil público), `GET /users/:id/ratings` (reseñas). **Nota**: `GET /users/:id/worker-profile` solo lo puede leer el dueño del perfil, por eso no se usa para la vista cliente.
 
+### 6. Issue #30 - Pantalla de Lista de Chats
+
+- **Acceso**: desde el botón **"Chats"** en el NavBar (a la izquierda del botón de Perfil) → abre `ChatsScreen`.
+- **Qué muestra**: lista de conversaciones con avatar del otro usuario, nombre, último mensaje (preview), hora del último mensaje y badge de notificaciones no leídas (cuadrado con bordes redondeados).
+- **Barra de búsqueda**: filtro de conversaciones por nombre (búsqueda en backend vía `?search=`).
+- **Estilo WhatsApp-like**: título "Chats", barra de búsqueda, lista de tarjetas de conversación.
+- **Navegación**: al tocar un chat navega a `ConversationPlaceholderScreen` (pantalla básica con título y botón Volver; conversación completa en issue futuro).
+- **Indicador de carga**: spinner "Cargando conversaciones..." mientras se traen los datos.
+- **Manejo de errores**: error de servidor con botón "Reintentar"; estado vacío "Todavía no tienes conversaciones."
+- **Endpoints**: `GET /users/me/chats` (lista de chats del usuario autenticado). El token JWT se adjunta automáticamente vía `apiClient`.
+
 ---
 
 ## 🏗️ Estructura del Proyecto
@@ -107,6 +118,7 @@ Frontend/src/
 │   ├── auth.ts                      # Interfaces de Registro y Autenticación
 │   ├── location.ts                  # Tipos de ubicaciones guardadas
 │   ├── rating.ts                    # Tipos de reseñas/calificaciones (Issue #26)
+│   ├── chat.ts                      # Tipos de chats y lista de conversaciones (Issue #30)
 │   └── worker.ts                    # Tipos de búsqueda de trabajadores + catálogo de categorías
 ├── services/
 │   ├── api.ts                       # Cliente API centralizado (backoff retry + timeout)
@@ -114,6 +126,7 @@ Frontend/src/
 │   ├── locationService.ts           # CRUD de ubicaciones guardadas
 │   ├── workerSearchService.ts       # GET /workers/nearby (búsqueda en mapa)
 │   ├── ratingService.ts             # GET /users/:id/ratings (reseñas, Issue #26)
+│   ├── chatService.ts               # GET /users/me/chats (lista de chats, Issue #30)
 │   ├── deviceLocation.ts            # Ubicación del dispositivo (expo-location)
 │   └── geocodingService.ts          # Búsqueda/reverse-geocoding (Nominatim)
 ├── hooks/
@@ -124,6 +137,7 @@ Frontend/src/
 │   ├── useWorkerList.ts             # Filtros de lista (nombre/rating), orden y paginado
 │   ├── useWorkerProfile.ts          # GET /users/:id (perfil público, Issue #26)
 │   ├── useWorkerReviews.ts          # GET /users/:id/ratings (reseñas, Issue #26)
+│   ├── useChats.ts                  # GET /users/me/chats (lista de chats, Issue #30)
 │   ├── useDeviceLocation.ts         # Permiso + posición del dispositivo
 │   └── useLocationForm.ts           # Estado del formulario de ubicación
 ├── utils/
@@ -131,6 +145,8 @@ Frontend/src/
 │   ├── rating.ts                    # Formato de promedio, estrellas y fecha (Issue #26)
 │   └── workerList.ts                # Filtro/orden/paginado puro de la lista de trabajadores
 ├── components/
+│   ├── chat/
+│   │   └── ChatListItem.tsx         # Fila individual de chat: avatar, nombre, último mensaje, hora y badge de no leídos (Issue #30)
 │   ├── onboarding/                  # Subcomponentes de Onboarding
 │   ├── register/
 │   │   ├── RegisterFormInput.tsx    # Input con accesibilidad y toggle de contraseña
@@ -161,8 +177,10 @@ Frontend/src/
 │   ├── RegisterScreen.tsx           # Contenedor de la pantalla de Registro (<150 líneas)
 │   ├── LocationsScreen.tsx          # Gestión de ubicaciones guardadas
 │   ├── WorkerSearchScreen.tsx       # Búsqueda de trabajadores en mapa/lista
-│   └── WorkerProfileScreen.tsx      # Perfil público mínimo del trabajador
-└── navigation/AppNavigator.tsx      # Ruteo principal (Onboarding, Register, OTP, Login, Perfil, Ubicaciones, Búsqueda)
+│   ├── WorkerProfileScreen.tsx      # Perfil público mínimo del trabajador
+│   ├── ChatsScreen.tsx              # Lista de conversaciones (estilo WhatsApp, Issue #30)
+│   └── ConversationPlaceholderScreen.tsx  # Pantalla de conversación placeholder (Issue #30)
+└── navigation/AppNavigator.tsx      # Ruteo principal (Onboarding, Register, OTP, Login, Perfil, Ubicaciones, Búsqueda, Chats)
 ```
 
 ---

@@ -7,9 +7,14 @@ import { colors, spacing, typography } from '../theme/tokens';
 interface NavBarProps {
   currentRole: UserRole;
   onNavigateToProfile: () => void;
+  onNavigateToChats: () => void;
 }
 
-export const NavBar: React.FC<NavBarProps> = ({ currentRole, onNavigateToProfile }) => {
+export const NavBar: React.FC<NavBarProps> = ({
+  currentRole,
+  onNavigateToProfile,
+  onNavigateToChats,
+}) => {
   const isClient = currentRole === 'client';
   const accentColor = isClient ? colors.clientAccent : colors.workerAccent;
 
@@ -22,15 +27,27 @@ export const NavBar: React.FC<NavBarProps> = ({ currentRole, onNavigateToProfile
         </Text>
       </View>
 
-      <TouchableOpacity
-        style={styles.accountButton}
-        onPress={onNavigateToProfile}
-        testID="btn-account"
-        accessibilityRole="button"
-        accessibilityLabel="Mi perfil"
-      >
-        <Feather name="user" size={20} color={colors.textPrimary} accessible={false} />
-      </TouchableOpacity>
+      <View style={styles.actionsGroup}>
+        <TouchableOpacity
+          style={styles.actionButton}
+          onPress={onNavigateToChats}
+          testID="btn-chats"
+          accessibilityRole="button"
+          accessibilityLabel="Chats"
+        >
+          <Feather name="message-circle" size={20} color={colors.textPrimary} accessible={false} />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.accountButton}
+          onPress={onNavigateToProfile}
+          testID="btn-account"
+          accessibilityRole="button"
+          accessibilityLabel="Mi perfil"
+        >
+          <Feather name="user" size={20} color={colors.textPrimary} accessible={false} />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -59,7 +76,21 @@ const styles = StyleSheet.create({
     fontWeight: typography.fontWeights.semibold,
     marginTop: 1,
   },
+  actionsGroup: {
+    flexDirection: 'row',
+    gap: 10,
+  },
   accountButton: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: colors.surfaceContainerHigh,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: colors.border,
+  },
+  actionButton: {
     width: 38,
     height: 38,
     borderRadius: 19,

@@ -1,6 +1,5 @@
 import React, { useCallback, useState } from 'react';
 import {
-  Alert,
   ActivityIndicator,
   ScrollView,
   StyleSheet,
@@ -30,6 +29,8 @@ export interface WorkerProfileScreenProps {
   origin?: SavedLocation | null;
   role?: UserRole;
   onGoBack: () => void;
+  /** Navega a la pantalla de conversación (chat). */
+  onNavigateToConversation?: (chatId: string) => void;
 }
 
 /** "4.5" → "4,5"; null si no hay valoraciones. */
@@ -66,6 +67,7 @@ export const WorkerProfileScreen: React.FC<WorkerProfileScreenProps> = ({
   origin,
   role = 'client',
   onGoBack,
+  onNavigateToConversation,
 }) => {
   const accentColor = roleAccent(role);
 
@@ -94,11 +96,10 @@ export const WorkerProfileScreen: React.FC<WorkerProfileScreenProps> = ({
   }, []);
 
   const handleRequestService = useCallback(() => {
-    Alert.alert(
-      'Próximamente',
-      'El flujo de cotización de servicios estará disponible en una próxima versión.'
-    );
-  }, []);
+    if (onNavigateToConversation) {
+      void onNavigateToConversation(worker.user_id);
+    }
+  }, [worker.user_id, onNavigateToConversation]);
 
   const handleRetry = useCallback(() => {
     void reload();
@@ -286,7 +287,7 @@ export const WorkerProfileScreen: React.FC<WorkerProfileScreenProps> = ({
           </ScrollView>
 
           {/* Botón fijo abajo, siempre visible */}
-          <View style={styles.requestButtonContainer}>
+          <SafeAreaView edges={['bottom']} style={styles.requestButtonContainer}>
             <TouchableOpacity
               style={[styles.requestButton, { backgroundColor: accentColor }]}
               onPress={handleRequestService}
@@ -296,7 +297,7 @@ export const WorkerProfileScreen: React.FC<WorkerProfileScreenProps> = ({
             >
               <Text style={styles.requestButtonText}>Solicitar Servicio</Text>
             </TouchableOpacity>
-          </View>
+          </SafeAreaView>
         </>
       )}
     </SafeAreaView>
@@ -352,7 +353,7 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: spacing.md,
-    paddingBottom: 90, // Espacio para el botón fijo
+    paddingBottom: spacing.xxl,
     gap: spacing.md,
   },
   statsCard: {
@@ -471,7 +472,8 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    padding: spacing.md,
+    paddingTop: spacing.xs,
+    paddingBottom: spacing.xs,
     backgroundColor: colors.background,
     borderTopWidth: 1,
     borderTopColor: colors.border,

@@ -89,19 +89,6 @@ export const WorkerCard: React.FC<WorkerCardProps> = ({
               <Text style={styles.profileButtonText}>Ver Perfil Completo</Text>
             </TouchableOpacity>
           )}
-          {onRequestService && (
-            <TouchableOpacity
-              style={[styles.requestButton, { borderColor: accentColor }]}
-              onPress={onRequestService}
-              testID={`btn-worker-request-${worker.worker_id}`}
-              accessibilityRole="button"
-              accessibilityLabel={`Solicitar servicio a ${worker.full_name}`}
-            >
-              <Text style={[styles.requestButtonText, { color: accentColor }]}>
-                Solicitar Servicio
-              </Text>
-            </TouchableOpacity>
-          )}
         </View>
       )}
     </View>
@@ -188,18 +175,6 @@ const styles = StyleSheet.create({
   },
   profileButtonText: {
     color: colors.onPrimary,
-    fontSize: typography.fontSizes.sm,
-    fontWeight: typography.fontWeights.semibold,
-  },
-  requestButton: {
-    flex: 1,
-    borderRadius: borderRadius.md,
-    paddingVertical: spacing.sm,
-    alignItems: 'center',
-    borderWidth: 1.5,
-    backgroundColor: colors.cardBackground,
-  },
-  requestButtonText: {
     fontSize: typography.fontSizes.sm,
     fontWeight: typography.fontWeights.semibold,
   },
