@@ -1,8 +1,7 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
-  ActivityIndicator,
   Alert,
-  Image,
+  ActivityIndicator,
   ScrollView,
   StyleSheet,
   Text,
@@ -11,27 +10,27 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
-import { Feather } from '@expo/vector-icons';
 import { UserRole } from '../types/role';
-import { NearbyWorker, PublicWorkerProfile } from '../types/worker';
+import { NearbyWorker } from '../types/worker';
 import { SavedLocation } from '../types/location';
-import { userService } from '../services/userService';
-import { toDisplayUri } from '../services/profileService';
 import { ApiError } from '../services/api';
-import { coverageTier, distanceKmBetween, formatDistance } from '../utils/map';
+import { distanceKmBetween, formatDistance } from '../utils/map';
 import { colors, spacing, borderRadius, typography, shadows, roleAccent } from '../theme/tokens';
+import { WorkerProfileHeader } from '../components/worker/WorkerProfileHeader';
+import { WorkerRatingSummary } from '../components/worker/WorkerRatingSummary';
+import { WorkerReviewCard } from '../components/worker/WorkerReviewCard';
+import { WorkerPortfolioGallery } from '../components/worker/WorkerPortfolioGallery';
+import { useWorkerProfile } from '../hooks/useWorkerProfile';
+import { useWorkerReviews } from '../hooks/useWorkerReviews';
 
 export interface WorkerProfileScreenProps {
   /** Trabajador elegido en la búsqueda (trae categoría y distancia). */
   worker: NearbyWorker;
-  /** Ubicación guardada desde la que se buscó: referencia del indicador de
-   * cobertura (la misma que colorea el pin en el mapa). */
+  /** Ubicación guardada desde la que se buscó: referencia para calcular la distancia. */
   origin?: SavedLocation | null;
   role?: UserRole;
   onGoBack: () => void;
 }
-
-type ProfileStatus = 'loading' | 'success' | 'error';
 
 /** "4.5" → "4,5"; null si no hay valoraciones. */
 function formatRating(value: string | null): string | null {
@@ -48,12 +47,19 @@ function messageFor(err: unknown, fallback: string): string {
 }
 
 /**
- * Perfil público de un trabajador (Issue #24): ficha mínima con avatar,
- * nombre, categoría, calificación, distancia, biografía y botón
- * "Solicitar Servicio".
+ * Perfil público de un trabajador (Issue #26): ficha del trabajador vista
+ * desde el cliente.
  *
- * Los datos básicos vienen de la búsqueda (`worker`); la biografía y el
- * rating fresco se cargan con GET /users/:id (perfil público, sin auth).
+ * Muestra: avatar grande, nombre, categoría(s), calificación, número de
+ * reseñas, distancia desde la ubicación del cliente, y tres secciones
+ * colapsables: "Acerca de" (biografía), "Galería" (trabajos anteriores)
+ * y "Reseñas" (valoraciones de clientes).
+ *
+ * El botón "Solicitar Servicio" queda fijo abajo siempre visible.
+ *
+ * Los datos básicos vienen de la búsqueda (`worker`); la bio y el rating
+ * fresco se cargan con GET /users/:id. Las reseñas se cargan con
+ * GET /users/:id/ratings.
  */
 export const WorkerProfileScreen: React.FC<WorkerProfileScreenProps> = ({
   worker,
@@ -62,26 +68,30 @@ export const WorkerProfileScreen: React.FC<WorkerProfileScreenProps> = ({
   onGoBack,
 }) => {
   const accentColor = roleAccent(role);
-  const [profile, setProfile] = useState<PublicWorkerProfile | null>(null);
-  const [status, setStatus] = useState<ProfileStatus>('loading');
-  const [error, setError] = useState<string | null>(null);
 
-  const loadProfile = useCallback(async () => {
-    setStatus('loading');
-    setError(null);
-    try {
-      const result = await userService.getPublicProfile(worker.user_id);
-      setProfile(result);
-      setStatus('success');
-    } catch (err: unknown) {
-      setError(messageFor(err, 'No pudimos cargar el perfil. Reintentá.'));
-      setStatus('error');
-    }
-  }, [worker.user_id]);
+  const [aboutExpanded, setAboutExpanded] = useState(true);
+  const [galleryExpanded, setGalleryExpanded] = useState(true);
+  const [reviewsExpanded, setReviewsExpanded] = useState(true);
 
-  useEffect(() => {
-    void loadProfile();
-  }, [loadProfile]);
+  const { profile, status, error, notFound, reload } = useWorkerProfile(worker.user_id);
+  const { reviews, total, reviewsStatus, reviewsError, loadMore, loadMoreError, hasMore } =
+    useWorkerReviews(worker.user_id);
+
+  const profileName = profile?.full_name ?? worker.full_name;
+  const bio = profile?.bio ?? null;
+  const rating = formatRating(profile?.average_rating ?? worker.average_rating) ?? null;
+  const totalReviews = total ?? 0;
+  const distanceKm = origin
+    ? distanceKmBetween({ latitude: origin.latitude, longitude: origin.longitude }, worker)
+    : worker.distance_km;
+
+  const portfolio = profile?.portfolio ?? null;
+
+  const toggleSection = useCallback((section: 'about' | 'gallery' | 'reviews') => {
+    if (section === 'about') setAboutExpanded((prev) => !prev);
+    if (section === 'gallery') setGalleryExpanded((prev) => !prev);
+    if (section === 'reviews') setReviewsExpanded((prev) => !prev);
+  }, []);
 
   const handleRequestService = useCallback(() => {
     Alert.alert(
@@ -90,34 +100,11 @@ export const WorkerProfileScreen: React.FC<WorkerProfileScreenProps> = ({
     );
   }, []);
 
-  const avatarUri = toDisplayUri(worker.avatar_url);
-  const rating = formatRating(profile?.average_rating ?? worker.average_rating) ?? null;
+  const handleRetry = useCallback(() => {
+    void reload();
+  }, [reload]);
 
-  // ¿Llega el trabajador hasta la ubicación que elegiste para buscar? La
-  // referencia es esa ubicación guardada (misma que colorea los pines del
-  // mapa); sin ella se usa la distancia que trae la búsqueda (medida desde
-  // el centro de búsqueda).
-  const coverageDistanceKm = origin
-    ? distanceKmBetween({ latitude: origin.latitude, longitude: origin.longitude }, worker)
-    : worker.distance_km;
-  const tier = coverageTier(coverageDistanceKm, worker.coverage_radius_km);
-
-  let coverageText: string;
-  let coverageColor: string;
-  if (tier === 'in') {
-    coverageText = 'Estás en su área de cobertura';
-    coverageColor = colors.workerAccent;
-  } else if (tier === 'unknown') {
-    coverageText = 'Este trabajador no definió su área de cobertura';
-    coverageColor = colors.textMuted;
-  } else {
-    const limitGap = formatDistance((coverageDistanceKm - (worker.coverage_radius_km ?? 0)) * 1000);
-    coverageText =
-      tier === 'near'
-        ? `Fuera de su área por poco (a ${limitGap} del límite)`
-        : `Fuera de su área de cobertura (a ${limitGap} del límite)`;
-    coverageColor = tier === 'near' ? colors.workerAccentDim : colors.textSecondary;
-  }
+  const showErrorScreen = notFound || status === 'error';
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -136,92 +123,181 @@ export const WorkerProfileScreen: React.FC<WorkerProfileScreenProps> = ({
         <View style={styles.headerSpacer} />
       </View>
 
-      {status === 'error' ? (
+      {showErrorScreen ? (
         <View style={styles.center}>
           <Text style={styles.errorText} testID="profile-error">
-            {error}
+            {notFound
+              ? 'Trabajador no encontrado.'
+              : (error ?? messageFor(null, 'No pudimos cargar el perfil.'))}
           </Text>
           <TouchableOpacity
             style={[styles.retryButton, { backgroundColor: accentColor }]}
-            onPress={() => {
-              void loadProfile();
-            }}
+            onPress={handleRetry}
             testID="btn-profile-retry"
             accessibilityRole="button"
           >
             <Text style={styles.retryText}>Reintentar</Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={onGoBack}
+            testID="btn-profile-back-from-error"
+            accessibilityRole="button"
+            accessibilityLabel="Volver"
+          >
+            <Text style={[styles.backArrow, { color: accentColor }]}>← Volver</Text>
+          </TouchableOpacity>
         </View>
       ) : (
-        <ScrollView contentContainerStyle={styles.content}>
-          <View style={styles.hero}>
-            {avatarUri ? (
-              <Image source={{ uri: avatarUri }} style={styles.avatar} />
-            ) : (
-              <View style={[styles.avatar, styles.avatarFallback]}>
-                <Feather name="user" size={36} color={colors.textMuted} />
+        <>
+          <ScrollView contentContainerStyle={styles.content}>
+            <WorkerProfileHeader worker={worker} profileName={profileName} />
+
+            <View style={styles.statsCard}>
+              <View style={styles.stat}>
+                <WorkerRatingSummary
+                  rating={rating}
+                  totalReviews={totalReviews}
+                  accentColor={accentColor}
+                />
               </View>
-            )}
-            <Text style={styles.name}>{worker.full_name}</Text>
-            {worker.category_name && (
-              <View style={styles.categoryTag}>
-                <Text style={styles.categoryText}>{worker.category_name}</Text>
-              </View>
-            )}
-            <View style={styles.badgesRow}>
-              <View style={[styles.badge, { backgroundColor: colors.successContainer }]}>
-                <Text style={[styles.badgeText, { color: colors.onSuccessContainer }]}>
-                  Disponible
-                </Text>
-              </View>
-              <View style={[styles.badge, { backgroundColor: accentColor }]}>
-                <Text style={[styles.badgeText, { color: colors.onPrimary }]}>Certificado</Text>
+              <View style={styles.statDivider} />
+              <View style={styles.stat}>
+                <Text style={styles.statValue}>{formatDistance(distanceKm * 1000) || '—'}</Text>
+                <Text style={styles.statLabel}>Distancia</Text>
               </View>
             </View>
+
+            {/* Sección: Acerca de */}
+            <View style={styles.sectionContainer}>
+              <TouchableOpacity
+                onPress={() => toggleSection('about')}
+                style={styles.sectionTitleRow}
+                testID="section-about-header"
+                accessibilityRole="button"
+                accessibilityLabel={`Acerca de ${aboutExpanded ? 'cerrado' : 'abierto'}`}
+              >
+                <Text style={[styles.sectionTitle]}>Acerca de</Text>
+                <Text style={[styles.sectionChevron]}>{aboutExpanded ? '▲' : '▼'}</Text>
+              </TouchableOpacity>
+              {aboutExpanded && (
+                <View style={styles.sectionContent}>
+                  {status === 'loading' ? (
+                    <View style={styles.bioLoading}>
+                      <ActivityIndicator size="small" color={accentColor} />
+                      <Text style={styles.bioLoadingText}>Cargando perfil...</Text>
+                    </View>
+                  ) : (
+                    <Text style={styles.bio} testID="profile-bio">
+                      {bio ? bio : 'Este trabajador aún no agregó una biografía.'}
+                    </Text>
+                  )}
+                </View>
+              )}
+            </View>
+
+            {/* Sección: Galería */}
+            <View style={styles.sectionContainer}>
+              <TouchableOpacity
+                onPress={() => toggleSection('gallery')}
+                style={styles.sectionTitleRow}
+                testID="section-gallery-header"
+                accessibilityRole="button"
+                accessibilityLabel={`Galería ${galleryExpanded ? 'cerrada' : 'abierta'}`}
+              >
+                <Text style={[styles.sectionTitle]}>Galería</Text>
+                <Text style={[styles.sectionChevron]}>{galleryExpanded ? '▲' : '▼'}</Text>
+              </TouchableOpacity>
+              {galleryExpanded && (
+                <View style={styles.sectionContent}>
+                  <WorkerPortfolioGallery portfolio={portfolio} accentColor={accentColor} />
+                </View>
+              )}
+            </View>
+
+            {/* Sección: Reseñas */}
+            <View style={styles.sectionContainer}>
+              <TouchableOpacity
+                onPress={() => toggleSection('reviews')}
+                style={styles.sectionTitleRow}
+                testID="section-reviews-header"
+                accessibilityRole="button"
+                accessibilityLabel={`Reseñas ${reviewsExpanded ? 'cerradas' : 'abiertas'}`}
+              >
+                <Text style={[styles.sectionTitle]}>Reseñas ({totalReviews})</Text>
+                <Text style={[styles.sectionChevron]}>{reviewsExpanded ? '▲' : '▼'}</Text>
+              </TouchableOpacity>
+              {reviewsExpanded && (
+                <View style={styles.sectionContent}>
+                  {reviewsStatus === 'loading' ? (
+                    <View style={styles.reviewsLoading}>
+                      <ActivityIndicator size="small" color={accentColor} />
+                      <Text style={styles.reviewsLoadingText}>Cargando reseñas...</Text>
+                    </View>
+                  ) : reviewsStatus === 'error' ? (
+                    <View style={styles.reviewsError}>
+                      <Text style={styles.reviewsErrorText} testID="profile-reviews-error">
+                        {reviewsError ?? 'No pudimos cargar las reseñas.'}
+                      </Text>
+                      <TouchableOpacity
+                        style={[styles.retryButton, { backgroundColor: accentColor }]}
+                        onPress={handleRetry}
+                        testID="btn-profile-reviews-retry"
+                        accessibilityRole="button"
+                      >
+                        <Text style={styles.retryText}>Reintentar reseñas</Text>
+                      </TouchableOpacity>
+                    </View>
+                  ) : reviews.length === 0 ? (
+                    <View style={styles.reviewsEmpty}>
+                      <Text style={styles.reviewsEmptyIcon}>☆</Text>
+                      <Text style={styles.reviewsEmptyText}>
+                        Este trabajador aún no tiene reseñas.
+                      </Text>
+                    </View>
+                  ) : (
+                    <>
+                      {reviews.map((review) => (
+                        <WorkerReviewCard
+                          key={review.id}
+                          review={review}
+                          accentColor={accentColor}
+                        />
+                      ))}
+                      {hasMore && (
+                        <TouchableOpacity
+                          style={styles.loadMoreButton}
+                          onPress={loadMore}
+                          testID="btn-profile-reviews-load-more"
+                          accessibilityRole="button"
+                          accessibilityLabel="Ver más reseñas"
+                        >
+                          <Text style={styles.loadMoreText}>Ver más reseñas</Text>
+                          {loadMoreError && (
+                            <Text style={styles.loadMoreErrorText}>{loadMoreError}</Text>
+                          )}
+                        </TouchableOpacity>
+                      )}
+                    </>
+                  )}
+                </View>
+              )}
+            </View>
+          </ScrollView>
+
+          {/* Botón fijo abajo, siempre visible */}
+          <View style={styles.requestButtonContainer}>
+            <TouchableOpacity
+              style={[styles.requestButton, { backgroundColor: accentColor }]}
+              onPress={handleRequestService}
+              testID="btn-profile-request"
+              accessibilityRole="button"
+              accessibilityLabel="Solicitar servicio"
+            >
+              <Text style={styles.requestButtonText}>Solicitar Servicio</Text>
+            </TouchableOpacity>
           </View>
-
-          <View style={styles.statsCard}>
-            <View style={styles.stat}>
-              <Text style={styles.statValue}>{rating ? `★ ${rating}` : '—'}</Text>
-              <Text style={styles.statLabel}>{rating ? 'Calificación' : 'Sin valoraciones'}</Text>
-            </View>
-            <View style={styles.statDivider} />
-            <View style={styles.stat}>
-              <Text style={styles.statValue}>
-                {formatDistance(worker.distance_km * 1000) || '—'}
-              </Text>
-              <Text style={styles.statLabel}>Distancia</Text>
-            </View>
-          </View>
-
-          {/* Indicador chico de relación con el área de cobertura. */}
-          <View style={styles.coverageRow} testID="profile-coverage">
-            <View style={[styles.coverageDot, { backgroundColor: coverageColor }]} />
-            <Text style={[styles.coverageText, { color: coverageColor }]}>{coverageText}</Text>
-          </View>
-
-          <Text style={styles.sectionTitle}>Acerca de</Text>
-          {status === 'loading' ? (
-            <View style={styles.bioLoading}>
-              <ActivityIndicator size="small" color={accentColor} />
-              <Text style={styles.bioLoadingText}>Cargando perfil...</Text>
-            </View>
-          ) : (
-            <Text style={styles.bio} testID="profile-bio">
-              {profile?.bio ? profile.bio : 'Este trabajador aún no agregó una biografía.'}
-            </Text>
-          )}
-
-          <TouchableOpacity
-            style={[styles.requestButton, { backgroundColor: accentColor }]}
-            onPress={handleRequestService}
-            testID="btn-profile-request"
-            accessibilityRole="button"
-            accessibilityLabel="Solicitar servicio"
-          >
-            <Text style={styles.requestButtonText}>Solicitar Servicio</Text>
-          </TouchableOpacity>
-        </ScrollView>
+        </>
       )}
     </SafeAreaView>
   );
@@ -267,6 +343,7 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.md,
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.lg,
+    alignItems: 'center',
   },
   retryText: {
     color: colors.onPrimary,
@@ -275,55 +352,8 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: spacing.md,
-    paddingBottom: spacing.xxl,
+    paddingBottom: 90, // Espacio para el botón fijo
     gap: spacing.md,
-  },
-  hero: {
-    alignItems: 'center',
-    gap: spacing.sm,
-    paddingVertical: spacing.md,
-  },
-  avatar: {
-    width: 96,
-    height: 96,
-    borderRadius: 48,
-  },
-  avatarFallback: {
-    backgroundColor: colors.surfaceContainerHigh,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  name: {
-    color: colors.textPrimary,
-    fontSize: typography.fontSizes.xl,
-    fontWeight: typography.fontWeights.bold,
-    textAlign: 'center',
-  },
-  categoryTag: {
-    backgroundColor: colors.surfaceContainerLow,
-    borderRadius: borderRadius.pill,
-    borderWidth: 1,
-    borderColor: colors.border,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-  },
-  categoryText: {
-    color: colors.textSecondary,
-    fontSize: typography.fontSizes.sm,
-    fontWeight: typography.fontWeights.medium,
-  },
-  badgesRow: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-  },
-  badge: {
-    borderRadius: borderRadius.pill,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs / 2,
-  },
-  badgeText: {
-    fontSize: typography.fontSizes.xs,
-    fontWeight: typography.fontWeights.semibold,
   },
   statsCard: {
     flexDirection: 'row',
@@ -355,25 +385,27 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSizes.xs,
     textAlign: 'center',
   },
-  coverageRow: {
+  sectionContainer: {
+    marginTop: spacing.xs,
+  },
+  sectionTitleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.sm,
-  },
-  coverageDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-  },
-  coverageText: {
-    flex: 1,
-    fontSize: typography.fontSizes.xs,
+    gap: spacing.xs,
+    paddingVertical: spacing.xs / 2,
   },
   sectionTitle: {
     color: colors.textPrimary,
     fontSize: typography.fontSizes.md,
     fontWeight: typography.fontWeights.semibold,
-    marginTop: spacing.xs,
+  },
+  sectionChevron: {
+    color: colors.textPrimary,
+    fontSize: typography.fontSizes.md,
+  },
+  sectionContent: {
+    marginTop: spacing.sm,
+    gap: spacing.sm,
   },
   bioLoading: {
     flexDirection: 'row',
@@ -389,11 +421,67 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSizes.sm,
     lineHeight: typography.fontSizes.sm * typography.lineHeights.relaxed,
   },
+  reviewsSection: { gap: spacing.sm },
+  reviewsLoading: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    paddingVertical: spacing.md,
+  },
+  reviewsLoadingText: { color: colors.textSecondary, fontSize: typography.fontSizes.sm },
+  reviewsError: {
+    alignItems: 'center',
+    gap: spacing.sm,
+    paddingVertical: spacing.md,
+  },
+  reviewsErrorText: {
+    color: colors.error,
+    fontSize: typography.fontSizes.sm,
+    textAlign: 'center',
+  },
+  reviewsEmpty: {
+    alignItems: 'center',
+    gap: spacing.sm,
+    paddingVertical: spacing.md,
+  },
+  reviewsEmptyIcon: {
+    fontSize: 32,
+    color: colors.textMuted,
+  },
+  reviewsEmptyText: {
+    color: colors.textMuted,
+    fontSize: typography.fontSizes.sm,
+  },
+  loadMoreButton: {
+    alignItems: 'center',
+    paddingVertical: spacing.sm,
+  },
+  loadMoreText: {
+    color: colors.textSecondary,
+    fontSize: typography.fontSizes.sm,
+    fontWeight: typography.fontWeights.medium,
+  },
+  loadMoreErrorText: {
+    color: colors.error,
+    fontSize: typography.fontSizes.xs,
+    marginTop: spacing.xs / 2,
+  },
+  requestButtonContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    padding: spacing.md,
+    backgroundColor: colors.background,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    alignItems: 'center',
+  },
   requestButton: {
-    marginTop: spacing.md,
     paddingVertical: spacing.md,
     borderRadius: borderRadius.md,
     alignItems: 'center',
+    width: '100%',
     ...shadows.button,
   },
   requestButtonText: {

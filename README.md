@@ -82,6 +82,21 @@ Los mapas **no** usan `react-native-maps`. Se dibujan con **Leaflet** dentro de 
 
 ---
 
+### 5. Issue #26 - Perfil de Trabajador (Vista Cliente)
+
+- **Acceso**: desde la ficha resumida de la búsqueda → botón **"Ver Perfil Completo"** → abre `WorkerProfileScreen`.
+- **Qué muestra**: avatar grande, nombre, categoría, calificación (estrellas + promedio + cantidad de reseñas), distancia desde la ubicación elegida para buscar, biografía ("Acerca de"), galería de trabajos anteriores y un único botón **"Solicitar Servicio"**.
+- **Pestañas**: "Perfil" (bio + galería) y "Reseñas (N)" (listado con autor, estrellas, fecha y texto; paginación con "Ver más").
+- **Galería de trabajos anteriores**: placeholder "Este trabajador todavía no publicó trabajos anteriores" hasta que el backend exponga el endpoint de portfolio.
+- **Distancia**: calculada en el cliente con haversine desde la ubicación guardada elegida para buscar (o desde el centro de búsqueda si no hay una elegida).
+- **Disponibilidad**: se muestra como badge "Disponible" / "No disponible" según `availability_status`. Los horarios detallados quedan pendientes de un endpoint público de backend (hoy solo el dueño puede leerlos).
+- **Botón único**: "Solicitar Servicio" muestra un aviso "Próximamente" (el flujo de cotización es un issue futuro). No hay botones de contacto ni "Iniciar Chat".
+- **Indicador de carga**: spinner "Cargando perfil..." / "Cargando reseñas..." mientras se traen los datos.
+- **Manejo de errores**: 404 → "Trabajador no encontrado."; 5xx/red → mensaje genérico con botón "Reintentar". El error de reseñas solo afecta la pestaña de reseñas, no el perfil.
+- **Endpoints**: `GET /users/:id` (perfil público), `GET /users/:id/ratings` (reseñas). **Nota**: `GET /users/:id/worker-profile` solo lo puede leer el dueño del perfil, por eso no se usa para la vista cliente.
+
+---
+
 ## 🏗️ Estructura del Proyecto
 
 ```
@@ -91,12 +106,14 @@ Frontend/src/
 │   ├── onboarding.ts
 │   ├── auth.ts                      # Interfaces de Registro y Autenticación
 │   ├── location.ts                  # Tipos de ubicaciones guardadas
+│   ├── rating.ts                    # Tipos de reseñas/calificaciones (Issue #26)
 │   └── worker.ts                    # Tipos de búsqueda de trabajadores + catálogo de categorías
 ├── services/
 │   ├── api.ts                       # Cliente API centralizado (backoff retry + timeout)
 │   ├── authService.ts               # Llamadas a endpoints de Auth
 │   ├── locationService.ts           # CRUD de ubicaciones guardadas
 │   ├── workerSearchService.ts       # GET /workers/nearby (búsqueda en mapa)
+│   ├── ratingService.ts             # GET /users/:id/ratings (reseñas, Issue #26)
 │   ├── deviceLocation.ts            # Ubicación del dispositivo (expo-location)
 │   └── geocodingService.ts          # Búsqueda/reverse-geocoding (Nominatim)
 ├── hooks/
@@ -105,10 +122,13 @@ Frontend/src/
 │   ├── useLocations.ts              # Lista + CRUD de ubicaciones (orden por cercanía)
 │   ├── useNearbyWorkers.ts          # Búsqueda cercana (refetch al mover mapa/filtros)
 │   ├── useWorkerList.ts             # Filtros de lista (nombre/rating), orden y paginado
+│   ├── useWorkerProfile.ts          # GET /users/:id (perfil público, Issue #26)
+│   ├── useWorkerReviews.ts          # GET /users/:id/ratings (reseñas, Issue #26)
 │   ├── useDeviceLocation.ts         # Permiso + posición del dispositivo
 │   └── useLocationForm.ts           # Estado del formulario de ubicación
 ├── utils/
 │   ├── map.ts                       # Centro/zoom, tiles OSM, formato de distancia y zoom por radio
+│   ├── rating.ts                    # Formato de promedio, estrellas y fecha (Issue #26)
 │   └── workerList.ts                # Filtro/orden/paginado puro de la lista de trabajadores
 ├── components/
 │   ├── onboarding/                  # Subcomponentes de Onboarding
@@ -118,9 +138,15 @@ Frontend/src/
 │   │   ├── RegisterTermsRow.tsx     # Checkbox de términos y condiciones
 │   │   └── TermsModal.tsx           # Modal de términos y condiciones
 │   ├── worker/
-│   │   ├── WorkerFilters.tsx        # Pills de categoría (sin filtro de distancia)
-│   │   ├── WorkerListFilters.tsx    # Búsqueda por nombre, rating mínimo y orden
-│   │   └── WorkerCard.tsx           # Tarjeta resumida con acciones
+│   │   ├── WorkerFilters.tsx            # Pills de categoría (sin filtro de distancia)
+│   │   ├── WorkerListFilters.tsx        # Búsqueda por nombre, rating mínimo y orden
+│   │   ├── WorkerCard.tsx               # Tarjeta resumida con acciones
+│   │   ├── WorkerProfileHeader.tsx      # Avatar, nombre, categoría, badges (Issue #26)
+│   │   ├── WorkerRatingSummary.tsx      # Estrellas + promedio + cantidad (Issue #26)
+│   │   ├── WorkerProfileTabs.tsx        # Pestañas Perfil / Reseñas (Issue #26)
+│   │   ├── WorkerReviewCard.tsx         # Tarjeta de una reseña (Issue #26)
+│   │   ├── WorkerStars.tsx              # Relleno visual de estrellas (Issue #26)
+│   │   └── WorkerPortfolioGallery.tsx   # Galería de trabajos anteriores (Issue #26)
 │   └── location/
 │       ├── LeafletMap.tsx           # Mapa WebView + Leaflet + OSM (sin API key)
 │       ├── LocationMapPicker.tsx    # Mapa interactivo (pin arrastrable, expandible)
