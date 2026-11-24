@@ -17,7 +17,7 @@ import { LocationsScreen } from '../screens/LocationsScreen';
 import { WorkerSearchScreen } from '../screens/WorkerSearchScreen';
 import { WorkerProfileScreen } from '../screens/WorkerProfileScreen';
 import { ChatsScreen } from '../screens/ChatsScreen';
-import { ConversationPlaceholderScreen } from '../screens/ConversationPlaceholderScreen';
+import { ConversationScreen } from '../screens/ConversationScreen';
 import { NavBar } from '../components/NavBar';
 import { SearchOriginModal } from '../components/location/SearchOriginModal';
 import { ASYNC_STORAGE_ONBOARDING_KEY } from '../i18n/onboardingContent';
@@ -50,7 +50,7 @@ export type AppRoute =
   | 'WorkerSearch'
   | 'WorkerProfile'
   | 'Chats'
-  | 'ConversationPlaceholder'
+  | 'Conversation'
   | 'Main';
 
 export const AppNavigator: React.FC = () => {
@@ -58,6 +58,7 @@ export const AppNavigator: React.FC = () => {
   const [currentRoute, setCurrentRoute] = useState<AppRoute>('Onboarding');
   const [isCheckingStatus, setIsCheckingStatus] = useState<boolean>(true);
   const [registeredContact, setRegisteredContact] = useState<string>('');
+  const [selectedChatUserId, setSelectedChatUserId] = useState<string | null>(null);
   const [otpOrigin, setOtpOrigin] = useState<'Register' | 'Login'>('Register');
   const [selectedRole, setSelectedRole] = useState<UserRole>('client');
   const [profileCompleted, setProfileCompleted] = useState<boolean>(false);
@@ -397,8 +398,9 @@ export const AppNavigator: React.FC = () => {
         role={selectedRole}
         origin={searchOrigin}
         onGoBack={() => setCurrentRoute('WorkerSearch')}
-        onNavigateToConversation={(_chatId) => {
-          setCurrentRoute('ConversationPlaceholder');
+        onNavigateToConversation={(workerUserId) => {
+          setSelectedChatUserId(workerUserId);
+          setCurrentRoute('Conversation');
         }}
       />
     );
@@ -407,13 +409,23 @@ export const AppNavigator: React.FC = () => {
       <ChatsScreen
         role={selectedRole}
         onGoBack={() => setCurrentRoute('Main')}
-        onNavigateToConversation={(_chatId) => {
-          setCurrentRoute('ConversationPlaceholder');
+        onNavigateToConversation={(userId) => {
+          setSelectedChatUserId(userId);
+          setCurrentRoute('Conversation');
         }}
       />
     );
-  } else if (currentRoute === 'ConversationPlaceholder') {
-    content = <ConversationPlaceholderScreen onGoBack={() => setCurrentRoute('Chats')} />;
+  } else if (currentRoute === 'Conversation') {
+    content = (
+      <ConversationScreen
+        userId={selectedChatUserId!}
+        onGoBack={() => {
+          setCurrentRoute('Chats');
+          setSelectedChatUserId(null);
+        }}
+        role={selectedRole}
+      />
+    );
   } else {
     content = (
       <SafeAreaView style={styles.mainContainer}>

@@ -13,7 +13,7 @@ jest.mock('react-native-safe-area-context', () => ({
 
 jest.mock('../../src/services/chatService', () => ({
   chatService: {
-    list: jest.fn(),
+    listChats: jest.fn(),
     defaultParams: jest.fn().mockReturnValue({
       limit: 20,
       offset: 0,
@@ -23,7 +23,7 @@ jest.mock('../../src/services/chatService', () => ({
   },
 }));
 
-const mockList = chatService.list as jest.Mock;
+const mockList = chatService.listChats as jest.Mock;
 
 const makeChat = (overrides: Partial<ChatListItem> = {}): ChatListItem => ({
   chat_id: 'c-1',
@@ -142,7 +142,7 @@ describe('ChatsScreen', () => {
     await waitFor(() => expect(getByText('Juan Pérez')).toBeTruthy());
     fireEvent.press(getByTestId('chat-item-c-1'));
 
-    expect(onNavigateToConversation).toHaveBeenCalledWith('c-1');
+    expect(onNavigateToConversation).toHaveBeenCalledWith('user-100');
   });
 
   it('filters chats by search text', async () => {

@@ -47,7 +47,7 @@ export const ChatsScreen: React.FC<{
     setStatus('loading');
     setError(null);
     try {
-      const result = await chatService.list({
+      const result = await chatService.listChats({
         limit: 20,
         offset: 0,
         status: 'all',
@@ -72,7 +72,7 @@ export const ChatsScreen: React.FC<{
 
   const handleSearchChange = (text: string) => {
     setSearchQuery(text);
-    void load(0, text);
+    void load(text);
   };
 
   const filteredChats = searchQuery

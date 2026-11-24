@@ -27,7 +27,7 @@ export const ChatListItem: React.FC<ChatListItemProps> = ({
   return (
     <TouchableOpacity
       style={styles.container}
-      onPress={() => onPress(chat.chat_id)}
+      onPress={() => onPress(chat.other_user.user_id)}
       testID={`chat-item-${chat.chat_id}`}
       accessibilityRole="button"
       accessibilityLabel={`Conversación con ${other_user.full_name ?? 'usuario'}`}
