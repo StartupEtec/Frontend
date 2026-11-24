@@ -37,7 +37,9 @@ export const useChat = ({ chatId, userId }: UseChatProps): UseChatReturn => {
   const wsRef = useRef<WebSocket | null>(null);
   const offsetRef = useRef(0);
   const isTypingRef = useRef(false);
-  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const wsUrlRef = useRef<string>('');
 
   /**
    * Carga los mensajes del chat.
@@ -61,21 +63,39 @@ export const useChat = ({ chatId, userId }: UseChatProps): UseChatReturn => {
         setStatus('error');
       }
     },
-    [chatId, chatService]
+    [chatId]
   );
 
   /**
-   * Envía un mensaje de texto.
+   * Envía un mensaje de texto con optimistic update.
+   * El mensaje se muestra inmediatamente en el historial y se reemplaza
+   * por el real cuando el servidor responde o llega vía WebSocket.
    */
   const sendMessage = useCallback(
     async (text: string) => {
       if (!text.trim() || isSending) return;
       setIsSending(true);
+      const tempId = `temp-${Date.now()}`;
+      const optimistic: ChatMessage = {
+        id: tempId,
+        chat_id: chatId,
+        sender_id: userId,
+        content: text,
+        message_type: 'TEXT',
+        attachment_url: null,
+        avatar_url: null,
+        created_at: new Date().toISOString(),
+      };
+      setMessages((prev) => [...prev, optimistic]);
       try {
-        await chatService.sendMessage(chatId, userId, { message_type: 'TEXT', content: text });
-        // El mensaje se recibirá vía WebSocket (message:new)
+        const real = await chatService.sendMessage(chatId, userId, {
+          message_type: 'TEXT',
+          content: text,
+        });
+        setMessages((prev) => prev.map((m) => (m.id === tempId ? real : m)));
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : 'Error al enviar mensaje';
+        setMessages((prev) => prev.filter((m) => m.id !== tempId));
         setError(message);
       } finally {
         setIsSending(false);
@@ -85,20 +105,36 @@ export const useChat = ({ chatId, userId }: UseChatProps): UseChatReturn => {
   );
 
   /**
-   * Envía una imagen como mensaje.
+   * Envía una imagen como mensaje con optimistic update.
+   * La imagen se muestra inmediatamente en el historial usando el URI local
+   * mientras el servidor procesa la subida y devuelve la URL definitiva.
    */
   const sendImage = useCallback(
     async (imageUri: string) => {
       if (isSending) return;
       setIsSending(true);
+      const tempId = `temp-${Date.now()}`;
+      const optimistic: ChatMessage = {
+        id: tempId,
+        chat_id: chatId,
+        sender_id: userId,
+        content: null,
+        message_type: 'IMAGE',
+        attachment_url: imageUri,
+        avatar_url: null,
+        created_at: new Date().toISOString(),
+      };
+      setMessages((prev) => [...prev, optimistic]);
       try {
-        await chatService.sendMessage(chatId, userId, {
+        const real = await chatService.sendMessage(chatId, userId, {
           message_type: 'IMAGE',
           content: null,
           imageUri,
         });
+        setMessages((prev) => prev.map((m) => (m.id === tempId ? real : m)));
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : 'Error al enviar imagen';
+        setMessages((prev) => prev.filter((m) => m.id !== tempId));
         setError(message);
       } finally {
         setIsSending(false);
@@ -109,15 +145,33 @@ export const useChat = ({ chatId, userId }: UseChatProps): UseChatReturn => {
 
   /**
    * Conecta al WebSocket para recibir mensajes y eventos de escritura en tiempo real.
+   * Incluye lógica de reconexión automática ante fallos de conexión.
    */
   const connectWebSocket = useCallback(async () => {
+    if (!chatId) return;
+
+    // Cancelar cualquier reconexión pendiente
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current);
+      reconnectTimeoutRef.current = null;
+    }
+
+    // Cerrar WebSocket previo si existe
+    if (wsRef.current) {
+      wsRef.current.close();
+      wsRef.current = null;
+    }
+
     try {
       const token = await tokenStorage.getAccessToken();
       if (!token) return;
 
-      const ws = new WebSocket(
-        `${process.env.EXPO_PUBLIC_WS_URL || 'ws://localhost:3000'}/ws?token=${encodeURIComponent(token)}`
-      );
+      const url = `${
+        process.env.EXPO_PUBLIC_WS_URL || 'ws://localhost:3000'
+      }/ws?token=${encodeURIComponent(token)}`;
+      wsUrlRef.current = url;
+
+      const ws = new WebSocket(url);
 
       ws.onopen = () => {
         console.log('WebSocket conectado');
@@ -149,24 +203,43 @@ export const useChat = ({ chatId, userId }: UseChatProps): UseChatReturn => {
         }
       };
 
-      ws.onerror = (err) => {
-        console.error('WebSocket error:', err);
+      ws.onerror = () => {
+        // No logueamos el objeto completo de error porque es muy ruidoso.
+        // Se intenta reconectar automáticamente.
+        console.warn('WebSocket error de conexión, reintentando...');
+        scheduleReconnect();
       };
 
       ws.onclose = () => {
         console.log('WebSocket desconectado');
+        scheduleReconnect();
       };
 
       wsRef.current = ws;
     } catch {
-      // Ignorar errores de conexión
+      scheduleReconnect();
     }
   }, [chatId, userId]);
+
+  /**
+   * Programa una reconexión tras 3 segundos.
+   */
+  const scheduleReconnect = () => {
+    if (reconnectTimeoutRef.current) return;
+    reconnectTimeoutRef.current = setTimeout(() => {
+      reconnectTimeoutRef.current = null;
+      connectWebSocket();
+    }, 3000);
+  };
 
   /**
    * Desconecta el WebSocket.
    */
   const disconnect = useCallback(() => {
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current);
+      reconnectTimeoutRef.current = null;
+    }
     if (wsRef.current) {
       wsRef.current.close();
       wsRef.current = null;
@@ -209,10 +282,15 @@ export const useChat = ({ chatId, userId }: UseChatProps): UseChatReturn => {
     [chatId]
   );
 
-  // Cargar mensajes al montar
+  // Cargar mensajes al montar (o al cambiar de chat)
   useEffect(() => {
     loadMessages(0);
   }, [chatId, loadMessages]);
+
+  // Resetear el offset de paginación al cambiar de chat
+  useEffect(() => {
+    offsetRef.current = 0;
+  }, [chatId]);
 
   // Conectar WebSocket al montar
   useEffect(() => {

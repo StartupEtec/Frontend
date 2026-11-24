@@ -2,13 +2,12 @@ import React, { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
   ScrollView,
-  SafeAreaView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
-import { SafeAreaView as SafeAreaViewContext } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { UserRole } from '../types/role';
 import { NearbyWorker } from '../types/worker';
@@ -71,6 +70,7 @@ export const WorkerProfileScreen: React.FC<WorkerProfileScreenProps> = ({
   onNavigateToConversation,
 }) => {
   const accentColor = roleAccent(role);
+  const insets = useSafeAreaInsets();
 
   const [aboutExpanded, setAboutExpanded] = useState(true);
   const [galleryExpanded, setGalleryExpanded] = useState(true);
@@ -111,7 +111,7 @@ export const WorkerProfileScreen: React.FC<WorkerProfileScreenProps> = ({
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar style="light" />
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: spacing.sm + insets.top }]}>
         <TouchableOpacity
           onPress={onGoBack}
           style={styles.backButton}

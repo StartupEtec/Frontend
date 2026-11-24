@@ -18,6 +18,7 @@ jest.mock('expo-image-picker', () => ({
   requestCameraPermissionsAsync: jest.fn(() => Promise.resolve({ granted: true })),
   requestMediaLibraryPermissionsAsync: jest.fn(() => Promise.resolve({ granted: true })),
   MediaTypeOptions: { Images: 'Images' },
+  MediaType: { Images: 'Images' },
 }));
 
 jest.mock('expo-camera', () => {

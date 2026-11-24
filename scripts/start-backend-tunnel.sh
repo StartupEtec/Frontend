@@ -12,6 +12,7 @@ if [ ! -f "$FRONTEND_DIR/.env" ]; then
     echo "ERROR: No se encontro Frontend/.env"
     echo "Creando uno por defecto..."
     echo "EXPO_PUBLIC_API_URL=http://10.0.2.2:3000/api/v1" > "$FRONTEND_DIR/.env"
+    echo "EXPO_PUBLIC_WS_URL=ws://10.0.2.2:3000" >> "$FRONTEND_DIR/.env"
 fi
 
 CLOUDFLARED="cloudflared"
@@ -53,8 +54,18 @@ for i in $(seq 1 30); do
             echo "=== Tunnel listo ==="
             echo "URL del backend: $BACKEND_URL"
             echo ""
-            echo "EXPO_PUBLIC_API_URL=${BACKEND_URL}/api/v1" > "$FRONTEND_DIR/.env"
-            echo "Frontend/.env actualizado con: ${BACKEND_URL}/api/v1"
+
+            # Construir URLs para el frontend
+            API_URL="${BACKEND_URL}/api/v1"
+            # WebSocket: https:// -> wss://, sin /api/v1
+            WS_URL="${BACKEND_URL#https://}"
+            WS_URL="wss://${WS_URL}"
+
+            echo "EXPO_PUBLIC_API_URL=${API_URL}" > "$FRONTEND_DIR/.env"
+            echo "EXPO_PUBLIC_WS_URL=${WS_URL}" >> "$FRONTEND_DIR/.env"
+            echo "Frontend/.env actualizado con:"
+            echo "  EXPO_PUBLIC_API_URL=${API_URL}"
+            echo "  EXPO_PUBLIC_WS_URL=${WS_URL}"
             echo ""
             echo "=== Ahora levanta el Frontend en otra terminal: ==="
             echo "cd \"$FRONTEND_DIR\" && ./scripts/start-frontend-tunnel.sh"

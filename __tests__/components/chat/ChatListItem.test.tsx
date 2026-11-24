@@ -44,13 +44,13 @@ describe('ChatListItem', () => {
     expect(getByText('3')).toBeTruthy();
   });
 
-  it('calls onPress with chat_id when pressed', () => {
+  it('calls onPress with other_user.user_id when pressed', () => {
     const onPress = jest.fn();
     const { getByTestId } = render(<ChatListItem chat={makeChat()} onPress={onPress} />);
 
     fireEvent.press(getByTestId('chat-item-c-1'));
 
-    expect(onPress).toHaveBeenCalledWith('c-1');
+    expect(onPress).toHaveBeenCalledWith('user-100');
   });
 
   it('shows "Sin mensajes" when there is no last message', () => {

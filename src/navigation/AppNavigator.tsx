@@ -409,8 +409,9 @@ export const AppNavigator: React.FC = () => {
       <ChatsScreen
         role={selectedRole}
         onGoBack={() => setCurrentRoute('Main')}
-        onNavigateToConversation={(_chatId) => {
-          setCurrentRoute('ConversationPlaceholder');
+        onNavigateToConversation={(userId) => {
+          setSelectedChatUserId(userId);
+          setCurrentRoute('Conversation');
         }}
       />
     );

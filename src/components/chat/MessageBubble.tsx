@@ -1,11 +1,13 @@
 import React from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 import { ChatMessage } from '../../types/chat';
+import { toDisplayUri } from '../../services/profileService';
 import { colors, spacing, borderRadius, typography } from '../../theme/tokens';
 
 export interface MessageBubbleProps {
   message: ChatMessage;
   isOwn: boolean;
+  accentColor?: string;
 }
 
 /** Burbuja individual de un mensaje en la conversación. */
@@ -19,14 +21,12 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isOwn }) 
 
   return (
     <View style={[styles.container, isOwn ? styles.own : styles.other]}>
-      {!isOwn && message.avatar_url && (
-        <View style={styles.avatarContainer}>
-          <Image source={{ uri: message.avatar_url }} style={styles.avatar} />
-        </View>
-      )}
       <View style={[styles.bubbleContainer, isOwn ? styles.ownBubble : styles.otherBubble]}>
         {isImage && message.attachment_url && (
-          <Image source={{ uri: message.attachment_url }} style={styles.imageBubble} />
+          <Image
+            source={{ uri: toDisplayUri(message.attachment_url) }}
+            style={styles.imageBubble}
+          />
         )}
         {!isImage && content && (
           <Text
@@ -41,11 +41,6 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isOwn }) 
           </Text>
         )}
       </View>
-      {isOwn && message.avatar_url && (
-        <View style={styles.avatarContainer}>
-          <Image source={{ uri: message.avatar_url }} style={styles.avatar} />
-        </View>
-      )}
     </View>
   );
 };
@@ -54,28 +49,22 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'flex-end',
-    marginHorizontal: spacing.md,
+    marginHorizontal: spacing.sm,
     marginVertical: spacing.xs / 2,
   },
   own: {
     flexDirection: 'row-reverse',
+    justifyContent: 'flex-start',
   },
   other: {
     flexDirection: 'row',
-  },
-  avatarContainer: {
-    marginHorizontal: spacing.xs,
-  },
-  avatar: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    justifyContent: 'flex-start',
   },
   bubbleContainer: {
-    maxWidth: '75%',
+    maxWidth: '85%',
     borderRadius: borderRadius.md,
     paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
+    paddingHorizontal: spacing.sm,
     marginBottom: spacing.xs / 2,
   },
   ownBubble: {
@@ -110,8 +99,8 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
   },
   imageBubble: {
-    width: 120,
-    height: 120,
+    width: 140,
+    height: 140,
     borderRadius: borderRadius.md,
   },
 });

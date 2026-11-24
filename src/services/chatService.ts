@@ -2,6 +2,7 @@ import { apiClient } from './api';
 import {
   ChatListParams,
   ChatListResponse,
+  ChatMessage,
   ChatMessagesParams,
   ChatMessagesResponse,
   CreateChatParams,
@@ -80,12 +81,13 @@ export const chatService = {
 
   /**
    * Envía un mensaje de texto o imagen.
+   * Devuelve el mensaje creado (incluye id, attachment_url, etc.).
    */
   async sendMessage(
     chatId: string,
     userId: string,
     params: { message_type: 'TEXT' | 'IMAGE'; content?: string | null; imageUri?: string }
-  ): Promise<void> {
+  ): Promise<ChatMessage> {
     if (params.message_type === 'IMAGE' && params.imageUri) {
       // Para imágenes, usamos form-data
       const formData = new FormData();
@@ -98,18 +100,20 @@ export const chatService = {
         name: 'image.jpg',
       } as any);
 
-      await apiClient(`/chats/${chatId}/messages`, {
+      const res = await apiClient<{ message: ChatMessage }>(`/chats/${chatId}/messages`, {
         method: 'POST',
         body: formData,
       });
+      return res.message;
     } else {
-      await apiClient(`/chats/${chatId}/messages`, {
+      const res = await apiClient<{ message: ChatMessage }>(`/chats/${chatId}/messages`, {
         method: 'POST',
         body: JSON.stringify({
           message_type: params.message_type,
           content: params.content,
         }),
       });
+      return res.message;
     }
   },
 
