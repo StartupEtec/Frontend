@@ -124,7 +124,10 @@ export const MessageList: React.FC<MessageListProps> = ({
             );
           })}
           {messages.length > 5 && (
-            <ScrollToBottomButton onScrollToBottom={handleScrollToBottom} accentColor={accentColor} />
+            <ScrollToBottomButton
+              onScrollToBottom={handleScrollToBottom}
+              accentColor={accentColor}
+            />
           )}
         </ScrollView>
       )}

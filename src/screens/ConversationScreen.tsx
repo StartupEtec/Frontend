@@ -103,9 +103,7 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
           <TypingIndicator
             typingUserIds={typingUserIds}
             typingUserName={
-              typingUserIds.length === 1
-                ? (otherUser.full_name ?? undefined)
-                : undefined
+              typingUserIds.length === 1 ? (otherUser.full_name ?? undefined) : undefined
             }
           />
         </View>
