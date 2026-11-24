@@ -17,7 +17,7 @@ describe('ChatHeader', () => {
   });
 
   it('renders back button, avatar fallback and name', () => {
-    const { getByTestId, getByText, queryByText } = render(
+    const { getByTestId, getByText } = render(
       <ChatHeader otherUser={otherUser} onGoBack={onGoBack} accentColor="#004ccd" />
     );
     expect(getByTestId('btn-conversation-back')).toBeTruthy();
