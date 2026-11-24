@@ -1,17 +1,26 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
+  Image,
   ScrollView,
   SafeAreaView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Feather } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 import { UserRole } from '../types/role';
-import { colors, spacing, borderRadius, typography, roleAccent } from '../theme/tokens';
+import {
+  colors,
+  spacing,
+  borderRadius,
+  typography,
+  roleAccent,
+} from '../theme/tokens';
 import { ChatMessage } from '../types/chat';
 import { toDisplayUri } from '../services/profileService';
 import { chatService } from '../services/chatService';
@@ -30,13 +39,6 @@ export interface ConversationScreenProps {
   role?: UserRole;
 }
 
-/**
- * Pantalla de conversación (Issue #31).
- *
- * Muestra el historial de mensajes con un trabajador o cliente, permite
- * enviar mensajes de texto y adjuntar fotos. Incluye indicador de
- * escritura en tiempo real y botón para ir al final de la conversación.
- */
 export const ConversationScreen: React.FC<ConversationScreenProps> = ({
   userId,
   chatId: initialChatId,
@@ -96,12 +98,14 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
 
       // Buscar si ya existe un chat con este usuario
       try {
-        const result = await chatService.listChats({
+        const result = await chatService.list({
           limit: 50,
           offset: 0,
         });
 
-        const existingChat = result.chats.find((c) => c.other_user.user_id === userId);
+        const existingChat = result.chats.find(
+          (c) => c.other_user.user_id === userId
+        );
 
         if (existingChat) {
           setChatId(existingChat.chat_id);
@@ -173,8 +177,9 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
         }
       };
 
-      ws.onerror = (err) => {
+      ws.onerror = () => {
         console.error('WebSocket error:', err);
+        // No mostrar error al usuario, solo registrar en consola
       };
 
       ws.onclose = () => {
@@ -208,8 +213,9 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
           limit: 50,
           offset,
         });
-        setMessages((prev) => (append ? [...prev, ...result.messages] : result.messages));
-        offsetRef.current = offset + result.messages.length;
+        setMessages((prev) =>
+          append ? [...prev, ...result.messages] : result.messages
+        );
         setStatus('success');
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : 'Error al cargar mensajes';
@@ -217,7 +223,7 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
         setStatus('error');
       }
     },
-    [chatId, chatService]
+    [chatId, chatService],
   );
 
   // Enviar mensaje de texto
@@ -238,7 +244,7 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
         setIsSending(false);
       }
     },
-    [chatId, myUserId, isSending, chatService]
+    [chatId, myUserId, isSending, chatService],
   );
 
   // Enviar imagen (abre el picker y envía)
@@ -260,7 +266,7 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
         setIsSending(false);
       }
     },
-    [chatId, myUserId, isSending, chatService]
+    [chatId, myUserId, isSending, chatService],
   );
 
   // Establecer estado de escritura
@@ -278,7 +284,7 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
         );
       }
     },
-    [chatId, myUserId]
+    [chatId, myUserId],
   );
 
   // Scroll al final
@@ -294,19 +300,6 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
       scrollToBottom();
     }
   }, [messages]);
-
-  // Limpiar al desmontar
-  useEffect(() => {
-    return () => {
-      if (wsRef.current) {
-        wsRef.current.close();
-        wsRef.current = null;
-      }
-      if (typingTimeoutRef.current) {
-        clearTimeout(typingTimeoutRef.current);
-      }
-    };
-  }, []);
 
   // Abrir selector de imagen
   const openImagePicker = async () => {
@@ -351,7 +344,9 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
             </View>
           )}
           <View style={styles.headerTexts}>
-            <Text style={styles.headerName}>{otherUser?.full_name ?? 'Trabajador'}</Text>
+            <Text style={styles.headerName}>
+              {otherUser?.full_name ?? 'Trabajador'}
+            </Text>
             <Text style={styles.headerSubtitle}>
               {messages.length > 0
                 ? `${messages.length} mensaje${messages.length !== 1 ? 's' : ''}`
@@ -373,7 +368,9 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
         <View style={styles.typingContainer}>
           <TypingIndicator
             typingUserIds={typingUserIds}
-            typingUserName={typingUserIds.length === 1 ? otherUser?.full_name : undefined}
+            typingUserName={
+              typingUserIds.length === 1 ? otherUser?.full_name : undefined
+            }
           />
         </View>
       )}
@@ -415,7 +412,10 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
           );
         })}
         {messages.length > 5 && (
-          <ScrollToBottomButton onPress={scrollToBottom} accentColor={accentColor} />
+          <ScrollToBottomButton
+            onPress={scrollToBottom}
+            accentColor={accentColor}
+          />
         )}
       </ScrollView>
 
@@ -423,7 +423,9 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
       <View style={styles.inputContainer}>
         <TypingIndicator
           typingUserIds={typingUserIds}
-          typingUserName={typingUserIds.length === 1 ? otherUser?.full_name : undefined}
+          typingUserName={
+            typingUserIds.length === 1 ? otherUser?.full_name : undefined
+          }
         />
         <MessageInput
           value={inputValue}

@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { SafeAreaView as SafeAreaViewContext } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { UserRole } from '../types/role';
 import { NearbyWorker } from '../types/worker';
@@ -475,7 +476,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     paddingTop: spacing.xs,
-    paddingBottom: spacing.xs,
+    paddingBottom: spacing.xxl,
     backgroundColor: colors.background,
     borderTopWidth: 1,
     borderTopColor: colors.border,
