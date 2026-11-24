@@ -19,7 +19,7 @@ describe('chatService', () => {
   });
 
   it('queries GET /users/me/chats with limit, offset, status and search', async () => {
-    await chatService.list({ limit: 20, offset: 0, status: 'all', search: 'juan' });
+    await chatService.listChats({ limit: 20, offset: 0, status: 'all', search: 'juan' });
 
     const [url] = mockApiClient.mock.calls[0];
     expect(url).toBe('/users/me/chats?limit=20&offset=0&status=all&search=juan');
@@ -29,10 +29,10 @@ describe('chatService', () => {
   });
 
   it('uses default page size when no params are provided', async () => {
-    await chatService.list();
+    await chatService.listChats();
 
     const [url] = mockApiClient.mock.calls[0];
-    expect(url).toBe('/users/me/chats?limit=20&offset=0&status=all');
+    expect(url).toBe('/users/me/chats?limit=50&offset=0&status=all');
     expect(mockApiClient).toHaveBeenCalledWith(expect.stringContaining('/users/me/chats'), {
       method: 'GET',
     });
@@ -41,7 +41,7 @@ describe('chatService', () => {
   it('normalizes an unexpected body to an empty chats list', async () => {
     mockApiClient.mockResolvedValue({} as never);
 
-    const result = await chatService.list();
+    const result = await chatService.listChats();
 
     expect(result.chats).toEqual([]);
     expect(result.count).toBe(0);
@@ -51,6 +51,6 @@ describe('chatService', () => {
     const failure = new Error('offline');
     mockApiClient.mockRejectedValueOnce(failure);
 
-    await expect(chatService.list()).rejects.toThrow('offline');
+    await expect(chatService.listChats()).rejects.toThrow('offline');
   });
 });

@@ -2,12 +2,12 @@ import React, { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
   ScrollView,
+  SafeAreaView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { UserRole } from '../types/role';
 import { NearbyWorker } from '../types/worker';
@@ -30,7 +30,7 @@ export interface WorkerProfileScreenProps {
   role?: UserRole;
   onGoBack: () => void;
   /** Navega a la pantalla de conversación (chat). */
-  onNavigateToConversation?: (chatId: string) => void;
+  onNavigateToConversation?: (userId: string) => void;
 }
 
 /** "4.5" → "4,5"; null si no hay valoraciones. */
@@ -178,7 +178,7 @@ export const WorkerProfileScreen: React.FC<WorkerProfileScreenProps> = ({
                 accessibilityRole="button"
                 accessibilityLabel={`Acerca de ${aboutExpanded ? 'cerrado' : 'abierto'}`}
               >
-                <Text style={[styles.sectionTitle]}>Acerca de</Text>
+                <Text style={[styles.sectionTitle, { color: accentColor }]}>Acerca de</Text>
                 <Text style={[styles.sectionChevron]}>{aboutExpanded ? '▲' : '▼'}</Text>
               </TouchableOpacity>
               {aboutExpanded && (
@@ -206,7 +206,7 @@ export const WorkerProfileScreen: React.FC<WorkerProfileScreenProps> = ({
                 accessibilityRole="button"
                 accessibilityLabel={`Galería ${galleryExpanded ? 'cerrada' : 'abierta'}`}
               >
-                <Text style={[styles.sectionTitle]}>Galería</Text>
+                <Text style={[styles.sectionTitle, { color: accentColor }]}>Galería</Text>
                 <Text style={[styles.sectionChevron]}>{galleryExpanded ? '▲' : '▼'}</Text>
               </TouchableOpacity>
               {galleryExpanded && (
@@ -225,7 +225,9 @@ export const WorkerProfileScreen: React.FC<WorkerProfileScreenProps> = ({
                 accessibilityRole="button"
                 accessibilityLabel={`Reseñas ${reviewsExpanded ? 'cerradas' : 'abiertas'}`}
               >
-                <Text style={[styles.sectionTitle]}>Reseñas ({totalReviews})</Text>
+                <Text style={[styles.sectionTitle, { color: accentColor }]}>
+                  Reseñas ({totalReviews})
+                </Text>
                 <Text style={[styles.sectionChevron]}>{reviewsExpanded ? '▲' : '▼'}</Text>
               </TouchableOpacity>
               {reviewsExpanded && (
@@ -492,5 +494,3 @@ const styles = StyleSheet.create({
     fontWeight: typography.fontWeights.semibold,
   },
 });
-
-export default WorkerProfileScreen;

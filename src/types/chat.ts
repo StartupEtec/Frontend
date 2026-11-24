@@ -46,3 +46,50 @@ export interface ChatListParams {
   status?: 'all' | 'favorites' | 'archived';
   search?: string;
 }
+
+/** Tipo de mensaje. */
+export type MessageType = 'TEXT' | 'IMAGE' | 'QUOTE';
+
+/** Un mensaje individual. */
+export interface ChatMessage {
+  id: string;
+  chat_id: string;
+  sender_id: string;
+  content: string | null;
+  message_type: MessageType;
+  attachment_url: string | null;
+  created_at: string;
+}
+
+/** Respuesta de GET /chats/:chat_id/messages. */
+export interface ChatMessagesResponse {
+  messages: ChatMessage[];
+  count: number;
+  limit: number;
+  offset: number;
+}
+
+/** Parámetros para crear un mensaje. */
+export interface SendMessageParams {
+  message_type?: MessageType;
+  content?: string | null;
+}
+
+/** Parámetros para listar mensajes. */
+export interface ChatMessagesParams {
+  limit?: number;
+  offset?: number;
+}
+
+/** Parámetros para crear un chat. */
+export interface CreateChatParams {
+  user_id_2: string;
+  order_id?: string | null;
+}
+
+/** Respuesta de POST /chats. */
+export interface CreateChatResponse {
+  chat_id: string;
+  created: boolean;
+  message: string;
+}

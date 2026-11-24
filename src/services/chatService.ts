@@ -1,38 +1,50 @@
 import { apiClient } from './api';
-import { ChatListResponse, ChatListParams } from '../types/chat';
+import {
+  ChatListParams,
+  ChatListResponse,
+  ChatMessagesParams,
+  ChatMessagesResponse,
+  CreateChatParams,
+  CreateChatResponse,
+} from '../types/chat';
 
-/** Tamaño de página por defecto para la lista de chats. */
-export const CHATS_PAGE_SIZE = 20;
+/** Tamaño de página por defecto para la lista de mensajes. */
+export const MESSAGES_PAGE_SIZE = 50;
 
 /**
- * Servicio de chats (Issue #30).
+ * Servicio de chats y mensajes (Issue #31).
  *
- * GET /users/me/chats devuelve la lista de conversaciones del usuario
- * autenticado con el último mensaje, contador de no leídos y datos del
- * otro participante. El `apiClient` adjunta automáticamente el Bearer token
- * y gestiona el refresh de sesión.
+ * Endpoints:
+ * - GET /users/me/chats - lista los chats del usuario autenticado
+ * - GET /chats/:chatId/messages - lista los mensajes de un chat
+ * - POST /chats/:chatId/messages - envía un mensaje (texto o imagen)
+ * - POST /users/me/chats - crea un chat con otro usuario
+ *
+ * El apiClient adjunta automáticamente el Bearer token y gestiona el refresh de sesión.
  */
 export const chatService = {
-  async list(params: ChatListParams = {}): Promise<ChatListResponse> {
-    const limit = params.limit ?? CHATS_PAGE_SIZE;
+  /**
+   * Lista los chats del usuario autenticado.
+   */
+  async listChats(params: ChatListParams = {}): Promise<ChatListResponse> {
+    const limit = params.limit ?? MESSAGES_PAGE_SIZE;
     const offset = params.offset ?? 0;
     const status = params.status ?? 'all';
     const search = params.search ?? '';
 
-    const query = new URLSearchParams({
+    const queryParams = new URLSearchParams({
       limit: String(limit),
       offset: String(offset),
-      status,
+      status: status,
     });
     if (search) {
-      query.set('search', search);
+      queryParams.append('search', search);
     }
 
-    const res = await apiClient<ChatListResponse>(`/users/me/chats?${query.toString()}`, {
+    const res = await apiClient<ChatListResponse>(`/users/me/chats?${queryParams.toString()}`, {
       method: 'GET',
     });
 
-    // Respuesta defensiva: ante un cuerpo inesperado se trata como lista vacía.
     const chats = Array.isArray(res.chats) ? res.chats : [];
     return {
       chats,
@@ -42,14 +54,74 @@ export const chatService = {
     };
   },
 
-  /** Parámetros por defecto para listar chats activos (sin archivar). */
-  defaultParams(): ChatListParams {
+  /**
+   * Lista los mensajes de un chat específico.
+   */
+  async listMessages(
+    chatId: string,
+    params: ChatMessagesParams = {}
+  ): Promise<ChatMessagesResponse> {
+    const limit = params.limit ?? MESSAGES_PAGE_SIZE;
+    const offset = params.offset ?? 0;
+
+    const res = await apiClient<ChatMessagesResponse>(
+      `/chats/${chatId}/messages?limit=${limit}&offset=${offset}`,
+      { method: 'GET' }
+    );
+
+    const messages = Array.isArray(res.messages) ? res.messages : [];
     return {
-      limit: CHATS_PAGE_SIZE,
-      offset: 0,
-      status: 'all',
-      search: '',
+      messages,
+      count: typeof res.count === 'number' ? res.count : messages.length,
+      limit: typeof res.limit === 'number' ? res.limit : limit,
+      offset: typeof res.offset === 'number' ? res.offset : offset,
     };
+  },
+
+  /**
+   * Envía un mensaje de texto o imagen.
+   */
+  async sendMessage(
+    chatId: string,
+    userId: string,
+    params: { message_type: 'TEXT' | 'IMAGE'; content?: string | null; imageUri?: string }
+  ): Promise<void> {
+    if (params.message_type === 'IMAGE' && params.imageUri) {
+      // Para imágenes, usamos form-data
+      const formData = new FormData();
+      formData.append('message_type', 'IMAGE');
+      formData.append('content', params.content || '');
+      // @ts-ignore - expo-image-picker URI
+      formData.append('file', {
+        uri: params.imageUri,
+        type: 'image/jpeg',
+        name: 'image.jpg',
+      } as any);
+
+      await apiClient(`/chats/${chatId}/messages`, {
+        method: 'POST',
+        body: formData,
+      });
+    } else {
+      await apiClient(`/chats/${chatId}/messages`, {
+        method: 'POST',
+        body: JSON.stringify({
+          message_type: params.message_type,
+          content: params.content,
+        }),
+      });
+    }
+  },
+
+  /**
+   * Crea un chat con otro usuario.
+   */
+  async createChat(params: CreateChatParams): Promise<CreateChatResponse> {
+    const res = await apiClient<CreateChatResponse>('/users/me/chats', {
+      method: 'POST',
+      body: JSON.stringify(params),
+    });
+    return res;
   },
 };
 
