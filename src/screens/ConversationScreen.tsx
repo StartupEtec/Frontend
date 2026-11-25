@@ -244,7 +244,7 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
 
   // Detectar mensajes del sistema (QUOTE) que cambian el estado de la cotización
   // en tiempo real vía WebSocket. Cuando llega un mensaje del sistema, ambos
-  // participantes deben actualizar sus botones sin tener que salir del chat.
+  // participantes actualizan sus botones sin tener que salir del chat.
   useEffect(() => {
     const solicitudMessage = messages.find(
       (m) => m.message_type === 'QUOTE' && m.content === 'Cotización solicitada',
@@ -261,9 +261,25 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
     if (role === 'worker') {
       if (solicitudMessage) {
         setQuoteRequested(true);
-        // NO tocar quoteRequestId aquí: solo se setea desde detectQuoteRequest (API).
-        // El ID del mensaje no es el ID de la quote_request.
-        onQuoteRequestDetectedRef.current?.(solicitudMessage.id);
+        // Obtener el ID real de la quote_request desde la API
+        // (el ID del mensaje no es el ID de la quote_request)
+        void (async () => {
+          try {
+            const res = await apiClient<{ quote_requests: QuoteRequestData[] }>(
+              `/quote-requests/requests/received`,
+              { method: 'GET' },
+            );
+            const pending = (res.quote_requests ?? []).find(
+              (qr) => qr.status === 'PENDING' && qr.client_id === userId && !qr.order_id,
+            );
+            if (pending) {
+              setQuoteRequestId(pending.id);
+              onQuoteRequestDetectedRef.current?.(pending.id);
+            }
+          } catch {
+            // Si falla la llamada a la API, se mantiene el estado anterior
+          }
+        })();
       }
       if (completadaMessage || rechazoMessage) {
         setQuoteRequested(false);
@@ -282,7 +298,7 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
         onQuoteRequestCompletedRef.current?.();
       }
     }
-  }, [messages, role]);
+  }, [messages, role, userId]);
 
   // Cuando messages cargue, enviar mensaje del sistema pendiente si corresponde
   useEffect(() => {
