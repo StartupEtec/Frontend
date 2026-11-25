@@ -114,9 +114,7 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
   // Ref para evitar enviar el mensaje del sistema múltiples veces
   const systemMessageSentRef = useRef<boolean>(false);
   // Mensaje del sistema pendiente de enviar (cuando messages aún no cargó)
-  const [pendingSystemMessage, setPendingSystemMessage] = useState<string | null>(
-    null,
-  );
+  const [pendingSystemMessage, setPendingSystemMessage] = useState<string | null>(null);
   // Ref para el callback onQuoteRequestCompleted (evita problemas de dependencias)
   const onQuoteRequestCompletedRef = useRef(onQuoteRequestCompleted);
   onQuoteRequestCompletedRef.current = onQuoteRequestCompleted;
@@ -249,10 +247,25 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
     }
   }, [role, userId, myUserId, onQuoteRequestDetected]);
 
-  // Ejecutar detección al montar y cuando cambian los mensajes (WebSocket).
+  // Ejecutar detección al montar y cuando cambian chatId, role, myUserId o initialQuoteRequested.
+  // Usamos estas dependencias directamente (no detectQuoteRequest) para asegurar
+  // que el efecto se re-ejecute cuando se remonta el componente (ej. al volver
+  // de CompleteQuoteScreen).
   useEffect(() => {
     void detectQuoteRequest();
-  }, [detectQuoteRequest, messages]);
+  }, [chatId, role, myUserId, initialQuoteRequested, detectQuoteRequest]);
+
+  // Detectar mensajes del sistema que cambian el estado (ej. "Cotización completada" por WebSocket)
+  useEffect(() => {
+    const completedMessage = messages.find(
+      (m) =>
+        m.message_type === 'QUOTE' && m.content === 'Cotización completada',
+    );
+    if (completedMessage) {
+      setQuoteRequested(false);
+      setQuoteRequestId(completedMessage.id);
+    }
+  }, [messages]);
 
   // Cuando messages cargue, enviar mensaje del sistema pendiente si corresponde
   useEffect(() => {
@@ -267,19 +280,6 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
       setPendingSystemMessage(null);
     }
   }, [pendingSystemMessage, messages, sendSystemMessage, systemMessageExists]);
-
-  // Detectar mensajes del sistema que cambian el estado (ej. "Cotización completada" por WebSocket)
-  useEffect(() => {
-    const completedMessage = messages.find(
-      (m) =>
-        m.message_type === 'QUOTE' && m.content === 'Cotización completada',
-    );
-    if (completedMessage) {
-      setQuoteRequested(false);
-      setQuoteRequestId(completedMessage.id);
-      onQuoteRequestCompletedRef.current?.();
-    }
-  }, [messages]);
 
   // Valores efectivos: estado local detectado tiene prioridad sobre los props
   // iniciales (que vienen de AppNavigator).
