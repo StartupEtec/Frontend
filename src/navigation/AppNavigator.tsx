@@ -17,6 +17,7 @@ import { LocationsScreen } from '../screens/LocationsScreen';
 import { WorkerSearchScreen } from '../screens/WorkerSearchScreen';
 import { WorkerProfileScreen } from '../screens/WorkerProfileScreen';
 import { ChatsScreen } from '../screens/ChatsScreen';
+import { QuoteRequestScreen } from '../screens/QuoteRequestScreen';
 import { ConversationScreen } from '../screens/ConversationScreen';
 import { NavBar } from '../components/NavBar';
 import { SearchOriginModal } from '../components/location/SearchOriginModal';
@@ -51,6 +52,7 @@ export type AppRoute =
   | 'WorkerProfile'
   | 'Chats'
   | 'Conversation'
+  | 'QuoteRequest'
   | 'Main';
 
 export const AppNavigator: React.FC = () => {
@@ -59,6 +61,7 @@ export const AppNavigator: React.FC = () => {
   const [isCheckingStatus, setIsCheckingStatus] = useState<boolean>(true);
   const [registeredContact, setRegisteredContact] = useState<string>('');
   const [selectedChatUserId, setSelectedChatUserId] = useState<string | null>(null);
+  const [quoteRequested, setQuoteRequested] = useState<boolean>(false);
   const [otpOrigin, setOtpOrigin] = useState<'Register' | 'Login'>('Register');
   const [selectedRole, setSelectedRole] = useState<UserRole>('client');
   const [profileCompleted, setProfileCompleted] = useState<boolean>(false);
@@ -422,8 +425,27 @@ export const AppNavigator: React.FC = () => {
         onGoBack={() => {
           setCurrentRoute('Chats');
           setSelectedChatUserId(null);
+          setQuoteRequested(false);
+        }}
+        onRequestQuote={() => {
+          setCurrentRoute('QuoteRequest');
         }}
         role={selectedRole}
+        quoteRequested={quoteRequested}
+      />
+    );
+  } else if (currentRoute === 'QuoteRequest') {
+    content = (
+      <QuoteRequestScreen
+        workerId={selectedChatUserId!}
+        onClose={() => {
+          setCurrentRoute('Conversation');
+          setQuoteRequested(false);
+        }}
+        onRequestSuccess={() => {
+          setCurrentRoute('Conversation');
+          setQuoteRequested(true);
+        }}
       />
     );
   } else {

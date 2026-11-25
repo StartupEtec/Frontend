@@ -9,7 +9,8 @@ import { ChatHeader } from '../components/chat/ChatHeader';
 import { MessageList } from '../components/chat/MessageList';
 import { TypingIndicator } from '../components/chat/TypingIndicator';
 import { MessageComposer } from '../components/chat/MessageComposer';
-import { CotizacionFloatingButton } from '../components/chat/CotizacionFloatingButton';
+import { QuoteRequestButton } from '../components/chat/QuoteRequestButton';
+import { QuotePill } from '../components/chat/QuotePill';
 
 export interface ConversationScreenProps {
   /** ID del usuario con el que se chatea (el otro participante). */
@@ -17,6 +18,10 @@ export interface ConversationScreenProps {
   /** ID del chat (opcional, si ya se conoce). */
   chatId?: string;
   onGoBack: () => void;
+  /** Callback al solicitar cotización. */
+  onRequestQuote: () => void;
+  /** Si ya se solicitó una cotización (para mostrar la píldora). */
+  quoteRequested?: boolean;
   role?: UserRole;
 }
 
@@ -26,7 +31,10 @@ export interface ConversationScreenProps {
  * Muestra el historial de mensajes, input de texto, adjuntar imágenes con
  * previsualización, indicador de escritura, WebSocket en tiempo real, carga
  * de mensajes anteriores (scroll hacia arriba) y botón "Ir al final".
- * Incluye un botón flotante "Solicitar Cotización" deshabilitado (Issue #32).
+ *
+ * Incluye el botón "Solicitar Cotización" (Issue #34) sobre el área de
+ * input, que navega a la pantalla de solicitud de cotización. Una vez
+ * enviada, se muestra una píldora "Cotización solicitada" en el historial.
  *
  * Todo el contenido respeta las SafeAreas del sistema (Status Bar arriba,
  * Navigation Bar abajo).
@@ -35,6 +43,8 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
   userId,
   chatId: initialChatId,
   onGoBack,
+  onRequestQuote,
+  quoteRequested = false,
   role = 'client',
 }) => {
   const accentColor = roleAccent(role);
@@ -119,16 +129,23 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
         error={chatError}
         onRetry={handleLoadMore}
         hasMore={messages.length > 0}
+        footerContent={
+          quoteRequested ? (
+            <View style={styles.pillWrapper}>
+              <QuotePill text="Cotización solicitada" />
+            </View>
+          ) : undefined
+        }
       />
+
+      {/* Botón "Solicitar Cotización" sobre el área de input,
+          centrado sobre la línea divisoria entre el chat y el compositor. */}
+      <QuoteRequestButton onPress={onRequestQuote} />
 
       {/* Compositor de mensaje con previsualización de imagen.
           paddingBottom por insets.bottom evita que quede tapado por la
-          Navigation Bar del sistema en Android.
-          El contenedor tiene position: 'relative' para que el botón de
-          Cotización se posicione de forma responsiva respecto a él. */}
-      <View
-        style={[styles.composerContainer, { paddingBottom: insets.bottom, position: 'relative' }]}
-      >
+          Navigation Bar del sistema en Android. */}
+      <View style={[styles.composerContainer, { paddingBottom: insets.bottom }]}>
         <MessageComposer
           onSendMessage={handleSendMessage}
           onAttachImage={setImagePreview}
@@ -138,12 +155,6 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
           imagePreview={imagePreview}
           isSending={isSending}
         />
-
-        {/* Botón "Solicitar Cotización" posicionado sobre la línea divisoria
-            entre el chat y el área de input. Se desplaza verticalmente con el
-            contenedor del compositor. Queda por encima de la línea divisoria
-            para no tapar el botón de enviar. */}
-        <CotizacionFloatingButton accentColor={accentColor} top={-24} right={spacing.sm} />
       </View>
     </SafeAreaView>
   );
@@ -163,6 +174,11 @@ const styles = {
     paddingVertical: spacing.sm,
     backgroundColor: colors.background,
     // Sin borderTop para evitar línea doble con el historial de mensajes.
+  },
+  pillWrapper: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginVertical: spacing.xs,
   },
   errorContainer: {
     flex: 1,

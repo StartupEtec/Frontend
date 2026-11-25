@@ -29,6 +29,9 @@ export interface MessageListProps {
   onRetry: () => void;
   /** Si hay más mensajes para cargar (paginación). */
   hasMore?: boolean;
+  /** Contenido opcional para renderizar al final de la lista de mensajes
+   * (ej. una píldora de "Cotización solicitada"). */
+  footerContent?: React.ReactNode;
 }
 
 /**
@@ -47,6 +50,7 @@ export const MessageList: React.FC<MessageListProps> = ({
   error,
   onRetry,
   hasMore = true,
+  footerContent,
 }) => {
   const scrollRef = useRef<React.ComponentRef<typeof ScrollView>>(null);
   const isNearTopRef = useRef(false);
@@ -129,6 +133,11 @@ export const MessageList: React.FC<MessageListProps> = ({
               accentColor={accentColor}
             />
           )}
+          {footerContent && (
+            <View key="quote-pill" style={styles.footerContentWrapper}>
+              {footerContent}
+            </View>
+          )}
         </ScrollView>
       )}
 
@@ -189,9 +198,9 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     paddingHorizontal: spacing.md,
   },
-  emptyText: {
-    color: colors.textMuted,
-    fontSize: typography.fontSizes.sm,
-    textAlign: 'center',
+  footerContentWrapper: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginVertical: spacing.xs,
   },
 });
