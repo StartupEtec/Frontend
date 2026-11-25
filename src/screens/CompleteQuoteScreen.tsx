@@ -57,7 +57,6 @@ export const CompleteQuoteScreen: React.FC<CompleteQuoteScreenProps> = ({
   const [loading, setLoading] = useState(true);
 
   // Página 1: aprobación de campos. Empiezan aprobados por defecto.
-  const [rejectedFields, setRejectedFields] = useState<string[]>([]);
   const [approvedCategory, setApprovedCategory] = useState(true);
   const [approvedLocation, setApprovedLocation] = useState(true);
 
@@ -92,34 +91,17 @@ export const CompleteQuoteScreen: React.FC<CompleteQuoteScreenProps> = ({
   }, [quoteRequestId]);
 
   const allFieldsApproved = approvedCategory && approvedLocation;
+  const rejectedFields: string[] = [];
+  if (!approvedCategory) rejectedFields.push('categoria');
+  if (!approvedLocation) rejectedFields.push('ubicacion');
   const hasRejections = rejectedFields.length > 0;
 
   const handleToggleCategory = () => {
-    setApprovedCategory((prev) => {
-      const next = !prev;
-      if (!next) {
-        setRejectedFields((curr) =>
-          curr.includes('categoria') ? curr : [...curr, 'categoria'],
-        );
-      } else {
-        setRejectedFields((curr) => curr.filter((f) => f !== 'categoria'));
-      }
-      return next;
-    });
+    setApprovedCategory((prev) => !prev);
   };
 
   const handleToggleLocation = () => {
-    setApprovedLocation((prev) => {
-      const next = !prev;
-      if (!next) {
-        setRejectedFields((curr) =>
-          curr.includes('ubicacion') ? curr : [...curr, 'ubicacion'],
-        );
-      } else {
-        setRejectedFields((curr) => curr.filter((f) => f !== 'ubicacion'));
-      }
-      return next;
-    });
+    setApprovedLocation((prev) => !prev);
   };
 
   const buildRejectionMessage = (fields: string[]): string => {
