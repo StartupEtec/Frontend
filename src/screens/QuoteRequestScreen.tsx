@@ -17,7 +17,7 @@ import { useLocations } from '../hooks/useLocations';
 import { LocationFormModal } from '../components/location/LocationFormModal';
 import { SearchOriginModal } from '../components/location/SearchOriginModal';
 import { useDeviceLocation } from '../hooks/useDeviceLocation';
-import { SavedLocation } from '../types/location';
+import { CreateLocationPayload, SavedLocation } from '../types/location';
 
 export interface QuoteRequestScreenProps {
   /** ID del trabajador al que se le solicita la cotización. */
@@ -96,7 +96,7 @@ export const QuoteRequestScreen: React.FC<QuoteRequestScreenProps> = ({
     }
   };
 
-  const handleLocationCreate = async (payload: Record<string, any>) => {
+  const handleLocationCreate = async (payload: CreateLocationPayload) => {
     try {
       const created = await createLocation(payload);
       if (created) {
