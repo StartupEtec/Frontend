@@ -264,7 +264,9 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
       .map((m) => m!.id);
 
     // Solo procesar mensajes del sistema que aún no hemos visto
-    const newMessages = messageIds.filter((id) => !processedSystemMessageIdsRef.current.has(id));
+    const newMessages = messageIds.filter(
+      (id) => !processedSystemMessageIdsRef.current.has(id),
+    );
 
     if (newMessages.length === 0) return;
 
@@ -381,10 +383,8 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
           <TypingIndicator
             typingUserIds={typingUserIds}
             typingUserName={
-              typingUserIds.length > 0
-                ? typingUserIds.length === 1
-                  ? otherUser.full_name ?? undefined
-                  : undefined
+              typingUserIds.length === 1
+                ? otherUser.full_name ?? undefined
                 : undefined
             }
           />
