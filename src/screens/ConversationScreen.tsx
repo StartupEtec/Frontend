@@ -255,17 +255,42 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
     void detectQuoteRequest();
   }, [chatId, role, myUserId, initialQuoteRequested, detectQuoteRequest]);
 
-  // Detectar mensajes del sistema que cambian el estado (ej. "Cotización completada" por WebSocket)
+  // Detectar mensajes del sistema (QUOTE) que cambian el estado de la cotización
+  // en tiempo real vía WebSocket. Cuando llega un mensaje del sistema, ambos
+  // participantes deben actualizar sus botones sin tener que salir del chat.
   useEffect(() => {
-    const completedMessage = messages.find(
-      (m) =>
-        m.message_type === 'QUOTE' && m.content === 'Cotización completada',
+    const solicitudMessage = messages.find(
+      (m) => m.message_type === 'QUOTE' && m.content === 'Cotización solicitada',
     );
-    if (completedMessage) {
-      setQuoteRequested(false);
-      setQuoteRequestId(completedMessage.id);
+    const completadaMessage = messages.find(
+      (m) => m.message_type === 'QUOTE' && m.content === 'Cotización completada',
+    );
+    const rechazoMessage = messages.find(
+      (m) =>
+        m.message_type === 'QUOTE' &&
+        m.content?.startsWith('La cotización fue rechazada'),
+    );
+
+    if (role === 'worker') {
+      if (solicitudMessage) {
+        setQuoteRequested(true);
+        setQuoteRequestId(solicitudMessage.id);
+        onQuoteRequestDetected?.(solicitudMessage.id);
+      }
+      if (completadaMessage || rechazoMessage) {
+        setQuoteRequested(false);
+        setQuoteRequestId(completadaMessage?.id || rechazoMessage?.id);
+      }
     }
-  }, [messages]);
+
+    if (role === 'client') {
+      if (completadaMessage || rechazoMessage) {
+        setQuoteRequested(false);
+        setQuoteRequestId(completadaMessage?.id || rechazoMessage?.id);
+        onQuoteRequestCompletedRef.current?.();
+      }
+    }
+  }, [messages, role, onQuoteRequestDetected]);
 
   // Cuando messages cargue, enviar mensaje del sistema pendiente si corresponde
   useEffect(() => {
