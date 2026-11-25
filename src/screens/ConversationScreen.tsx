@@ -223,7 +223,7 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
               <QuotePill
                 text={
                   role === 'worker'
-                    ? quoteData
+                    ? initialQuoteData
                       ? 'Cotización completada'
                       : 'Cotización recibida'
                     : 'Cotización solicitada'
