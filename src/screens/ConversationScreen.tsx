@@ -222,7 +222,11 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
             <View style={styles.pillWrapper}>
               <QuotePill
                 text={
-                  role === 'worker' ? 'Cotización recibida' : 'Cotización solicitada'
+                  role === 'worker'
+                    ? quoteData
+                      ? 'Cotización completada'
+                      : 'Cotización recibida'
+                    : 'Cotización solicitada'
                 }
                 quoteRequestId={effectiveQuoteRequestId}
                 quoteData={initialQuoteData ?? null}

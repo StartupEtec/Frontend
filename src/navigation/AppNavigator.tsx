@@ -511,6 +511,7 @@ export const AppNavigator: React.FC = () => {
         }}
         onCompleted={(quote) => {
           setQuoteData(quote);
+          setQuoteRequested(false);
           setCurrentRoute('Conversation');
         }}
       />

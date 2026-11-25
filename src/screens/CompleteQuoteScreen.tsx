@@ -109,7 +109,7 @@ export const CompleteQuoteScreen: React.FC<CompleteQuoteScreenProps> = ({
     return `La cotización fue rechazada por el/los campo/s: ${campos}`;
   };
 
-  const handleRejectQuote = async () => {
+  const handleRejectQuote = async (): Promise<void> => {
     const rejectionReason = `Campos rechazados: ${rejectedFields.join(', ')}`;
 
     try {
@@ -130,15 +130,16 @@ export const CompleteQuoteScreen: React.FC<CompleteQuoteScreenProps> = ({
 
       // Notificar al cliente que fue rechazado y navegar de vuelta.
       onRejected(rejectedFields);
-    } catch {
-      Alert.alert('Error', 'No se pudo rechazar la solicitud de cotización');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Error al rechazar la solicitud';
+      Alert.alert('Error', message);
     }
   };
 
-  const handlePage1Next = () => {
+  const handlePage1Next = async () => {
     if (hasRejections) {
       // Si hay rechazos, enviar el rechazo y volver al chat.
-      void handleRejectQuote();
+      await handleRejectQuote();
       return;
     }
     if (!allFieldsApproved) {
