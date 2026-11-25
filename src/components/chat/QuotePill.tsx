@@ -25,8 +25,20 @@ export interface QuotePillProps {
  * dentro de la misma burbuja para abrir el detalle de la cotización.
  */
 export const QuotePill: React.FC<QuotePillProps> = (props) => {
-  const { text = 'Cotización solicitada', quoteRequestId, onViewQuote } = props;
-  const canView = Boolean(quoteRequestId && onViewQuote);
+  const {
+    text = 'Cotización solicitada',
+    quoteRequestId,
+    quoteData,
+    role,
+    onViewQuote,
+  } = props;
+
+  // Regla de visibilidad del botón "(ver)":
+  // - Cliente: ve "(ver)" solo en "cotización solicitada" (quoteData null, aún no completada)
+  // - Trabajador: ve "(ver)" solo en "cotización completada" (quoteData existe)
+  const isClientRequest = role === 'client' && !quoteData;
+  const isWorkerCompleted = role === 'worker' && Boolean(quoteData);
+  const canView = Boolean(quoteRequestId && onViewQuote && (isClientRequest || isWorkerCompleted));
 
   return (
     <View style={styles.container}>

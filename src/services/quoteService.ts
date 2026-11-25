@@ -73,6 +73,16 @@ export const quoteService = {
     );
     return res.quotes ?? [];
   },
+
+  /**
+   * Elimina una solicitud de cotización (cliente, solo si está PENDING).
+   */
+  async removeQuoteRequest(quoteRequestId: string): Promise<void> {
+    await apiClient<{ message: string }>(
+      `/quote-requests/requests/${quoteRequestId}`,
+      { method: 'DELETE' },
+    );
+  },
 };
 
 export default quoteService;
