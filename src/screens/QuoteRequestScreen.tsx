@@ -151,10 +151,7 @@ export const QuoteRequestScreen: React.FC<QuoteRequestScreenProps> = ({
         {/* Ubicación del servicio */}
         <View style={styles.fieldGroup}>
           <Text style={styles.fieldLabel}>Ubicación del servicio</Text>
-          <TouchableOpacity
-            style={styles.input}
-            onPress={() => setLocationSelectionVisible(true)}
-          >
+          <TouchableOpacity style={styles.input} onPress={() => setLocationSelectionVisible(true)}>
             <Text style={styles.locationValue}>{location || 'Seleccionar ubicación...'}</Text>
             <Feather name="map-pin" size={16} color={colors.textMuted} accessible={false} />
           </TouchableOpacity>
@@ -205,31 +202,31 @@ export const QuoteRequestScreen: React.FC<QuoteRequestScreenProps> = ({
         </TouchableOpacity>
       </View>
 
-        {/* Desplegable de categorías (se estira hacia abajo) */}
-        {categoryDropdownVisible && (
-          <View style={styles.categoryDropdownContainer}>
-            {CATEGORIES.map((category) => (
-              <TouchableOpacity
-                key={category}
-                style={[
-                  styles.categoryOption,
-                  selectedCategory === category && styles.categoryOptionSelected,
-                ]}
-                onPress={() => {
-                  setSelectedCategory(category);
-                  setCategoryDropdownVisible(false);
-                }}
-              >
-                <Text style={styles.categoryOptionText}>
-                  {category}
-                  {selectedCategory === category && ' ✓'}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        )}
+      {/* Desplegable de categorías (se estira hacia abajo) */}
+      {categoryDropdownVisible && (
+        <View style={styles.categoryDropdownContainer}>
+          {CATEGORIES.map((category) => (
+            <TouchableOpacity
+              key={category}
+              style={[
+                styles.categoryOption,
+                selectedCategory === category && styles.categoryOptionSelected,
+              ]}
+              onPress={() => {
+                setSelectedCategory(category);
+                setCategoryDropdownVisible(false);
+              }}
+            >
+              <Text style={styles.categoryOptionText}>
+                {category}
+                {selectedCategory === category && ' ✓'}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
 
-        {/* Modal: Selección de ubicación (guardadas + agregar nueva) */}
+      {/* Modal: Selección de ubicación (guardadas + agregar nueva) */}
       <SearchOriginModal
         visible={locationSelectionVisible}
         onSelect={handleLocationSelect}
