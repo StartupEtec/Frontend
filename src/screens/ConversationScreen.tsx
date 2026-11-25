@@ -1,9 +1,11 @@
-import React from 'react';
-import { StatusBar, Text, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StatusBar, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Feather } from '@expo/vector-icons';
+import { apiClient } from '../services/api';
 import { UserRole } from '../types/role';
-import { colors, spacing, typography, roleAccent } from '../theme/tokens';
+import { colors, spacing, borderRadius, typography, roleAccent } from '../theme/tokens';
 import { useConversation } from '../hooks/useConversation';
 import { ChatHeader } from '../components/chat/ChatHeader';
 import { MessageList } from '../components/chat/MessageList';
@@ -11,18 +13,28 @@ import { TypingIndicator } from '../components/chat/TypingIndicator';
 import { MessageComposer } from '../components/chat/MessageComposer';
 import { QuoteRequestButton } from '../components/chat/QuoteRequestButton';
 import { QuotePill } from '../components/chat/QuotePill';
+import { QuoteData, QuoteRequestData } from '../types/chat';
 
 export interface ConversationScreenProps {
   /** ID del usuario con el que se chatea (el otro participante). */
   userId: string;
   /** ID del chat (opcional, si ya se conoce). */
   chatId?: string;
+  /** ID de la solicitud de cotización asociada al chat (opcional). */
+  quoteRequestId?: string;
   onGoBack: () => void;
-  /** Callback al solicitar cotización. */
+  /** Callback al solicitar cotización (cliente). */
   onRequestQuote: () => void;
+  /** Callback al completar cotización (trabajador). */
+  onCompleteQuote?: () => void;
+  /** Callback al ver detalle de cotización. */
+  onViewQuote?: (quoteRequestId: string, quoteData: QuoteData | null) => void;
   /** Si ya se solicitó una cotización (para mostrar la píldora). */
   quoteRequested?: boolean;
+  /** Rol activo del usuario autenticado. */
   role?: UserRole;
+  /** Datos de la cotización si ya fue creada (para la píldora de ver). */
+  quoteData?: QuoteData | null;
 }
 
 /**
@@ -36,16 +48,27 @@ export interface ConversationScreenProps {
  * input, que navega a la pantalla de solicitud de cotización. Una vez
  * enviada, se muestra una píldora "Cotización solicitada" en el historial.
  *
+ * Para el trabajador, se muestra el botón "Completar Cotización" (Issue #35)
+ * que navega a la pantalla de completar cotización.
+ *
+ * Al entrar al chat, se detecta automáticamente si existe una solicitud de
+ * cotización pendiente entre estos dos usuarios, para mostrar la píldora y
+ * el botón correspondiente incluso si el usuario no fue quien la solicitó.
+ *
  * Todo el contenido respeta las SafeAreas del sistema (Status Bar arriba,
  * Navigation Bar abajo).
  */
 export const ConversationScreen: React.FC<ConversationScreenProps> = ({
   userId,
   chatId: initialChatId,
+  quoteRequestId: initialQuoteRequestId,
   onGoBack,
   onRequestQuote,
-  quoteRequested = false,
+  onCompleteQuote,
+  onViewQuote,
+  quoteRequested: initialQuoteRequested = false,
   role = 'client',
+  quoteData: initialQuoteData,
 }) => {
   const accentColor = roleAccent(role);
   const insets = useSafeAreaInsets();
@@ -69,6 +92,60 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
     setTyping,
     loadMore,
   } = useConversation({ userId, initialChatId, role });
+
+  // Estado local para detectar quote_requests pendientes al entrar al chat.
+  const [detectedQuoteRequested, setDetectedQuoteRequested] = useState<boolean>(
+    initialQuoteRequested,
+  );
+  const [detectedQuoteRequestId, setDetectedQuoteRequestId] = useState<string | undefined>(
+    initialQuoteRequestId,
+  );
+
+  // Al entrar al chat, detectar si existe una solicitud de cotización pendiente
+  // entre estos dos usuarios. Esto permite que el trabajador vea el bubble y
+  // el botón "Completar cotización" aunque no haya sido quien la solicitó.
+  useEffect(() => {
+    const detectPendingQuoteRequest = async () => {
+      if (detectedQuoteRequested || !myUserId) return;
+
+      try {
+        if (role === 'client') {
+          const res = await apiClient<{ quote_requests: QuoteRequestData[] }>(
+            `/quote-requests/requests/sent`,
+            { method: 'GET' },
+          );
+          const pending = (res.quote_requests ?? []).find(
+            (qr) => qr.status === 'PENDING' && qr.worker_id === userId,
+          );
+          if (pending) {
+            setDetectedQuoteRequested(true);
+            setDetectedQuoteRequestId(pending.id);
+          }
+        } else if (role === 'worker') {
+          const res = await apiClient<{ quote_requests: QuoteRequestData[] }>(
+            `/quote-requests/requests/received`,
+            { method: 'GET' },
+          );
+          const pending = (res.quote_requests ?? []).find(
+            (qr) => qr.status === 'PENDING' && qr.client_id === userId,
+          );
+          if (pending) {
+            setDetectedQuoteRequested(true);
+            setDetectedQuoteRequestId(pending.id);
+          }
+        }
+      } catch {
+        // Si falla la detección, simplemente no se muestra el bubble/botón.
+      }
+    };
+
+    void detectPendingQuoteRequest();
+  }, [role, userId, myUserId, detectedQuoteRequested]);
+
+  // Valores efectivos: estado local detectado tiene prioridad sobre los props
+  // iniciales (que vienen de AppNavigator).
+  const effectiveQuoteRequested = detectedQuoteRequested || initialQuoteRequested;
+  const effectiveQuoteRequestId = detectedQuoteRequestId ?? initialQuoteRequestId;
 
   // Mientras se inicializa el chat, no renderizamos la UI de conversación.
   if (initStatus === 'loading') {
@@ -94,6 +171,12 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
 
   const handleLoadMore = async () => {
     await loadMore();
+  };
+
+  const handleViewQuote = () => {
+    if (onViewQuote && effectiveQuoteRequestId) {
+      onViewQuote(effectiveQuoteRequestId, initialQuoteData ?? null);
+    }
   };
 
   return (
@@ -130,21 +213,46 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
         onRetry={handleLoadMore}
         hasMore={messages.length > 0}
         footerContent={
-          quoteRequested ? (
+          effectiveQuoteRequested ? (
             <View style={styles.pillWrapper}>
-              <QuotePill text="Cotización solicitada" />
+              <QuotePill
+                text={
+                  role === 'worker' ? 'Cotización recibida' : 'Cotización solicitada'
+                }
+                quoteRequestId={effectiveQuoteRequestId}
+                quoteData={initialQuoteData ?? null}
+                role={role}
+                onViewQuote={handleViewQuote}
+              />
             </View>
           ) : undefined
         }
       />
 
-      {/* Botón "Solicitar Cotización" sobre el área de input,
-          centrado sobre la línea divisoria entre el chat y el compositor. */}
-      <QuoteRequestButton onPress={onRequestQuote} />
+      {/* Botón "Solicitar Cotización" (cliente) u oculto (trabajador) */}
+      {role === 'client' && (
+        <QuoteRequestButton
+          onPress={onRequestQuote}
+          role={role}
+          quoteRequested={effectiveQuoteRequested}
+        />
+      )}
 
-      {/* Compositor de mensaje con previsualización de imagen.
-          paddingBottom por insets.bottom evita que quede tapado por la
-          Navigation Bar del sistema en Android. */}
+      {/* Botón "Completar Cotización" (trabajador, solo si hay solicitud pendiente) */}
+      {role === 'worker' && effectiveQuoteRequested && onCompleteQuote && (
+        <View style={styles.completeButtonWrapper}>
+          <TouchableOpacity
+            style={styles.completeButton}
+            onPress={onCompleteQuote}
+            accessibilityLabel="Completar cotización"
+          >
+            <Feather name="edit" size={14} color={colors.onPrimary} accessible={false} />
+            <Text style={styles.completeButtonText}>Completar Cotización</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {/* Compositor de mensaje con previsualización de imagen. */}
       <View style={[styles.composerContainer, { paddingBottom: insets.bottom }]}>
         <MessageComposer
           onSendMessage={handleSendMessage}
@@ -173,12 +281,34 @@ const styles = {
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.sm,
     backgroundColor: colors.background,
-    // Sin borderTop para evitar línea doble con el historial de mensajes.
   },
   pillWrapper: {
     flexDirection: 'row',
     justifyContent: 'center',
     marginVertical: spacing.xs,
+  },
+  completeButtonWrapper: {
+    alignSelf: 'center',
+    marginVertical: spacing.xs,
+  },
+  completeButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.workerAccent,
+    borderRadius: borderRadius.pill,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderWidth: 1,
+    borderColor: colors.workerAccent,
+    minWidth: 180,
+    maxWidth: '90%',
+  },
+  completeButtonText: {
+    color: colors.onPrimary,
+    fontSize: typography.fontSizes.sm,
+    fontWeight: typography.fontWeights.semibold,
+    marginLeft: spacing.xs,
   },
   errorContainer: {
     flex: 1,
