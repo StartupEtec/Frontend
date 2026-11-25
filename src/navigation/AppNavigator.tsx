@@ -27,6 +27,7 @@ import { ASYNC_STORAGE_ONBOARDING_KEY } from '../i18n/onboardingContent';
 import { tokenStorage } from '../services/tokenStorage';
 import { profileService } from '../services/profileService';
 import { userService } from '../services/userService';
+import { chatService } from '../services/chatService';
 import { resetNearbyWorkersCache } from '../hooks/useNearbyWorkers';
 import { colors, spacing, typography, borderRadius, roleAccent } from '../theme/tokens';
 import { UserRole } from '../types/role';
@@ -512,6 +513,13 @@ export const AppNavigator: React.FC = () => {
         onCompleted={(quote) => {
           setQuoteData(quote);
           setQuoteRequested(false);
+          // Enviar mensaje del sistema al chat para que ambos participantes lo vean en tiempo real.
+          if (quoteChatId && quoteMyUserId) {
+            void chatService.sendMessage(quoteChatId, quoteMyUserId, {
+              message_type: 'QUOTE',
+              content: 'Cotización completada',
+            });
+          }
           setCurrentRoute('Conversation');
         }}
       />

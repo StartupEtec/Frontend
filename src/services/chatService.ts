@@ -86,7 +86,7 @@ export const chatService = {
   async sendMessage(
     chatId: string,
     userId: string,
-    params: { message_type: 'TEXT' | 'IMAGE'; content?: string | null; imageUri?: string }
+    params: { message_type: 'TEXT' | 'IMAGE' | 'QUOTE'; content?: string | null; imageUri?: string }
   ): Promise<ChatMessage> {
     if (params.message_type === 'IMAGE' && params.imageUri) {
       // Para imágenes, usamos form-data

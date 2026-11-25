@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
 import { apiClient } from '../services/api';
+import { chatService } from '../services/chatService';
 import { UserRole } from '../types/role';
 import { colors, spacing, borderRadius, typography, roleAccent } from '../theme/tokens';
 import { useConversation } from '../hooks/useConversation';
@@ -12,7 +13,6 @@ import { MessageList } from '../components/chat/MessageList';
 import { TypingIndicator } from '../components/chat/TypingIndicator';
 import { MessageComposer } from '../components/chat/MessageComposer';
 import { QuoteRequestButton } from '../components/chat/QuoteRequestButton';
-import { QuotePill } from '../components/chat/QuotePill';
 import { QuoteData, QuoteRequestData } from '../types/chat';
 
 export interface ConversationScreenProps {
@@ -46,16 +46,22 @@ export interface ConversationScreenProps {
  * previsualización, indicador de escritura, WebSocket en tiempo real, carga
  * de mensajes anteriores (scroll hacia arriba) y botón "Ir al final".
  *
+ * Los mensajes del sistema ("Cotización solicitada", "Cotización recibida",
+ * "Cotización completada", mensajes de rechazo) se renderizan como burbujas
+ * del sistema centradas dentro del historial de mensajes, con su timestamp
+ * correspondiente, respetando el orden cronológico. Llegan en tiempo real
+ * vía WebSocket porque se envían como mensajes de chat con
+ * message_type = 'QUOTE'.
+ *
  * Incluye el botón "Solicitar Cotización" (Issue #34) sobre el área de
- * input, que navega a la pantalla de solicitud de cotización. Una vez
- * enviada, se muestra una píldora "Cotización solicitada" en el historial.
+ * input, que navega a la pantalla de solicitud de cotización.
  *
  * Para el trabajador, se muestra el botón "Completar Cotización" (Issue #35)
  * que navega a la pantalla de completar cotización.
  *
  * Al entrar al chat, se detecta automáticamente si existe una solicitud de
- * cotización pendiente entre estos dos usuarios, para mostrar la píldora y
- * el botón correspondiente incluso si el usuario no fue quien la solicitó.
+ * cotización pendiente entre estos dos usuarios, para mostrar el botón
+ * correspondiente incluso si el usuario no fue quien la solicitó.
  *
  * Todo el contenido respeta las SafeAreas del sistema (Status Bar arriba,
  * Navigation Bar abajo).
@@ -108,9 +114,30 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
   const [detectedCompletedQuoteData, setDetectedCompletedQuoteData] = useState<QuoteData | null>(
     null,
   );
+  // Controla si ya se envió un mensaje del sistema para esta quote_request
+  const [systemMessageSent, setSystemMessageSent] = useState<boolean>(false);
+
+  /**
+   * Envía un mensaje del sistema al chat (message_type: 'QUOTE').
+   * Se envía como un mensaje de chat normal para que llegue por WebSocket
+   * a ambos participantes y quede guardado en el historial con su timestamp.
+   */
+  const sendSystemMessage = async (content: string) => {
+    if (!chatId || !myUserId) return;
+    try {
+      await chatService.sendMessage(chatId, myUserId, {
+        message_type: 'QUOTE',
+        content,
+      });
+      setSystemMessageSent(true);
+    } catch {
+      // Si falla, el mensaje del sistema no se envía pero la UI sigue funcionando.
+    }
+  };
 
   // Al entrar al chat, detectar si existe una solicitud de cotización pendiente
-  // o completada entre estos dos usuarios.
+  // o completada entre estos dos usuarios. Si es una solicitud pendiente y
+  // aún no se envió el mensaje del sistema, lo envía al chat.
   useEffect(() => {
     const detectQuoteRequest = async () => {
       if (!myUserId) return;
@@ -131,6 +158,18 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
             setDetectedQuoteRequested(true);
             setDetectedQuoteRequestId(pending.id);
             onQuoteRequestDetected?.(pending.id);
+
+            // Enviar mensaje del sistema si aún no se envió
+            if (!systemMessageSent) {
+              const alreadySent = messages.some(
+                (m) =>
+                  m.message_type === 'QUOTE' &&
+                  m.content === 'Cotización solicitada',
+              );
+              if (!alreadySent) {
+                await sendSystemMessage('Cotización solicitada');
+              }
+            }
             return;
           }
 
@@ -200,13 +239,24 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
     };
 
     void detectQuoteRequest();
-  }, [role, userId, myUserId, detectedQuoteRequested, detectedQuoteCompleted, onQuoteRequestDetected]);
+  }, [
+    role,
+    userId,
+    myUserId,
+    detectedQuoteRequested,
+    detectedQuoteCompleted,
+    onQuoteRequestDetected,
+    systemMessageSent,
+    chatId,
+    messages,
+    sendSystemMessage,
+  ]);
 
   // Valores efectivos: estado local detectado tiene prioridad sobre los props
   // iniciales (que vienen de AppNavigator).
   const effectiveQuoteRequested = detectedQuoteRequested || detectedQuoteCompleted || initialQuoteRequested;
   const effectiveQuoteRequestId = detectedQuoteRequestId ?? initialQuoteRequestId;
-  const effectiveQuoteData = detectedCompletedQuoteData ?? initialQuoteData;
+  const _effectiveQuoteData = detectedCompletedQuoteData ?? initialQuoteData;
 
   // Mientras se inicializa el chat, no renderizamos la UI de conversación.
   if (initStatus === 'loading') {
@@ -234,7 +284,7 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
     await loadMore();
   };
 
-  const handleViewQuote = () => {
+  const _handleViewQuote = () => {
     if (onViewQuote && effectiveQuoteRequestId) {
       onViewQuote(effectiveQuoteRequestId, initialQuoteData ?? null);
     }
@@ -273,25 +323,6 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
         error={chatError}
         onRetry={handleLoadMore}
         hasMore={messages.length > 0}
-        footerContent={
-          effectiveQuoteRequested ? (
-            <View style={styles.pillWrapper}>
-              <QuotePill
-                text={
-                  effectiveQuoteData
-                    ? 'Cotización completada'
-                    : role === 'worker'
-                    ? 'Cotización recibida'
-                    : 'Cotización solicitada'
-                }
-                quoteRequestId={effectiveQuoteRequestId}
-                quoteData={effectiveQuoteData ?? null}
-                role={role}
-                onViewQuote={handleViewQuote}
-              />
-            </View>
-          ) : undefined
-        }
       />
 
       {/* Botón "Solicitar Cotización" (cliente) u oculto (trabajador) */}
@@ -350,11 +381,6 @@ const styles = {
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.sm,
     backgroundColor: colors.background,
-  },
-  pillWrapper: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginVertical: spacing.xs,
   },
   completeButtonWrapper: {
     alignSelf: 'center',

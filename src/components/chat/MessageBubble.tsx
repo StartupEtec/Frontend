@@ -7,17 +7,55 @@ import { colors, spacing, borderRadius, typography } from '../../theme/tokens';
 export interface MessageBubbleProps {
   message: ChatMessage;
   isOwn: boolean;
+  /** Si el mensaje es del sistema (message_type === 'QUOTE'). */
+  isSystem?: boolean;
   accentColor?: string;
 }
 
-/** Burbuja individual de un mensaje en la conversación. */
-export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isOwn }) => {
+/**
+ * Burbuja individual de un mensaje en la conversación.
+ *
+ * Soporta tres tipos de renderizado:
+ * - Mensaje normal del usuario (isSystem = false): burbuja a la izquierda o derecha
+ *   según sea propio o ajeno.
+ * - Mensaje del sistema (isSystem = true): burbuja centrada con estilo de píldora,
+ *   color azul (primaryContainer), usada para "Cotización solicitada", "Cotización
+ *   completada" y mensajes de rechazo.
+ */
+export const MessageBubble: React.FC<MessageBubbleProps> = ({
+  message,
+  isOwn,
+  isSystem = false,
+  accentColor: _accentColor,
+}) => {
   const { content, message_type, created_at } = message;
   const isImage = message_type === 'IMAGE';
   const time = created_at ? new Date(created_at) : null;
   const timeLabel = time
     ? time.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })
     : '';
+
+  // Mensaje del sistema: burbuja centrada con estilo de píldora
+  if (isSystem) {
+    return (
+      <View style={styles.systemContainer}>
+        <View style={styles.systemBubble}>
+          {isImage && message.attachment_url && (
+            <Image
+              source={{ uri: toDisplayUri(message.attachment_url) }}
+              style={styles.imageBubble}
+            />
+          )}
+          {!isImage && content && (
+            <Text style={styles.systemMessageText}>{content}</Text>
+          )}
+          {timeLabel && (
+            <Text style={styles.systemTimeText}>{timeLabel}</Text>
+          )}
+        </View>
+      </View>
+    );
+  }
 
   return (
     <View style={[styles.container, isOwn ? styles.own : styles.other]}>
@@ -102,5 +140,36 @@ const styles = StyleSheet.create({
     width: 140,
     height: 140,
     borderRadius: borderRadius.md,
+  },
+  // Mensaje del sistema: burbuja centrada estilo píldora
+  systemContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginVertical: spacing.xs,
+    paddingHorizontal: spacing.sm,
+  },
+  systemBubble: {
+    backgroundColor: colors.primaryContainer,
+    borderRadius: borderRadius.pill,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    alignSelf: 'center',
+    maxWidth: '90%',
+    minWidth: 200,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.xs,
+  },
+  systemMessageText: {
+    color: colors.primary,
+    fontSize: typography.fontSizes.sm,
+    fontWeight: typography.fontWeights.semibold,
+    textAlign: 'center',
+  },
+  systemTimeText: {
+    fontSize: typography.fontSizes.xs,
+    color: colors.textMuted,
+    marginTop: spacing.xs / 4,
+    textAlign: 'center',
   },
 });

@@ -122,9 +122,9 @@ export const CompleteQuoteScreen: React.FC<CompleteQuoteScreenProps> = ({
         },
       );
 
-      // Enviar mensaje al chat notificando el rechazo.
+      // Enviar mensaje al chat notificando el rechazo (como mensaje del sistema).
       await chatService.sendMessage(chatId, myUserId, {
-        message_type: 'TEXT',
+        message_type: 'QUOTE',
         content: buildRejectionMessage(rejectedFields),
       });
 
