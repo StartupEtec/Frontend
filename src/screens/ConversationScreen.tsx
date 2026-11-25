@@ -118,6 +118,9 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
   // Ref para el callback onQuoteRequestCompleted (evita problemas de dependencias)
   const onQuoteRequestCompletedRef = useRef(onQuoteRequestCompleted);
   onQuoteRequestCompletedRef.current = onQuoteRequestCompleted;
+  // Ref para el callback onQuoteRequestDetected (evita problemas de dependencias)
+  const onQuoteRequestDetectedRef = useRef(onQuoteRequestDetected);
+  onQuoteRequestDetectedRef.current = onQuoteRequestDetected;
 
   /**
    * Envía un mensaje del sistema al chat (message_type: 'QUOTE').
@@ -174,7 +177,7 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
         if (pending) {
           setQuoteRequested(true);
           setQuoteRequestId(pending.id);
-          onQuoteRequestDetected?.(pending.id);
+          onQuoteRequestDetectedRef.current?.(pending.id);
 
           // Marcar mensaje del sistema como pendiente
           setPendingSystemMessage('Cotización solicitada');
@@ -217,40 +220,24 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
         if (pending) {
           setQuoteRequested(true);
           setQuoteRequestId(pending.id);
-          onQuoteRequestDetected?.(pending.id);
+          onQuoteRequestDetectedRef.current?.(pending.id);
         }
-
-        // Buscar una solicitud ya completada (tiene order_id asociado)
-        const completed = requests.find(
-          (qr) => qr.client_id === userId && qr.order_id,
-        );
-        if (completed) {
-          setQuoteRequested(false);
-          setQuoteRequestId(completed.id);
-          // Intentar obtener los detalles de la quote
-          try {
-            const quotesRes = await apiClient<{ quotes: QuoteData[] }>(
-              `/orders/${completed.order_id}/quotes`,
-              { method: 'GET' },
-            );
-            const quotes = quotesRes.quotes ?? [];
-            if (quotes.length > 0) {
-              _setQuoteData(quotes[quotes.length - 1]);
-            }
-          } catch {
-            // Si no se pueden obtener los detalles, se muestra sin datos de quote
-          }
-        }
+        // NO buscar quote_requests completadas aquí: eso lo hace el
+        // efecto de mensajes del sistema ("Cotización completada").
+        // Al no tocar setQuoteRequested aquí para el caso completado,
+        // evitamos el titileo cuando llegan mensajes por WebSocket.
       }
     } catch {
       // Si falla la detección, simplemente no se muestra el bubble/botón.
     }
-  }, [role, userId, myUserId, onQuoteRequestDetected]);
+  }, [role, userId, myUserId]);
 
   // Ejecutar detección al montar y cuando cambian chatId, role, myUserId o initialQuoteRequested.
   // Usamos estas dependencias directamente (no detectQuoteRequest) para asegurar
   // que el efecto se re-ejecute cuando se remonta el componente (ej. al volver
-  // de CompleteQuoteScreen).
+  // de CompleteQuoteScreen). No incluimos detectQuoteRequest como dependencia
+  // para evitar re-ejecuciones innecesarias cuando onQuoteRequestDetected cambia
+  // en el padre (AppNavigator).
   useEffect(() => {
     void detectQuoteRequest();
   }, [chatId, role, myUserId, initialQuoteRequested, detectQuoteRequest]);
@@ -275,7 +262,7 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
       if (solicitudMessage) {
         setQuoteRequested(true);
         setQuoteRequestId(solicitudMessage.id);
-        onQuoteRequestDetected?.(solicitudMessage.id);
+        onQuoteRequestDetectedRef.current?.(solicitudMessage.id);
       }
       if (completadaMessage || rechazoMessage) {
         setQuoteRequested(false);
@@ -284,13 +271,17 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
     }
 
     if (role === 'client') {
+      if (solicitudMessage) {
+        setQuoteRequested(true);
+        setQuoteRequestId(solicitudMessage.id);
+      }
       if (completadaMessage || rechazoMessage) {
         setQuoteRequested(false);
         setQuoteRequestId(completadaMessage?.id || rechazoMessage?.id);
         onQuoteRequestCompletedRef.current?.();
       }
     }
-  }, [messages, role, onQuoteRequestDetected]);
+  }, [messages, role]);
 
   // Cuando messages cargue, enviar mensaje del sistema pendiente si corresponde
   useEffect(() => {
