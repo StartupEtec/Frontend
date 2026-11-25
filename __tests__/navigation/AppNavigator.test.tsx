@@ -52,7 +52,7 @@ jest.mock('../../src/screens/QuoteRequestScreen', () => {
   const React = require('react');
   const { View, Text } = require('react-native');
   return {
-    QuoteRequestScreen: (props: Record<string, unknown>) =>
+    QuoteRequestScreen: (_props: Record<string, unknown>) =>
       React.createElement(View, null, React.createElement(Text, null, 'QuoteRequestScreen Mock')),
   };
 });
