@@ -246,35 +246,26 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
   // participantes actualizan sus botones sin tener que salir del chat.
   // Usamos processedSystemMessageIdsRef para evitar procesar el mismo mensaje
   // dos veces (evita titileo del botón).
+  // Solo consideramos el ÚLTIMO mensaje del sistema para determinar el estado,
+  // ya que mensajes de cotizaciones anteriores no deben afectar el estado actual.
   useEffect(() => {
-    const solicitudMessage = messages.find(
-      (m) => m.message_type === 'QUOTE' && m.content === 'Cotización solicitada',
+    const systemMessages = messages.filter(
+      (m) => m.message_type === 'QUOTE',
     );
-    const completadaMessage = messages.find(
-      (m) => m.message_type === 'QUOTE' && m.content === 'Cotización completada',
-    );
-    const rechazoMessage = messages.find(
-      (m) =>
-        m.message_type === 'QUOTE' &&
-        m.content?.startsWith('La cotización fue rechazada'),
-    );
+    const lastSystemMessage =
+      systemMessages.length > 0
+        ? systemMessages[systemMessages.length - 1]
+        : null;
 
-    const messageIds = [solicitudMessage, completadaMessage, rechazoMessage]
-      .filter(Boolean)
-      .map((m) => m!.id);
+    if (!lastSystemMessage) return;
 
-    // Solo procesar mensajes del sistema que aún no hemos visto
-    const newMessages = messageIds.filter(
-      (id) => !processedSystemMessageIdsRef.current.has(id),
-    );
+    // Solo procesar si es un mensaje nuevo (no lo habíamos visto antes)
+    if (processedSystemMessageIdsRef.current.has(lastSystemMessage.id)) return;
 
-    if (newMessages.length === 0) return;
-
-    // Marcar estos mensajes como procesados
-    newMessages.forEach((id) => processedSystemMessageIdsRef.current.add(id));
+    processedSystemMessageIdsRef.current.add(lastSystemMessage.id);
 
     if (role === 'worker') {
-      if (solicitudMessage) {
+      if (lastSystemMessage.content === 'Cotización solicitada') {
         setQuoteRequested(true);
         // Obtener el ID real de la quote_request desde la API
         // (el ID del mensaje no es el ID de la quote_request)
@@ -296,20 +287,26 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
           }
         })();
       }
-      if (completadaMessage || rechazoMessage) {
+      if (
+        lastSystemMessage.content === 'Cotización completada' ||
+        lastSystemMessage.content?.startsWith('La cotización fue rechazada')
+      ) {
         setQuoteRequested(false);
-        setQuoteRequestId(completadaMessage?.id || rechazoMessage?.id);
+        setQuoteRequestId(lastSystemMessage.id);
       }
     }
 
     if (role === 'client') {
-      if (solicitudMessage) {
+      if (lastSystemMessage.content === 'Cotización solicitada') {
         setQuoteRequested(true);
-        setQuoteRequestId(solicitudMessage.id);
+        setQuoteRequestId(lastSystemMessage.id);
       }
-      if (completadaMessage || rechazoMessage) {
+      if (
+        lastSystemMessage.content === 'Cotización completada' ||
+        lastSystemMessage.content?.startsWith('La cotización fue rechazada')
+      ) {
         setQuoteRequested(false);
-        setQuoteRequestId(completadaMessage?.id || rechazoMessage?.id);
+        setQuoteRequestId(lastSystemMessage.id);
         onQuoteRequestCompletedRef.current?.();
       }
     }
