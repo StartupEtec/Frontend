@@ -48,6 +48,15 @@ jest.mock('../../src/components/location/LeafletMap', () => {
   };
 });
 
+jest.mock('../../src/screens/QuoteRequestScreen', () => {
+  const React = require('react');
+  const { View, Text } = require('react-native');
+  return {
+    QuoteRequestScreen: (props: Record<string, unknown>) =>
+      React.createElement(View, null, React.createElement(Text, null, 'QuoteRequestScreen Mock')),
+  };
+});
+
 jest.mock('../../src/services/locationService', () => ({
   locationService: {
     list: jest.fn().mockResolvedValue([]),
