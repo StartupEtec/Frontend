@@ -19,6 +19,8 @@ import { WorkerProfileScreen } from '../screens/WorkerProfileScreen';
 import { ChatsScreen } from '../screens/ChatsScreen';
 import { QuoteRequestScreen } from '../screens/QuoteRequestScreen';
 import { ConversationScreen } from '../screens/ConversationScreen';
+import { CompleteQuoteScreen } from '../screens/CompleteQuoteScreen';
+import { QuoteViewScreen } from '../screens/QuoteViewScreen';
 import { NavBar } from '../components/NavBar';
 import { SearchOriginModal } from '../components/location/SearchOriginModal';
 import { ASYNC_STORAGE_ONBOARDING_KEY } from '../i18n/onboardingContent';
@@ -53,6 +55,8 @@ export type AppRoute =
   | 'Chats'
   | 'Conversation'
   | 'QuoteRequest'
+  | 'CompleteQuote'
+  | 'QuoteView'
   | 'Main';
 
 export const AppNavigator: React.FC = () => {
@@ -62,6 +66,18 @@ export const AppNavigator: React.FC = () => {
   const [registeredContact, setRegisteredContact] = useState<string>('');
   const [selectedChatUserId, setSelectedChatUserId] = useState<string | null>(null);
   const [quoteRequested, setQuoteRequested] = useState<boolean>(false);
+  const [quoteRequestId, setQuoteRequestId] = useState<string | null>(null);
+  const [quoteData, setQuoteData] = useState<{
+    id: string;
+    order_id: string;
+    proposed_price: number;
+    proposed_date: string;
+    proposed_time: string;
+    status: string;
+    rejection_reason: string | null;
+    created_at: string;
+    updated_at: string;
+  } | null>(null);
   const [otpOrigin, setOtpOrigin] = useState<'Register' | 'Login'>('Register');
   const [selectedRole, setSelectedRole] = useState<UserRole>('client');
   const [profileCompleted, setProfileCompleted] = useState<boolean>(false);
@@ -422,16 +438,28 @@ export const AppNavigator: React.FC = () => {
     content = (
       <ConversationScreen
         userId={selectedChatUserId!}
+        quoteRequestId={quoteRequestId ?? undefined}
         onGoBack={() => {
           setCurrentRoute('Chats');
           setSelectedChatUserId(null);
           setQuoteRequested(false);
+          setQuoteRequestId(null);
+          setQuoteData(null);
         }}
         onRequestQuote={() => {
           setCurrentRoute('QuoteRequest');
         }}
+        onCompleteQuote={() => {
+          setCurrentRoute('CompleteQuote');
+        }}
+        onViewQuote={(qid, qdata) => {
+          setQuoteRequestId(qid);
+          setQuoteData(qdata ?? null);
+          setCurrentRoute('QuoteView');
+        }}
         role={selectedRole}
         quoteRequested={quoteRequested}
+        quoteData={quoteData}
       />
     );
   } else if (currentRoute === 'QuoteRequest') {
@@ -441,10 +469,45 @@ export const AppNavigator: React.FC = () => {
         onClose={() => {
           setCurrentRoute('Conversation');
           setQuoteRequested(false);
+          setQuoteRequestId(null);
         }}
-        onRequestSuccess={() => {
+        onRequestSuccess={(qr) => {
+          setQuoteRequestId(qr.id);
           setCurrentRoute('Conversation');
           setQuoteRequested(true);
+        }}
+      />
+    );
+  } else if (currentRoute === 'CompleteQuote') {
+    content = (
+      <CompleteQuoteScreen
+        quoteRequestId={quoteRequestId!}
+        onClose={() => {
+          setCurrentRoute('Conversation');
+          setQuoteRequestId(null);
+          setQuoteData(null);
+        }}
+        onRejected={(fields) => {
+          // El trabajador rechazó categoría o ubicación: volver al chat.
+          // El mensaje de rechazo se envía desde el backend o se maneja aquí.
+          setCurrentRoute('Conversation');
+          setQuoteRequestId(null);
+          setQuoteData(null);
+        }}
+        onCompleted={(quote) => {
+          setQuoteData(quote);
+          setCurrentRoute('Conversation');
+        }}
+      />
+    );
+  } else if (currentRoute === 'QuoteView') {
+    content = (
+      <QuoteViewScreen
+        quoteRequestId={quoteRequestId!}
+        quoteData={quoteData}
+        role={selectedRole}
+        onClose={() => {
+          setCurrentRoute('Conversation');
         }}
       />
     );
