@@ -449,7 +449,9 @@ export const AppNavigator: React.FC = () => {
           setQuoteRequestId(null);
           setQuoteData(null);
         }}
-        onRequestQuote={() => {
+        onRequestQuote={(chatId: string, myUserId: string) => {
+          setQuoteChatId(chatId);
+          setQuoteMyUserId(myUserId);
           setCurrentRoute('QuoteRequest');
         }}
         onCompleteQuote={(quoteRequestId: string, chatId: string, myUserId: string) => {
@@ -480,10 +482,14 @@ export const AppNavigator: React.FC = () => {
     content = (
       <QuoteRequestScreen
         workerId={selectedChatUserId!}
+        chatId={quoteChatId!}
+        myUserId={quoteMyUserId!}
         onClose={() => {
           setCurrentRoute('Conversation');
           setQuoteRequested(false);
           setQuoteRequestId(null);
+          setQuoteChatId(null);
+          setQuoteMyUserId(null);
         }}
         onRequestSuccess={(qr) => {
           setQuoteRequestId(qr.id);

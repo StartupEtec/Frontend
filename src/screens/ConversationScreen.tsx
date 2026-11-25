@@ -23,8 +23,8 @@ export interface ConversationScreenProps {
   /** ID de la solicitud de cotización asociada al chat (opcional). */
   quoteRequestId?: string;
   onGoBack: () => void;
-  /** Callback al solicitar cotización (cliente). */
-  onRequestQuote: () => void;
+  /** Callback al solicitar cotización (cliente). Recibe chatId y myUserId. */
+  onRequestQuote: (chatId: string, myUserId: string) => void;
   /** Callback al completar cotización (trabajador). Recibe quoteRequestId, chatId y myUserId. */
   onCompleteQuote?: (quoteRequestId: string, chatId: string, myUserId: string) => void;
   /** Callback al ver detalle de cotización. */
@@ -285,6 +285,18 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
     }
   }, [pendingSystemMessage, messages, sendSystemMessage, systemMessageExists]);
 
+  // Detectar mensajes del sistema que cambian el estado (ej. "Cotización completada" por WebSocket)
+  useEffect(() => {
+    const completedMessage = messages.find(
+      (m) => m.message_type === 'QUOTE' && m.content === 'Cotización completada'
+    );
+    if (completedMessage) {
+      setDetectedQuoteCompleted(true);
+      setDetectedQuoteRequested(false);
+      onQuoteRequestCompleted?.();
+    }
+  }, [messages, onQuoteRequestCompleted]);
+
   // Valores efectivos: estado local detectado tiene prioridad sobre los props
   // iniciales (que vienen de AppNavigator).
   // IMPORTANTE: si detectedQuoteCompleted es true, quoteRequested debe ser false
@@ -362,7 +374,11 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
       {/* Botón "Solicitar Cotización" (cliente) u oculto (trabajador) */}
       {role === 'client' && (
         <QuoteRequestButton
-          onPress={onRequestQuote}
+          onPress={() => {
+            if (chatId && myUserId) {
+              onRequestQuote(chatId, myUserId);
+            }
+          }}
           role={role}
           quoteRequested={effectiveQuoteRequested}
         />

@@ -17,15 +17,31 @@ import { useLocations } from '../hooks/useLocations';
 import { LocationFormModal } from '../components/location/LocationFormModal';
 import { SearchOriginModal } from '../components/location/SearchOriginModal';
 import { useDeviceLocation } from '../hooks/useDeviceLocation';
+import { chatService } from '../services/chatService';
 import { CreateLocationPayload, SavedLocation } from '../types/location';
 
 export interface QuoteRequestScreenProps {
   /** ID del trabajador al que se le solicita la cotización. */
   workerId: string;
+  /** ID del chat donde se enviará el mensaje del sistema. */
+  chatId: string;
+  /** ID del usuario cliente autenticado. */
+  myUserId: string;
   /** Callback al cerrar la pantalla. */
   onClose: () => void;
-  /** Callback cuando la solicitud se envía exitosamente. */
-  onRequestSuccess: () => void;
+  /** Callback cuando la solicitud se envía exitosamente.
+   * Recibe el objeto quote_request creado por el backend. */
+  onRequestSuccess: (quoteRequest: {
+    id: string;
+    client_id: string;
+    worker_id: string;
+    category: string;
+    location: string;
+    description: string | null;
+    status: string;
+    created_at: string;
+    updated_at: string;
+  }) => void;
 }
 
 /**
@@ -57,6 +73,8 @@ const MAX_DESCRIPTION_LENGTH = 500;
 
 export const QuoteRequestScreen: React.FC<QuoteRequestScreenProps> = ({
   workerId,
+  chatId,
+  myUserId,
   onClose,
   onRequestSuccess,
 }) => {
@@ -81,14 +99,24 @@ export const QuoteRequestScreen: React.FC<QuoteRequestScreenProps> = ({
     }
 
     try {
-      await requestQuote({
+      const created = await requestQuote({
         worker_id: workerId,
         category: selectedCategory,
         location: location.trim(),
         description: description.trim() || null,
       });
 
-      onRequestSuccess();
+      // Enviar mensaje del sistema al chat inmediatamente
+      try {
+        await chatService.sendMessage(chatId, myUserId, {
+          message_type: 'QUOTE',
+          content: 'Cotización solicitada',
+        });
+      } catch {
+        // Si falla el mensaje del sistema, la cotización ya se creó, no bloqueamos.
+      }
+
+      onRequestSuccess(created);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Error al solicitar cotización';
       setError(message);
