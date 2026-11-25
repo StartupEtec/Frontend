@@ -115,6 +115,8 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
   const systemMessageSentRef = useRef<boolean>(false);
   // Mensaje del sistema pendiente de enviar (cuando messages aún no cargó)
   const [pendingSystemMessage, setPendingSystemMessage] = useState<string | null>(null);
+  // Ref para rastrear qué mensajes del sistema ya procesamos (evita titileo)
+  const processedSystemMessageIdsRef = useRef<Set<string>>(new Set());
   // Ref para el callback onQuoteRequestCompleted (evita problemas de dependencias)
   const onQuoteRequestCompletedRef = useRef(onQuoteRequestCompleted);
   onQuoteRequestCompletedRef.current = onQuoteRequestCompleted;
@@ -156,8 +158,9 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
 
   /**
    * Detecta si existe una solicitud de cotización pendiente o completada
-   * entre estos dos usuarios. Se ejecuta al montar y cuando cambian los
-   * mensajes (WebSocket).
+   * entre estos dos usuarios. Se ejecuta solo al montar para obtener el
+   * estado inicial. Los cambios en tiempo real se detectan vía el efecto
+   * de mensajes del sistema (WebSocket) abajo.
    */
   const detectQuoteRequest = useCallback(async () => {
     if (!myUserId) return;
@@ -224,20 +227,16 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
         }
         // NO buscar quote_requests completadas aquí: eso lo hace el
         // efecto de mensajes del sistema ("Cotización completada").
-        // Al no tocar setQuoteRequested aquí para el caso completado,
-        // evitamos el titileo cuando llegan mensajes por WebSocket.
       }
     } catch {
       // Si falla la detección, simplemente no se muestra el bubble/botón.
     }
-  }, [role, userId, myUserId]);
+  }, [role, userId, myUserId, onQuoteRequestDetectedRef]);
 
   // Ejecutar detección al montar y cuando cambian chatId, role, myUserId o initialQuoteRequested.
   // Usamos estas dependencias directamente (no detectQuoteRequest) para asegurar
   // que el efecto se re-ejecute cuando se remonta el componente (ej. al volver
-  // de CompleteQuoteScreen). No incluimos detectQuoteRequest como dependencia
-  // para evitar re-ejecuciones innecesarias cuando onQuoteRequestDetected cambia
-  // en el padre (AppNavigator).
+  // de CompleteQuoteScreen).
   useEffect(() => {
     void detectQuoteRequest();
   }, [chatId, role, myUserId, initialQuoteRequested, detectQuoteRequest]);
@@ -245,6 +244,8 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
   // Detectar mensajes del sistema (QUOTE) que cambian el estado de la cotización
   // en tiempo real vía WebSocket. Cuando llega un mensaje del sistema, ambos
   // participantes actualizan sus botones sin tener que salir del chat.
+  // Usamos processedSystemMessageIdsRef para evitar procesar el mismo mensaje
+  // dos veces (evita titileo del botón).
   useEffect(() => {
     const solicitudMessage = messages.find(
       (m) => m.message_type === 'QUOTE' && m.content === 'Cotización solicitada',
@@ -257,6 +258,18 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
         m.message_type === 'QUOTE' &&
         m.content?.startsWith('La cotización fue rechazada'),
     );
+
+    const messageIds = [solicitudMessage, completadaMessage, rechazoMessage]
+      .filter(Boolean)
+      .map((m) => m!.id);
+
+    // Solo procesar mensajes del sistema que aún no hemos visto
+    const newMessages = messageIds.filter((id) => !processedSystemMessageIdsRef.current.has(id));
+
+    if (newMessages.length === 0) return;
+
+    // Marcar estos mensajes como procesados
+    newMessages.forEach((id) => processedSystemMessageIdsRef.current.add(id));
 
     if (role === 'worker') {
       if (solicitudMessage) {
@@ -368,8 +381,10 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
           <TypingIndicator
             typingUserIds={typingUserIds}
             typingUserName={
-              typingUserIds.length === 1
-                ? otherUser.full_name ?? undefined
+              typingUserIds.length > 0
+                ? typingUserIds.length === 1
+                  ? otherUser.full_name ?? undefined
+                  : undefined
                 : undefined
             }
           />
@@ -413,12 +428,7 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
             }}
             accessibilityLabel="Completar cotización"
           >
-            <Feather
-              name="edit"
-              size={14}
-              color={colors.onPrimary}
-              accessible={false}
-            />
+            <Feather name="edit" size={14} color={colors.onPrimary} accessible={false} />
             <Text style={styles.completeButtonText}>Completar Cotización</Text>
           </TouchableOpacity>
         </View>
