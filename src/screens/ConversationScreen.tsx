@@ -306,35 +306,10 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
         lastSystemMessage.content?.startsWith('La cotización fue rechazada')
       ) {
         // El cliente recibió una notificación de que su cotización fue completada
-        // o rechazada. Verificar si todavía tiene quote_requests pendientes con
-        // este trabajador antes de ocultar el botón "Solicitar cotización".
-        void (async () => {
-          try {
-            const res = await apiClient<{ quote_requests: QuoteRequestData[] }>(
-              `/quote-requests/requests/sent`,
-              { method: 'GET' },
-            );
-            const requests = res.quote_requests ?? [];
-            const stillPending = requests.find(
-              (qr) => qr.status === 'PENDING' && qr.worker_id === userId,
-            );
-            if (stillPending) {
-              // Todavía hay una cotización pendiente, mantener el botón
-              setQuoteRequested(true);
-              setQuoteRequestId(stillPending.id);
-            } else {
-              // No hay más cotizaciones pendientes, ocultar el botón
-              setQuoteRequested(false);
-              setQuoteRequestId(lastSystemMessage.id);
-              onQuoteRequestCompletedRef.current?.();
-            }
-          } catch {
-            // Si falla la llamada a la API, ocultar el botón por precaución
-            setQuoteRequested(false);
-            setQuoteRequestId(lastSystemMessage.id);
-            onQuoteRequestCompletedRef.current?.();
-          }
-        })();
+        // o rechazada. Ocultar el botón "Solicitar cotización" inmediatamente.
+        setQuoteRequested(false);
+        setQuoteRequestId(lastSystemMessage.id);
+        onQuoteRequestCompletedRef.current?.();
       }
     }
   }, [messages, role, userId]);
