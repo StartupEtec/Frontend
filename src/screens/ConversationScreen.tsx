@@ -261,7 +261,8 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
     if (role === 'worker') {
       if (solicitudMessage) {
         setQuoteRequested(true);
-        setQuoteRequestId(solicitudMessage.id);
+        // NO tocar quoteRequestId aquí: solo se setea desde detectQuoteRequest (API).
+        // El ID del mensaje no es el ID de la quote_request.
         onQuoteRequestDetectedRef.current?.(solicitudMessage.id);
       }
       if (completadaMessage || rechazoMessage) {
