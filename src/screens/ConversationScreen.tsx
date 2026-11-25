@@ -29,6 +29,8 @@ export interface ConversationScreenProps {
   onCompleteQuote?: () => void;
   /** Callback al ver detalle de cotización. */
   onViewQuote?: (quoteRequestId: string, quoteData: QuoteData | null) => void;
+  /** Callback cuando se detecta una quote_request pendiente al entrar al chat. */
+  onQuoteRequestDetected?: (quoteRequestId: string) => void;
   /** Si ya se solicitó una cotización (para mostrar la píldora). */
   quoteRequested?: boolean;
   /** Rol activo del usuario autenticado. */
@@ -66,6 +68,7 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
   onRequestQuote,
   onCompleteQuote,
   onViewQuote,
+  onQuoteRequestDetected,
   quoteRequested: initialQuoteRequested = false,
   role = 'client',
   quoteData: initialQuoteData,
@@ -120,6 +123,7 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
           if (pending) {
             setDetectedQuoteRequested(true);
             setDetectedQuoteRequestId(pending.id);
+            onQuoteRequestDetected?.(pending.id);
           }
         } else if (role === 'worker') {
           const res = await apiClient<{ quote_requests: QuoteRequestData[] }>(
@@ -132,6 +136,7 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
           if (pending) {
             setDetectedQuoteRequested(true);
             setDetectedQuoteRequestId(pending.id);
+            onQuoteRequestDetected?.(pending.id);
           }
         }
       } catch {
@@ -140,7 +145,7 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
     };
 
     void detectPendingQuoteRequest();
-  }, [role, userId, myUserId, detectedQuoteRequested]);
+  }, [role, userId, myUserId, detectedQuoteRequested, onQuoteRequestDetected]);
 
   // Valores efectivos: estado local detectado tiene prioridad sobre los props
   // iniciales (que vienen de AppNavigator).

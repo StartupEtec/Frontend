@@ -452,6 +452,9 @@ export const AppNavigator: React.FC = () => {
         onCompleteQuote={() => {
           setCurrentRoute('CompleteQuote');
         }}
+        onQuoteRequestDetected={(qid) => {
+          setQuoteRequestId(qid);
+        }}
         onViewQuote={(qid, qdata) => {
           setQuoteRequestId(qid);
           setQuoteData(qdata ?? null);
