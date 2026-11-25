@@ -136,7 +136,7 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
 
           // Buscar una solicitud completada (tiene order_id asociado)
           const completed = requests.find(
-            (qr) => qr.status === 'PENDING' && qr.worker_id === userId && qr.order_id,
+            (qr) => qr.worker_id === userId && qr.order_id,
           );
           if (completed) {
             setDetectedQuoteCompleted(true);
@@ -174,7 +174,7 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
 
           // Buscar una solicitud ya completada (tiene order_id asociado)
           const completed = requests.find(
-            (qr) => qr.status === 'PENDING' && qr.client_id === userId && qr.order_id,
+            (qr) => qr.client_id === userId && qr.order_id,
           );
           if (completed) {
             setDetectedQuoteCompleted(true);
