@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { StatusBar, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -31,6 +31,8 @@ export interface ConversationScreenProps {
   onViewQuote?: (quoteRequestId: string, quoteData: QuoteData | null) => void;
   /** Callback cuando se detecta una quote_request pendiente al entrar al chat. */
   onQuoteRequestDetected?: (quoteRequestId: string) => void;
+  /** Callback cuando se detecta que la quote_request ya fue completada. */
+  onQuoteRequestCompleted?: () => void;
   /** Si ya se solicitó una cotización (para mostrar la píldora). */
   quoteRequested?: boolean;
   /** Rol activo del usuario autenticado. */
@@ -75,6 +77,7 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
   onCompleteQuote,
   onViewQuote,
   onQuoteRequestDetected,
+  onQuoteRequestCompleted,
   quoteRequested: initialQuoteRequested = false,
   role = 'client',
   quoteData: initialQuoteData,
@@ -114,30 +117,46 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
   const [detectedCompletedQuoteData, setDetectedCompletedQuoteData] = useState<QuoteData | null>(
     null,
   );
-  // Controla si ya se envió un mensaje del sistema para esta quote_request
-  const [systemMessageSent, setSystemMessageSent] = useState<boolean>(false);
+  // Ref para evitar enviar el mensaje del sistema múltiples veces
+  // (persiste entre montajes, no se resetea como el estado local)
+  const systemMessageSentRef = useRef<boolean>(false);
 
   /**
    * Envía un mensaje del sistema al chat (message_type: 'QUOTE').
    * Se envía como un mensaje de chat normal para que llegue por WebSocket
    * a ambos participantes y quede guardado en el historial con su timestamp.
    */
-  const sendSystemMessage = async (content: string) => {
-    if (!chatId || !myUserId) return;
-    try {
-      await chatService.sendMessage(chatId, myUserId, {
-        message_type: 'QUOTE',
-        content,
-      });
-      setSystemMessageSent(true);
-    } catch {
-      // Si falla, el mensaje del sistema no se envía pero la UI sigue funcionando.
-    }
-  };
+  const sendSystemMessage = useCallback(
+    async (content: string) => {
+      if (!chatId || !myUserId) return;
+      try {
+        await chatService.sendMessage(chatId, myUserId, {
+          message_type: 'QUOTE',
+          content,
+        });
+        systemMessageSentRef.current = true;
+      } catch {
+        // Si falla, el mensaje del sistema no se envía pero la UI sigue funcionando.
+      }
+    },
+    [chatId, myUserId],
+  );
+
+  /**
+   * Verifica si ya existe un mensaje del sistema con el contenido dado
+   * en los mensajes cargados del historial.
+   */
+  const systemMessageExists = useCallback(
+    (content: string): boolean => {
+      return messages.some(
+        (m) => m.message_type === 'QUOTE' && m.content === content,
+      );
+    },
+    [messages],
+  );
 
   // Al entrar al chat, detectar si existe una solicitud de cotización pendiente
-  // o completada entre estos dos usuarios. Si es una solicitud pendiente y
-  // aún no se envió el mensaje del sistema, lo envía al chat.
+  // o completada entre estos dos usuarios.
   useEffect(() => {
     const detectQuoteRequest = async () => {
       if (!myUserId) return;
@@ -157,18 +176,12 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
           if (pending) {
             setDetectedQuoteRequested(true);
             setDetectedQuoteRequestId(pending.id);
+            setDetectedQuoteCompleted(false);
             onQuoteRequestDetected?.(pending.id);
 
-            // Enviar mensaje del sistema si aún no se envió
-            if (!systemMessageSent) {
-              const alreadySent = messages.some(
-                (m) =>
-                  m.message_type === 'QUOTE' &&
-                  m.content === 'Cotización solicitada',
-              );
-              if (!alreadySent) {
-                await sendSystemMessage('Cotización solicitada');
-              }
+            // Enviar mensaje del sistema solo si aún no existe en el historial
+            if (!systemMessageSentRef.current && !systemMessageExists('Cotización solicitada')) {
+              await sendSystemMessage('Cotización solicitada');
             }
             return;
           }
@@ -180,6 +193,9 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
           if (completed) {
             setDetectedQuoteCompleted(true);
             setDetectedQuoteRequestId(completed.id);
+            setDetectedQuoteRequested(false);
+            // Notificar al padre que la quote_request ya se completó
+            onQuoteRequestCompleted?.();
             // Intentar obtener los detalles de la quote (fecha, hora, precio)
             try {
               const quotesRes = await apiClient<{ quotes: QuoteData[] }>(
@@ -208,6 +224,7 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
           if (pending) {
             setDetectedQuoteRequested(true);
             setDetectedQuoteRequestId(pending.id);
+            setDetectedQuoteCompleted(false);
             onQuoteRequestDetected?.(pending.id);
           }
 
@@ -246,10 +263,11 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
     detectedQuoteRequested,
     detectedQuoteCompleted,
     onQuoteRequestDetected,
-    systemMessageSent,
+    onQuoteRequestCompleted,
     chatId,
     messages,
     sendSystemMessage,
+    systemMessageExists,
   ]);
 
   // Valores efectivos: estado local detectado tiene prioridad sobre los props

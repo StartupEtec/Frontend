@@ -469,6 +469,11 @@ export const AppNavigator: React.FC = () => {
         role={selectedRole}
         quoteRequested={quoteRequested}
         quoteData={quoteData}
+        onQuoteRequestCompleted={() => {
+          // El cliente detectó que su solicitud ya fue completada por el trabajador.
+          // Se habilita nuevamente el botón "Solicitar cotización".
+          setQuoteRequested(false);
+        }}
       />
     );
   } else if (currentRoute === 'QuoteRequest') {
