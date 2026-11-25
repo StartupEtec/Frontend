@@ -114,14 +114,16 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
   );
   // Para el cliente: detectar si su solicitud ya fue completada por el trabajador
   const [detectedQuoteCompleted, setDetectedQuoteCompleted] = useState<boolean>(false);
-  const [_detectedCompletedQuoteData, _setDetectedCompletedQuoteData] = useState<QuoteData | null>(
+  const [_detectedCompletedQuoteData, setDetectedCompletedQuoteData] = useState<QuoteData | null>(
     null,
   );
   // Ref para evitar enviar el mensaje del sistema múltiples veces
-  // (persiste entre montajes, no se resetea como el estado local)
   const systemMessageSentRef = useRef<boolean>(false);
   // Mensaje del sistema pendiente de enviar (cuando messages aún no cargó)
   const [pendingSystemMessage, setPendingSystemMessage] = useState<string | null>(null);
+  // Ref para el callback onQuoteRequestCompleted (evita problemas de dependencias)
+  const onQuoteRequestCompletedRef = useRef(onQuoteRequestCompleted);
+  onQuoteRequestCompletedRef.current = onQuoteRequestCompleted;
 
   /**
    * Envía un mensaje del sistema al chat (message_type: 'QUOTE').
@@ -200,7 +202,7 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
             setDetectedQuoteRequestId(completed.id);
             setDetectedQuoteRequested(false);
             // Notificar al padre que la quote_request ya se completó
-            onQuoteRequestCompleted?.();
+            onQuoteRequestCompletedRef.current?.();
             // Intentar obtener los detalles de la quote (fecha, hora, precio)
             try {
               const quotesRes = await apiClient<{ quotes: QuoteData[] }>(
@@ -209,7 +211,7 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
               );
               const quotes = quotesRes.quotes ?? [];
               if (quotes.length > 0) {
-                _setDetectedCompletedQuoteData(quotes[quotes.length - 1]);
+                setDetectedCompletedQuoteData(quotes[quotes.length - 1]);
               }
             } catch {
               // Si no se pueden obtener los detalles, se muestra sin datos de quote
@@ -248,7 +250,7 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
               );
               const quotes = quotesRes.quotes ?? [];
               if (quotes.length > 0) {
-                _setDetectedCompletedQuoteData(quotes[quotes.length - 1]);
+                setDetectedCompletedQuoteData(quotes[quotes.length - 1]);
               }
             } catch {
               // Si no se pueden obtener los detalles, se muestra sin datos de quote
@@ -268,7 +270,6 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
     detectedQuoteRequested,
     detectedQuoteCompleted,
     onQuoteRequestDetected,
-    onQuoteRequestCompleted,
     chatId,
     messages,
     sendSystemMessage,
@@ -286,22 +287,25 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
   }, [pendingSystemMessage, messages, sendSystemMessage, systemMessageExists]);
 
   // Detectar mensajes del sistema que cambian el estado (ej. "Cotización completada" por WebSocket)
+  // Se ejecuta cada vez que cambian los mensajes (incluye llegada por WebSocket)
   useEffect(() => {
     const completedMessage = messages.find(
-      (m) => m.message_type === 'QUOTE' && m.content === 'Cotización completada'
+      (m) =>
+        m.message_type === 'QUOTE' && m.content === 'Cotización completada',
     );
-    if (completedMessage) {
+    if (completedMessage && !detectedQuoteCompleted) {
       setDetectedQuoteCompleted(true);
       setDetectedQuoteRequested(false);
-      onQuoteRequestCompleted?.();
+      onQuoteRequestCompletedRef.current?.();
     }
-  }, [messages, onQuoteRequestCompleted]);
+  }, [messages, detectedQuoteCompleted]);
 
   // Valores efectivos: estado local detectado tiene prioridad sobre los props
   // iniciales (que vienen de AppNavigator).
   // IMPORTANTE: si detectedQuoteCompleted es true, quoteRequested debe ser false
   // para que el botón "Solicitar cotización" se habilite nuevamente.
-  const effectiveQuoteRequested = (detectedQuoteRequested || initialQuoteRequested) && !detectedQuoteCompleted;
+  const effectiveQuoteRequested =
+    (detectedQuoteRequested || initialQuoteRequested) && !detectedQuoteCompleted;
   const effectiveQuoteRequestId = detectedQuoteRequestId ?? initialQuoteRequestId;
 
   // Mientras se inicializa el chat, no renderizamos la UI de conversación.
@@ -353,7 +357,9 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
           <TypingIndicator
             typingUserIds={typingUserIds}
             typingUserName={
-              typingUserIds.length === 1 ? (otherUser.full_name ?? undefined) : undefined
+              typingUserIds.length === 1
+                ? otherUser.full_name ?? undefined
+                : undefined
             }
           />
         </View>
@@ -396,7 +402,12 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
             }}
             accessibilityLabel="Completar cotización"
           >
-            <Feather name="edit" size={14} color={colors.onPrimary} accessible={false} />
+            <Feather
+              name="edit"
+              size={14}
+              color={colors.onPrimary}
+              accessible={false}
+            />
             <Text style={styles.completeButtonText}>Completar Cotización</Text>
           </TouchableOpacity>
         </View>
