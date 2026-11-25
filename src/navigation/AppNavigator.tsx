@@ -66,7 +66,7 @@ export const AppNavigator: React.FC = () => {
   const [isCheckingStatus, setIsCheckingStatus] = useState<boolean>(true);
   const [registeredContact, setRegisteredContact] = useState<string>('');
   const [selectedChatUserId, setSelectedChatUserId] = useState<string | null>(null);
-  const [quoteRequested, setQuoteRequested] = useState<boolean>(false);
+  const [_quoteRequested, setQuoteRequested] = useState<boolean>(false);
   const [quoteRequestId, setQuoteRequestId] = useState<string | null>(null);
   const [quoteChatId, setQuoteChatId] = useState<string | null>(null);
   const [quoteMyUserId, setQuoteMyUserId] = useState<string | null>(null);
@@ -469,7 +469,6 @@ export const AppNavigator: React.FC = () => {
           setCurrentRoute('QuoteView');
         }}
         role={selectedRole}
-        quoteRequested={quoteRequested}
         quoteData={quoteData}
         onQuoteRequestCompleted={() => {
           // El cliente detectó que su solicitud ya fue completada por el trabajador.

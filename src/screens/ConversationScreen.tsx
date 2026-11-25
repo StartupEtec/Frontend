@@ -33,8 +33,6 @@ export interface ConversationScreenProps {
   onQuoteRequestDetected?: (quoteRequestId: string) => void;
   /** Callback cuando se detecta que la quote_request ya fue completada. */
   onQuoteRequestCompleted?: () => void;
-  /** Si ya se solicitó una cotización (para mostrar la píldora). */
-  quoteRequested?: boolean;
   /** Rol activo del usuario autenticado. */
   role?: UserRole;
   /** Datos de la cotización si ya fue creada (para la píldora de ver). */
@@ -71,14 +69,12 @@ export interface ConversationScreenProps {
 export const ConversationScreen: React.FC<ConversationScreenProps> = ({
   userId,
   chatId: initialChatId,
-  quoteRequestId: initialQuoteRequestId,
   onGoBack,
   onRequestQuote,
   onCompleteQuote,
   onViewQuote,
   onQuoteRequestDetected,
   onQuoteRequestCompleted,
-  quoteRequested: initialQuoteRequested = false,
   role = 'client',
   quoteData: initialQuoteData,
 }) => {
@@ -105,25 +101,16 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
     loadMore,
   } = useConversation({ userId, initialChatId, role });
 
-  // Estado local para detectar quote_requests pendientes al entrar al chat.
-  const [detectedQuoteRequested, setDetectedQuoteRequested] = useState<boolean>(
-    initialQuoteRequested,
-  );
-  const [detectedQuoteRequestId, setDetectedQuoteRequestId] = useState<string | undefined>(
-    initialQuoteRequestId,
-  );
-  // Para el cliente: detectar si su solicitud ya fue completada por el trabajador
-  const [detectedQuoteCompleted, setDetectedQuoteCompleted] = useState<boolean>(false);
-  const [_detectedCompletedQuoteData, setDetectedCompletedQuoteData] = useState<QuoteData | null>(
+  // Estado para rastrear si hay una solicitud de cotización pendiente
+  const [isQuoteRequested, setIsQuoteRequested] = useState(false);
+  const [quoteRequestId, setQuoteRequestId] = useState<string | null>(null);
+  const [isQuoteCompleted, setIsQuoteCompleted] = useState(false);
+  const [_completedQuoteData, setCompletedQuoteData] = useState<QuoteData | null>(
     null,
   );
+
   // Ref para evitar enviar el mensaje del sistema múltiples veces
   const systemMessageSentRef = useRef<boolean>(false);
-  // Mensaje del sistema pendiente de enviar (cuando messages aún no cargó)
-  const [pendingSystemMessage, setPendingSystemMessage] = useState<string | null>(null);
-  // Ref para el callback onQuoteRequestCompleted (evita problemas de dependencias)
-  const onQuoteRequestCompletedRef = useRef(onQuoteRequestCompleted);
-  onQuoteRequestCompletedRef.current = onQuoteRequestCompleted;
 
   /**
    * Envía un mensaje del sistema al chat (message_type: 'QUOTE').
@@ -159,15 +146,10 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
     [messages],
   );
 
-  // Sincronizar detectedQuoteRequested con initialQuoteRequested cuando cambie
+  // Efecto principal: detectar quote_requests pendientes o completadas
+  // Se ejecuta al montar y cada vez que cambian los mensajes (WebSocket)
   useEffect(() => {
-    setDetectedQuoteRequested(initialQuoteRequested);
-  }, [initialQuoteRequested]);
-
-  // Al entrar al chat, detectar si existe una solicitud de cotización pendiente
-  // o completada entre estos dos usuarios.
-  useEffect(() => {
-    const detectQuoteRequest = async () => {
+    const detectQuoteRequests = async () => {
       if (!myUserId) return;
 
       try {
@@ -183,13 +165,15 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
             (qr) => qr.status === 'PENDING' && qr.worker_id === userId,
           );
           if (pending) {
-            setDetectedQuoteRequested(true);
-            setDetectedQuoteRequestId(pending.id);
-            setDetectedQuoteCompleted(false);
+            setIsQuoteRequested(true);
+            setQuoteRequestId(pending.id);
+            setIsQuoteCompleted(false);
             onQuoteRequestDetected?.(pending.id);
 
-            // Marcar mensaje del sistema como pendiente (se enviará cuando messages cargue)
-            setPendingSystemMessage('Cotización solicitada');
+            // Enviar mensaje del sistema solo si aún no existe en el historial
+            if (!systemMessageSentRef.current && !systemMessageExists('Cotización solicitada')) {
+              await sendSystemMessage('Cotización solicitada');
+            }
             return;
           }
 
@@ -198,12 +182,11 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
             (qr) => qr.worker_id === userId && qr.order_id,
           );
           if (completed) {
-            setDetectedQuoteCompleted(true);
-            setDetectedQuoteRequestId(completed.id);
-            setDetectedQuoteRequested(false);
-            // Notificar al padre que la quote_request ya se completó
-            onQuoteRequestCompletedRef.current?.();
-            // Intentar obtener los detalles de la quote (fecha, hora, precio)
+            setIsQuoteRequested(false);
+            setQuoteRequestId(completed.id);
+            setIsQuoteCompleted(true);
+            onQuoteRequestCompleted?.();
+            // Intentar obtener los detalles de la quote
             try {
               const quotesRes = await apiClient<{ quotes: QuoteData[] }>(
                 `/orders/${completed.order_id}/quotes`,
@@ -211,7 +194,7 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
               );
               const quotes = quotesRes.quotes ?? [];
               if (quotes.length > 0) {
-                setDetectedCompletedQuoteData(quotes[quotes.length - 1]);
+                setCompletedQuoteData(quotes[quotes.length - 1]);
               }
             } catch {
               // Si no se pueden obtener los detalles, se muestra sin datos de quote
@@ -229,9 +212,9 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
             (qr) => qr.status === 'PENDING' && qr.client_id === userId && !qr.order_id,
           );
           if (pending) {
-            setDetectedQuoteRequested(true);
-            setDetectedQuoteRequestId(pending.id);
-            setDetectedQuoteCompleted(false);
+            setIsQuoteRequested(true);
+            setQuoteRequestId(pending.id);
+            setIsQuoteCompleted(false);
             onQuoteRequestDetected?.(pending.id);
           }
 
@@ -240,8 +223,9 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
             (qr) => qr.client_id === userId && qr.order_id,
           );
           if (completed) {
-            setDetectedQuoteCompleted(true);
-            setDetectedQuoteRequestId(completed.id);
+            setIsQuoteRequested(false);
+            setQuoteRequestId(completed.id);
+            setIsQuoteCompleted(true);
             // Intentar obtener los detalles de la quote
             try {
               const quotesRes = await apiClient<{ quotes: QuoteData[] }>(
@@ -250,7 +234,7 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
               );
               const quotes = quotesRes.quotes ?? [];
               if (quotes.length > 0) {
-                setDetectedCompletedQuoteData(quotes[quotes.length - 1]);
+                setCompletedQuoteData(quotes[quotes.length - 1]);
               }
             } catch {
               // Si no se pueden obtener los detalles, se muestra sin datos de quote
@@ -258,55 +242,36 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
           }
         }
       } catch {
-        // Si falla la detección, simplemente no se muestra el bubble/botón.
+        // Si falla la detección, simplemente no se muestra el botón.
       }
     };
 
-    void detectQuoteRequest();
+    void detectQuoteRequests();
   }, [
     role,
     userId,
     myUserId,
-    detectedQuoteRequested,
-    detectedQuoteCompleted,
-    onQuoteRequestDetected,
     chatId,
     messages,
     sendSystemMessage,
     systemMessageExists,
+    onQuoteRequestDetected,
+    onQuoteRequestCompleted,
   ]);
 
   // Cuando messages cargue, enviar mensaje del sistema pendiente si corresponde
   useEffect(() => {
-    if (pendingSystemMessage && messages.length > 0 && !systemMessageSentRef.current) {
-      if (!systemMessageExists(pendingSystemMessage)) {
-        void sendSystemMessage(pendingSystemMessage);
-      }
-      setPendingSystemMessage(null);
-    }
-  }, [pendingSystemMessage, messages, sendSystemMessage, systemMessageExists]);
-
-  // Detectar mensajes del sistema que cambian el estado (ej. "Cotización completada" por WebSocket)
-  // Se ejecuta cada vez que cambian los mensajes (incluye llegada por WebSocket)
-  useEffect(() => {
+    // Este efecto se ejecuta cuando messages cambia (incluye WebSocket)
+    // Si hay un mensaje "Cotización completada" en el historial, actualizar estado
     const completedMessage = messages.find(
-      (m) =>
-        m.message_type === 'QUOTE' && m.content === 'Cotización completada',
+      (m) => m.message_type === 'QUOTE' && m.content === 'Cotización completada',
     );
-    if (completedMessage && !detectedQuoteCompleted) {
-      setDetectedQuoteCompleted(true);
-      setDetectedQuoteRequested(false);
-      onQuoteRequestCompletedRef.current?.();
+    if (completedMessage) {
+      setIsQuoteCompleted(true);
+      setIsQuoteRequested(false);
+      onQuoteRequestCompleted?.();
     }
-  }, [messages, detectedQuoteCompleted]);
-
-  // Valores efectivos: estado local detectado tiene prioridad sobre los props
-  // iniciales (que vienen de AppNavigator).
-  // IMPORTANTE: si detectedQuoteCompleted es true, quoteRequested debe ser false
-  // para que el botón "Solicitar cotización" se habilite nuevamente.
-  const effectiveQuoteRequested =
-    (detectedQuoteRequested || initialQuoteRequested) && !detectedQuoteCompleted;
-  const effectiveQuoteRequestId = detectedQuoteRequestId ?? initialQuoteRequestId;
+  }, [messages, onQuoteRequestCompleted]);
 
   // Mientras se inicializa el chat, no renderizamos la UI de conversación.
   if (initStatus === 'loading') {
@@ -335,8 +300,8 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
   };
 
   const _handleViewQuote = () => {
-    if (onViewQuote && effectiveQuoteRequestId) {
-      onViewQuote(effectiveQuoteRequestId, initialQuoteData ?? null);
+    if (onViewQuote && quoteRequestId) {
+      onViewQuote(quoteRequestId, initialQuoteData ?? null);
     }
   };
 
@@ -386,18 +351,18 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
             }
           }}
           role={role}
-          quoteRequested={effectiveQuoteRequested}
+          quoteRequested={isQuoteRequested}
         />
       )}
 
       {/* Botón "Completar Cotización" (trabajador, solo si hay solicitud pendiente sin completar) */}
-      {role === 'worker' && detectedQuoteRequested && !detectedQuoteCompleted && onCompleteQuote && (
+      {role === 'worker' && isQuoteRequested && !isQuoteCompleted && onCompleteQuote && (
         <View style={styles.completeButtonWrapper}>
           <TouchableOpacity
             style={styles.completeButton}
             onPress={() => {
-              if (effectiveQuoteRequestId && chatId && myUserId) {
-                onCompleteQuote(effectiveQuoteRequestId, chatId, myUserId);
+              if (quoteRequestId && chatId && myUserId) {
+                onCompleteQuote(quoteRequestId, chatId, myUserId);
               }
             }}
             accessibilityLabel="Completar cotización"
