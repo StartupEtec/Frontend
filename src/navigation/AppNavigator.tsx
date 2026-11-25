@@ -67,6 +67,8 @@ export const AppNavigator: React.FC = () => {
   const [selectedChatUserId, setSelectedChatUserId] = useState<string | null>(null);
   const [quoteRequested, setQuoteRequested] = useState<boolean>(false);
   const [quoteRequestId, setQuoteRequestId] = useState<string | null>(null);
+  const [quoteChatId, setQuoteChatId] = useState<string | null>(null);
+  const [quoteMyUserId, setQuoteMyUserId] = useState<string | null>(null);
   const [quoteData, setQuoteData] = useState<{
     id: string;
     order_id: string;
@@ -449,7 +451,9 @@ export const AppNavigator: React.FC = () => {
         onRequestQuote={() => {
           setCurrentRoute('QuoteRequest');
         }}
-        onCompleteQuote={() => {
+        onCompleteQuote={(chatId: string, myUserId: string) => {
+          setQuoteChatId(chatId);
+          setQuoteMyUserId(myUserId);
           setCurrentRoute('CompleteQuote');
         }}
         onQuoteRequestDetected={(qid) => {
@@ -485,17 +489,24 @@ export const AppNavigator: React.FC = () => {
     content = (
       <CompleteQuoteScreen
         quoteRequestId={quoteRequestId!}
+        chatId={quoteChatId!}
+        myUserId={quoteMyUserId!}
         onClose={() => {
           setCurrentRoute('Conversation');
           setQuoteRequestId(null);
           setQuoteData(null);
+          setQuoteChatId(null);
+          setQuoteMyUserId(null);
         }}
-        onRejected={(fields) => {
+        onRejected={(_fields) => {
           // El trabajador rechazó categoría o ubicación: volver al chat.
           // El mensaje de rechazo se envía desde el backend o se maneja aquí.
           setCurrentRoute('Conversation');
+          setQuoteRequested(false);
           setQuoteRequestId(null);
           setQuoteData(null);
+          setQuoteChatId(null);
+          setQuoteMyUserId(null);
         }}
         onCompleted={(quote) => {
           setQuoteData(quote);

@@ -25,8 +25,8 @@ export interface ConversationScreenProps {
   onGoBack: () => void;
   /** Callback al solicitar cotización (cliente). */
   onRequestQuote: () => void;
-  /** Callback al completar cotización (trabajador). */
-  onCompleteQuote?: () => void;
+  /** Callback al completar cotización (trabajador). Recibe chatId y myUserId. */
+  onCompleteQuote?: (chatId: string, myUserId: string) => void;
   /** Callback al ver detalle de cotización. */
   onViewQuote?: (quoteRequestId: string, quoteData: QuoteData | null) => void;
   /** Callback cuando se detecta una quote_request pendiente al entrar al chat. */
@@ -248,7 +248,7 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
         <View style={styles.completeButtonWrapper}>
           <TouchableOpacity
             style={styles.completeButton}
-            onPress={onCompleteQuote}
+            onPress={() => onCompleteQuote(chatId, myUserId)}
             accessibilityLabel="Completar cotización"
           >
             <Feather name="edit" size={14} color={colors.onPrimary} accessible={false} />

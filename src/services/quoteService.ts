@@ -83,6 +83,24 @@ export const quoteService = {
       { method: 'DELETE' },
     );
   },
+
+  /**
+   * Actualiza el estado de una solicitud de cotización (trabajador).
+   * Permite aceptar, rechazar o cancelar.
+   */
+  async updateQuoteRequestStatus(
+    quoteRequestId: string,
+    data: { status: string; rejection_reason?: string | null },
+  ): Promise<QuoteRequestData> {
+    const res = await apiClient<{ quote_request: QuoteRequestData }>(
+      `/quote-requests/requests/${quoteRequestId}/status`,
+      {
+        method: 'PATCH',
+        body: JSON.stringify(data),
+      },
+    );
+    return res.quote_request;
+  },
 };
 
 export default quoteService;
