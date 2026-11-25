@@ -157,6 +157,8 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
 
   // Al entrar al chat, detectar si existe una solicitud de cotización pendiente
   // o completada entre estos dos usuarios.
+  // Solo enviamos mensajes del sistema cuando ya tenemos el historial cargado
+  // (messages.length > 0) para evitar duplicados por race condition con useChat.
   useEffect(() => {
     const detectQuoteRequest = async () => {
       if (!myUserId) return;
@@ -179,8 +181,12 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
             setDetectedQuoteCompleted(false);
             onQuoteRequestDetected?.(pending.id);
 
-            // Enviar mensaje del sistema solo si aún no existe en el historial
-            if (!systemMessageSentRef.current && !systemMessageExists('Cotización solicitada')) {
+            // Solo enviar mensaje del sistema si ya cargó el historial y no existe aún
+            if (
+              messages.length > 0 &&
+              !systemMessageSentRef.current &&
+              !systemMessageExists('Cotización solicitada')
+            ) {
               await sendSystemMessage('Cotización solicitada');
             }
             return;
