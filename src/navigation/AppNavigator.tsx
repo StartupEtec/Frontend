@@ -451,7 +451,8 @@ export const AppNavigator: React.FC = () => {
         onRequestQuote={() => {
           setCurrentRoute('QuoteRequest');
         }}
-        onCompleteQuote={(chatId: string, myUserId: string) => {
+        onCompleteQuote={(quoteRequestId: string, chatId: string, myUserId: string) => {
+          setQuoteRequestId(quoteRequestId);
           setQuoteChatId(chatId);
           setQuoteMyUserId(myUserId);
           setCurrentRoute('CompleteQuote');

@@ -15,6 +15,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { colors, spacing, borderRadius, typography } from '../theme/tokens';
 import { useCompleteQuote } from '../hooks/useCompleteQuote';
 import { chatService } from '../services/chatService';
+import { quoteService } from '../services/quoteService';
 import { apiClient } from '../services/api';
 import { QuoteData, QuoteRequestData } from '../types/chat';
 
@@ -22,9 +23,9 @@ export interface CompleteQuoteScreenProps {
   /** ID de la solicitud de cotización recibida. */
   quoteRequestId: string;
   /** ID del chat donde se enviará el mensaje de rechazo. */
-  chatId: string;
+  chatId?: string;
   /** ID del usuario trabajador autenticado. */
-  myUserId: string;
+  myUserId?: string;
   /** Callback al volver al chat sin hacer cambios. */
   onClose: () => void;
   /** Callback al rechazar categoría o ubicación. */
@@ -45,8 +46,8 @@ export interface CompleteQuoteScreenProps {
  */
 export const CompleteQuoteScreen: React.FC<CompleteQuoteScreenProps> = ({
   quoteRequestId,
-  chatId,
-  myUserId,
+  chatId = '',
+  myUserId = '',
   onClose,
   onRejected,
   onCompleted,
