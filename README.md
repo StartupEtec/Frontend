@@ -1,211 +1,199 @@
 # Startup Mobile Frontend (React Native + Expo)
 
-Aplicación Mobile (React Native + Expo) para la plataforma on-demand de servicios independientes con soporte de Rol Dual y pagos en Escrow.
+Aplicación Mobile (React Native + Expo) para la plataforma on-demand de servicios independientes con soporte de Rol Dual, chats en tiempo real, cotizaciones, pagos en Escrow y geolocalización.
+
+## 📋 Tabla de Contenidos
+
+1. [Requisitos Previos](#-requisitos-previos)
+2. [Configuración Local](#-configuración-local)
+3. [Ejecutar la App con Expo](#-ejecutar-la-app-con-expo)
+4. [Levantar con Docker](#-levantar-con-docker)
+5. [Estructura del Proyecto](#-estructura-del-proyecto)
+6. [Conexión con el Backend](#-conexión-con-el-backend)
+7. [Módulos Implementados](#-módulos-implementados)
+8. [Pruebas](#-pruebas)
+9. [Seguridad](#-seguridad)
+10. [Troubleshooting](#-troubleshooting)
+11. [Documentación Relacionada](#-documentación-relacionada)
 
 ---
 
-## 📱 Módulos Implementados
+## 🔧 Requisitos Previos
 
-### 1. Issue #7 - Pantalla de Onboarding
+| Herramienta | Versión | Notas |
+|-------------|---------|-------|
+| **Node.js** | v22.13+ | Requerido por Expo SDK 58 |
+| **npm** | v10+ | Gestiona dependencias |
+| **Expo Go** | App móvil | Para probar en dispositivo físico sin build |
 
-- **Carrusel de 4 Pantallas**: Presentación general, Rol Cliente, Rol Trabajador, Bienvenida.
-- **Persistencia Local**: AsyncStorage (`@startup_app/onboarding_completed`).
-- **Navegación Condicional**: Salteo de Onboarding si ya se completó previamente.
-
-### 2. Issue #8 - Pantalla de Registro (`RegisterScreen`)
-
-- **Campos del Formulario**: Nombre, Apellido, Correo Electrónico, Teléfono Móvil, Contraseña, Confirmar Contraseña, Términos y Condiciones.
-- **Validaciones en Tiempo Real**:
-  - Formato de Email (regex estándar).
-  - Teléfono (8 a 15 dígitos numéricos/internacionales).
-  - Complejidad de Contraseña: Mínimo 8 caracteres, 1 mayúscula, 1 minúscula, 1 número y 1 símbolo.
-  - Coincidencia exacta de contraseñas.
-  - Aceptación obligatoria de Términos y Condiciones.
-- **Componentes Modulares (<150 líneas cada uno)**:
-  - `RegisterFormInput.tsx`: Campo de entrada responsivo con visibilidad de contraseña toggleable y accesibilidad WCAG AA.
-  - `PasswordRequirements.tsx`: Indicador visual dinamico con checklist de requisitos de contraseña.
-  - `RegisterTermsRow.tsx`: Checkbox con enlace directo al documento de Términos y Condiciones.
-  - `TermsModal.tsx`: Modal con los términos legales y botón de aceptación.
-- **Integración API & Manejo de Errores**:
-  - Módulo `src/services/api.ts` con reintentos por backoff exponencial y timeout.
-  - Endpoint `POST /auth/register` en `authService.ts`.
-  - Manejo de errores de conflicto (409 Email/Teléfono duplicado) y errores de red.
-- **Flujo de Navegación**:
-  - Navegación a pantalla de "Verificación de OTP" tras registro exitoso.
-  - Enlace direct a "Iniciar Sesión" (Login).
-
-### 3. Issue #23 - Gestión de Ubicaciones (`LocationsScreen`)
-
-- **Acceso**: desde "Mi Perfil" → "Mis Ubicaciones" (`ProfileScreen` → `LocationsScreen`).
-- **Listado**: direcciones guardadas con mapa de vista general (un pin por ubicación) y badge de "Principal".
-- **Cercanía (lógica tipo Google Maps)**: al abrir la pantalla se piden **permisos de ubicación** (`expo-location`); con la posición del dispositivo se consulta `GET /users/:id/locations?lat=&lng=` para obtener la distancia real a cada dirección y se **ordenan de más cercana a más lejana**, mostrando la distancia en cada tarjeta. El mapa se centra en tu posición y dibuja el punto azul. Si se rechaza el permiso aparece un banner con "Activar" para volver a pedirlo.
-- **Alta/Edición** (modal): búsqueda de direcciones + mapa interactivo para fijar coordenadas.
-  - Búsqueda de direcciones (con debounce) vía **OpenStreetMap Nominatim** (sin API key).
-  - Mapa interactivo (ver _Mapas_): tocar el mapa o arrastrar el pin actualiza las coordenadas y resuelve la dirección por reverse-geocoding.
-  - Botón **"Usar mi ubicación actual"** para fijar el pin en tu posición y resolver la dirección automáticamente.
-- **Mapa expandible**: tanto el mapa del formulario como el de vista general se pueden abrir a **pantalla completa** (botón de expandir) y recentrar en tu ubicación (botón de crosshair).
-- **Eliminar** con diálogo de confirmación y **marcar como principal**.
-- **Endpoints**: `GET /users/:id/locations` (opcional `?lat=&lng=`), `POST /users/:id/locations`, `PATCH /locations/:location_id`, `DELETE /locations/:location_id`.
-- **Estados visuales**: loading (spinner), error (con "Reintentar"), empty ("No tenés ubicaciones guardadas"), banner de permiso, guardando/eliminando y pull-to-refresh.
-- **Límites**: máximo 10 ubicaciones por usuario (lo impone el backend); al alcanzarlo se oculta el alta y se muestra un aviso.
-- **Componentes**: `components/location/` → `LeafletMap`, `LocationMapPicker`, `LocationsMapPreview`, `AddressSearchInput`, `LocationCard`, `LocationFormModal`, `ConfirmDialog`.
-- **Configuración opcional**: `EXPO_PUBLIC_GEOCODING_URL` para cambiar de proveedor de geocoding (por defecto `https://nominatim.openstreetmap.org`).
-
-#### Mapas (WebView + Leaflet + OpenStreetMap)
-
-Los mapas **no** usan `react-native-maps`. Se dibujan con **Leaflet** dentro de un **`react-native-webview`** (`components/location/LeafletMap.tsx`) usando mosaicos de **OpenStreetMap**, para que funcionen en **Expo Go** sin API key.
-
-- **Por qué**: desde Expo SDK 55, Expo Go **dejó de soportar Google Maps**; en Android `react-native-maps` se apoya en el SDK de Google y el mapa queda **en negro con el logo de Google**. Además, ese SDK exige una Google Maps API key **incluso para tiles propios** (`UrlTile`), así que la WebView evita por completo esa dependencia.
-- **Comunicación RN ↔ mapa**: React Native envía comandos con `injectJavaScript` y el mapa responde eventos (`press`, `markerPress`, `markerDragEnd`, `moveend`, `ready`, `error`) con `postMessage`.
-- **Leaflet** se carga desde CDN (`unpkg.com/leaflet@1.9.4`) y los tiles desde `tile.openstreetmap.org`. Por eso el mapa necesita conexión a internet; si no cargan, se muestra un estado de error con botón **"Reintentar"**.
-- **Política de uso de OSM**: el proveedor público es apto para desarrollo/prototipo; para producción con mucho tráfico conviene un proveedor de tiles propio.
-- **Alternativa**: si preferís volver a `react-native-maps`, hay que crear una **Google Maps API key** y usar un **development build** (no funciona en Expo Go); no es un cambio de código puro.
-- **Permisos**: el plugin `expo-location` en `app.json` define el texto de `NSLocationWhenInUseUsageDescription`; en Android agrega los permisos `ACCESS_FINE_LOCATION`/`ACCESS_COARSE_LOCATION`.
-
-### 4. Issue #24 - Búsqueda de Trabajadores en Mapa (`WorkerSearchScreen`)
-
-- **Acceso**: desde la **Pantalla Principal** → botón **"Buscar Trabajadores"** → **pop-up con las ubicaciones guardadas** (`SearchOriginModal`, mismo patrón visual que el modal de cambio de rol): lista `GET /users/:id/locations`, resalta la elegida previamente y siempre ofrece **"＋ Agregar ubicación"** (si no hay ninguna guardada es la salida del estado vacío). El botón envía **directo al formulario de alta** de una ubicación y, al volver, el pop-up **se reabre** para que siga con la búsqueda.
-- **Mapa interactivo desde la ubicación elegida**: la ubicación guardada que elija el usuario reemplaza a la del dispositivo: es el **centro inicial del mapa** (sin pedir permiso y sin esperar GPS: la pantalla abre al instante) y la **referencia fija de la sesión** para los colores de cobertura. Un botón flotante **recentra** en esa ubicación si el usuario exploró otra zona.
-- **Búsqueda automática al mover el mapa**: el evento `moveend` de Leaflet reporta el centro y zoom visibles; cada gesto de pan/zoom re-consulta los trabajadores alrededor del **centro visible** (radio fijo de 100 km: no hay filtro de distancia). Un guard ignora los recentrados hechos por código para evitar bucles y una tolerancia de ~20 m (`CENTER_EPSILON`) absorbe micro-paneos y el redondeo por píxel de Leaflet sin re-consultar.
-- **Filtro de categoría**: pills horizontales con las 32 categorías del seed (`types/worker.ts` espeja `Backend/src/database/seeds/01_categories.js`; el backend no expone `GET /categories`). Cambiar de categoría re-consulta en el mismo centro, sin mover el mapa.
-- **Pines y ficha resumida**: al tocar un pin se abre una ficha con **nombre, calificación (★) y distancia**, más los botones **"Ver Perfil Completo"** y **"Solicitar Servicio"** (muestra un aviso "Próximamente": el flujo de cotización es un issue futuro).
-- **Pines según el área de cobertura**: el color de cada pin compara la **ubicación elegida** (fija durante la sesión; no la del dispositivo ni el centro visible tras paneos) contra `coverage_radius_km` del trabajador — **verde** (`workerAccent`) si está dentro del área, **verde apagado** (`workerAccentDim`) si está afuera pero por menos de 5 km (`COVERAGE_NEAR_BAND_KM`), **gris** (`workerOut`) si está más lejos o no definió área. Al elegir otra ubicación en el pop-up los colores se recalculan. La distancia se calcula en el cliente con haversine (`distanceKmBetween` / `coverageTier` en `utils/map.ts`). El mapa también lleva **un pin propio de la ubicación elegida** (color del rol, dirección como título, igual que en "Mis Ubicaciones") que señala el punto de referencia aunque el mapa se panee a mano; tocarlo no abre ninguna ficha.
-- **Contador de resultados**: "N trabajadores encontrados" (o "N+" al llegar al límite de 50 por consulta) e indicador de refresco en segundo plano.
-- **Vista lista ↔ mapa**: botón en el header para alternar; la lista muestra las mismas tarjetas con sus acciones. La **vista de lista** (Issue #25) agrega una barra de filtros propia: **búsqueda por nombre** (input con debounce de 300 ms, insensible a mayúsculas y acentos), **calificación mínima** (pills con estrellas: Todas / 3+ / 4+ / 4,5+) y **ordenamiento** (Distancia, Calificación; por defecto Distancia, más cercano primero, con empates desempatados por distancia). El **filtro de distancia quedó fuera por diseño** (la búsqueda usa el radio fijo de 100 km). La lista pagina en el cliente (`WORKER_LIST_PAGE_SIZE = 10` por página) con botón **"Cargar más"**, muestra "N de M trabajadores", distingue el estado vacío real ("Sin trabajadores cerca") de **"Sin coincidencias"** (con botón "Limpiar filtros"), y muestra un indicador "Actualizando resultados..." mientras revalida en segundo plano sin vaciar lo visible. La lógica de filtrar/ordenar/paginar vive en `utils/workerList.ts` (pura) y el estado de los controles en `hooks/useWorkerList.ts`; el componente `components/worker/WorkerListFilters.tsx` es solo presentación. La paginación se reinicia al cambiar de centro o categoría, no los filtros. Como el backend no soporta orden/filtro/`search`/total, todo se resuelve en el cliente sobre el conjunto ya traído (por eso `NEARBY_MAX_LIMIT` subió a 100, el máximo del contrato).
-- **Estabilidad del mapa (anti-temblor)**: la fila del contador de resultados siempre está montada con **altura fija** (si apareciera/desapareciera según los resultados, la WebView se redimensiona, Leaflet re-centra con `invalidateSize` y el mapa entraba en un bucle visible de temblor); `setView` **ignora** recentrados al mismo punto/zoom (guard de ~25 m) para cortar el eco `moveend` → `setView` → `moveend`, y se aplica **sin animación** (`animate: false`: un pan animado sobre tiles cargando se ve como salto); `invalidateSize` solo se ejecuta cuando el tamaño de la WebView **realmente cambió** (ignora tamaños en 0 —pantalla oculta— y repetidos); y los pines se **reconcilian de forma diferencial**: los que siguen presentes solo actualizan posición/color, sin borrar y re-crear todo el conjunto (sin parpadeo en cada recarga).
-- **Apertura y vuelta rápidas**: la búsqueda ya **no depende de la ubicación del dispositivo** (no pide permiso ni espera GPS: abre al instante en la ubicación elegida), y `useNearbyWorkers` cachea la **última búsqueda exitosa de la sesión** por centro/radio/categoría (nivel módulo) y la revalida en silencio, así un remontaje de la pantalla —o elegir una ubicación ya consultada— arranca con resultados al instante. (`deviceLocation` sigue usándose en el formulario de ubicaciones, con su atajo de última posición conocida ≤ 60 s.)
-- **Perfil mínimo del trabajador (`WorkerProfileScreen`)**: desde "Ver Perfil Completo" se abre la ficha pública (`GET /users/:id`, sin auth) con avatar, nombre, categoría, badges **Disponible/Certificado**, calificación, distancia, un indicador chico de **"Estás en su área de cobertura"** calculado contra la **ubicación elegida para buscar** (o "Fuera de su área por poco / de cobertura", con la distancia al límite, y "Este trabajador no definió su área de cobertura" si no tiene radio), biografía y **"Solicitar Servicio"** (también "Próximamente"). Los datos básicos vienen de la búsqueda y la bio/rating fresco se cargan aparte, con su propio loading, error y "Reintentar".
-- **Endpoints**: `GET /workers/nearby?latitude=&longitude=&radius_km=&category_id?=&limit=&offset?`, `GET /users/:id`, `GET /users/:id/locations`.
-- **Estados visuales**: spinner "Buscando trabajadores...", error con "Reintentar", banner de resultados viejos si falla un refresco, estado vacío en mapa y en lista ("No hay trabajadores disponibles por ahora"); en el pop-up: "Cargando tus ubicaciones...", error con "Reintentar" y estado vacío con el botón de agregar.
-- **Componentes**: `components/worker/` → `WorkerFilters` (categoría), `WorkerListFilters` (nombre/rating/orden), `WorkerCard`; `components/location/` → `SearchOriginModal`; `screens/` → `WorkerSearchScreen`, `WorkerProfileScreen`; `hooks/` → `useNearbyWorkers` (descarta respuestas fuera de orden), `useWorkerList`; `utils/` → `workerList` (filtro/orden/paginado puro); `services/` → `workerSearchService`, `userService.getPublicProfile`, `locationService.list`.
-- **Navegación**: sin librería externa — rutas nuevas `"WorkerSearch"` y `"WorkerProfile"` en el `AppRoute` de `AppNavigator.tsx` (patrón de la app), y el pop-up decide si se entra y **con qué ubicación de referencia** (se guarda en estado del navigator y se pasa como prop `origin` a la búsqueda y al perfil). La pantalla de búsqueda **queda montada y oculta (`display: none`)** en las demás rutas desde que se abre por primera vez (se desmonta al cerrar sesión): abrir el perfil o volver a la Principal **no recarga el mapa** —la WebView del mapa sobrevive a la navegación— y se conservan la vista, el pin seleccionado y los resultados. "Agregar ubicación" abre la ruta `"Locations"` **con el formulario de alta abierto** (`openCreateOnMount`) y back a la Principal (reabre el pop-up), sin romper el flujo clásico Perfil → Mis Ubicaciones.
+> El frontend consume la API del Backend. Asegúrate de tener el backend levantado y accesible antes de iniciar la app.
 
 ---
 
-### 5. Issue #26 - Perfil de Trabajador (Vista Cliente)
+## ⚙️ Configuración Local
 
-- **Acceso**: desde la ficha resumida de la búsqueda → botón **"Ver Perfil Completo"** → abre `WorkerProfileScreen`.
-- **Qué muestra**: avatar grande, nombre, categoría, calificación (estrellas + promedio + cantidad de reseñas), distancia desde la ubicación elegida para buscar, biografía ("Acerca de"), galería de trabajos anteriores y un único botón **"Solicitar Servicio"**.
-- **Pestañas**: "Perfil" (bio + galería) y "Reseñas (N)" (listado con autor, estrellas, fecha y texto; paginación con "Ver más").
-- **Galería de trabajos anteriores**: placeholder "Este trabajador todavía no publicó trabajos anteriores" hasta que el backend exponga el endpoint de portfolio.
-- **Distancia**: calculada en el cliente con haversine desde la ubicación guardada elegida para buscar (o desde el centro de búsqueda si no hay una elegida).
-- **Disponibilidad**: se muestra como badge "Disponible" / "No disponible" según `availability_status`. Los horarios detallados quedan pendientes de un endpoint público de backend (hoy solo el dueño puede leerlos).
-- **Botón único**: "Solicitar Servicio" muestra un aviso "Próximamente" (el flujo de cotización es un issue futuro). No hay botones de contacto ni "Iniciar Chat".
-- **Indicador de carga**: spinner "Cargando perfil..." / "Cargando reseñas..." mientras se traen los datos.
-- **Manejo de errores**: 404 → "Trabajador no encontrado."; 5xx/red → mensaje genérico con botón "Reintentar". El error de reseñas solo afecta la pestaña de reseñas, no el perfil.
-- **Endpoints**: `GET /users/:id` (perfil público), `GET /users/:id/ratings` (reseñas). **Nota**: `GET /users/:id/worker-profile` solo lo puede leer el dueño del perfil, por eso no se usa para la vista cliente.
-
-### 6. Issue #30 - Pantalla de Lista de Chats
-
-- **Acceso**: desde el botón **"Chats"** en el NavBar → abre `ChatsScreen`.
-- **Qué muestra**: lista de conversaciones con avatar del otro usuario, nombre, último mensaje (preview), hora del último mensaje y badge de notificaciones no leídas.
-- **Barra de búsqueda**: filtro de conversaciones por nombre (búsqueda en backend vía `?search=`).
-- **Estilo WhatsApp-like**: título "Chats", barra de búsqueda, lista de tarjetas de conversación.
-- **Navegación**: al tocar un chat navega a `ConversationPlaceholderScreen`.
-- **Indicador de carga**: spinner "Cargando conversaciones..." mientras se traen los datos.
-- **Manejo de errores**: error de servidor con botón "Reintentar"; estado vacío "Todavía no tienes conversaciones."
-- **Endpoints**: `GET /users/me/chats` (lista de chats del usuario autenticado). El token JWT se adjunta automáticamente vía `apiClient`.
-
----
-
-### 7. Issue #45 - Pantalla de Pedidos ("Mis Pedidos")
-
-- **Acceso**: desde el botón **"Mis Pedidos"** en el NavBar (a la izquierda del botón de Mensajes, antes de Chats) → abre `OrderListScreen`.
-- **Qué muestra**: dos pestañas —"Pendientes" (PENDING, ACCEPTED, IN_PROGRESS) y "Realizados" (COMPLETED, CANCELLED, REJECTED)— con una lista de tarjetas de orden. Cada tarjeta muestra el servicio, la fecha, el nombre de la otra parte (trabajador si el usuario es cliente, cliente si es trabajador), el precio y el estado con indicador visual de color.
-- **Botón "Finalizar servicio"**: aparece en órdenes con estado IN_PROGRESS. Al tocarlo llama a `POST /orders/:id/complete` y, al confirmarse, muestra un toast y refresca la lista para que la orden pase de "Pendientes" a "Realizados".
-- **Menú de tres puntitos**: en la esquina superior derecha de cada tarjeta, abre un modal de solo lectura con todos los detalles: nombre de la otra parte, servicio, fecha, precio y estado.
-- **Búsqueda**: barra de búsqueda por nombre de usuario (envía `?search=` al backend).
-- **Infinite scroll**: carga más pedidos al llegar al final de la lista (`limit`/`offset` del backend).
-- **Estados visuales**: spinner de carga, estado vacío contextualizado ("No tienes pedidos pendientes" / "No tienes pedidos realizados"), error con botón "Reintentar" y indicador "Cargando más pedidos…" al paginar.
-- **Rol dual**: respeta `current_role` del JWT para mostrar el nombre correcto de la otra parte y filtrar órdenes por el rol activo.
-- **Endpoints**: `GET /users/:id/orders` (listado con paginación y filtros), `GET /orders/:id` (detalle), `POST /orders/:id/complete` (finalizar servicio).
-- **Toast post-pago**: tras un pago exitoso en `PaymentScreen`, se muestra el toast "Tu pedido ya se confirmó y lo podés ver en la pantalla de mis pedidos" antes de volver a la conversación.
-
----
-
-## 🏗️ Estructura del Proyecto
-
-```
-Frontend/src/
-├── theme/tokens.ts                  # Tokens del sistema de diseño (modo oscuro)
-├── types/
-│   ├── onboarding.ts
-│   ├── auth.ts                      # Interfaces de Registro y Autenticación
-│   ├── location.ts                  # Tipos de ubicaciones guardadas
-│   ├── rating.ts                    # Tipos de reseñas/calificaciones (Issue #26)
-│   ├── chat.ts                      # Tipos de chats y lista de conversaciones (Issue #30)
-│   └── worker.ts                    # Tipos de búsqueda de trabajadores + catálogo de categorías
-├── services/
-│   ├── api.ts                       # Cliente API centralizado (backoff retry + timeout)
-│   ├── authService.ts               # Llamadas a endpoints de Auth
-│   ├── locationService.ts           # CRUD de ubicaciones guardadas
-│   ├── workerSearchService.ts       # GET /workers/nearby (búsqueda en mapa)
-│   ├── ratingService.ts             # GET /users/:id/ratings (reseñas, Issue #26)
-│   ├── chatService.ts               # GET /users/me/chats (lista de chats, Issue #30)
-│   ├── deviceLocation.ts            # Ubicación del dispositivo (expo-location)
-│   └── geocodingService.ts          # Búsqueda/reverse-geocoding (Nominatim)
-├── hooks/
-│   ├── useOnboarding.ts
-│   ├── useRegisterForm.ts           # Hook personalizado con validación y estados
-│   ├── useLocations.ts              # Lista + CRUD de ubicaciones (orden por cercanía)
-│   ├── useNearbyWorkers.ts          # Búsqueda cercana (refetch al mover mapa/filtros)
-│   ├── useWorkerList.ts             # Filtros de lista (nombre/rating), orden y paginado
-│   ├── useWorkerProfile.ts          # GET /users/:id (perfil público, Issue #26)
-│   ├── useWorkerReviews.ts          # GET /users/:id/ratings (reseñas, Issue #26)
-│   ├── useChats.ts                  # GET /users/me/chats (lista de chats, Issue #30)
-│   ├── useDeviceLocation.ts         # Permiso + posición del dispositivo
-│   └── useLocationForm.ts           # Estado del formulario de ubicación
-├── utils/
-│   ├── map.ts                       # Centro/zoom, tiles OSM, formato de distancia y zoom por radio
-│   ├── rating.ts                    # Formato de promedio, estrellas y fecha (Issue #26)
-│   └── workerList.ts                # Filtro/orden/paginado puro de la lista de trabajadores
-├── components/
-│   ├── chat/
-│   │   └── ChatListItem.tsx         # Fila individual de chat: avatar, nombre, último mensaje, hora y badge de no leídos (Issue #30)
-│   ├── onboarding/                  # Subcomponentes de Onboarding
-│   ├── register/
-│   │   ├── RegisterFormInput.tsx    # Input con accesibilidad y toggle de contraseña
-│   │   ├── PasswordRequirements.tsx # Checklist de complejidad de contraseña
-│   │   ├── RegisterTermsRow.tsx     # Checkbox de términos y condiciones
-│   │   └── TermsModal.tsx           # Modal de términos y condiciones
-│   ├── worker/
-│   │   ├── WorkerFilters.tsx            # Pills de categoría (sin filtro de distancia)
-│   │   ├── WorkerListFilters.tsx        # Búsqueda por nombre, rating mínimo y orden
-│   │   ├── WorkerCard.tsx               # Tarjeta resumida con acciones
-│   │   ├── WorkerProfileHeader.tsx      # Avatar, nombre, categoría, badges (Issue #26)
-│   │   ├── WorkerRatingSummary.tsx      # Estrellas + promedio + cantidad (Issue #26)
-│   │   ├── WorkerProfileTabs.tsx        # Pestañas Perfil / Reseñas (Issue #26)
-│   │   ├── WorkerReviewCard.tsx         # Tarjeta de una reseña (Issue #26)
-│   │   ├── WorkerStars.tsx              # Relleno visual de estrellas (Issue #26)
-│   │   └── WorkerPortfolioGallery.tsx   # Galería de trabajos anteriores (Issue #26)
-│   └── location/
-│       ├── LeafletMap.tsx           # Mapa WebView + Leaflet + OSM (sin API key)
-│       ├── LocationMapPicker.tsx    # Mapa interactivo (pin arrastrable, expandible)
-│       ├── LocationsMapPreview.tsx  # Mapa de solo lectura con pins (expandible)
-│       ├── AddressSearchInput.tsx   # Búsqueda de direcciones (debounced)
-│       ├── LocationCard.tsx         # Ítem de la lista de ubicaciones
-│       ├── LocationFormModal.tsx    # Modal de alta/edición
-│       ├── ConfirmDialog.tsx        # Confirmación de acciones destructivas
-│       └── SearchOriginModal.tsx    # Pop-up de elegir ubicación de la búsqueda
-├── screens/
-│   ├── OnboardingScreen.tsx
-│   ├── RegisterScreen.tsx           # Contenedor de la pantalla de Registro (<150 líneas)
-│   ├── LocationsScreen.tsx          # Gestión de ubicaciones guardadas
-│   ├── WorkerSearchScreen.tsx       # Búsqueda de trabajadores en mapa/lista
-│   ├── WorkerProfileScreen.tsx      # Perfil público mínimo del trabajador
-│   ├── ChatsScreen.tsx              # Lista de conversaciones (estilo WhatsApp, Issue #30)
-│   └── ConversationPlaceholderScreen.tsx  # Pantalla de conversación placeholder (Issue #30)
-└── navigation/AppNavigator.tsx      # Ruteo principal (Onboarding, Register, OTP, Login, Perfil, Ubicaciones, Búsqueda, Chats)
-```
-
----
-
-## 🧪 Ejecutar Pruebas y Cobertura
+### 1. Clonar el repositorio
 
 ```bash
-# Ejecutar todas las pruebas unitarias e integración
+git clone https://github.com/StartupEtec/Frontend.git Frontend
+cd Frontend
+```
+
+### 2. Instalar dependencias
+
+```bash
+npm install
+```
+
+### 3. Levantar el backend
+
+El frontend necesita el backend disponible. Levanta el backend según la documentación de su repositorio y obtén su URL pública.
+
+---
+
+
+---
+
+## 🚀 Ejecutar la App con Expo
+
+```bash
+# Inicia Metro (bundler de Expo)
+npm start
+```
+
+Luego escanea el código QR con la app **Expo Go** (Android o iOS) en tu dispositivo físico.
+
+> La aplicación se ha probado con **Expo Go** (Android e iOS).
+
+---
+
+## 🐳 Levantar con Docker
+
+El frontend incluye `Dockerfile` y `docker-compose.yml` para despliegue contenedorizado.
+
+```bash
+cd Frontend
+
+# Construir y levantar (puerto 8081)
+docker compose up -d --build
+
+# Ver logs
+docker compose logs -f frontend
+
+# Detener
+docker compose down
+```
+
+- El contenedor se construye sobre `node:22-slim`.
+- El archivo `.env` **no se copia en la imagen**; las variables se inyectan en runtime vía `env_file`.
+
+---
+
+## 📂 Estructura del Proyecto
+
+```
+Frontend/
+├── App.tsx                          # Punto de entrada de la app
+├── app.json                         # Configuración de Expo
+├── Dockerfile                       # Imagen de producción
+├── docker-compose.yml               # Orquestación de contenedores
+├── .env.example                     # Plantilla de variables de entorno
+├── package.json                     # Dependencias y scripts
+├── tsconfig.json                    # Configuración de TypeScript
+└── src/
+    ├── components/                  # Componentes reutilizables
+    ├── hooks/                       # Hooks personalizados
+    ├── navigation/                  # Ruteo principal
+    ├── screens/                     # Pantallas de la app
+    ├── services/                    # Servicios de API
+    ├── types/                       # Tipos TypeScript
+    ├── utils/                       # Utilidades
+    └── context/                     # Contextos de React
+```
+
+---
+
+## 🔌 Conexión con el Backend
+
+El cliente API centralizado (`src/services/api.ts`) gestiona la comunicación con el backend:
+
+- **URL base**: `EXPO_PUBLIC_API_URL` (defecto `http://localhost:3000/api/v1`).
+- **Timeout**: 10 segundos por petición.
+- **Reintentos**: 2 reintentos con backoff exponencial.
+- **Refresh de sesión**: renovación automática de access token usando refresh token.
+- **Autenticación**: header `Bearer <accessToken>` en endpoints protegidos.
+
+La especificación completa de la API está disponible en la documentación del backend (OpenAPI/Swagger).
+
+---
+
+## 🧩 Módulos Implementados
+
+### Onboarding (Issue #7)
+Carrusel de 4 pantallas de bienvenida (presentación, rol cliente, rol trabajador, bienvenida) con persistencia local y navegación condicional.
+
+### Registro (Issue #8)
+Pantalla de registro de usuario con validaciones en tiempo real: formato de email, teléfono, complejidad de contraseña, coincidencia de contraseñas y aceptación de términos.
+
+### Ubicaciones (Issue #23)
+Gestión de ubicaciones guardadas con listado ordenado por cercanía, mapa interactivo, búsqueda de direcciones y permisos de ubicación.
+
+### Búsqueda de Trabajadores (Issue #24)
+Búsqueda de trabajadores cercanos en mapa y lista con filtros por categoría, colores de pins según área de cobertura y vista lista con búsqueda por nombre, calificación y ordenamiento.
+
+### Perfil de Trabajador (Vista Cliente) (Issue #26)
+Perfil público del trabajador con avatar, nombre, categoría, calificación, distancia, biografía, galería de trabajos y pestaña de reseñas.
+
+### Chats (Issue #30)
+Lista de conversaciones estilo WhatsApp con búsqueda por nombre y acceso a conversaciones individuales.
+
+### Mensajería en Tiempo Real (Issue #31)
+Conversaciones en tiempo real con envío de mensajes de texto, indicador de escritura y soporte para adjuntos de imagen.
+
+### Cotizaciones (Issue #35)
+Flujo de cotizaciones: solicitar cotización desde el chat, completar cotización como trabajador, aceptar/rechazar como cliente y ver detalle de cotización.
+
+### Órdenes / Mis Pedidos (Issue #45)
+Pantalla de órdenes con dos pestañas (Pendientes y Realizados), botón para finalizar servicio y detalle de cada orden.
+
+### Calificación de Servicio (Issue #48)
+Pantalla para calificar un servicio completado con estrellas, comentario y registro de la calificación.
+
+---
+
+## 🧪 Pruebas
+
+```bash
+# Ejecutar todas las pruebas
 npm test
 
-# Ejecutar reporte de cobertura de código (mínimo 70% requerido)
+# Ejecutar con reporte de cobertura
 npm run test:coverage
 ```
+
+- **Stack**: Jest + `@testing-library/react-native`.
+
+---
+
+## 🛡️ Seguridad
+
+- Los tokens de autenticación se almacenan de forma segura en el dispositivo.
+- Las variables de entorno sensibles (`.env`) quedan fuera del repositorio.
+- Las contraseñas se hashean en el backend (nunca viajan en texto plano desde el frontend).
+
+---
+
+## 🔧 Troubleshooting
+
+| Problema | Solución |
+|----------|----------|
+| Expo no conecta al backend | Verifica que `EXPO_PUBLIC_API_URL` en `.env` apunte a la URL correcta del backend. |
+| QR no se escanea | Asegura que el dispositivo y la computadora estén en la misma red Wi-Fi. |
+| Error de permisos de ubicación | Habilita los permisos de ubicación en la app del dispositivo. |
+
+---
+
+## 📖 Documentación Relacionada
+
+- **Backend**: https://github.com/StartupEtec/Backend
+- **Especificación OpenAPI**: Documentación interactiva de los endpoints del backend (Swagger/OpenAPI).
