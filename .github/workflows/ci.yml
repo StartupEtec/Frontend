@@ -30,3 +30,20 @@ jobs:
 
       - name: Run tests
         run: npm test
+
+  deploy-develop:
+    needs: lint-and-test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Sync and restart frontend
+        run: |
+          set -e
+          mkdir -p /home/Startup/deploy/frontend
+          tar --exclude=.git --exclude=node_modules --exclude=coverage --exclude=.github -cf - . | tar -xf - -C /home/Startup/deploy/frontend
+          docker compose --env-file /home/Startup/deploy/frontend.env -p laborin-frontend -f /home/Startup/deploy/frontend/docker-compose.local.yml up -d --build frontend
+          curl -fsS https://app.laborin.app/ >/dev/null
