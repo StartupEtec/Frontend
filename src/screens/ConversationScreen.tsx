@@ -25,6 +25,8 @@ export interface ConversationScreenProps {
   onGoBack: () => void;
   /** Callback al solicitar cotización (cliente). Recibe chatId y myUserId. */
   onRequestQuote: (chatId: string, myUserId: string) => void;
+  /** Callback al aceptar cotización (cliente). Recibe chatId y myUserId. */
+  onAcceptQuote?: (chatId: string, myUserId: string) => void;
   /** Callback al completar cotización (trabajador). Recibe quoteRequestId, chatId y myUserId. */
   onCompleteQuote?: (quoteRequestId: string, chatId: string, myUserId: string) => void;
   /** Callback al ver detalle de cotización. */
@@ -398,7 +400,11 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
         <QuoteRequestButton
           onPress={() => {
             if (chatId && myUserId) {
-              onRequestQuote(chatId, myUserId);
+              if (quoteCompleted && onAcceptQuote) {
+                onAcceptQuote(chatId, myUserId);
+              } else {
+                onRequestQuote(chatId, myUserId);
+              }
             }
           }}
           role={role}

@@ -484,6 +484,11 @@ export const AppNavigator: React.FC = () => {
           // Se habilita nuevamente el botón "Solicitar cotización".
           setQuoteRequested(false);
         }}
+        onAcceptQuote={(chatId: string, myUserId: string) => {
+          setQuoteChatId(chatId);
+          setQuoteMyUserId(myUserId);
+          setCurrentRoute('AcceptQuote');
+        }}
       />
     );
   } else if (currentRoute === 'QuoteRequest') {
