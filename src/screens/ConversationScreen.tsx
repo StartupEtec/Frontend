@@ -407,6 +407,11 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
               }
             }
           }}
+          onAcceptQuote={() => {
+            if (chatId && myUserId) {
+              onAcceptQuote(chatId, myUserId);
+            }
+          }}
           role={role}
           quoteRequested={effectiveQuoteRequested}
           quoteRequestedCompleted={quoteCompleted}
