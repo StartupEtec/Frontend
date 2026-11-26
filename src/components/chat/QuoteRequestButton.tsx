@@ -49,8 +49,8 @@ export const QuoteRequestButton: React.FC<QuoteRequestButtonProps> = ({
   const isCompleted = quoteRequestedCompleted;
 
   const handlePress = () => {
-    if (isCompleted) {
-      onAcceptQuote?.(chatId, myUserId);
+    if (isCompleted && onAcceptQuote && chatId && myUserId) {
+      onAcceptQuote(chatId, myUserId);
       return;
     }
     if (isDisabled) return;
