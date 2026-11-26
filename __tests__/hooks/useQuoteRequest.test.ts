@@ -18,10 +18,15 @@ describe('useQuoteRequest', () => {
       id: 'qr-1',
       client_id: 'client-1',
       worker_id: 'worker-100',
+      category_id: 'category-1',
+      category_name: 'Plomería',
       category: 'Plomería',
+      location_id: 'location-1',
+      location_address: 'Av. Siempre Viva 123',
       location: 'Av. Siempre Viva 123',
       description: 'Reparar fuga',
       status: 'PENDING',
+      order_id: null,
       created_at: '2026-11-24T10:00:00Z',
       updated_at: '2026-11-24T10:00:00Z',
     };
@@ -34,21 +39,21 @@ describe('useQuoteRequest', () => {
     await act(async () => {
       response = await result.current.requestQuote({
         worker_id: 'worker-100',
-        category: 'Plomería',
-        location: 'Av. Siempre Viva 123',
+        category_id: 'category-1',
+        location_id: 'location-1',
         description: 'Reparar fuga',
       });
     });
 
     expect(response).toEqual(mockResponse);
     expect(mockApiClient).toHaveBeenCalledWith(
-      '/quote-requests/request',
+      '/quote-requests/requests',
       expect.objectContaining({
         method: 'POST',
         body: JSON.stringify({
           worker_id: 'worker-100',
-          category: 'Plomería',
-          location: 'Av. Siempre Viva 123',
+          category_id: 'category-1',
+          location_id: 'location-1',
           description: 'Reparar fuga',
         }),
       })
@@ -66,8 +71,8 @@ describe('useQuoteRequest', () => {
       await expect(
         result.current.requestQuote({
           worker_id: 'worker-100',
-          category: 'Plomería',
-          location: 'Av. Siempre Viva 123',
+          category_id: 'category-1',
+          location_id: 'location-1',
         })
       ).rejects.toThrow('Network error');
     });

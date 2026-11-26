@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Alert,
   ScrollView,
@@ -13,6 +13,8 @@ import { StatusBar } from 'expo-status-bar';
 import { Feather } from '@expo/vector-icons';
 import { colors, spacing, borderRadius, typography, shadows } from '../theme/tokens';
 import { useQuoteRequest } from '../hooks/useQuoteRequest';
+import { categoryService } from '../services/categoryService';
+import { Category } from '../types/category';
 import { useLocations } from '../hooks/useLocations';
 import { LocationFormModal } from '../components/location/LocationFormModal';
 import { SearchOriginModal } from '../components/location/SearchOriginModal';
@@ -35,8 +37,8 @@ export interface QuoteRequestScreenProps {
     id: string;
     client_id: string;
     worker_id: string;
-    category: string;
-    location: string;
+    category: string | null;
+    location: string | null;
     description: string | null;
     status: string;
     created_at: string;
@@ -54,19 +56,8 @@ export interface QuoteRequestScreenProps {
  * - Descripción del trabajo (opcional, con contador de caracteres)
  * - Botones "Cancelar" y "Confirmar"
  *
- * Las categorías están hardcodeadas por ahora hasta integrarse con el
- * catálogo de categorías de la aplicación.
+ * Las categorías se cargan desde el catálogo activo del backend.
  */
-const CATEGORIES = [
-  'Plomería',
-  'Electricidad',
-  'Limpieza',
-  'Construcción',
-  'Pintura',
-  'Jardinería',
-  'Cuidado de adultos mayores',
-  'Otro',
-];
 
 /** Límite de caracteres para la descripción (alineado con EditProfile). */
 const MAX_DESCRIPTION_LENGTH = 500;
@@ -78,12 +69,34 @@ export const QuoteRequestScreen: React.FC<QuoteRequestScreenProps> = ({
   onClose,
   onRequestSuccess,
 }) => {
-  const [selectedCategory, setSelectedCategory] = useState(CATEGORIES[0]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>('');
   const [categoryDropdownVisible, setCategoryDropdownVisible] = useState(false);
   const [location, setLocation] = useState('');
+  const [locationId, setLocationId] = useState<string | null>(null);
   const [description, setDescription] = useState('');
   const [error, setError] = useState<string | null>(null);
   const { requestQuote, isSending } = useQuoteRequest();
+  const selectedCategoryName =
+    categories.find((category) => category.id === selectedCategoryId)?.name ??
+    'Seleccionar categoría...';
+
+  useEffect(() => {
+    let active = true;
+    categoryService
+      .listCategories()
+      .then((list) => {
+        if (!active) return;
+        setCategories(list);
+        setSelectedCategoryId((current) => current || list[0]?.id || '');
+      })
+      .catch(() => {
+        if (active) setCategories([]);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   // Ubicaciones guardadas del usuario
   const device = useDeviceLocation();
@@ -93,7 +106,11 @@ export const QuoteRequestScreen: React.FC<QuoteRequestScreenProps> = ({
   const [creatingLocation, setCreatingLocation] = useState(false);
 
   const handleSubmit = async () => {
-    if (!location.trim()) {
+    if (!selectedCategoryId) {
+      setError('La categoría es requerida');
+      return;
+    }
+    if (!locationId) {
       setError('La ubicación es requerida');
       return;
     }
@@ -101,8 +118,8 @@ export const QuoteRequestScreen: React.FC<QuoteRequestScreenProps> = ({
     try {
       const created = await requestQuote({
         worker_id: workerId,
-        category: selectedCategory,
-        location: location.trim(),
+        category_id: selectedCategoryId,
+        location_id: locationId,
         description: description.trim() || null,
       });
 
@@ -129,6 +146,7 @@ export const QuoteRequestScreen: React.FC<QuoteRequestScreenProps> = ({
       const created = await createLocation(payload);
       if (created) {
         setLocation(created.address);
+        setLocationId(created.id);
         setCreatingLocation(false);
         setLocationModalVisible(false);
       }
@@ -141,6 +159,7 @@ export const QuoteRequestScreen: React.FC<QuoteRequestScreenProps> = ({
 
   const handleLocationSelect = (selected: SavedLocation) => {
     setLocation(selected.address);
+    setLocationId(selected.id);
     setLocationSelectionVisible(false);
   };
 
@@ -171,7 +190,7 @@ export const QuoteRequestScreen: React.FC<QuoteRequestScreenProps> = ({
             style={styles.categoryButton}
             onPress={() => setCategoryDropdownVisible(!categoryDropdownVisible)}
           >
-            <Text style={styles.categoryValue}>{selectedCategory}</Text>
+            <Text style={styles.categoryValue}>{selectedCategoryName}</Text>
             <Feather name="chevron-down" size={16} color={colors.textMuted} accessible={false} />
           </TouchableOpacity>
         </View>
@@ -233,21 +252,21 @@ export const QuoteRequestScreen: React.FC<QuoteRequestScreenProps> = ({
       {/* Desplegable de categorías (se estira hacia abajo) */}
       {categoryDropdownVisible && (
         <View style={styles.categoryDropdownContainer}>
-          {CATEGORIES.map((category) => (
+          {categories.map((category) => (
             <TouchableOpacity
-              key={category}
+              key={category.id}
               style={[
                 styles.categoryOption,
-                selectedCategory === category && styles.categoryOptionSelected,
+                selectedCategoryId === category.id && styles.categoryOptionSelected,
               ]}
               onPress={() => {
-                setSelectedCategory(category);
+                setSelectedCategoryId(category.id);
                 setCategoryDropdownVisible(false);
               }}
             >
               <Text style={styles.categoryOptionText}>
-                {category}
-                {selectedCategory === category && ' ✓'}
+                {category.name}
+                {selectedCategoryId === category.id && ' ✓'}
               </Text>
             </TouchableOpacity>
           ))}
@@ -329,6 +348,10 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
   },
   categoryValue: {
+    color: colors.textPrimary,
+    fontSize: typography.fontSizes.sm,
+  },
+  locationValue: {
     color: colors.textPrimary,
     fontSize: typography.fontSizes.sm,
   },

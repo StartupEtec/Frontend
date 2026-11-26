@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import { apiClient, API_CONFIG, apiOrigin, ApiError, refreshSession } from './api';
 import { tokenStorage } from './tokenStorage';
 import * as FileSystem from 'expo-file-system/legacy';
@@ -56,7 +57,12 @@ export function toStoredUrl(url: string): string {
 
 /** ¿Es un archivo local que todavía hay que subir? */
 export function isLocalUri(uri: string): boolean {
-  return uri.startsWith('file://') || uri.startsWith('content://');
+  return (
+    uri.startsWith('file://') ||
+    uri.startsWith('content://') ||
+    uri.startsWith('blob:') ||
+    uri.startsWith('data:')
+  );
 }
 
 async function attemptUpload(
@@ -99,6 +105,45 @@ function parseUploadBody(
       'UPLOAD_ERROR'
     );
   }
+}
+
+function uploadResult(status: number, body: string): string {
+  const data = parseUploadBody(status, body);
+  if (status === 401 || status === 403) {
+    throw new ApiError('Sesión expirada. Volvé a iniciar sesión.', status, 'SESSION_EXPIRED');
+  }
+  if (status < 200 || status >= 300 || !data.url) {
+    throw new ApiError(
+      data.message || data.error || `Error HTTP ${status}`,
+      status,
+      data.error || 'UPLOAD_ERROR'
+    );
+  }
+  return data.url;
+}
+
+/**
+ * En Expo Web el ImagePicker devuelve un `blob:`; el fetch global de RN/Expo
+ * rechaza `{uri, name, type}` en FormData, pero en el navegador sí acepta un
+ * Blob real con nombre de archivo.
+ */
+async function attemptWebUpload(
+  url: string,
+  uri: string,
+  prefix: string,
+  headers: Record<string, string>
+): Promise<{ status: number; body: string }> {
+  const response = await fetch(uri);
+  if (!response.ok) {
+    throw new Error(`No se pudo leer la imagen (${response.status})`);
+  }
+  const blob = await response.blob();
+  const mimeType = blob.type || 'image/jpeg';
+  const ext = mimeType === 'image/png' ? 'png' : 'jpg';
+  const form = new FormData();
+  form.append('file', blob, `${prefix}-${Date.now()}.${ext}`);
+  const uploadResponse = await fetch(url, { method: 'POST', headers, body: form });
+  return { status: uploadResponse.status, body: await uploadResponse.text() };
 }
 
 export const profileService = {
@@ -202,12 +247,15 @@ export const profileService = {
   },
 
   /**
-   * Sube una imagen local (file://, content://) al backend y devuelve la URL
-   * pública (/uploads/....jpg) lista para avatar_url / dni_*_url.
+   * Sube una imagen local al backend y devuelve la URL pública
+   * (/uploads/....jpg) lista para avatar_url / dni_*_url.
    *
-   * Usa FileSystem.uploadAsync en lugar de fetch + FormData: el fetch global
-   * de RN/Expo solo acepta Blob/File en FormData y rechaza el objeto
+   * Nativo (file://, content://): usa FileSystem.uploadAsync en lugar de
+   * fetch + FormData, porque el fetch global de RN/Expo rechaza el objeto
    * {uri, name, type} con "Unsupported FormDataPart implementation".
+   *
+   * Web (blob:, data:): el ImagePicker devuelve un Blob, así que se sube con
+   * fetch + FormData real.
    *
    * Robusto contra URIs ajenas (DocumentPicker): verifica que el archivo
    * exista, lo copia a un directorio propio del caché y, si la vía legacy
@@ -218,6 +266,19 @@ export const profileService = {
     const ext = uri.split('?')[0].toLowerCase().endsWith('.png') ? 'png' : 'jpg';
     const mimeType = mimeTypeFromUri(uri);
     const url = `${API_CONFIG.BASE_URL}/uploads/profile-image`;
+
+    if (Platform.OS === 'web') {
+      let webResult: { status: number; body: string };
+      try {
+        webResult = await attemptWebUpload(url, uri, prefix, await authHeaders());
+      } catch {
+        throw new ApiError('No se pudo subir la imagen. Probá con otra foto.', 0, 'NETWORK_ERROR');
+      }
+      if ((webResult.status === 401 || webResult.status === 403) && (await refreshSession())) {
+        webResult = await attemptWebUpload(url, uri, prefix, await authHeaders());
+      }
+      return uploadResult(webResult.status, webResult.body);
+    }
 
     // 1. El archivo tiene que existir todavía (el caché de Expo Go se puede
     // evictar entre sesiones; en ese caso hay que volver a elegir la foto).
@@ -272,17 +333,6 @@ export const profileService = {
       // ignorar: el SO evicta el caché solo
     }
 
-    const data = parseUploadBody(status, body);
-    if (status === 401 || status === 403) {
-      throw new ApiError('Sesión expirada. Volvé a iniciar sesión.', status, 'SESSION_EXPIRED');
-    }
-    if (status < 200 || status >= 300 || !data.url) {
-      throw new ApiError(
-        data.message || data.error || `Error HTTP ${status}`,
-        status,
-        data.error || 'UPLOAD_ERROR'
-      );
-    }
-    return data.url;
+    return uploadResult(status, body);
   },
 };

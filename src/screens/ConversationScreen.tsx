@@ -163,11 +163,11 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
 
     try {
       if (role === 'client') {
-        const res = await apiClient<{ quote_requests: QuoteRequestData[] }>(
-          `/quote-requests/requests/sent`,
+        const res = await apiClient<{ requests: QuoteRequestData[] }>(
+          `/quote-requests/requests?role=MINE_AS_CLIENT`,
           { method: 'GET' }
         );
-        const requests = res.quote_requests ?? [];
+        const requests = res.requests ?? [];
 
         // Buscar una solicitud PENDING sin orden asociada (para mostrar "Cotización solicitada")
         const pending = requests.find(
@@ -209,11 +209,11 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
           }
         }
       } else if (role === 'worker') {
-        const res = await apiClient<{ quote_requests: QuoteRequestData[] }>(
-          `/quote-requests/requests/received`,
+        const res = await apiClient<{ requests: QuoteRequestData[] }>(
+          `/quote-requests/requests?role=MINE_AS_WORKER`,
           { method: 'GET' }
         );
-        const requests = res.quote_requests ?? [];
+        const requests = res.requests ?? [];
 
         // Buscar una solicitud PENDING sin order_id (para mostrar "Completar Cotización")
         const pending = requests.find(
@@ -266,11 +266,11 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
         // (el ID del mensaje no es el ID de la quote_request)
         void (async () => {
           try {
-            const res = await apiClient<{ quote_requests: QuoteRequestData[] }>(
-              `/quote-requests/requests/received`,
+            const res = await apiClient<{ requests: QuoteRequestData[] }>(
+              `/quote-requests/requests?role=MINE_AS_WORKER`,
               { method: 'GET' }
             );
-            const pending = (res.quote_requests ?? []).find(
+            const pending = (res.requests ?? []).find(
               (qr) => qr.status === 'PENDING' && qr.client_id === userId && !qr.order_id
             );
             if (pending) {
@@ -301,11 +301,11 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
         // (el ID del mensaje no es el ID de la quote_request)
         void (async () => {
           try {
-            const res = await apiClient<{ quote_requests: QuoteRequestData[] }>(
-              `/quote-requests/requests/sent`,
+            const res = await apiClient<{ requests: QuoteRequestData[] }>(
+              `/quote-requests/requests?role=MINE_AS_CLIENT`,
               { method: 'GET' }
             );
-            const pending = (res.quote_requests ?? []).find(
+            const pending = (res.requests ?? []).find(
               (qr) => qr.status === 'PENDING' && qr.worker_id === userId && !qr.order_id
             );
             if (pending) {
@@ -325,11 +325,11 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
         // Obtener el ID real de la quote_request (la completada tiene order_id)
         void (async () => {
           try {
-            const res = await apiClient<{ quote_requests: QuoteRequestData[] }>(
-              `/quote-requests/requests/sent`,
+            const res = await apiClient<{ requests: QuoteRequestData[] }>(
+              `/quote-requests/requests?role=MINE_AS_CLIENT`,
               { method: 'GET' }
             );
-            const completed = (res.quote_requests ?? []).find(
+            const completed = (res.requests ?? []).find(
               (qr) => qr.worker_id === userId && qr.order_id && qr.status === 'PENDING'
             );
             if (completed) {
