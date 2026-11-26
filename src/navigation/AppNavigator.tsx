@@ -484,9 +484,10 @@ export const AppNavigator: React.FC = () => {
           // Se habilita nuevamente el botón "Solicitar cotización".
           setQuoteRequested(false);
         }}
-        onAcceptQuote={(chatId: string, myUserId: string) => {
-          setQuoteChatId(chatId);
-          setQuoteMyUserId(myUserId);
+        onAcceptQuote={(chatId: string, myUserId: string, qid: string) => {
+          setAcceptQuoteRequestId(qid);
+          setAcceptQuoteChatId(chatId);
+          setAcceptQuoteMyUserId(myUserId);
           setCurrentRoute('AcceptQuote');
         }}
       />
@@ -560,7 +561,7 @@ export const AppNavigator: React.FC = () => {
           setAcceptQuoteChatId(null);
           setAcceptQuoteMyUserId(null);
         }}
-        onRejected={(fields) => {
+        onRejected={(_fields) => {
           setCurrentRoute('Conversation');
           setAcceptQuoteRequestId(null);
           setAcceptQuoteChatId(null);
@@ -568,8 +569,12 @@ export const AppNavigator: React.FC = () => {
         }}
         onCompleted={(quote) => {
           setQuoteData(quote);
-          setCurrentRoute('QuoteView');
-          setQuoteRequested(false);
+          setPaymentOrderId(quote.order_id);
+          setPaymentAmount(quote.proposed_price);
+          setAcceptQuoteRequestId(null);
+          setAcceptQuoteChatId(null);
+          setAcceptQuoteMyUserId(null);
+          setCurrentRoute('Payment');
         }}
       />
     );
