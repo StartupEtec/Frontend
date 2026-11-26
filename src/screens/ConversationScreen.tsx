@@ -109,6 +109,7 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
   const [quoteRequested, setQuoteRequested] = useState<boolean>(initialQuoteRequested);
   const [quoteRequestId, setQuoteRequestId] = useState<string | undefined>(initialQuoteRequestId);
   const [_quoteData, _setQuoteData] = useState<QuoteData | null>(null);
+  const [quoteCompleted, setQuoteCompleted] = useState<boolean>(false);
   // Ref para evitar enviar el mensaje del sistema múltiples veces
   const systemMessageSentRef = useRef<boolean>(false);
   // Mensaje del sistema pendiente de enviar (cuando messages aún no cargó)
@@ -288,15 +289,17 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
       if (lastSystemMessage.content === 'Cotización solicitada') {
         setQuoteRequested(true);
         setQuoteRequestId(lastSystemMessage.id);
+        setQuoteCompleted(false);
       }
       if (
         lastSystemMessage.content === 'Cotización completada' ||
         lastSystemMessage.content?.startsWith('La cotización fue rechazada')
       ) {
         // El cliente recibió una notificación de que su cotización fue completada
-        // o rechazada. Ocultar el botón "Solicitar cotización" inmediatamente.
+        // o rechazada. Ocultar el botón "Solicitar cotización".
         setQuoteRequested(false);
         setQuoteRequestId(lastSystemMessage.id);
+        setQuoteCompleted(true);
         onQuoteRequestCompletedRef.current?.();
       }
     }
@@ -400,7 +403,7 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
           }}
           role={role}
           quoteRequested={effectiveQuoteRequested}
-          quoteRequestedCompleted={effectiveQuoteRequested && Boolean(initialQuoteData)}
+          quoteRequestedCompleted={quoteCompleted}
         />
       )}
 
