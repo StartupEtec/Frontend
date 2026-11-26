@@ -1,0 +1,59 @@
+{
+  "expo": {
+    "name": "Labor-In",
+    "slug": "labor-in",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#f9f9f9",
+    "ios": {
+      "supportsTablet": true
+    },
+    "web": {
+      "bundler": "metro"
+    },
+    "plugins": [
+      "@react-native-community/datetimepicker",
+      "expo-status-bar",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Permitir a $(PRODUCT_NAME) acceder a la cámara para tomar la foto de perfil y del DNI.",
+          "microphonePermission": false,
+          "recordAudioAndroid": false
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Permitir a $(PRODUCT_NAME) acceder a tus fotos para elegir la foto de perfil y del DNI.",
+          "cameraPermission": "Permitir a $(PRODUCT_NAME) acceder a la cámara para tomar la foto de perfil y del DNI.",
+          "microphonePermission": false
+        }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#f9f9f9",
+          "resizeMode": "contain"
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Permitir a $(PRODUCT_NAME) usar tu ubicación para mostrarte y ordenar tus direcciones guardadas más cercanas."
+        }
+      ],
+      "expo-font",
+      "expo-secure-store"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "e7b81d1d-7492-4527-9ce9-ed3e92a3779c"
+      }
+    },
+    "android": {
+      "package": "com.thiagox123123.laborin"
+    }
+  }
+}

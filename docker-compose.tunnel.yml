@@ -1,0 +1,25 @@
+services:
+  expo:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: laborin-expo-tunnel:local
+    container_name: laborin_expo_tunnel
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    env_file:
+      - ../frontend.env
+    environment:
+      CI: "1"
+      NODE_ENV: development
+      EXPO_NO_TELEMETRY: "1"
+      EXPO_NO_DOCTOR: "1"
+    expose:
+      - "8081"
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    external: true
