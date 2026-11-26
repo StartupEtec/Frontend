@@ -1,12 +1,5 @@
 import React, { useState } from 'react';
-import {
-  Alert,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { Feather } from '@expo/vector-icons';
@@ -30,7 +23,7 @@ export interface PaymentScreenProps {
  * Al confirmar, navega a la pantalla de reseña.
  */
 export const PaymentScreen: React.FC<PaymentScreenProps> = ({
-  orderId,
+  orderId: _orderId,
   amount,
   onPaymentCompleted,
   onGoBack,
