@@ -6,6 +6,8 @@ import { colors, spacing, borderRadius, typography } from '../../theme/tokens';
 export interface QuoteRequestButtonProps {
   /** Callback al presionar el botón. */
   onPress: () => void;
+  /** Callback al presionar el botón de "Completar Cotización" (cliente con cotización completada). */
+  onAcceptQuote?: () => void;
   /** Si está deshabilitado (por ejemplo, mientras se envía). */
   disabled?: boolean;
   /** Rol activo del usuario ('client' | 'worker'). */
@@ -40,7 +42,11 @@ export const QuoteRequestButton: React.FC<QuoteRequestButtonProps> = ({
   const isCompleted = quoteRequestedCompleted;
 
   const handlePress = () => {
-    if (isDisabled && !isCompleted) return;
+    if (isCompleted) {
+      onAcceptQuote?.();
+      return;
+    }
+    if (isDisabled) return;
     onPress();
   };
 
