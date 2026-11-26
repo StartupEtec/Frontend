@@ -6,8 +6,8 @@ import { colors, spacing, borderRadius, typography } from '../../theme/tokens';
 export interface QuoteRequestButtonProps {
   /** Callback al presionar el botón. */
   onPress: () => void;
-  /** Callback al presionar el botón de "Completar Cotización" (cliente con cotización completada). */
-  onAcceptQuote?: () => void;
+  /** Callback al presionar el botón de "Completar Cotización" (cliente con cotización completada). Recibe chatId y myUserId. */
+  onAcceptQuote?: (chatId: string, myUserId: string) => void;
   /** Si está deshabilitado (por ejemplo, mientras se envía). */
   disabled?: boolean;
   /** Rol activo del usuario ('client' | 'worker'). */
@@ -16,6 +16,10 @@ export interface QuoteRequestButtonProps {
   quoteRequested?: boolean;
   /** Si ya se completó una cotización (para mostrar "Confirmar Cotización"). */
   quoteRequestedCompleted?: boolean;
+  /** ID del chat (para pasar a onAcceptQuote). */
+  chatId?: string;
+  /** ID del usuario autenticado (para pasar a onAcceptQuote). */
+  myUserId?: string;
 }
 
 /**
@@ -32,6 +36,8 @@ export const QuoteRequestButton: React.FC<QuoteRequestButtonProps> = ({
   role,
   quoteRequested = false,
   quoteRequestedCompleted = false,
+  chatId,
+  myUserId,
 }) => {
   // El trabajador no tiene botón "Solicitar Cotización".
   if (role === 'worker') {
@@ -43,7 +49,7 @@ export const QuoteRequestButton: React.FC<QuoteRequestButtonProps> = ({
 
   const handlePress = () => {
     if (isCompleted) {
-      onAcceptQuote?.();
+      onAcceptQuote?.(chatId, myUserId);
       return;
     }
     if (isDisabled) return;
