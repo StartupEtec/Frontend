@@ -181,6 +181,6 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSizes.sm,
     fontWeight: typography.fontWeights.semibold,
   },
-};
+});
 
 export default PaymentScreen;
