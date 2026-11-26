@@ -6,14 +6,16 @@ import { colors, spacing, typography } from '../theme/tokens';
 
 interface NavBarProps {
   currentRole: UserRole;
-  onNavigateToProfile: () => void;
+  onNavigateToOrders: () => void;
   onNavigateToChats: () => void;
+  onNavigateToProfile: () => void;
 }
 
 export const NavBar: React.FC<NavBarProps> = ({
   currentRole,
-  onNavigateToProfile,
+  onNavigateToOrders,
   onNavigateToChats,
+  onNavigateToProfile,
 }) => {
   const isClient = currentRole === 'client';
   const accentColor = isClient ? colors.clientAccent : colors.workerAccent;
@@ -28,6 +30,16 @@ export const NavBar: React.FC<NavBarProps> = ({
       </View>
 
       <View style={styles.actionsGroup}>
+        <TouchableOpacity
+          style={styles.actionButton}
+          onPress={onNavigateToOrders}
+          testID="btn-orders"
+          accessibilityRole="button"
+          accessibilityLabel="Mis pedidos"
+        >
+          <Feather name="list" size={20} color={colors.textPrimary} accessible={false} />
+        </TouchableOpacity>
+
         <TouchableOpacity
           style={styles.actionButton}
           onPress={onNavigateToChats}

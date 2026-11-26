@@ -3,7 +3,9 @@ import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'rea
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { Feather } from '@expo/vector-icons';
+import { apiClient } from '../services/api';
 import { colors, spacing, borderRadius, typography } from '../theme/tokens';
+import { SuccessToast } from '../components/SuccessToast';
 
 export interface PaymentScreenProps {
   /** ID de la orden a pagar. */
@@ -19,16 +21,19 @@ export interface PaymentScreenProps {
 /**
  * Pantalla "Pago" (Issue #36).
  *
- * Muestra el monto a pagar y un indicador visual de pago procesado.
- * Al confirmar, navega a la pantalla de reseña.
+ * Muestra el monto a pagar y simula el procesamiento. Tras el pago exitoso
+ * notifica al backend que la orden fue aceptada (estado ACCEPTED) para que
+ * aparezca en la pantalla de Mis Pedidos, muestra un toast y navega de
+ * vuelta a la conversación.
  */
 export const PaymentScreen: React.FC<PaymentScreenProps> = ({
-  orderId: _orderId,
+  orderId,
   amount,
   onPaymentCompleted,
   onGoBack,
 }) => {
   const [isProcessing, setIsProcessing] = useState(false);
+  const [toastVisible, setToastVisible] = useState(false);
 
   const handlePay = async () => {
     setIsProcessing(true);
@@ -36,12 +41,33 @@ export const PaymentScreen: React.FC<PaymentScreenProps> = ({
       // Aquí se integraría con la pasarela de pagos real.
       // Por ahora simulamos un pago exitoso.
       await new Promise((resolve) => setTimeout(resolve, 1500));
-      onPaymentCompleted();
-    } catch {
-      Alert.alert('Error', 'No se pudo procesar el pago');
-    } finally {
+
+      // Notificar al backend que la orden fue pagada y pasar su estado a ACCEPTED
+      // para que aparezca en la pantalla de Mis Pedidos.
+      try {
+        await apiClient(`/orders/${orderId}/status`, {
+          method: 'PATCH',
+          body: JSON.stringify({ status: 'ACCEPTED' }),
+        });
+      } catch (err: unknown) {
+        const message =
+          err instanceof Error ? err.message : 'No se pudo confirmar el pago con el servidor.';
+        Alert.alert('Error', message);
+        setIsProcessing(false);
+        return;
+      }
+
       setIsProcessing(false);
+      setToastVisible(true);
+    } catch {
+      setIsProcessing(false);
+      Alert.alert('Error', 'No se pudo procesar el pago');
     }
+  };
+
+  const handleToastFinish = () => {
+    setToastVisible(false);
+    onPaymentCompleted();
   };
 
   return (
@@ -78,7 +104,7 @@ export const PaymentScreen: React.FC<PaymentScreenProps> = ({
         <TouchableOpacity
           style={[styles.payButton, isProcessing && styles.payButtonDisabled]}
           onPress={handlePay}
-          disabled={isProcessing}
+          disabled={isProcessing || toastVisible}
         >
           {isProcessing ? (
             <Text style={styles.payButtonText}>Procesando...</Text>
@@ -87,6 +113,14 @@ export const PaymentScreen: React.FC<PaymentScreenProps> = ({
           )}
         </TouchableOpacity>
       </View>
+
+      {/* Toast de confirmación de pago */}
+      <SuccessToast
+        visible={toastVisible}
+        message="Tu pedido ya se confirmó y lo podés ver en la pantalla de mis pedidos."
+        onFinish={handleToastFinish}
+        testID="toast-payment-confirmed"
+      />
     </SafeAreaView>
   );
 };

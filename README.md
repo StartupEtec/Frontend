@@ -97,14 +97,29 @@ Los mapas **no** usan `react-native-maps`. Se dibujan con **Leaflet** dentro de 
 
 ### 6. Issue #30 - Pantalla de Lista de Chats
 
-- **Acceso**: desde el botón **"Chats"** en el NavBar (a la izquierda del botón de Perfil) → abre `ChatsScreen`.
-- **Qué muestra**: lista de conversaciones con avatar del otro usuario, nombre, último mensaje (preview), hora del último mensaje y badge de notificaciones no leídas (cuadrado con bordes redondeados).
+- **Acceso**: desde el botón **"Chats"** en el NavBar → abre `ChatsScreen`.
+- **Qué muestra**: lista de conversaciones con avatar del otro usuario, nombre, último mensaje (preview), hora del último mensaje y badge de notificaciones no leídas.
 - **Barra de búsqueda**: filtro de conversaciones por nombre (búsqueda en backend vía `?search=`).
 - **Estilo WhatsApp-like**: título "Chats", barra de búsqueda, lista de tarjetas de conversación.
-- **Navegación**: al tocar un chat navega a `ConversationPlaceholderScreen` (pantalla básica con título y botón Volver; conversación completa en issue futuro).
+- **Navegación**: al tocar un chat navega a `ConversationPlaceholderScreen`.
 - **Indicador de carga**: spinner "Cargando conversaciones..." mientras se traen los datos.
 - **Manejo de errores**: error de servidor con botón "Reintentar"; estado vacío "Todavía no tienes conversaciones."
 - **Endpoints**: `GET /users/me/chats` (lista de chats del usuario autenticado). El token JWT se adjunta automáticamente vía `apiClient`.
+
+---
+
+### 7. Issue #45 - Pantalla de Pedidos ("Mis Pedidos")
+
+- **Acceso**: desde el botón **"Mis Pedidos"** en el NavBar (a la izquierda del botón de Mensajes, antes de Chats) → abre `OrderListScreen`.
+- **Qué muestra**: dos pestañas —"Pendientes" (PENDING, ACCEPTED, IN_PROGRESS) y "Realizados" (COMPLETED, CANCELLED, REJECTED)— con una lista de tarjetas de orden. Cada tarjeta muestra el servicio, la fecha, el nombre de la otra parte (trabajador si el usuario es cliente, cliente si es trabajador), el precio y el estado con indicador visual de color.
+- **Botón "Finalizar servicio"**: aparece en órdenes con estado IN_PROGRESS. Al tocarlo llama a `POST /orders/:id/complete` y, al confirmarse, muestra un toast y refresca la lista para que la orden pase de "Pendientes" a "Realizados".
+- **Menú de tres puntitos**: en la esquina superior derecha de cada tarjeta, abre un modal de solo lectura con todos los detalles: nombre de la otra parte, servicio, fecha, precio y estado.
+- **Búsqueda**: barra de búsqueda por nombre de usuario (envía `?search=` al backend).
+- **Infinite scroll**: carga más pedidos al llegar al final de la lista (`limit`/`offset` del backend).
+- **Estados visuales**: spinner de carga, estado vacío contextualizado ("No tienes pedidos pendientes" / "No tienes pedidos realizados"), error con botón "Reintentar" y indicador "Cargando más pedidos…" al paginar.
+- **Rol dual**: respeta `current_role` del JWT para mostrar el nombre correcto de la otra parte y filtrar órdenes por el rol activo.
+- **Endpoints**: `GET /users/:id/orders` (listado con paginación y filtros), `GET /orders/:id` (detalle), `POST /orders/:id/complete` (finalizar servicio).
+- **Toast post-pago**: tras un pago exitoso en `PaymentScreen`, se muestra el toast "Tu pedido ya se confirmó y lo podés ver en la pantalla de mis pedidos" antes de volver a la conversación.
 
 ---
 

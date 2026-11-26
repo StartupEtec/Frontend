@@ -29,8 +29,6 @@ export interface MessageListProps {
   onRetry: () => void;
   /** Si hay más mensajes para cargar (paginación). */
   hasMore?: boolean;
-  /** Callback al presionar "(ver)" en un mensaje del sistema de cotización. */
-  onViewQuote?: () => void;
 }
 
 /**
@@ -51,7 +49,6 @@ export const MessageList: React.FC<MessageListProps> = ({
   error,
   onRetry,
   hasMore = true,
-  onViewQuote,
 }) => {
   const scrollRef = useRef<React.ComponentRef<typeof ScrollView>>(null);
   const isNearTopRef = useRef(false);
@@ -130,7 +127,6 @@ export const MessageList: React.FC<MessageListProps> = ({
                   isOwn={!isSystem && message.sender_id === myUserId}
                   isSystem={isSystem}
                   accentColor={accentColor}
-                  onViewQuote={isSystem ? onViewQuote : undefined}
                 />
               );
             })}
