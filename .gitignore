@@ -1,6 +1,43 @@
+# Dependencies
 node_modules/
+
+# Expo
 .expo/
 dist/
-*.log
+web-build/
+
+# Environment variables
 .env
 .env.*
+!.env.example
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Debug
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# Testing
+coverage/
+
+# Metro
+.metro-health-check*
+
+# Lock files (optional — keep package-lock.json if team prefers)
+# package-lock.json
+
+*storybook.log
+storybook-static
+
+# EAS
+eas-update*.log
+npm-ci.log
