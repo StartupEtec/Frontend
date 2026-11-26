@@ -104,3 +104,28 @@ EXPO_PUBLIC_API_URL=https://<tu-url>.trycloudflare.com/api/v1
 - **Backend team**: Solo necesitan `docker compose up -d` en su repo
 - El archivo `.env` **nunca** se sube al repositorio (esta en `.gitignore`)
 - `cloudflared` es gratuito y no requiere cuenta de Cloudflare
+
+## Despliegue del frontend con Docker (modo tunnel)
+
+Levanta solo el frontend (Metro + túnel público de cloudflared) en el puerto 8081:
+
+```bash
+cd Frontend
+docker compose up -d
+```
+
+- La imagen se construye sobre `node:22-slim` y deja las dependencias en `npm ci`.
+- El `.env` **no se copia en la imagen**; sus variables (`EXPO_PUBLIC_API_URL`, `EXPO_PUBLIC_WS_URL`) se inyectan en runtime vía `env_file` de docker-compose, por lo que las credenciales nunca viajan embebidas ni suben al repositorio.
+- cloudflared se instala dentro del contenedor y expone un túnel público tipo `https://<nombre>.trycloudflare.com`.
+- Metro escucha en `0.0.0.0:8081` y se publica en `localhost:8081` del host.
+
+Para detenerlo:
+
+```bash
+docker compose down
+```
+
+Para ver la URL pública del túnel y los logs de Metro:
+
+```bash
+docker compose logs frontend

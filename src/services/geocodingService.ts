@@ -19,7 +19,7 @@ export const GEOCODING_CONFIG = {
   BASE_URL: process.env.EXPO_PUBLIC_GEOCODING_URL ?? 'https://nominatim.openstreetmap.org',
   TIMEOUT: 10000,
   MAX_RESULTS: 5,
-  USER_AGENT: 'StartupApp/1.0',
+  USER_AGENT: 'Labor-In/1.0',
 } as const;
 
 export interface GeocodeResult {

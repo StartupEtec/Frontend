@@ -30,7 +30,7 @@ export const MainScreen: React.FC<MainScreenProps> = ({
       <StatusBar style="light" />
       <View style={styles.topBar}>
         <View style={styles.topBarSpacer} />
-        <Text style={styles.topBarTitle}>StartupApp</Text>
+        <Text style={styles.topBarTitle}>Labor-In</Text>
         <TouchableOpacity
           style={styles.profileButton}
           onPress={onNavigateToProfile}

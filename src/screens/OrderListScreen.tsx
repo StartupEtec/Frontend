@@ -20,9 +20,14 @@ import { OrderCard } from '../components/order/OrderCard';
 import { OrderDetailModal } from './OrderDetailModal';
 import { SuccessToast } from '../components/SuccessToast';
 import { ApiError } from '../services/api';
+import type { RateeInfo } from '../types/rating';
 
 interface OrderListScreenProps {
   onGoBack: () => void;
+  /** Navega a la pantalla de calificación tras completar una orden con ambas confirmaciones. */
+  onNavigateToRate?: (orderId: string, ratee: RateeInfo) => void;
+  /** IDs de órdenes ya calificadas por el usuario actual (para mostrar botón gris). */
+  ratedOrderIds?: Set<string>;
 }
 
 /**
@@ -35,7 +40,11 @@ interface OrderListScreenProps {
  * solo para órdenes pagadas. Soporta infinite scroll y estados de carga /
  * vacío / error.
  */
-export const OrderListScreen: React.FC<OrderListScreenProps> = ({ onGoBack }) => {
+export const OrderListScreen: React.FC<OrderListScreenProps> = ({
+  onGoBack,
+  onNavigateToRate,
+  ratedOrderIds = new Set<string>(),
+}) => {
   const { currentRole } = useRoleContext();
   const userRole = currentRole ?? 'client';
 
@@ -62,9 +71,10 @@ export const OrderListScreen: React.FC<OrderListScreenProps> = ({ onGoBack }) =>
   /**
    * Carga una página de órdenes desde el backend. No filtra por status aquí;
    * el filtrado por pestaña se hace en filteredOrders.
+   * Devuelve las órdenes cargadas para poder verificar estados tras completar.
    */
   const loadOrders = useCallback(
-    async (nextOffset: number, replace: boolean) => {
+    async (nextOffset: number, replace: boolean): Promise<Order[]> => {
       setStatus('loading');
       setError(null);
       try {
@@ -85,12 +95,14 @@ export const OrderListScreen: React.FC<OrderListScreenProps> = ({ onGoBack }) =>
         }
         setTotal(res.count);
         setStatus('success');
+        return allOrders;
       } catch (err: unknown) {
         if (replace) {
           setOrders([]);
           setError(err instanceof ApiError ? err.message : 'No pudimos cargar los pedidos.');
         }
         setStatus('error');
+        return [];
       }
     },
     [roleParam]
@@ -136,13 +148,53 @@ export const OrderListScreen: React.FC<OrderListScreenProps> = ({ onGoBack }) =>
 
   const handleCompleteOrder = async (orderId: string) => {
     try {
-      await orderService.completeOrder(orderId, { confirm: true });
+      const res = await orderService.completeOrder(orderId, { confirm: true });
+
+      // Si ambas partes confirmaron, la orden pasó a COMPLETED: ir a calificar.
+      // Esto ocurre para quien confirma segundo (bothConfirmed = true).
+      if (res.bothConfirmed && onNavigateToRate) {
+        const order = ordersRef.current.find((o) => o.id === orderId);
+        if (order) {
+          const isClient = userRole === 'client';
+          const ratee = isClient ? order.worker : order.client;
+          onNavigateToRate(orderId, {
+            user_id: ratee?.user_id ?? '',
+            full_name: ratee?.full_name ?? null,
+            avatar_url: ratee?.avatar_url ?? null,
+            service: order.category_name || order.description || 'Servicio sin descripción',
+          });
+        }
+        return;
+      }
+
+      // Primer confirmador: la orden aún no está COMPLETED.
+      // Refrescar la lista y verificar si ya pasó a COMPLETED (porque la otra
+      // parte confirmó entre tanto). Si sí, navegar a calificar también.
+      const updatedOrders = await loadOrders(0, true);
+      const orderAfter = updatedOrders.find((o) => o.id === orderId);
+
+      if (orderAfter?.status === 'COMPLETED' && onNavigateToRate) {
+        const isClient = userRole === 'client';
+        const ratee = isClient ? orderAfter.worker : orderAfter.client;
+        onNavigateToRate(orderId, {
+          user_id: ratee?.user_id ?? '',
+          full_name: ratee?.full_name ?? null,
+          avatar_url: ratee?.avatar_url ?? null,
+          service: orderAfter.category_name || orderAfter.description || 'Servicio sin descripción',
+        });
+        return;
+      }
+
       setToastVisible(true);
-      // Refrescar la lista para que la orden se mueva de pestaña si corresponde
-      void loadOrders(0, true);
     } catch (err: unknown) {
       const message = err instanceof ApiError ? err.message : 'No se pudo finalizar el servicio.';
       Alert.alert('Error', message);
+    }
+  };
+
+  const handleNavigateToRate = (orderId: string, ratee: RateeInfo) => {
+    if (onNavigateToRate) {
+      onNavigateToRate(orderId, ratee);
     }
   };
 
@@ -170,6 +222,8 @@ export const OrderListScreen: React.FC<OrderListScreenProps> = ({ onGoBack }) =>
       userRole={userRole}
       onComplete={handleCompleteOrder}
       onOpenDetail={handleOpenDetail}
+      onRate={(orderId, ratee) => handleNavigateToRate(orderId, ratee)}
+      ratedOrderIds={ratedOrderIds}
     />
   );
 

@@ -23,7 +23,7 @@ export const NavBar: React.FC<NavBarProps> = ({
   return (
     <View style={styles.bar}>
       <View style={styles.titleGroup}>
-        <Text style={styles.title}>StartupApp</Text>
+        <Text style={styles.title}>Labor-In</Text>
         <Text style={[styles.modeText, { color: accentColor }]}>
           {isClient ? 'Modo Cliente' : 'Modo Trabajador'}
         </Text>

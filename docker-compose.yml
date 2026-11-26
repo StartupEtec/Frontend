@@ -1,0 +1,24 @@
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: labor-in-frontend
+    restart: always
+    ports:
+      - "8081:8081"
+    # Credenciales desde el .env local (nunca se suben al repositorio).
+    # Las variables EXPO_PUBLIC_* llegan al proceso de Expo y Metro las lee.
+    env_file:
+      - .env
+    environment:
+      - EXPO_NO_DOCTOR=1
+    # Expo puede requerir interactividad (túnel, QR, selección de plataforma).
+    stdin_open: true
+    tty: true
+    # Evitar montar node_modules del host sobre las dependencias instaladas en la imagen.
+    volumes:
+      - frontend_node_modules:/app/node_modules
+
+volumes:
+  frontend_node_modules:

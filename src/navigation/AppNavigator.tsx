@@ -24,6 +24,7 @@ import { AcceptQuoteScreen } from '../screens/AcceptQuoteScreen';
 import { QuoteViewScreen } from '../screens/QuoteViewScreen';
 import { PaymentScreen } from '../screens/PaymentScreen';
 import { OrderListScreen } from '../screens/OrderListScreen';
+import { RateServiceScreen } from '../screens/RateServiceScreen';
 import { NavBar } from '../components/NavBar';
 import { SearchOriginModal } from '../components/location/SearchOriginModal';
 import { ASYNC_STORAGE_ONBOARDING_KEY } from '../i18n/onboardingContent';
@@ -34,6 +35,7 @@ import { chatService } from '../services/chatService';
 import { resetNearbyWorkersCache } from '../hooks/useNearbyWorkers';
 import { colors, spacing, typography, borderRadius, roleAccent } from '../theme/tokens';
 import { UserRole } from '../types/role';
+import type { RateeInfo } from '../types/rating';
 import { SavedLocation } from '../types/location';
 import { NearbyWorker } from '../types/worker';
 import { useRoleContext } from '../context/RoleContext';
@@ -64,6 +66,7 @@ export type AppRoute =
   | 'Payment'
   | 'QuoteView'
   | 'OrderList'
+  | 'RateService'
   | 'Main';
 
 export const AppNavigator: React.FC = () => {
@@ -92,6 +95,11 @@ export const AppNavigator: React.FC = () => {
   const [acceptQuoteMyUserId, setAcceptQuoteMyUserId] = useState<string | null>(null);
   const [paymentOrderId, setPaymentOrderId] = useState<string | null>(null);
   const [paymentAmount, setPaymentAmount] = useState<number | null>(null);
+  // Orden a calificar tras finalizar servicio (Issue #48).
+  const [ratingOrderId, setRatingOrderId] = useState<string | null>(null);
+  const [ratingRatee, setRatingRatee] = useState<RateeInfo | null>(null);
+  // IDs de órdenes ya calificadas por el usuario actual (para mostrar botón gris en Mis Pedidos).
+  const [ratedOrderIds, setRatedOrderIds] = useState<Set<string>>(new Set());
   const [otpOrigin, setOtpOrigin] = useState<'Register' | 'Login'>('Register');
   const [selectedRole, setSelectedRole] = useState<UserRole>('client');
   const [profileCompleted, setProfileCompleted] = useState<boolean>(false);
@@ -592,6 +600,21 @@ export const AppNavigator: React.FC = () => {
         }}
       />
     );
+  } else if (currentRoute === 'RateService') {
+    content = (
+      <RateServiceScreen
+        orderId={ratingOrderId!}
+        ratee={ratingRatee!}
+        onRatingSubmitted={() => {
+          if (ratingOrderId) {
+            setRatedOrderIds((prev) => new Set(prev).add(ratingOrderId));
+          }
+          setCurrentRoute('Main');
+          setRatingOrderId(null);
+          setRatingRatee(null);
+        }}
+      />
+    );
   } else if (currentRoute === 'QuoteView') {
     content = (
       <QuoteViewScreen
@@ -604,7 +627,17 @@ export const AppNavigator: React.FC = () => {
       />
     );
   } else if (currentRoute === 'OrderList') {
-    content = <OrderListScreen onGoBack={() => setCurrentRoute('Main')} />;
+    content = (
+      <OrderListScreen
+        onGoBack={() => setCurrentRoute('Main')}
+        onNavigateToRate={(orderId, ratee) => {
+          setRatingOrderId(orderId);
+          setRatingRatee(ratee);
+          setCurrentRoute('RateService');
+        }}
+        ratedOrderIds={ratedOrderIds}
+      />
+    );
   } else {
     content = (
       <SafeAreaView style={styles.mainContainer}>
