@@ -31,17 +31,6 @@ export interface AcceptQuoteScreenProps {
   onCompleted: (quote: QuoteData) => void;
 }
 
-/**
- * Pantalla "Completar Cotización" para el cliente (Issue #36).
- *
- * Tiene dos páginas:
- * 1) Revisar y aprobar/rechazar fecha, hora y precio propuestos por el
- *    trabajador. Los campos empiezan aprobados por defecto. Si se rechazan,
- *    el botón cambia a "Rechazar" (fondo rojo) y al confirmar se envía un
- *    mensaje al chat con los campos rechazados.
- * 2) Resumen con categoría, ubicación, descripción, fecha, hora y precio.
- *    Botones: "Volver" y "Pagar".
- */
 export const AcceptQuoteScreen: React.FC<AcceptQuoteScreenProps> = ({
   quoteRequestId,
   chatId,
@@ -55,7 +44,6 @@ export const AcceptQuoteScreen: React.FC<AcceptQuoteScreenProps> = ({
   const [quoteData, setQuoteData] = useState<QuoteData | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Página 1: aprobación de campos. Empiezan aprobados por defecto.
   const [approvedDate, setApprovedDate] = useState(true);
   const [approvedTime, setApprovedTime] = useState(true);
   const [approvedPrice, setApprovedPrice] = useState(true);
@@ -80,7 +68,6 @@ export const AcceptQuoteScreen: React.FC<AcceptQuoteScreenProps> = ({
     const rejectionReason = `Campos rechazados: ${rejectedFields.join(', ')}`;
 
     try {
-      // Actualizar estado de la solicitud a REJECTED en el backend.
       await apiClient<{ quote_request: QuoteRequestData }>(
         `/quote-requests/requests/${quoteRequestId}/status`,
         {
@@ -89,13 +76,11 @@ export const AcceptQuoteScreen: React.FC<AcceptQuoteScreenProps> = ({
         }
       );
 
-      // Enviar mensaje al chat notificando el rechazo (como mensaje del sistema).
       await chatService.sendMessage(chatId, myUserId, {
         message_type: 'QUOTE',
         content: buildRejectionMessage(rejectedFields),
       });
 
-      // Notificar al cliente que fue rechazado y navegar de vuelta.
       onRejected(rejectedFields);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Error al rechazar la solicitud';
@@ -105,7 +90,6 @@ export const AcceptQuoteScreen: React.FC<AcceptQuoteScreenProps> = ({
 
   const handlePage1Next = async () => {
     if (hasRejections) {
-      // Si hay rechazos, enviar el rechazo y volver al chat.
       await handleRejectQuote();
       return;
     }
@@ -123,8 +107,6 @@ export const AcceptQuoteScreen: React.FC<AcceptQuoteScreenProps> = ({
   const handlePage1Cancel = () => {
     onClose();
   };
-
-  // --- Página 2 ---
 
   const handlePage2Back = () => {
     setPage(1);
@@ -162,8 +144,6 @@ export const AcceptQuoteScreen: React.FC<AcceptQuoteScreenProps> = ({
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar />
-
-      {/* Encabezado */}
       <View style={styles.header}>
         <TouchableOpacity onPress={onClose} style={styles.closeButton}>
           <Feather name="x" size={20} color={colors.textMuted} accessible={false} />
@@ -177,12 +157,9 @@ export const AcceptQuoteScreen: React.FC<AcceptQuoteScreenProps> = ({
           </TouchableOpacity>
         )}
       </View>
-
-      {/* Cuerpo scrollable */}
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
         {page === 1 ? (
           <>
-            {/* Fecha */}
             <View style={styles.fieldGroup}>
               <Text style={styles.fieldLabel}>Fecha de la visita</Text>
               <View style={styles.valueRow}>
@@ -203,8 +180,6 @@ export const AcceptQuoteScreen: React.FC<AcceptQuoteScreenProps> = ({
                 <Text style={styles.fieldRejected}>Rechazado</Text>
               )}
             </View>
-
-            {/* Hora */}
             <View style={styles.fieldGroup}>
               <Text style={styles.fieldLabel}>Hora de la visita</Text>
               <View style={styles.valueRow}>
@@ -225,8 +200,6 @@ export const AcceptQuoteScreen: React.FC<AcceptQuoteScreenProps> = ({
                 <Text style={styles.fieldRejected}>Rechazado</Text>
               )}
             </View>
-
-            {/* Precio */}
             <View style={styles.fieldGroup}>
               <Text style={styles.fieldLabel}>Precio propuesto</Text>
               <View style={styles.valueRow}>
@@ -252,39 +225,28 @@ export const AcceptQuoteScreen: React.FC<AcceptQuoteScreenProps> = ({
           </>
         ) : (
           <>
-            {/* Categoría */}
             <View style={styles.fieldGroup}>
               <Text style={styles.fieldLabel}>Categoría del servicio</Text>
               <Text style={styles.valueText}>{quoteRequest.category}</Text>
             </View>
-
-            {/* Ubicación */}
             <View style={styles.fieldGroup}>
               <Text style={styles.fieldLabel}>Ubicación del servicio</Text>
               <Text style={styles.valueText}>{quoteRequest.location}</Text>
             </View>
-
-            {/* Descripción */}
             <View style={styles.fieldGroup}>
               <Text style={styles.fieldLabel}>Descripción del trabajo</Text>
               <Text style={styles.descriptionText}>
                 {quoteRequest.description ?? 'Sin descripción'}
               </Text>
             </View>
-
-            {/* Fecha */}
             <View style={styles.fieldGroup}>
               <Text style={styles.fieldLabel}>Fecha propuesta</Text>
               <Text style={styles.valueText}>{quoteData?.proposed_date}</Text>
             </View>
-
-            {/* Hora */}
             <View style={styles.fieldGroup}>
               <Text style={styles.fieldLabel}>Hora propuesta</Text>
               <Text style={styles.valueText}>{quoteData?.proposed_time}</Text>
             </View>
-
-            {/* Precio */}
             <View style={styles.fieldGroup}>
               <Text style={styles.fieldLabel}>Precio propuesto</Text>
               <Text style={styles.valueText}>
@@ -294,8 +256,6 @@ export const AcceptQuoteScreen: React.FC<AcceptQuoteScreenProps> = ({
           </>
         )}
       </ScrollView>
-
-      {/* Pie con botones */}
       <View style={styles.footer}>
         {page === 1 ? (
           <>
@@ -498,6 +458,6 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSizes.sm,
     fontWeight: typography.fontWeights.semibold,
   },
-};
+});
 
 export default AcceptQuoteScreen;
