@@ -317,6 +317,7 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
   // quoteRequested se actualiza al montar (detectQuoteRequest) y cada vez
   // que llega un mensaje del sistema. Es la fuente de verdad actual.
   const effectiveQuoteRequested = quoteRequested;
+  const effectiveQuoteRequestId = quoteRequestId ?? initialQuoteRequestId;
 
   // Mientras se inicializa el chat, no renderizamos la UI de conversación.
   if (initStatus === 'loading') {
