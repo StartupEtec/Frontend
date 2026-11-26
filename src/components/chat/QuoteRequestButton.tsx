@@ -38,6 +38,7 @@ export const QuoteRequestButton: React.FC<QuoteRequestButtonProps> = ({
   quoteRequestedCompleted = false,
   chatId,
   myUserId,
+  onAcceptQuote,
 }) => {
   // El trabajador no tiene botón "Solicitar Cotización".
   if (role === 'worker') {
