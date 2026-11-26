@@ -27,7 +27,7 @@ jest.mock('../../src/services/orderService', () => ({
 }));
 
 const list = orderService.listUserOrders as jest.Mock;
-const complete = orderService.completeOrder as jest.Mock;
+const _complete = orderService.completeOrder as jest.Mock;
 
 const makeOrder = (overrides: Partial<Order> = {}): Order => ({
   id: 'o-1',
