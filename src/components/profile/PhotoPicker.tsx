@@ -1,0 +1,216 @@
+import React, { useState } from 'react';
+import { View, Text, Image, TouchableOpacity, StyleSheet, Modal } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
+import { Feather } from '@expo/vector-icons';
+import { CameraCapture } from './CameraCapture';
+import { compressImage, isImageTooLargeError } from '../../utils/imageCompression';
+import { colors, spacing, borderRadius, typography } from '../../theme/tokens';
+
+const QUALITY = 0.7;
+
+interface PhotoPickerProps {
+  uri: string | null;
+  onPhotoSelected: (uri: string) => void;
+  onPhotoRemoved: () => void;
+  error?: string;
+  accentColor?: string;
+}
+
+export const PhotoPicker: React.FC<PhotoPickerProps> = ({
+  uri,
+  onPhotoSelected,
+  onPhotoRemoved,
+  error,
+  accentColor = colors.primary,
+}) => {
+  const [visible, setVisible] = useState(false);
+  const [cameraVisible, setCameraVisible] = useState(false);
+  const [localError, setLocalError] = useState<string | null>(null);
+
+  const handleCamera = () => {
+    setVisible(false);
+    setCameraVisible(true);
+  };
+
+  /** Comprime antes de entregar la foto; valida el máximo de 5 MB. */
+  const handleSelected = async (rawUri: string) => {
+    try {
+      const compressed = await compressImage(rawUri);
+      setLocalError(null);
+      onPhotoSelected(compressed);
+    } catch (err) {
+      if (isImageTooLargeError(err)) {
+        setLocalError(err.message);
+      } else {
+        setLocalError('No se pudo procesar la imagen. Probá con otra foto.');
+      }
+    }
+  };
+
+  const handleCameraCapture = (uri: string) => {
+    setCameraVisible(false);
+    void handleSelected(uri);
+  };
+
+  const handleGallery = async () => {
+    setVisible(false);
+    const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!perm.granted) return;
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      quality: QUALITY,
+    });
+    if (!result.canceled && result.assets?.[0]) {
+      await handleSelected(result.assets[0].uri);
+    }
+  };
+
+  return (
+    <View style={styles.container}>
+      <TouchableOpacity
+        style={styles.pickerButton}
+        onPress={() => setVisible(true)}
+        activeOpacity={0.7}
+      >
+        {uri ? (
+          <Image source={{ uri }} style={styles.avatar} />
+        ) : (
+          <View style={styles.placeholder}>
+            <Feather name="camera" size={28} color={accentColor} accessible={false} />
+            <Text style={styles.placeholderText}>Agregar foto</Text>
+          </View>
+        )}
+      </TouchableOpacity>
+      {uri && (
+        <TouchableOpacity onPress={onPhotoRemoved} style={styles.removeButton}>
+          <Text style={styles.removeText}>Eliminar</Text>
+        </TouchableOpacity>
+      )}
+      {(localError ?? error) && <Text style={styles.errorText}>{localError ?? error}</Text>}
+
+      <Modal visible={visible} transparent animationType="slide">
+        <TouchableOpacity
+          style={styles.overlay}
+          activeOpacity={1}
+          onPress={() => setVisible(false)}
+        >
+          <View style={styles.sheet}>
+            <Text style={styles.sheetTitle}>Foto de perfil</Text>
+            <TouchableOpacity style={styles.option} onPress={handleCamera}>
+              <Feather name="camera" size={20} color={accentColor} accessible={false} />
+              <Text style={styles.optionText}>Cámara</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.option} onPress={handleGallery}>
+              <Feather name="image" size={20} color={accentColor} accessible={false} />
+              <Text style={styles.optionText}>Galería</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.option, styles.optionCancel]}
+              onPress={() => setVisible(false)}
+            >
+              <Text style={[styles.optionText, styles.optionCancelText]}>Cancelar</Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
+      <CameraCapture
+        visible={cameraVisible}
+        initialFacing="front"
+        onClose={() => setCameraVisible(false)}
+        onCapture={handleCameraCapture}
+      />
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    alignItems: 'center',
+    marginBottom: spacing.lg,
+  },
+  pickerButton: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    overflow: 'hidden',
+    backgroundColor: colors.surfaceContainerLow,
+    borderWidth: 2,
+    borderColor: colors.cardStroke,
+    borderStyle: 'dashed',
+  },
+  avatar: {
+    width: '100%',
+    height: '100%',
+  },
+  placeholder: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: spacing.xs,
+  },
+  placeholderText: {
+    fontSize: typography.fontSizes.xs,
+    color: colors.textSecondary,
+    textAlign: 'center',
+  },
+  removeButton: {
+    marginTop: spacing.xs,
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.sm,
+  },
+  removeText: {
+    color: colors.error,
+    fontSize: typography.fontSizes.sm,
+    fontWeight: typography.fontWeights.medium,
+  },
+  errorText: {
+    color: colors.error,
+    fontSize: typography.fontSizes.xs,
+    marginTop: spacing.xs,
+    textAlign: 'center',
+  },
+  overlay: {
+    flex: 1,
+    backgroundColor: colors.overlayBackground,
+    justifyContent: 'flex-end',
+  },
+  sheet: {
+    backgroundColor: colors.cardBackground,
+    borderTopLeftRadius: borderRadius.lg,
+    borderTopRightRadius: borderRadius.lg,
+    padding: spacing.lg,
+    paddingBottom: spacing.xxl,
+  },
+  sheetTitle: {
+    color: colors.textPrimary,
+    fontSize: typography.fontSizes.lg,
+    fontWeight: typography.fontWeights.semibold,
+    textAlign: 'center',
+    marginBottom: spacing.md,
+  },
+  option: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.md,
+    borderRadius: borderRadius.md,
+    marginBottom: spacing.xs,
+    backgroundColor: colors.surfaceContainerLow,
+  },
+  optionText: {
+    color: colors.textPrimary,
+    fontSize: typography.fontSizes.md,
+  },
+  optionCancel: {
+    backgroundColor: 'transparent',
+    marginTop: spacing.sm,
+    justifyContent: 'center',
+  },
+  optionCancelText: {
+    color: colors.textSecondary,
+    textAlign: 'center',
+  },
+});
