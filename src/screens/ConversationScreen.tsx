@@ -314,8 +314,9 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
 
   // Valores efectivos: estado local detectado tiene prioridad sobre los props
   // iniciales (que vienen de AppNavigator).
-  const effectiveQuoteRequested = quoteRequested || initialQuoteRequested;
-  const effectiveQuoteRequestId = quoteRequestId ?? initialQuoteRequestId;
+  // quoteRequested se actualiza al montar (detectQuoteRequest) y cada vez
+  // que llega un mensaje del sistema. Es la fuente de verdad actual.
+  const effectiveQuoteRequested = quoteRequested;
 
   // Mientras se inicializa el chat, no renderizamos la UI de conversación.
   if (initStatus === 'loading') {
@@ -388,7 +389,7 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
         hasMore={messages.length > 0}
       />
 
-      {/* Botón "Solicitar Cotización" (cliente) u oculto (trabajador) */}
+      {/* Botón "Solicitar Cotización" (cliente) u "Confirmar Cotización" (cliente con cotización completada) */}
       {role === 'client' && (
         <QuoteRequestButton
           onPress={() => {
@@ -398,6 +399,7 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
           }}
           role={role}
           quoteRequested={effectiveQuoteRequested}
+          quoteRequestedCompleted={effectiveQuoteRequested && Boolean(initialQuoteData)}
         />
       )}
 
