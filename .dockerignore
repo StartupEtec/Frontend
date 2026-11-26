@@ -1,0 +1,10 @@
+node_modules/
+.env
+.env.*
+.expo/
+dist/
+web-build/
+.git/
+coverage/
+*.log
+npm-debug.log*

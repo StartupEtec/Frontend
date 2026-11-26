@@ -19,7 +19,7 @@ describe("NavBar", () => {
 
   it("renders app title and current mode", () => {
     const { getByText } = renderBar();
-    expect(getByText("StartupApp")).toBeTruthy();
+    expect(getByText("Labor-In")).toBeTruthy();
     expect(getByText("Modo Cliente")).toBeTruthy();
   });
 

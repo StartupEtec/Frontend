@@ -3,12 +3,17 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { colors, shadows, spacing, borderRadius, typography } from '../../theme/tokens';
 import type { Order } from '../../types/order';
+import type { RateeInfo } from '../../types/rating';
 
 interface OrderCardProps {
   order: Order;
   userRole: 'client' | 'worker';
   onComplete: (orderId: string) => void;
   onOpenDetail: (order: Order) => void;
+  /** Callback para calificar una orden COMPLETED. */
+  onRate?: (orderId: string, ratee: RateeInfo) => void;
+  /** IDs de órdenes ya calificadas por el usuario actual. */
+  ratedOrderIds?: Set<string>;
 }
 
 /**
@@ -45,6 +50,8 @@ export const OrderCard: React.FC<OrderCardProps> = ({
   userRole,
   onComplete,
   onOpenDetail,
+  onRate,
+  ratedOrderIds = new Set<string>(),
 }) => {
   const isClient = userRole === 'client';
   const otherParty = isClient ? order.worker : order.client;
@@ -63,7 +70,23 @@ export const OrderCard: React.FC<OrderCardProps> = ({
   const canComplete =
     order.status === 'PENDING' || order.status === 'ACCEPTED' || order.status === 'IN_PROGRESS';
 
+  // Puede calificarse cuando la orden está COMPLETED y existe callback de calificación.
+  const canRate = order.status === 'COMPLETED' && !!onRate;
+
   const isWaiting = alreadyConfirmed && canComplete;
+
+  const ratee: RateeInfo | null =
+    canRate && otherParty
+      ? {
+          user_id: otherParty.user_id,
+          full_name: otherParty.full_name,
+          avatar_url: otherParty.avatar_url,
+          service: serviceTitle,
+        }
+      : null;
+
+  // ¿El usuario ya calificó esta orden?
+  const alreadyRated = ratedOrderIds.has(order.id);
 
   return (
     <View style={styles.card}>
@@ -94,6 +117,19 @@ export const OrderCard: React.FC<OrderCardProps> = ({
         >
           <Text style={styles.completeButtonText}>
             {isWaiting ? `Esperando a ${otherPartyName}` : 'Finalizar servicio'}
+          </Text>
+        </TouchableOpacity>
+      )}
+
+      {canRate && ratee && (
+        <TouchableOpacity
+          style={[alreadyRated ? styles.rateButtonRated : styles.rateButton]}
+          onPress={alreadyRated ? undefined : () => onRate(order.id, ratee)}
+          disabled={alreadyRated}
+          accessibilityLabel={alreadyRated ? 'Servicio ya calificado' : 'Calificar servicio'}
+        >
+          <Text style={alreadyRated ? styles.rateButtonRatedText : styles.rateButtonText}>
+            {alreadyRated ? 'Servicio ya calificado' : 'Calificar servicio'}
           </Text>
         </TouchableOpacity>
       )}
@@ -170,6 +206,32 @@ const styles = StyleSheet.create({
   },
   completeButtonText: {
     color: colors.onPrimary,
+    fontSize: typography.fontSizes.sm,
+    fontWeight: typography.fontWeights.semibold,
+  },
+  rateButton: {
+    backgroundColor: colors.success,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: borderRadius.md,
+    alignItems: 'center',
+    marginTop: spacing.sm,
+  },
+  rateButtonRated: {
+    backgroundColor: colors.textMuted,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: borderRadius.md,
+    alignItems: 'center',
+    marginTop: spacing.sm,
+  },
+  rateButtonText: {
+    color: colors.onPrimary,
+    fontSize: typography.fontSizes.sm,
+    fontWeight: typography.fontWeights.semibold,
+  },
+  rateButtonRatedText: {
+    color: colors.onSurfaceVariant,
     fontSize: typography.fontSizes.sm,
     fontWeight: typography.fontWeights.semibold,
   },
