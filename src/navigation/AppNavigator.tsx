@@ -19,12 +19,15 @@ import { WorkerProfileScreen } from '../screens/WorkerProfileScreen';
 import { ChatsScreen } from '../screens/ChatsScreen';
 import { QuoteRequestScreen } from '../screens/QuoteRequestScreen';
 import { ConversationScreen } from '../screens/ConversationScreen';
+import { CompleteQuoteScreen } from '../screens/CompleteQuoteScreen';
+import { QuoteViewScreen } from '../screens/QuoteViewScreen';
 import { NavBar } from '../components/NavBar';
 import { SearchOriginModal } from '../components/location/SearchOriginModal';
 import { ASYNC_STORAGE_ONBOARDING_KEY } from '../i18n/onboardingContent';
 import { tokenStorage } from '../services/tokenStorage';
 import { profileService } from '../services/profileService';
 import { userService } from '../services/userService';
+import { chatService } from '../services/chatService';
 import { resetNearbyWorkersCache } from '../hooks/useNearbyWorkers';
 import { colors, spacing, typography, borderRadius, roleAccent } from '../theme/tokens';
 import { UserRole } from '../types/role';
@@ -53,6 +56,8 @@ export type AppRoute =
   | 'Chats'
   | 'Conversation'
   | 'QuoteRequest'
+  | 'CompleteQuote'
+  | 'QuoteView'
   | 'Main';
 
 export const AppNavigator: React.FC = () => {
@@ -61,7 +66,21 @@ export const AppNavigator: React.FC = () => {
   const [isCheckingStatus, setIsCheckingStatus] = useState<boolean>(true);
   const [registeredContact, setRegisteredContact] = useState<string>('');
   const [selectedChatUserId, setSelectedChatUserId] = useState<string | null>(null);
-  const [quoteRequested, setQuoteRequested] = useState<boolean>(false);
+  const [_quoteRequested, setQuoteRequested] = useState<boolean>(false);
+  const [quoteRequestId, setQuoteRequestId] = useState<string | null>(null);
+  const [quoteChatId, setQuoteChatId] = useState<string | null>(null);
+  const [quoteMyUserId, setQuoteMyUserId] = useState<string | null>(null);
+  const [quoteData, setQuoteData] = useState<{
+    id: string;
+    order_id: string;
+    proposed_price: number;
+    proposed_date: string;
+    proposed_time: string;
+    status: string;
+    rejection_reason: string | null;
+    created_at: string;
+    updated_at: string;
+  } | null>(null);
   const [otpOrigin, setOtpOrigin] = useState<'Register' | 'Login'>('Register');
   const [selectedRole, setSelectedRole] = useState<UserRole>('client');
   const [profileCompleted, setProfileCompleted] = useState<boolean>(false);
@@ -422,29 +441,107 @@ export const AppNavigator: React.FC = () => {
     content = (
       <ConversationScreen
         userId={selectedChatUserId!}
+        quoteRequestId={quoteRequestId ?? undefined}
         onGoBack={() => {
           setCurrentRoute('Chats');
           setSelectedChatUserId(null);
           setQuoteRequested(false);
+          setQuoteRequestId(null);
+          setQuoteData(null);
         }}
-        onRequestQuote={() => {
+        onRequestQuote={(chatId: string, myUserId: string) => {
+          setQuoteChatId(chatId);
+          setQuoteMyUserId(myUserId);
           setCurrentRoute('QuoteRequest');
         }}
+        onCompleteQuote={(quoteRequestId: string, chatId: string, myUserId: string) => {
+          setQuoteRequestId(quoteRequestId);
+          setQuoteChatId(chatId);
+          setQuoteMyUserId(myUserId);
+          setCurrentRoute('CompleteQuote');
+        }}
+        onQuoteRequestDetected={(qid) => {
+          setQuoteRequestId(qid);
+        }}
+        onViewQuote={(qid, qdata) => {
+          setQuoteRequestId(qid);
+          setQuoteData(qdata ?? null);
+          setCurrentRoute('QuoteView');
+        }}
         role={selectedRole}
-        quoteRequested={quoteRequested}
+        quoteData={quoteData}
+        onQuoteRequestCompleted={() => {
+          // El cliente detectó que su solicitud ya fue completada por el trabajador.
+          // Se habilita nuevamente el botón "Solicitar cotización".
+          setQuoteRequested(false);
+        }}
       />
     );
   } else if (currentRoute === 'QuoteRequest') {
     content = (
       <QuoteRequestScreen
         workerId={selectedChatUserId!}
+        chatId={quoteChatId!}
+        myUserId={quoteMyUserId!}
         onClose={() => {
           setCurrentRoute('Conversation');
           setQuoteRequested(false);
+          setQuoteRequestId(null);
+          setQuoteChatId(null);
+          setQuoteMyUserId(null);
         }}
-        onRequestSuccess={() => {
+        onRequestSuccess={(qr) => {
+          setQuoteRequestId(qr.id);
           setCurrentRoute('Conversation');
           setQuoteRequested(true);
+        }}
+      />
+    );
+  } else if (currentRoute === 'CompleteQuote') {
+    content = (
+      <CompleteQuoteScreen
+        quoteRequestId={quoteRequestId!}
+        chatId={quoteChatId!}
+        myUserId={quoteMyUserId!}
+        onClose={() => {
+          setCurrentRoute('Conversation');
+          setQuoteRequestId(null);
+          setQuoteData(null);
+          setQuoteChatId(null);
+          setQuoteMyUserId(null);
+        }}
+        onRejected={(_fields) => {
+          // El trabajador rechazó categoría o ubicación: volver al chat.
+          // El mensaje de rechazo se envía desde el backend o se maneja aquí.
+          setCurrentRoute('Conversation');
+          setQuoteRequested(false);
+          setQuoteRequestId(null);
+          setQuoteData(null);
+          setQuoteChatId(null);
+          setQuoteMyUserId(null);
+        }}
+        onCompleted={(quote) => {
+          setQuoteData(quote);
+          setQuoteRequested(false);
+          // Enviar mensaje del sistema al chat para que ambos participantes lo vean en tiempo real.
+          if (quoteChatId && quoteMyUserId) {
+            void chatService.sendMessage(quoteChatId, quoteMyUserId, {
+              message_type: 'QUOTE',
+              content: 'Cotización completada',
+            });
+          }
+          setCurrentRoute('Conversation');
+        }}
+      />
+    );
+  } else if (currentRoute === 'QuoteView') {
+    content = (
+      <QuoteViewScreen
+        quoteRequestId={quoteRequestId!}
+        quoteData={quoteData}
+        role={selectedRole}
+        onClose={() => {
+          setCurrentRoute('Conversation');
         }}
       />
     );

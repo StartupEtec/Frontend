@@ -94,3 +94,56 @@ export interface CreateChatResponse {
   created: boolean;
   message: string;
 }
+
+/** Datos de una cotización para mostrar en pantalla de detalle. */
+export interface QuoteData {
+  id: string;
+  order_id: string;
+  proposed_price: number;
+  proposed_date: string;
+  proposed_time: string;
+  status: string;
+  rejection_reason: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+/** Datos de una solicitud de cotización (quote_request). */
+export interface QuoteRequestData {
+  id: string;
+  client_id: string;
+  worker_id: string;
+  category: string;
+  location: string;
+  description: string | null;
+  status: string;
+  order_id: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+/** Parámetros para la pantalla de vista de cotización (QuoteViewScreen). */
+export interface QuoteViewScreenParams {
+  quoteRequestId: string;
+  quoteData: QuoteData | null;
+  role: 'client' | 'worker';
+  onClose: () => void;
+}
+
+/** Parámetros para la pantalla de completar cotización (CompleteQuoteScreen). */
+export interface CompleteQuoteScreenParams {
+  quoteRequestId: string;
+  orderId: string | null;
+  role: 'worker';
+  chatId: string;
+  myUserId: string;
+  onComplete: (quote: QuoteData) => void;
+  onCancel: () => void;
+  onRejected: (fields: string[]) => void;
+}
+
+/** Datos para actualizar el estado de una solicitud de cotización. */
+export interface UpdateQuoteRequestStatusData {
+  status: 'ACCEPTED' | 'REJECTED' | 'CANCELLED';
+  rejection_reason?: string | null;
+}

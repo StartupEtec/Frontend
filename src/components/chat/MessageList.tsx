@@ -29,14 +29,13 @@ export interface MessageListProps {
   onRetry: () => void;
   /** Si hay más mensajes para cargar (paginación). */
   hasMore?: boolean;
-  /** Contenido opcional para renderizar al final de la lista de mensajes
-   * (ej. una píldora de "Cotización solicitada"). */
-  footerContent?: React.ReactNode;
 }
 
 /**
  * Lista de mensajes con:
  * - Renderizado de burbujas (propias vs ajenas)
+ * - Renderizado de mensajes del sistema (message_type: 'QUOTE') como burbujas
+ *   centradas con estilo de píldora
  * - Estado loading / error / vacío
  * - Carga de mensajes anteriores al hacer scroll hacia arriba (onScroll cerca del tope)
  * - Botón flotante "Ir al final" (sin auto-scroll automático)
@@ -50,7 +49,6 @@ export const MessageList: React.FC<MessageListProps> = ({
   error,
   onRetry,
   hasMore = true,
-  footerContent,
 }) => {
   const scrollRef = useRef<React.ComponentRef<typeof ScrollView>>(null);
   const isNearTopRef = useRef(false);
@@ -116,27 +114,27 @@ export const MessageList: React.FC<MessageListProps> = ({
           keyboardShouldPersistTaps="handled"
           testID="scroll-messages"
         >
-          {messages.map((message) => {
-            const isOwn = message.sender_id === myUserId;
-            return (
-              <MessageBubble
-                key={message.id}
-                message={message}
-                isOwn={isOwn}
-                accentColor={accentColor}
-              />
-            );
-          })}
+          {/* Deduplicar por id para evitar claves repetidas (race condition
+              entre mensaje optimista y WebSocket) */}
+          {messages
+            .filter((msg, index, self) => index === self.findIndex((m) => m.id === msg.id))
+            .map((message) => {
+              const isSystem = message.message_type === 'QUOTE';
+              return (
+                <MessageBubble
+                  key={message.id}
+                  message={message}
+                  isOwn={!isSystem && message.sender_id === myUserId}
+                  isSystem={isSystem}
+                  accentColor={accentColor}
+                />
+              );
+            })}
           {messages.length > 5 && (
             <ScrollToBottomButton
               onScrollToBottom={handleScrollToBottom}
               accentColor={accentColor}
             />
-          )}
-          {footerContent && (
-            <View key="quote-pill" style={styles.footerContentWrapper}>
-              {footerContent}
-            </View>
           )}
         </ScrollView>
       )}
@@ -197,10 +195,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.sm,
     paddingHorizontal: spacing.md,
-  },
-  footerContentWrapper: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginVertical: spacing.xs,
   },
 });
