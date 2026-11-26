@@ -113,8 +113,12 @@ export interface QuoteRequestData {
   id: string;
   client_id: string;
   worker_id: string;
-  category: string;
-  location: string;
+  category_id: string;
+  category_name: string | null;
+  category: string | null;
+  location_id: string | null;
+  location_address: string | null;
+  location: string | null;
   description: string | null;
   status: string;
   order_id: string | null;

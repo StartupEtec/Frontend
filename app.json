@@ -46,6 +46,14 @@
       ],
       "expo-font",
       "expo-secure-store"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "e7b81d1d-7492-4527-9ce9-ed3e92a3779c"
+      }
+    },
+    "android": {
+      "package": "com.thiagox123123.laborin"
+    }
   }
 }

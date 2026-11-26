@@ -255,7 +255,7 @@ describe("useEditProfile Hook", () => {
 
       await act(async () => {
         await result.current.saveAvatar(
-          "http://10.0.2.2:3000/uploads/keep.jpg",
+          "https://app.laborin.app/uploads/keep.jpg",
         );
       });
 

@@ -167,7 +167,7 @@ export const useChat = ({ chatId, userId }: UseChatProps): UseChatReturn => {
       if (!token) return;
 
       const url = `${
-        process.env.EXPO_PUBLIC_WS_URL || 'ws://localhost:3000'
+        process.env.EXPO_PUBLIC_WS_URL || 'wss://app.laborin.app'
       }/ws?token=${encodeURIComponent(token)}`;
       wsUrlRef.current = url;
 
