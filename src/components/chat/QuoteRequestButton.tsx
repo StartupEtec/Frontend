@@ -12,6 +12,8 @@ export interface QuoteRequestButtonProps {
   role?: 'client' | 'worker';
   /** Si ya se solicitó una cotización (para ocultar/deshabilitar el botón). */
   quoteRequested?: boolean;
+  /** Si ya se completó una cotización (para mostrar "Confirmar Cotización"). */
+  quoteRequestedCompleted?: boolean;
 }
 
 /**
@@ -20,12 +22,14 @@ export interface QuoteRequestButtonProps {
  *
  * Si el rol es 'worker' no se renderiza (el trabajador no solicita cotizaciones).
  * Si el rol es 'client' y ya hay una cotización solicitada, se deshabilita.
+ * Si el rol es 'client' y ya hay una cotización completada, muestra "Confirmar Cotización".
  */
 export const QuoteRequestButton: React.FC<QuoteRequestButtonProps> = ({
   onPress,
   disabled = false,
   role,
   quoteRequested = false,
+  quoteRequestedCompleted = false,
 }) => {
   // El trabajador no tiene botón "Solicitar Cotización".
   if (role === 'worker') {
@@ -33,29 +37,36 @@ export const QuoteRequestButton: React.FC<QuoteRequestButtonProps> = ({
   }
 
   const isDisabled = disabled || quoteRequested;
+  const isCompleted = quoteRequestedCompleted;
 
   const handlePress = () => {
-    if (isDisabled) return;
+    if (isDisabled && !isCompleted) return;
     onPress();
   };
 
   return (
     <TouchableOpacity
-      style={[styles.container, isDisabled && styles.disabled]}
+      style={[styles.container, isDisabled && !isCompleted && styles.disabled]}
       onPress={handlePress}
       testID="btn-request-quote"
       accessibilityRole="button"
       accessibilityLabel={
-        isDisabled ? 'Solicitar cotización (deshabilitada)' : 'Solicitar cotización'
+        isCompleted
+          ? 'Confirmar cotización'
+          : isDisabled
+            ? 'Solicitar cotización (deshabilitada)'
+            : 'Solicitar cotización'
       }
     >
       <Feather
         name="file-text"
         size={14}
-        color={isDisabled ? colors.textMuted : colors.primary}
+        color={isDisabled && !isCompleted ? colors.textMuted : colors.primary}
         accessible={false}
       />
-      <Text style={[styles.label, isDisabled && styles.disabledLabel]}>Solicitar Cotización</Text>
+      <Text style={[styles.label, isDisabled && !isCompleted && styles.disabledLabel]}>
+        {isCompleted ? 'Confirmar Cotización' : 'Solicitar Cotización'}
+      </Text>
     </TouchableOpacity>
   );
 };
