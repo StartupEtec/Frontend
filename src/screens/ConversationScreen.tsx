@@ -29,8 +29,6 @@ export interface ConversationScreenProps {
   onAcceptQuote?: (chatId: string, myUserId: string, quoteRequestId: string) => void;
   /** Callback al completar cotización (trabajador). Recibe quoteRequestId, chatId y myUserId. */
   onCompleteQuote?: (quoteRequestId: string, chatId: string, myUserId: string) => void;
-  /** Callback al ver detalle de cotización. */
-  onViewQuote?: (quoteRequestId: string, quoteData: QuoteData | null) => void;
   /** Callback cuando se detecta una quote_request pendiente al entrar al chat. */
   onQuoteRequestDetected?: (quoteRequestId: string) => void;
   /** Callback cuando se detecta que la quote_request ya fue completada. */
@@ -78,12 +76,10 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
   onRequestQuote,
   onAcceptQuote,
   onCompleteQuote,
-  onViewQuote,
   onQuoteRequestDetected,
   onQuoteRequestCompleted,
   quoteRequested: initialQuoteRequested = false,
   role = 'client',
-  quoteData: initialQuoteData,
 }) => {
   const accentColor = roleAccent(role);
   const insets = useSafeAreaInsets();
@@ -415,12 +411,6 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
     await loadMore();
   };
 
-  const handleViewQuote = () => {
-    if (onViewQuote && effectiveQuoteRequestId) {
-      onViewQuote(effectiveQuoteRequestId, _quoteData ?? initialQuoteData ?? null);
-    }
-  };
-
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="light-content" />
@@ -458,7 +448,6 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
         error={chatError}
         onRetry={handleLoadMore}
         hasMore={messages.length > 0}
-        onViewQuote={effectiveQuoteRequestId ? handleViewQuote : undefined}
       />
 
       {/* Botón "Solicitar Cotización" (cliente) u "Confirmar Cotización" (cliente con cotización completada) */}

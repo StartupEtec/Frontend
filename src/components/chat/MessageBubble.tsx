@@ -1,5 +1,5 @@
 import React from 'react';
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, StyleSheet, Text, View } from 'react-native';
 import { ChatMessage } from '../../types/chat';
 import { toDisplayUri } from '../../services/profileService';
 import { colors, spacing, borderRadius, typography } from '../../theme/tokens';
@@ -10,16 +10,7 @@ export interface MessageBubbleProps {
   /** Si el mensaje es del sistema (message_type === 'QUOTE'). */
   isSystem?: boolean;
   accentColor?: string;
-  /** Callback al presionar "(ver)" en un mensaje del sistema de cotización. */
-  onViewQuote?: () => void;
 }
-
-/** Contenidos de mensaje del sistema que muestran el botón "(ver)". */
-const VIEWABLE_CONTENTS = [
-  'Cotización solicitada',
-  'Cotización completada',
-  'Cotización confirmada',
-];
 
 /**
  * Burbuja individual de un mensaje en la conversación.
@@ -36,7 +27,6 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
   isOwn,
   isSystem = false,
   accentColor: _accentColor,
-  onViewQuote,
 }) => {
   const { content, message_type, created_at } = message;
   const isImage = message_type === 'IMAGE';
@@ -47,7 +37,6 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
 
   // Mensaje del sistema: burbuja centrada con estilo de píldora
   if (isSystem) {
-    const showViewButton = !!onViewQuote && !!content && VIEWABLE_CONTENTS.includes(content);
     return (
       <View style={styles.systemContainer}>
         <View style={styles.systemBubble}>
@@ -58,17 +47,6 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
             />
           )}
           {!isImage && content && <Text style={styles.systemMessageText}>{content}</Text>}
-          {showViewButton && (
-            <TouchableOpacity
-              onPress={onViewQuote}
-              style={styles.viewButton}
-              testID="btn-view-quote"
-              accessibilityRole="button"
-              accessibilityLabel="Ver cotización"
-            >
-              <Text style={styles.viewButtonText}>(ver)</Text>
-            </TouchableOpacity>
-          )}
           {timeLabel && <Text style={styles.systemTimeText}>{timeLabel}</Text>}
         </View>
       </View>
@@ -183,17 +161,6 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSizes.sm,
     fontWeight: typography.fontWeights.semibold,
     textAlign: 'center',
-  },
-  viewButton: {
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs / 2,
-    borderRadius: borderRadius.pill,
-    backgroundColor: colors.primary,
-  },
-  viewButtonText: {
-    color: colors.onPrimary,
-    fontSize: typography.fontSizes.xs,
-    fontWeight: typography.fontWeights.semibold,
   },
   systemTimeText: {
     fontSize: typography.fontSizes.xs,

@@ -23,6 +23,7 @@ import { CompleteQuoteScreen } from '../screens/CompleteQuoteScreen';
 import { AcceptQuoteScreen } from '../screens/AcceptQuoteScreen';
 import { QuoteViewScreen } from '../screens/QuoteViewScreen';
 import { PaymentScreen } from '../screens/PaymentScreen';
+import { OrderListScreen } from '../screens/OrderListScreen';
 import { NavBar } from '../components/NavBar';
 import { SearchOriginModal } from '../components/location/SearchOriginModal';
 import { ASYNC_STORAGE_ONBOARDING_KEY } from '../i18n/onboardingContent';
@@ -62,6 +63,7 @@ export type AppRoute =
   | 'AcceptQuote'
   | 'Payment'
   | 'QuoteView'
+  | 'OrderList'
   | 'Main';
 
 export const AppNavigator: React.FC = () => {
@@ -472,11 +474,6 @@ export const AppNavigator: React.FC = () => {
         onQuoteRequestDetected={(qid) => {
           setQuoteRequestId(qid);
         }}
-        onViewQuote={(qid, qdata) => {
-          setQuoteRequestId(qid);
-          setQuoteData(qdata ?? null);
-          setCurrentRoute('QuoteView');
-        }}
         role={selectedRole}
         quoteData={quoteData}
         onQuoteRequestCompleted={() => {
@@ -606,11 +603,14 @@ export const AppNavigator: React.FC = () => {
         }}
       />
     );
+  } else if (currentRoute === 'OrderList') {
+    content = <OrderListScreen onGoBack={() => setCurrentRoute('Main')} />;
   } else {
     content = (
       <SafeAreaView style={styles.mainContainer}>
         <NavBar
           currentRole={selectedRole}
+          onNavigateToOrders={() => setCurrentRoute('OrderList')}
           onNavigateToProfile={() => setCurrentRoute('Profile')}
           onNavigateToChats={() => setCurrentRoute('Chats')}
         />
