@@ -34,14 +34,29 @@ export const QuoteViewScreen: React.FC<QuoteViewScreenProps> = ({
   onClose,
 }) => {
   const [quoteRequest, setQuoteRequest] = useState<QuoteRequestData | null>(null);
+  const [localQuoteData, setLocalQuoteData] = useState<QuoteData | null>(null);
   const [loading, setLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
+  // Datos efectivos: los recibidos por props tienen prioridad.
+  const effectiveQuoteData = quoteData ?? localQuoteData;
 
   useEffect(() => {
     const loadQuoteRequest = async () => {
       try {
         const qr = await quoteService.getQuoteRequest(quoteRequestId);
         setQuoteRequest(qr);
+        // Si no se recibieron los datos de la cotización (fecha, hora, precio),
+        // intentar obtenerlos desde la orden asociada a la solicitud.
+        if (!quoteData && qr.order_id) {
+          try {
+            const quotes = await quoteService.listQuotesByOrder(qr.order_id);
+            if (quotes.length > 0) {
+              setLocalQuoteData(quotes[quotes.length - 1]);
+            }
+          } catch {
+            // Sin datos de quote: se muestra el estado vacío correspondiente
+          }
+        }
       } catch {
         Alert.alert('Error', 'No se pudo cargar el detalle de la cotización');
       } finally {
@@ -49,6 +64,7 @@ export const QuoteViewScreen: React.FC<QuoteViewScreenProps> = ({
       }
     };
     loadQuoteRequest();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [quoteRequestId]);
 
   const handleDeleteQuoteRequest = async () => {
@@ -77,7 +93,7 @@ export const QuoteViewScreen: React.FC<QuoteViewScreenProps> = ({
   };
 
   // El cliente puede eliminar solo si la cotización no fue completada (quoteData null)
-  const canDelete = role === 'client' && !quoteData;
+  const canDelete = role === 'client' && !effectiveQuoteData;
 
   if (loading) {
     return (
@@ -126,28 +142,28 @@ export const QuoteViewScreen: React.FC<QuoteViewScreenProps> = ({
           </>
         ) : (
           <>
-            {quoteData ? (
+            {effectiveQuoteData ? (
               <>
                 <View style={styles.fieldGroup}>
                   <Text style={styles.fieldLabel}>Fecha propuesta</Text>
-                  <Text style={styles.valueText}>{quoteData.proposed_date}</Text>
+                  <Text style={styles.valueText}>{effectiveQuoteData.proposed_date}</Text>
                 </View>
 
                 <View style={styles.fieldGroup}>
                   <Text style={styles.fieldLabel}>Hora propuesta</Text>
-                  <Text style={styles.valueText}>{quoteData.proposed_time}</Text>
+                  <Text style={styles.valueText}>{effectiveQuoteData.proposed_time}</Text>
                 </View>
 
                 <View style={styles.fieldGroup}>
                   <Text style={styles.fieldLabel}>Precio propuesto</Text>
                   <Text style={styles.priceText}>
-                    ${Number(quoteData.proposed_price).toFixed(2)}
+                    ${Number(effectiveQuoteData.proposed_price).toFixed(2)}
                   </Text>
                 </View>
 
                 <View style={styles.fieldGroup}>
                   <Text style={styles.fieldLabel}>Estado</Text>
-                  <Text style={styles.statusText}>{quoteData.status}</Text>
+                  <Text style={styles.statusText}>{effectiveQuoteData.status}</Text>
                 </View>
               </>
             ) : (

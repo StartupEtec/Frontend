@@ -20,7 +20,9 @@ import { ChatsScreen } from '../screens/ChatsScreen';
 import { QuoteRequestScreen } from '../screens/QuoteRequestScreen';
 import { ConversationScreen } from '../screens/ConversationScreen';
 import { CompleteQuoteScreen } from '../screens/CompleteQuoteScreen';
+import { AcceptQuoteScreen } from '../screens/AcceptQuoteScreen';
 import { QuoteViewScreen } from '../screens/QuoteViewScreen';
+import { PaymentScreen } from '../screens/PaymentScreen';
 import { NavBar } from '../components/NavBar';
 import { SearchOriginModal } from '../components/location/SearchOriginModal';
 import { ASYNC_STORAGE_ONBOARDING_KEY } from '../i18n/onboardingContent';
@@ -57,6 +59,8 @@ export type AppRoute =
   | 'Conversation'
   | 'QuoteRequest'
   | 'CompleteQuote'
+  | 'AcceptQuote'
+  | 'Payment'
   | 'QuoteView'
   | 'Main';
 
@@ -81,6 +85,11 @@ export const AppNavigator: React.FC = () => {
     created_at: string;
     updated_at: string;
   } | null>(null);
+  const [acceptQuoteRequestId, setAcceptQuoteRequestId] = useState<string | null>(null);
+  const [acceptQuoteChatId, setAcceptQuoteChatId] = useState<string | null>(null);
+  const [acceptQuoteMyUserId, setAcceptQuoteMyUserId] = useState<string | null>(null);
+  const [paymentOrderId, setPaymentOrderId] = useState<string | null>(null);
+  const [paymentAmount, setPaymentAmount] = useState<number | null>(null);
   const [otpOrigin, setOtpOrigin] = useState<'Register' | 'Login'>('Register');
   const [selectedRole, setSelectedRole] = useState<UserRole>('client');
   const [profileCompleted, setProfileCompleted] = useState<boolean>(false);
@@ -475,6 +484,12 @@ export const AppNavigator: React.FC = () => {
           // Se habilita nuevamente el botón "Solicitar cotización".
           setQuoteRequested(false);
         }}
+        onAcceptQuote={(chatId: string, myUserId: string, qid: string) => {
+          setAcceptQuoteRequestId(qid);
+          setAcceptQuoteChatId(chatId);
+          setAcceptQuoteMyUserId(myUserId);
+          setCurrentRoute('AcceptQuote');
+        }}
       />
     );
   } else if (currentRoute === 'QuoteRequest') {
@@ -531,6 +546,52 @@ export const AppNavigator: React.FC = () => {
             });
           }
           setCurrentRoute('Conversation');
+        }}
+      />
+    );
+  } else if (currentRoute === 'AcceptQuote') {
+    content = (
+      <AcceptQuoteScreen
+        quoteRequestId={acceptQuoteRequestId!}
+        chatId={acceptQuoteChatId!}
+        myUserId={acceptQuoteMyUserId!}
+        onClose={() => {
+          setCurrentRoute('Conversation');
+          setAcceptQuoteRequestId(null);
+          setAcceptQuoteChatId(null);
+          setAcceptQuoteMyUserId(null);
+        }}
+        onRejected={(_fields) => {
+          setCurrentRoute('Conversation');
+          setAcceptQuoteRequestId(null);
+          setAcceptQuoteChatId(null);
+          setAcceptQuoteMyUserId(null);
+        }}
+        onCompleted={(quote) => {
+          setQuoteData(quote);
+          setPaymentOrderId(quote.order_id);
+          setPaymentAmount(quote.proposed_price);
+          setAcceptQuoteRequestId(null);
+          setAcceptQuoteChatId(null);
+          setAcceptQuoteMyUserId(null);
+          setCurrentRoute('Payment');
+        }}
+      />
+    );
+  } else if (currentRoute === 'Payment') {
+    content = (
+      <PaymentScreen
+        orderId={paymentOrderId!}
+        amount={paymentAmount!}
+        onPaymentCompleted={() => {
+          setCurrentRoute('Conversation');
+          setPaymentOrderId(null);
+          setPaymentAmount(null);
+        }}
+        onGoBack={() => {
+          setCurrentRoute('Conversation');
+          setPaymentOrderId(null);
+          setPaymentAmount(null);
         }}
       />
     );

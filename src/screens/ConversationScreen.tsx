@@ -25,6 +25,8 @@ export interface ConversationScreenProps {
   onGoBack: () => void;
   /** Callback al solicitar cotización (cliente). Recibe chatId y myUserId. */
   onRequestQuote: (chatId: string, myUserId: string) => void;
+  /** Callback al aceptar cotización (cliente). Recibe chatId, myUserId y quoteRequestId. */
+  onAcceptQuote?: (chatId: string, myUserId: string, quoteRequestId: string) => void;
   /** Callback al completar cotización (trabajador). Recibe quoteRequestId, chatId y myUserId. */
   onCompleteQuote?: (quoteRequestId: string, chatId: string, myUserId: string) => void;
   /** Callback al ver detalle de cotización. */
@@ -74,6 +76,7 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
   quoteRequestId: initialQuoteRequestId,
   onGoBack,
   onRequestQuote,
+  onAcceptQuote,
   onCompleteQuote,
   onViewQuote,
   onQuoteRequestDetected,
@@ -109,6 +112,7 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
   const [quoteRequested, setQuoteRequested] = useState<boolean>(initialQuoteRequested);
   const [quoteRequestId, setQuoteRequestId] = useState<string | undefined>(initialQuoteRequestId);
   const [_quoteData, _setQuoteData] = useState<QuoteData | null>(null);
+  const [quoteCompleted, setQuoteCompleted] = useState<boolean>(false);
   // Ref para evitar enviar el mensaje del sistema múltiples veces
   const systemMessageSentRef = useRef<boolean>(false);
   // Mensaje del sistema pendiente de enviar (cuando messages aún no cargó)
@@ -169,10 +173,13 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
         );
         const requests = res.quote_requests ?? [];
 
-        // Buscar una solicitud PENDING (para mostrar "Cotización solicitada")
-        const pending = requests.find((qr) => qr.status === 'PENDING' && qr.worker_id === userId);
+        // Buscar una solicitud PENDING sin orden asociada (para mostrar "Cotización solicitada")
+        const pending = requests.find(
+          (qr) => qr.status === 'PENDING' && qr.worker_id === userId && !qr.order_id
+        );
         if (pending) {
           setQuoteRequested(true);
+          setQuoteCompleted(false);
           setQuoteRequestId(pending.id);
           onQuoteRequestDetectedRef.current?.(pending.id);
 
@@ -181,10 +188,14 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
           return;
         }
 
-        // Buscar una solicitud completada (tiene order_id asociado)
-        const completed = requests.find((qr) => qr.worker_id === userId && qr.order_id);
+        // Buscar una solicitud completada (tiene order_id asociado) pero aún no
+        // confirmada ni rechazada: el cliente debe ver "Confirmar Cotización".
+        const completed = requests.find(
+          (qr) => qr.worker_id === userId && qr.order_id && qr.status === 'PENDING'
+        );
         if (completed) {
           setQuoteRequested(false);
+          setQuoteCompleted(true);
           setQuoteRequestId(completed.id);
           onQuoteRequestCompletedRef.current?.();
           // Intentar obtener los detalles de la quote (fecha, hora, precio)
@@ -275,29 +286,88 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
           }
         })();
       }
-      if (
-        lastSystemMessage.content === 'Cotización completada' ||
-        lastSystemMessage.content?.startsWith('La cotización fue rechazada')
-      ) {
+      if (lastSystemMessage.content === 'Cotización completada') {
         setQuoteRequested(false);
-        setQuoteRequestId(lastSystemMessage.id);
+      }
+      if (lastSystemMessage.content?.startsWith('La cotización fue rechazada')) {
+        setQuoteRequested(false);
+      }
+      if (lastSystemMessage.content === 'Cotización confirmada') {
+        setQuoteRequested(false);
       }
     }
 
     if (role === 'client') {
       if (lastSystemMessage.content === 'Cotización solicitada') {
         setQuoteRequested(true);
-        setQuoteRequestId(lastSystemMessage.id);
+        setQuoteCompleted(false);
+        // Obtener el ID real de la quote_request desde la API
+        // (el ID del mensaje no es el ID de la quote_request)
+        void (async () => {
+          try {
+            const res = await apiClient<{ quote_requests: QuoteRequestData[] }>(
+              `/quote-requests/requests/sent`,
+              { method: 'GET' }
+            );
+            const pending = (res.quote_requests ?? []).find(
+              (qr) => qr.status === 'PENDING' && qr.worker_id === userId && !qr.order_id
+            );
+            if (pending) {
+              setQuoteRequestId(pending.id);
+              onQuoteRequestDetectedRef.current?.(pending.id);
+            }
+          } catch {
+            // Si falla la llamada a la API, se mantiene el estado anterior
+          }
+        })();
       }
-      if (
-        lastSystemMessage.content === 'Cotización completada' ||
-        lastSystemMessage.content?.startsWith('La cotización fue rechazada')
-      ) {
-        // El cliente recibió una notificación de que su cotización fue completada
-        // o rechazada. Ocultar el botón "Solicitar cotización" inmediatamente.
+      if (lastSystemMessage.content === 'Cotización completada') {
+        // El trabajador completó la cotización: el cliente puede confirmarla.
         setQuoteRequested(false);
-        setQuoteRequestId(lastSystemMessage.id);
+        setQuoteCompleted(true);
         onQuoteRequestCompletedRef.current?.();
+        // Obtener el ID real de la quote_request (la completada tiene order_id)
+        void (async () => {
+          try {
+            const res = await apiClient<{ quote_requests: QuoteRequestData[] }>(
+              `/quote-requests/requests/sent`,
+              { method: 'GET' }
+            );
+            const completed = (res.quote_requests ?? []).find(
+              (qr) => qr.worker_id === userId && qr.order_id && qr.status === 'PENDING'
+            );
+            if (completed) {
+              setQuoteRequestId(completed.id);
+              onQuoteRequestDetectedRef.current?.(completed.id);
+              // Intentar obtener los detalles de la quote (fecha, hora, precio)
+              try {
+                const quotesRes = await apiClient<{ quotes: QuoteData[] }>(
+                  `/orders/${completed.order_id}/quotes`,
+                  { method: 'GET' }
+                );
+                const quotes = quotesRes.quotes ?? [];
+                if (quotes.length > 0) {
+                  _setQuoteData(quotes[quotes.length - 1]);
+                }
+              } catch {
+                // Si no se pueden obtener los detalles, se muestra sin datos de quote
+              }
+            }
+          } catch {
+            // Si falla la llamada a la API, se mantiene el estado anterior
+          }
+        })();
+      }
+      if (lastSystemMessage.content?.startsWith('La cotización fue rechazada')) {
+        // Rechazada (por el cliente o por el trabajador): volver al estado
+        // inicial para permitir una nueva solicitud.
+        setQuoteRequested(false);
+        setQuoteCompleted(false);
+      }
+      if (lastSystemMessage.content === 'Cotización confirmada') {
+        // El cliente confirmó y pagó: no se muestra ningún botón de cotización.
+        setQuoteRequested(false);
+        setQuoteCompleted(false);
       }
     }
   }, [messages, role, userId]);
@@ -314,7 +384,9 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
 
   // Valores efectivos: estado local detectado tiene prioridad sobre los props
   // iniciales (que vienen de AppNavigator).
-  const effectiveQuoteRequested = quoteRequested || initialQuoteRequested;
+  // quoteRequested se actualiza al montar (detectQuoteRequest) y cada vez
+  // que llega un mensaje del sistema. Es la fuente de verdad actual.
+  const effectiveQuoteRequested = quoteRequested;
   const effectiveQuoteRequestId = quoteRequestId ?? initialQuoteRequestId;
 
   // Mientras se inicializa el chat, no renderizamos la UI de conversación.
@@ -343,9 +415,9 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
     await loadMore();
   };
 
-  const _handleViewQuote = () => {
+  const handleViewQuote = () => {
     if (onViewQuote && effectiveQuoteRequestId) {
-      onViewQuote(effectiveQuoteRequestId, initialQuoteData ?? null);
+      onViewQuote(effectiveQuoteRequestId, _quoteData ?? initialQuoteData ?? null);
     }
   };
 
@@ -386,18 +458,31 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
         error={chatError}
         onRetry={handleLoadMore}
         hasMore={messages.length > 0}
+        onViewQuote={effectiveQuoteRequestId ? handleViewQuote : undefined}
       />
 
-      {/* Botón "Solicitar Cotización" (cliente) u oculto (trabajador) */}
+      {/* Botón "Solicitar Cotización" (cliente) u "Confirmar Cotización" (cliente con cotización completada) */}
       {role === 'client' && (
         <QuoteRequestButton
           onPress={() => {
             if (chatId && myUserId) {
-              onRequestQuote(chatId, myUserId);
+              if (quoteCompleted && onAcceptQuote && effectiveQuoteRequestId) {
+                onAcceptQuote(chatId, myUserId, effectiveQuoteRequestId);
+              } else {
+                onRequestQuote(chatId, myUserId);
+              }
+            }
+          }}
+          onAcceptQuote={() => {
+            if (chatId && myUserId && effectiveQuoteRequestId) {
+              onAcceptQuote?.(chatId, myUserId, effectiveQuoteRequestId);
             }
           }}
           role={role}
           quoteRequested={effectiveQuoteRequested}
+          quoteRequestedCompleted={quoteCompleted}
+          chatId={chatId}
+          myUserId={myUserId}
         />
       )}
 
