@@ -107,9 +107,7 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
 
   // Estado local para la solicitud de cotización.
   const [quoteRequested, setQuoteRequested] = useState<boolean>(initialQuoteRequested);
-  const [quoteRequestId, setQuoteRequestId] = useState<string | undefined>(
-    initialQuoteRequestId,
-  );
+  const [quoteRequestId, setQuoteRequestId] = useState<string | undefined>(initialQuoteRequestId);
   const [_quoteData, _setQuoteData] = useState<QuoteData | null>(null);
   // Ref para evitar enviar el mensaje del sistema múltiples veces
   const systemMessageSentRef = useRef<boolean>(false);
@@ -140,7 +138,7 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
         // Si falla, el mensaje del sistema no se envía pero la UI sigue funcionando.
       }
     },
-    [chatId, myUserId],
+    [chatId, myUserId]
   );
 
   /**
@@ -149,11 +147,9 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
    */
   const systemMessageExists = useCallback(
     (content: string): boolean => {
-      return messages.some(
-        (m) => m.message_type === 'QUOTE' && m.content === content,
-      );
+      return messages.some((m) => m.message_type === 'QUOTE' && m.content === content);
     },
-    [messages],
+    [messages]
   );
 
   /**
@@ -169,14 +165,12 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
       if (role === 'client') {
         const res = await apiClient<{ quote_requests: QuoteRequestData[] }>(
           `/quote-requests/requests/sent`,
-          { method: 'GET' },
+          { method: 'GET' }
         );
         const requests = res.quote_requests ?? [];
 
         // Buscar una solicitud PENDING (para mostrar "Cotización solicitada")
-        const pending = requests.find(
-          (qr) => qr.status === 'PENDING' && qr.worker_id === userId,
-        );
+        const pending = requests.find((qr) => qr.status === 'PENDING' && qr.worker_id === userId);
         if (pending) {
           setQuoteRequested(true);
           setQuoteRequestId(pending.id);
@@ -188,9 +182,7 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
         }
 
         // Buscar una solicitud completada (tiene order_id asociado)
-        const completed = requests.find(
-          (qr) => qr.worker_id === userId && qr.order_id,
-        );
+        const completed = requests.find((qr) => qr.worker_id === userId && qr.order_id);
         if (completed) {
           setQuoteRequested(false);
           setQuoteRequestId(completed.id);
@@ -199,7 +191,7 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
           try {
             const quotesRes = await apiClient<{ quotes: QuoteData[] }>(
               `/orders/${completed.order_id}/quotes`,
-              { method: 'GET' },
+              { method: 'GET' }
             );
             const quotes = quotesRes.quotes ?? [];
             if (quotes.length > 0) {
@@ -212,13 +204,13 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
       } else if (role === 'worker') {
         const res = await apiClient<{ quote_requests: QuoteRequestData[] }>(
           `/quote-requests/requests/received`,
-          { method: 'GET' },
+          { method: 'GET' }
         );
         const requests = res.quote_requests ?? [];
 
         // Buscar una solicitud PENDING sin order_id (para mostrar "Completar Cotización")
         const pending = requests.find(
-          (qr) => qr.status === 'PENDING' && qr.client_id === userId && !qr.order_id,
+          (qr) => qr.status === 'PENDING' && qr.client_id === userId && !qr.order_id
         );
         if (pending) {
           setQuoteRequested(true);
@@ -249,13 +241,9 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
   // Solo consideramos el ÚLTIMO mensaje del sistema para determinar el estado,
   // ya que mensajes de cotizaciones anteriores no deben afectar el estado actual.
   useEffect(() => {
-    const systemMessages = messages.filter(
-      (m) => m.message_type === 'QUOTE',
-    );
+    const systemMessages = messages.filter((m) => m.message_type === 'QUOTE');
     const lastSystemMessage =
-      systemMessages.length > 0
-        ? systemMessages[systemMessages.length - 1]
-        : null;
+      systemMessages.length > 0 ? systemMessages[systemMessages.length - 1] : null;
 
     if (!lastSystemMessage) return;
 
@@ -273,10 +261,10 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
           try {
             const res = await apiClient<{ quote_requests: QuoteRequestData[] }>(
               `/quote-requests/requests/received`,
-              { method: 'GET' },
+              { method: 'GET' }
             );
             const pending = (res.quote_requests ?? []).find(
-              (qr) => qr.status === 'PENDING' && qr.client_id === userId && !qr.order_id,
+              (qr) => qr.status === 'PENDING' && qr.client_id === userId && !qr.order_id
             );
             if (pending) {
               setQuoteRequestId(pending.id);
@@ -316,11 +304,7 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
 
   // Cuando messages cargue, enviar mensaje del sistema pendiente si corresponde
   useEffect(() => {
-    if (
-      pendingSystemMessage &&
-      messages.length > 0 &&
-      !systemMessageSentRef.current
-    ) {
+    if (pendingSystemMessage && messages.length > 0 && !systemMessageSentRef.current) {
       if (!systemMessageExists(pendingSystemMessage)) {
         void sendSystemMessage(pendingSystemMessage);
       }
@@ -384,7 +368,7 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
             typingUserName={
               typingUserIds.length > 0
                 ? typingUserIds.length === 1
-                  ? otherUser.full_name ?? undefined
+                  ? (otherUser.full_name ?? undefined)
                   : undefined
                 : undefined
             }

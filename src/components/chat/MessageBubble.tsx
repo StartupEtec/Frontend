@@ -46,12 +46,8 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
               style={styles.imageBubble}
             />
           )}
-          {!isImage && content && (
-            <Text style={styles.systemMessageText}>{content}</Text>
-          )}
-          {timeLabel && (
-            <Text style={styles.systemTimeText}>{timeLabel}</Text>
-          )}
+          {!isImage && content && <Text style={styles.systemMessageText}>{content}</Text>}
+          {timeLabel && <Text style={styles.systemTimeText}>{timeLabel}</Text>}
         </View>
       </View>
     );

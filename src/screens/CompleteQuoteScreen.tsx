@@ -119,7 +119,7 @@ export const CompleteQuoteScreen: React.FC<CompleteQuoteScreenProps> = ({
         {
           method: 'PATCH',
           body: JSON.stringify({ status: 'REJECTED', rejection_reason: rejectionReason }),
-        },
+        }
       );
 
       // Enviar mensaje al chat notificando el rechazo (como mensaje del sistema).
@@ -146,7 +146,7 @@ export const CompleteQuoteScreen: React.FC<CompleteQuoteScreenProps> = ({
       Alert.alert(
         'Revisar solicitud',
         'Debe aprobar la categoría y la ubicación antes de continuar.',
-        [{ text: 'Aceptar', style: 'default' }],
+        [{ text: 'Aceptar', style: 'default' }]
       );
       return;
     }
@@ -199,7 +199,15 @@ export const CompleteQuoteScreen: React.FC<CompleteQuoteScreenProps> = ({
     if (quote) {
       onCompleted(quote);
     }
-  }, [selectedDate, selectedTime, priceInput, quoteRequestId, validateForm, createQuoteFromRequest, onCompleted]);
+  }, [
+    selectedDate,
+    selectedTime,
+    priceInput,
+    quoteRequestId,
+    validateForm,
+    createQuoteFromRequest,
+    onCompleted,
+  ]);
 
   if (loading) {
     return (
@@ -307,9 +315,7 @@ export const CompleteQuoteScreen: React.FC<CompleteQuoteScreenProps> = ({
             <View style={styles.fieldGroup}>
               <Text style={styles.fieldLabel}>Fecha de la visita</Text>
               <TouchableOpacity style={styles.dateInput} onPress={handleDatePress}>
-                <Text style={styles.dateValue}>
-                  {selectedDate || 'Seleccionar fecha...'}
-                </Text>
+                <Text style={styles.dateValue}>{selectedDate || 'Seleccionar fecha...'}</Text>
                 <Feather name="calendar" size={16} color={colors.textMuted} accessible={false} />
               </TouchableOpacity>
               {datePickerVisible && (
@@ -327,9 +333,7 @@ export const CompleteQuoteScreen: React.FC<CompleteQuoteScreenProps> = ({
             <View style={styles.fieldGroup}>
               <Text style={styles.fieldLabel}>Hora de la visita</Text>
               <TouchableOpacity style={styles.timeInput} onPress={handleTimePress}>
-                <Text style={styles.timeValue}>
-                  {selectedTime || 'Seleccionar hora...'}
-                </Text>
+                <Text style={styles.timeValue}>{selectedTime || 'Seleccionar hora...'}</Text>
                 <Feather name="clock" size={16} color={colors.textMuted} accessible={false} />
               </TouchableOpacity>
               {timePickerVisible && (
@@ -369,10 +373,7 @@ export const CompleteQuoteScreen: React.FC<CompleteQuoteScreenProps> = ({
       <View style={styles.footer}>
         {page === 1 ? (
           <>
-            <TouchableOpacity
-              style={styles.cancelButton}
-              onPress={handlePage1Cancel}
-            >
+            <TouchableOpacity style={styles.cancelButton} onPress={handlePage1Cancel}>
               <Text style={styles.cancelButtonText}>Cancelar</Text>
             </TouchableOpacity>
             <TouchableOpacity

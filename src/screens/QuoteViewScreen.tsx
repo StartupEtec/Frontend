@@ -1,12 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-  Alert,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { Feather } from '@expo/vector-icons';
@@ -64,18 +57,22 @@ export const QuoteViewScreen: React.FC<QuoteViewScreenProps> = ({
       '¿Estás seguro de que quieres eliminar esta solicitud de cotización?',
       [
         { text: 'Cancelar', style: 'cancel' },
-        { text: 'Eliminar', style: 'destructive', onPress: async () => {
-          setIsDeleting(true);
-          try {
-            await quoteService.removeQuoteRequest(quoteRequestId);
-            onClose();
-          } catch {
-            Alert.alert('Error', 'No se pudo eliminar la solicitud de cotización');
-          } finally {
-            setIsDeleting(false);
-          }
-        } },
-      ],
+        {
+          text: 'Eliminar',
+          style: 'destructive',
+          onPress: async () => {
+            setIsDeleting(true);
+            try {
+              await quoteService.removeQuoteRequest(quoteRequestId);
+              onClose();
+            } catch {
+              Alert.alert('Error', 'No se pudo eliminar la solicitud de cotización');
+            } finally {
+              setIsDeleting(false);
+            }
+          },
+        },
+      ]
     );
   };
 
@@ -112,16 +109,12 @@ export const QuoteViewScreen: React.FC<QuoteViewScreenProps> = ({
           <>
             <View style={styles.fieldGroup}>
               <Text style={styles.fieldLabel}>Categoría del servicio</Text>
-              <Text style={styles.valueText}>
-                {quoteRequest?.category ?? 'No disponible'}
-              </Text>
+              <Text style={styles.valueText}>{quoteRequest?.category ?? 'No disponible'}</Text>
             </View>
 
             <View style={styles.fieldGroup}>
               <Text style={styles.fieldLabel}>Ubicación del servicio</Text>
-              <Text style={styles.valueText}>
-                {quoteRequest?.location ?? 'No disponible'}
-              </Text>
+              <Text style={styles.valueText}>{quoteRequest?.location ?? 'No disponible'}</Text>
             </View>
 
             <View style={styles.fieldGroup}>
@@ -159,7 +152,12 @@ export const QuoteViewScreen: React.FC<QuoteViewScreenProps> = ({
               </>
             ) : (
               <View style={styles.emptyState}>
-                <Feather name="message-circle" size={48} color={colors.textMuted} accessible={false} />
+                <Feather
+                  name="message-circle"
+                  size={48}
+                  color={colors.textMuted}
+                  accessible={false}
+                />
                 <Text style={styles.emptyText}>
                   El trabajador aún no ha completado la cotización.
                 </Text>

@@ -122,11 +122,11 @@ describe('CompleteQuoteScreen', () => {
     // Los toggles son los TouchableOpacity con Feather icon dentro del valueRow.
     // Como no hay forma sencilla de seleccionarlos, testamos que el botón
     // "Siguiente" existe y es azul (no rojo) cuando todo está aprobado por defecto.
-    
+
     // En el estado inicial, approvedCategory y approvedLocation son false,
     // así que rejectedFields está vacío pero allFieldsApproved es false.
     // El botón muestra "Siguiente" pero no avanza hasta aprobar ambos.
-    
+
     // Ver que estamos en página 1
     expect(getByText('Revisar Solicitud')).toBeTruthy();
     expect(queryByText('Fecha de la visita')).toBeNull();
@@ -144,5 +144,4 @@ describe('CompleteQuoteScreen', () => {
     // fácilmente a la página 2 sin los toggles, verificamos el mock.
     expect(quoteService.createQuoteFromRequest).not.toHaveBeenCalled();
   });
-
 });

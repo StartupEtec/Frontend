@@ -1,8 +1,5 @@
 import { apiClient } from './api';
-import {
-  QuoteData,
-  QuoteRequestData,
-} from '../types/chat';
+import { QuoteData, QuoteRequestData } from '../types/chat';
 
 /**
  * Servicio de cotizaciones (quotes).
@@ -20,10 +17,9 @@ export const quoteService = {
    * Obtiene una solicitud de cotización por ID (cliente o trabajador).
    */
   async getQuoteRequest(quoteRequestId: string): Promise<QuoteRequestData> {
-    const res = await apiClient<QuoteRequestData>(
-      `/quote-requests/requests/${quoteRequestId}`,
-      { method: 'GET' },
-    );
+    const res = await apiClient<QuoteRequestData>(`/quote-requests/requests/${quoteRequestId}`, {
+      method: 'GET',
+    });
     return res;
   },
 
@@ -33,15 +29,12 @@ export const quoteService = {
    */
   async createQuote(
     orderId: string,
-    data: { proposed_price: number; proposed_date: string; proposed_time: string },
+    data: { proposed_price: number; proposed_date: string; proposed_time: string }
   ): Promise<QuoteData> {
-    const res = await apiClient<{ quote: QuoteData }>(
-      `/orders/${orderId}/quotes`,
-      {
-        method: 'POST',
-        body: JSON.stringify(data),
-      },
-    );
+    const res = await apiClient<{ quote: QuoteData }>(`/orders/${orderId}/quotes`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
     return res.quote;
   },
 
@@ -51,14 +44,14 @@ export const quoteService = {
    */
   async createQuoteFromRequest(
     quoteRequestId: string,
-    data: { proposed_price: number; proposed_date: string; proposed_time: string },
+    data: { proposed_price: number; proposed_date: string; proposed_time: string }
   ): Promise<QuoteData> {
     const res = await apiClient<{ quote: QuoteData }>(
       `/quote-requests/requests/${quoteRequestId}/quotes`,
       {
         method: 'POST',
         body: JSON.stringify(data),
-      },
+      }
     );
     return res.quote;
   },
@@ -67,10 +60,9 @@ export const quoteService = {
    * Lista las cotizaciones de una orden.
    */
   async listQuotesByOrder(orderId: string): Promise<QuoteData[]> {
-    const res = await apiClient<{ quotes: QuoteData[] }>(
-      `/orders/${orderId}/quotes`,
-      { method: 'GET' },
-    );
+    const res = await apiClient<{ quotes: QuoteData[] }>(`/orders/${orderId}/quotes`, {
+      method: 'GET',
+    });
     return res.quotes ?? [];
   },
 
@@ -78,10 +70,9 @@ export const quoteService = {
    * Elimina una solicitud de cotización (cliente, solo si está PENDING).
    */
   async removeQuoteRequest(quoteRequestId: string): Promise<void> {
-    await apiClient<{ message: string }>(
-      `/quote-requests/requests/${quoteRequestId}`,
-      { method: 'DELETE' },
-    );
+    await apiClient<{ message: string }>(`/quote-requests/requests/${quoteRequestId}`, {
+      method: 'DELETE',
+    });
   },
 
   /**
@@ -90,14 +81,14 @@ export const quoteService = {
    */
   async updateQuoteRequestStatus(
     quoteRequestId: string,
-    data: { status: string; rejection_reason?: string | null },
+    data: { status: string; rejection_reason?: string | null }
   ): Promise<QuoteRequestData> {
     const res = await apiClient<{ quote_request: QuoteRequestData }>(
       `/quote-requests/requests/${quoteRequestId}/status`,
       {
         method: 'PATCH',
         body: JSON.stringify(data),
-      },
+      }
     );
     return res.quote_request;
   },

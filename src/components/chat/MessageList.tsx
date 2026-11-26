@@ -117,7 +117,7 @@ export const MessageList: React.FC<MessageListProps> = ({
           {/* Deduplicar por id para evitar claves repetidas (race condition
               entre mensaje optimista y WebSocket) */}
           {messages
-            .filter((msg, index, self) => index === self.findIndex(m => m.id === msg.id))
+            .filter((msg, index, self) => index === self.findIndex((m) => m.id === msg.id))
             .map((message) => {
               const isSystem = message.message_type === 'QUOTE';
               return (

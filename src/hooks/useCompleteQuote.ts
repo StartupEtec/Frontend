@@ -23,11 +23,9 @@ const quoteFormSchema = z.object({
         ].join('-');
         return date >= todayStr;
       },
-      { message: 'La fecha debe ser hoy o una fecha futura' },
+      { message: 'La fecha debe ser hoy o una fecha futura' }
     ),
-  proposed_time: z
-    .string()
-    .regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'La hora debe tener formato HH:mm'),
+  proposed_time: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'La hora debe tener formato HH:mm'),
   proposed_price: z
     .number({ message: 'El precio debe ser un número' })
     .positive('El precio debe ser un valor positivo')
@@ -56,7 +54,7 @@ export interface UseCompleteQuoteReturn {
   /** Crea la cotización vía API a partir de una solicitud. Devuelve la cotización creada o null. */
   createQuoteFromRequest: (
     quoteRequestId: string,
-    data: QuoteFormData,
+    data: QuoteFormData
   ) => Promise<QuoteData | null>;
   /** Limpia errores. */
   reset: () => void;
@@ -123,7 +121,7 @@ export const useCompleteQuote = (): UseCompleteQuoteReturn => {
         setIsCreating(false);
       }
     },
-    [],
+    []
   );
 
   const reset = useCallback(() => {

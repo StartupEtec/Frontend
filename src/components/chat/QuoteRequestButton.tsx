@@ -46,9 +46,7 @@ export const QuoteRequestButton: React.FC<QuoteRequestButtonProps> = ({
       testID="btn-request-quote"
       accessibilityRole="button"
       accessibilityLabel={
-        isDisabled
-          ? 'Solicitar cotización (deshabilitada)'
-          : 'Solicitar cotización'
+        isDisabled ? 'Solicitar cotización (deshabilitada)' : 'Solicitar cotización'
       }
     >
       <Feather
@@ -57,9 +55,7 @@ export const QuoteRequestButton: React.FC<QuoteRequestButtonProps> = ({
         color={isDisabled ? colors.textMuted : colors.primary}
         accessible={false}
       />
-      <Text style={[styles.label, isDisabled && styles.disabledLabel]}>
-        Solicitar Cotización
-      </Text>
+      <Text style={[styles.label, isDisabled && styles.disabledLabel]}>Solicitar Cotización</Text>
     </TouchableOpacity>
   );
 };
