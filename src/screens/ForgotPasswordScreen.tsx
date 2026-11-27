@@ -14,13 +14,15 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { Feather } from '@expo/vector-icons';
 import { useForgotPassword } from '../hooks/useForgotPassword';
-import { RegisterFormInput } from '../components/register/RegisterFormInput';
+import { BaseField, PrimaryButton, ErrorBanner } from '../components/base';
 import { OtpDigitInput } from '../components/otp/OtpDigitInput';
 import { OtpTimer } from '../components/otp/OtpTimer';
 import { PasswordRequirements } from '../components/register/PasswordRequirements';
 import { SuccessToast } from '../components/SuccessToast';
 import { ForgotPasswordScreenProps, PasswordResetStep } from '../types/auth';
 import { colors, spacing, borderRadius, typography, shadows } from '../theme/tokens';
+
+const ACCENT_COLOR = colors.clientAccent;
 
 const STEP_LIST: { step: PasswordResetStep; label: string }[] = [
   { step: 1, label: 'Email/Teléfono' },
@@ -83,7 +85,7 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
           accessibilityLabel="Volver"
           accessibilityRole="button"
         >
-          <Feather name="arrow-left" size={24} color={colors.textPrimary} accessible={false} />
+          <Feather name="arrow-left" size={24} color={ACCENT_COLOR} accessible={false} />
         </TouchableOpacity>
         <Text style={styles.title}>Recuperar Contraseña</Text>
       </View>
@@ -137,12 +139,10 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
       </Text>
 
       {serverError && (
-        <View style={styles.serverErrorBox} testID="server-error-banner">
-          <Text style={styles.serverErrorText}>{serverError}</Text>
-        </View>
+        <ErrorBanner message={serverError} testID="server-error-banner" />
       )}
 
-      <RegisterFormInput
+      <BaseField
         label="Correo Electrónico o Teléfono"
         value={contact}
         onChangeText={handleContactChange}
@@ -152,23 +152,18 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
         keyboardType="email-address"
         autoCapitalize="none"
         testID="input-reset-contact"
+        required
+        accentColor={ACCENT_COLOR}
       />
 
-      <TouchableOpacity
-        style={[
-          styles.actionButton,
-          (!canSubmitStep1 || isSubmitting) && styles.actionButtonDisabled,
-        ]}
+      <PrimaryButton
+        title={isSubmitting ? 'Enviando...' : 'Enviar Código'}
         onPress={handleNextStep}
         disabled={!canSubmitStep1 || isSubmitting}
+        loading={isSubmitting}
+        accentColor={ACCENT_COLOR}
         testID="btn-send-code"
-      >
-        {isSubmitting ? (
-          <ActivityIndicator color={colors.onPrimary} testID="loading-spinner" />
-        ) : (
-          <Text style={styles.actionButtonText}>Enviar Código</Text>
-        )}
-      </TouchableOpacity>
+      />
     </>
   );
 
@@ -185,9 +180,7 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
       </Text>
 
       {serverError && (
-        <View style={styles.serverErrorBox} testID="server-error-banner">
-          <Text style={styles.serverErrorText}>{serverError}</Text>
-        </View>
+        <ErrorBanner message={serverError} testID="server-error-banner" />
       )}
 
       <View style={styles.timerRow}>
@@ -212,21 +205,14 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
 
       {codeError && !isSubmitting && <Text style={styles.stepError}>{codeError}</Text>}
 
-      <TouchableOpacity
-        style={[
-          styles.actionButton,
-          (!canSubmitStep2 || isSubmitting) && styles.actionButtonDisabled,
-        ]}
+      <PrimaryButton
+        title={isSubmitting ? 'Verificando...' : 'Verificar'}
         onPress={handleVerifyCode}
         disabled={!canSubmitStep2 || isSubmitting}
+        loading={isSubmitting}
+        accentColor={ACCENT_COLOR}
         testID="btn-verify-code"
-      >
-        {isSubmitting ? (
-          <ActivityIndicator color={colors.onPrimary} testID="loading-spinner" />
-        ) : (
-          <Text style={styles.actionButtonText}>Verificar</Text>
-        )}
-      </TouchableOpacity>
+      />
     </>
   );
 
@@ -236,12 +222,10 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
       <Text style={styles.stepHint}>Elegí una contraseña segura que no hayas usado antes.</Text>
 
       {serverError && (
-        <View style={styles.serverErrorBox} testID="server-error-banner">
-          <Text style={styles.serverErrorText}>{serverError}</Text>
-        </View>
+        <ErrorBanner message={serverError} testID="server-error-banner" />
       )}
 
-      <RegisterFormInput
+      <BaseField
         label="Nueva Contraseña"
         value={newPassword}
         onChangeText={handleNewPasswordChange}
@@ -250,6 +234,8 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
         secureTextEntry={!showNewPassword}
         onToggleSecureTextEntry={() => setShowNewPassword((prev) => !prev)}
         testID="input-new-password"
+        required
+        accentColor={ACCENT_COLOR}
       />
 
       <PasswordRequirements
@@ -262,7 +248,7 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
         }}
       />
 
-      <RegisterFormInput
+      <BaseField
         label="Confirmar Nueva Contraseña"
         value={confirmPassword}
         onChangeText={handleConfirmPasswordChange}
@@ -271,23 +257,18 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
         secureTextEntry={!showConfirmPassword}
         onToggleSecureTextEntry={() => setShowConfirmPassword((prev) => !prev)}
         testID="input-confirm-password"
+        required
+        accentColor={ACCENT_COLOR}
       />
 
-      <TouchableOpacity
-        style={[
-          styles.actionButton,
-          (!canSubmitStep3 || isSubmitting) && styles.actionButtonDisabled,
-        ]}
+      <PrimaryButton
+        title={isSubmitting ? 'Guardando...' : 'Guardar Contraseña'}
         onPress={handleResetPassword}
         disabled={!canSubmitStep3 || isSubmitting}
+        loading={isSubmitting}
+        accentColor={ACCENT_COLOR}
         testID="btn-reset-password"
-      >
-        {isSubmitting ? (
-          <ActivityIndicator color={colors.onPrimary} testID="loading-spinner" />
-        ) : (
-          <Text style={styles.actionButtonText}>Guardar Contraseña</Text>
-        )}
-      </TouchableOpacity>
+      />
     </>
   );
 
@@ -323,7 +304,7 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: colors.background },
   container: { flex: 1 },
-  scrollContent: { padding: spacing.md, paddingBottom: spacing.xxl },
+  scrollContent: { padding: spacing.lg, paddingBottom: spacing.xxl * 2 },
   header: { marginBottom: spacing.md },
   titleRow: {
     flexDirection: 'row',
@@ -336,14 +317,15 @@ const styles = StyleSheet.create({
   },
   title: {
     color: colors.textPrimary,
-    fontSize: typography.fontSizes.lg,
-    fontWeight: '700',
+    fontSize: typography.fontSizes.xxl,
+    fontWeight: typography.fontWeights.bold,
     flex: 1,
   },
   subtitle: {
     color: colors.textSecondary,
-    fontSize: typography.fontSizes.sm,
+    fontSize: typography.fontSizes.md,
     marginTop: spacing.xs,
+    lineHeight: typography.fontSizes.md * 1.5,
   },
   progressContainer: {
     flexDirection: 'row',
@@ -366,7 +348,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   progressDotActive: {
-    borderColor: colors.primary,
+    borderColor: ACCENT_COLOR,
   },
   progressDotDone: {
     backgroundColor: colors.success,
@@ -388,18 +370,18 @@ const styles = StyleSheet.create({
   },
   stepTitle: {
     color: colors.textPrimary,
-    fontSize: typography.fontSizes.xl,
-    fontWeight: '700',
+    fontSize: typography.fontSizes.xxl,
+    fontWeight: typography.fontWeights.bold,
     marginBottom: spacing.xs,
   },
   stepHint: {
     color: colors.textSecondary,
-    fontSize: typography.fontSizes.sm,
+    fontSize: typography.fontSizes.md,
     marginBottom: spacing.lg,
-    lineHeight: 20,
+    lineHeight: typography.fontSizes.md * 1.5,
   },
   contactHighlight: {
-    color: colors.primary,
+    color: ACCENT_COLOR,
     fontWeight: '600',
   },
   serverErrorBox: {
@@ -414,21 +396,6 @@ const styles = StyleSheet.create({
     color: colors.onErrorContainer,
     fontSize: typography.fontSizes.sm,
   },
-  actionButton: {
-    backgroundColor: colors.primary,
-    height: 50,
-    borderRadius: borderRadius.md,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: spacing.md,
-    ...shadows.button,
-  },
-  actionButtonDisabled: { opacity: 0.5 },
-  actionButtonText: {
-    color: colors.onPrimary,
-    fontSize: typography.fontSizes.md,
-    fontWeight: '700',
-  },
   timerRow: { alignItems: 'center', marginBottom: spacing.md },
   digitRow: {
     flexDirection: 'row',
@@ -442,5 +409,3 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs,
   },
 });
-
-export default ForgotPasswordScreen;

@@ -13,6 +13,7 @@ import { StatusBar } from 'expo-status-bar';
 import { Feather } from '@expo/vector-icons';
 import { UserRole } from '../types/role';
 import { colors, spacing, borderRadius, typography, roleAccent } from '../theme/tokens';
+import { PrimaryButton, ErrorBanner } from '../components/base';
 import { ChatListItem } from '../components/chat/ChatListItem';
 import { chatService } from '../services/chatService';
 import { ApiError } from '../services/api';
@@ -90,7 +91,7 @@ export const ChatsScreen: React.FC<{
           accessibilityRole="button"
           accessibilityLabel="Volver"
         >
-          <Text style={[styles.backArrow, { color: accentColor }]}>←</Text>
+          <Feather name="arrow-left" size={24} color={accentColor} accessible={false} />
         </TouchableOpacity>
         <Text style={styles.title}>Mensajes</Text>
         <View style={styles.headerSpacer} />
@@ -120,21 +121,17 @@ export const ChatsScreen: React.FC<{
         <View style={styles.center}>
           {status === 'error' ? (
             <>
-              <Text style={styles.errorText} testID="chats-error">
-                {error ?? 'No pudimos cargar los chats.'}
-              </Text>
-              <TouchableOpacity
-                style={[styles.retryButton, { backgroundColor: accentColor }]}
+              <ErrorBanner message={error ?? 'No pudimos cargar los chats.'} testID="chats-error" />
+              <PrimaryButton
+                title="Reintentar"
                 onPress={handleRefresh}
+                accentColor={accentColor}
                 testID="btn-chats-retry"
-                accessibilityRole="button"
-              >
-                <Text style={styles.retryText}>Reintentar</Text>
-              </TouchableOpacity>
+              />
             </>
           ) : (
             <>
-              <Feather name="inbox" size={40} color={colors.textMuted} style={styles.emptyIcon} />
+              <Feather name="message-circle" size={40} color={colors.textMuted} style={styles.emptyIcon} />
               <Text style={styles.emptyText}>
                 {searchQuery
                   ? 'No se encontraron conversaciones.'
@@ -174,7 +171,6 @@ const styles = StyleSheet.create({
     paddingRight: spacing.sm,
     paddingVertical: spacing.xs,
   },
-  backArrow: { fontSize: 24, fontWeight: 'bold' },
   title: {
     color: colors.textPrimary,
     fontSize: typography.fontSizes.lg,
@@ -221,17 +217,6 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSizes.md,
     textAlign: 'center',
     marginBottom: spacing.sm,
-  },
-  retryButton: {
-    borderRadius: borderRadius.md,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.lg,
-    alignItems: 'center',
-  },
-  retryText: {
-    color: colors.onPrimary,
-    fontSize: typography.fontSizes.md,
-    fontWeight: typography.fontWeights.semibold,
   },
   emptyIcon: {
     marginBottom: spacing.sm,

@@ -8,6 +8,7 @@ import {
   StyleSheet,
   Animated,
 } from 'react-native';
+import { Feather } from '@expo/vector-icons';
 import { SavedLocation } from '../../types/location';
 import { locationService } from '../../services/locationService';
 import { tokenStorage } from '../../services/tokenStorage';
@@ -154,7 +155,7 @@ export const SearchOriginModal: React.FC<SearchOriginModalProps> = ({
                   accessibilityRole="radio"
                   accessibilityState={{ checked: isActive }}
                 >
-                  <Text style={styles.optionIcon}>📍</Text>
+                  <Feather name="map-pin" size={16} color={colors.textMuted} accessible={false} />
                   <View style={styles.optionInfo}>
                     <Text style={styles.optionAddress} numberOfLines={2}>
                       {location.address}
@@ -163,7 +164,7 @@ export const SearchOriginModal: React.FC<SearchOriginModalProps> = ({
                   </View>
                   {isActive && (
                     <View style={styles.activeIndicator}>
-                      <Text style={styles.activeCheck}>✓</Text>
+                      <Feather name="check" size={16} color={colors.onPrimary} accessible={false} />
                     </View>
                   )}
                 </TouchableOpacity>

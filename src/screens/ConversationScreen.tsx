@@ -1,12 +1,12 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { StatusBar, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
 import { apiClient } from '../services/api';
 import { chatService } from '../services/chatService';
 import { UserRole } from '../types/role';
 import { colors, spacing, borderRadius, typography, roleAccent } from '../theme/tokens';
+import { PrimaryButton, ErrorBanner } from '../components/base';
 import { useConversation } from '../hooks/useConversation';
 import { ChatHeader } from '../components/chat/ChatHeader';
 import { MessageList } from '../components/chat/MessageList';
@@ -82,7 +82,6 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
   role = 'client',
 }) => {
   const accentColor = roleAccent(role);
-  const insets = useSafeAreaInsets();
 
   const {
     chatId,
@@ -395,9 +394,7 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
       <SafeAreaView style={styles.safeArea}>
         <StatusBar barStyle="light-content" />
         <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>
-            {initError ?? 'No se pudo inicializar la conversación'}
-          </Text>
+          <ErrorBanner message={initError ?? 'No se pudo inicializar la conversación'} testID="conversation-error" />
         </View>
       </SafeAreaView>
     );
@@ -419,7 +416,6 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
         otherUser={otherUser}
         onGoBack={onGoBack}
         accentColor={accentColor}
-        insetsTop={insets.top}
       />
 
       {/* Indicador de escritura (encima del input) */}
@@ -478,23 +474,21 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
       {/* Botón "Completar Cotización" (trabajador, solo si hay solicitud pendiente sin completar) */}
       {role === 'worker' && quoteRequested && onCompleteQuote && (
         <View style={styles.completeButtonWrapper}>
-          <TouchableOpacity
-            style={styles.completeButton}
+          <PrimaryButton
+            title="Completar Cotización"
             onPress={() => {
               if (effectiveQuoteRequestId && chatId && myUserId) {
                 onCompleteQuote(effectiveQuoteRequestId, chatId, myUserId);
               }
             }}
-            accessibilityLabel="Completar cotización"
-          >
-            <Feather name="edit" size={14} color={colors.onPrimary} accessible={false} />
-            <Text style={styles.completeButtonText}>Completar Cotización</Text>
-          </TouchableOpacity>
+            accentColor={colors.workerAccent}
+            testID="btn-conversation-complete-quote"
+          />
         </View>
       )}
 
       {/* Compositor de mensaje con previsualización de imagen. */}
-      <View style={[styles.composerContainer, { paddingBottom: insets.bottom }]}>
+      <View style={styles.composerContainer}>
         <MessageComposer
           onSendMessage={handleSendMessage}
           onAttachImage={setImagePreview}
@@ -527,35 +521,11 @@ const styles = {
     alignSelf: 'center',
     marginVertical: spacing.xs,
   },
-  completeButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.workerAccent,
-    borderRadius: borderRadius.pill,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderWidth: 1,
-    borderColor: colors.workerAccent,
-    minWidth: 180,
-    maxWidth: '90%',
-  },
-  completeButtonText: {
-    color: colors.onPrimary,
-    fontSize: typography.fontSizes.sm,
-    fontWeight: typography.fontWeights.semibold,
-    marginLeft: spacing.xs,
-  },
   errorContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: spacing.lg,
-  },
-  errorText: {
-    color: colors.error,
-    fontSize: typography.fontSizes.sm,
-    textAlign: 'center',
   },
 } as const;
 

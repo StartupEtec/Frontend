@@ -14,6 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useRoleContext } from '../context/RoleContext';
 import { colors, spacing, borderRadius, typography, shadows } from '../theme/tokens';
+import { PrimaryButton, ErrorBanner } from '../components/base';
 import { SuccessToast } from '../components/SuccessToast';
 import { StarRating } from '../components/StarRating';
 import { useRating } from '../hooks/useRating';
@@ -147,34 +148,26 @@ export const RateServiceScreen: React.FC<RateServiceScreenProps> = ({
         </View>
 
         {/* Botón único de enviar (calificación obligatoria) */}
-        <TouchableOpacity
-          style={[
-            styles.sendButton,
-            isSubmitting && styles.buttonDisabled,
-            stars < 1 && styles.sendButtonDisabled,
-          ]}
+        <PrimaryButton
+          title={isSubmitting ? 'Enviando...' : 'Enviar calificación'}
           onPress={handleSend}
           disabled={isSubmitting || stars < 1}
-          accessibilityLabel="Enviar calificación"
-        >
-          {isSubmitting ? (
-            <ActivityIndicator size="small" color={colors.onPrimary} />
-          ) : (
-            <Text style={styles.sendButtonText}>Enviar calificación</Text>
-          )}
-        </TouchableOpacity>
+          loading={isSubmitting}
+          loadingTestID="rate-service-loading-spinner"
+          accentColor={stars >= 1 ? colors.primary : colors.textMuted}
+          testID="btn-rate-service-send"
+        />
 
         {/* Mensaje de error */}
         {isError && error && (
           <View style={styles.errorContainer}>
-            <Text style={styles.errorText}>{error}</Text>
-            <TouchableOpacity
-              style={styles.retryButton}
+            <ErrorBanner message={error} testID="rate-service-error" />
+            <PrimaryButton
+              title="Reintentar"
               onPress={handleRetry}
-              accessibilityLabel="Reintentar envío"
-            >
-              <Text style={styles.retryText}>Reintentar</Text>
-            </TouchableOpacity>
+              accentColor={colors.primary}
+              testID="btn-rate-service-retry"
+            />
           </View>
         )}
       </ScrollView>
@@ -295,46 +288,11 @@ const styles = StyleSheet.create({
     textAlign: 'right',
     marginTop: spacing.xs,
   },
-  sendButton: {
-    paddingVertical: spacing.sm,
-    backgroundColor: colors.primary,
-    borderRadius: borderRadius.md,
-    alignItems: 'center',
-    width: '100%',
-  },
-  sendButtonDisabled: {
-    backgroundColor: colors.textMuted,
-  },
-  buttonDisabled: {
-    opacity: 0.6,
-  },
-  sendButtonText: {
-    color: colors.onPrimary,
-    fontSize: typography.fontSizes.sm,
-    fontWeight: typography.fontWeights.semibold,
-  },
   errorContainer: {
     backgroundColor: colors.errorContainer,
     borderRadius: borderRadius.md,
     padding: spacing.md,
     marginTop: spacing.lg,
     gap: spacing.sm,
-  },
-  errorText: {
-    color: colors.error,
-    fontSize: typography.fontSizes.sm,
-    fontWeight: typography.fontWeights.medium,
-  },
-  retryButton: {
-    alignSelf: 'flex-start',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-    backgroundColor: colors.error,
-    borderRadius: borderRadius.sm,
-  },
-  retryText: {
-    color: colors.onError,
-    fontSize: typography.fontSizes.sm,
-    fontWeight: typography.fontWeights.semibold,
   },
 });

@@ -13,6 +13,7 @@ import { StatusBar } from 'expo-status-bar';
 import { Feather } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { colors, spacing, borderRadius, typography } from '../theme/tokens';
+import { PrimaryButton, SecondaryButton } from '../components/base';
 import { useCompleteQuote } from '../hooks/useCompleteQuote';
 import { chatService } from '../services/chatService';
 import { quoteService } from '../services/quoteService';
@@ -373,35 +374,30 @@ export const CompleteQuoteScreen: React.FC<CompleteQuoteScreenProps> = ({
       <View style={styles.footer}>
         {page === 1 ? (
           <>
-            <TouchableOpacity style={styles.cancelButton} onPress={handlePage1Cancel}>
-              <Text style={styles.cancelButtonText}>Cancelar</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.nextButton,
-                hasRejections && styles.nextButtonRejected,
-                !allFieldsApproved && styles.nextButtonDisabled,
-              ]}
+            <SecondaryButton
+              title="Cancelar"
+              onPress={handlePage1Cancel}
+              accentColor={colors.primary}
+              testID="btn-complete-quote-cancel"
+            />
+            <PrimaryButton
+              title={hasRejections ? 'Rechazar' : 'Siguiente'}
               onPress={handlePage1Next}
               disabled={!allFieldsApproved && !hasRejections}
-            >
-              <Text style={[styles.nextButtonText, hasRejections && styles.nextButtonRejectedText]}>
-                {hasRejections ? 'Rechazar' : 'Siguiente'}
-              </Text>
-            </TouchableOpacity>
+              accentColor={hasRejections ? colors.error : colors.primary}
+              testID="btn-complete-quote-next"
+            />
           </>
         ) : (
-          <TouchableOpacity
-            style={[styles.confirmButton, isCreating && styles.confirmButtonDisabled]}
+          <PrimaryButton
+            title={isCreating ? 'Creando...' : 'Confirmar Cotización'}
             onPress={handlePage2Confirm}
             disabled={isCreating}
-          >
-            {isCreating ? (
-              <Text style={styles.confirmButtonText}>Creando...</Text>
-            ) : (
-              <Text style={styles.confirmButtonText}>Confirmar Cotización</Text>
-            )}
-          </TouchableOpacity>
+            loading={isCreating}
+            loadingTestID="complete-quote-loading-spinner"
+            accentColor={colors.primary}
+            testID="btn-complete-quote-confirm"
+          />
         )}
       </View>
     </SafeAreaView>
@@ -576,53 +572,6 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: colors.border,
     backgroundColor: colors.surfaceContainerLow,
-  },
-  cancelButton: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-  },
-  cancelButtonText: {
-    color: colors.textSecondary,
-    fontSize: typography.fontSizes.sm,
-    fontWeight: typography.fontWeights.medium,
-  },
-  nextButton: {
-    backgroundColor: colors.primary,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderRadius: borderRadius.md,
-    minWidth: 120,
-    alignItems: 'center',
-  },
-  nextButtonRejected: {
-    backgroundColor: colors.error,
-  },
-  nextButtonDisabled: {
-    backgroundColor: colors.textMuted,
-  },
-  nextButtonText: {
-    color: colors.onPrimary,
-    fontSize: typography.fontSizes.sm,
-    fontWeight: typography.fontWeights.semibold,
-  },
-  nextButtonRejectedText: {
-    color: colors.onError,
-  },
-  confirmButton: {
-    backgroundColor: colors.primary,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderRadius: borderRadius.md,
-    minWidth: 160,
-    alignItems: 'center',
-  },
-  confirmButtonDisabled: {
-    backgroundColor: colors.textMuted,
-  },
-  confirmButtonText: {
-    color: colors.onPrimary,
-    fontSize: typography.fontSizes.sm,
-    fontWeight: typography.fontWeights.semibold,
   },
 });
 

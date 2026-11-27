@@ -28,6 +28,7 @@ import {
   zoomForRadius,
 } from '../utils/map';
 import { colors, spacing, borderRadius, typography, roleAccent } from '../theme/tokens';
+import { PrimaryButton, SecondaryButton, ErrorBanner } from '../components/base';
 
 export interface WorkerSearchScreenProps {
   role: UserRole;
@@ -242,12 +243,13 @@ export const WorkerSearchScreen: React.FC<WorkerSearchScreenProps> = ({
   const staleError =
     status === 'error' && workers.length > 0 ? (
       <View style={styles.staleBanner} testID="workers-stale-error">
-        <Text style={styles.staleBannerText} numberOfLines={2}>
-          {error}
-        </Text>
-        <TouchableOpacity onPress={reload} testID="btn-workers-retry" accessibilityRole="button">
-          <Text style={[styles.staleRetry, { color: accentColor }]}>Reintentar</Text>
-        </TouchableOpacity>
+        <ErrorBanner message={error} testID="workers-stale-error-text" />
+        <SecondaryButton
+          title="Reintentar"
+          onPress={reload}
+          accentColor={accentColor}
+          testID="btn-workers-retry"
+        />
       </View>
     ) : null;
 
@@ -262,7 +264,7 @@ export const WorkerSearchScreen: React.FC<WorkerSearchScreenProps> = ({
           accessibilityRole="button"
           accessibilityLabel="Volver"
         >
-          <Text style={[styles.backArrow, { color: accentColor }]}>←</Text>
+          <Feather name="arrow-left" size={24} color={accentColor} accessible={false} />
         </TouchableOpacity>
         <Text style={styles.title}>Buscar Trabajadores</Text>
         <TouchableOpacity
@@ -291,17 +293,13 @@ export const WorkerSearchScreen: React.FC<WorkerSearchScreenProps> = ({
 
       {status === 'error' && workers.length === 0 ? (
         <View style={styles.center}>
-          <Text style={styles.errorText} testID="workers-error">
-            {error}
-          </Text>
-          <TouchableOpacity
-            style={[styles.retryButton, { backgroundColor: accentColor }]}
+          <ErrorBanner message={error} testID="workers-error" />
+          <PrimaryButton
+            title="Reintentar"
             onPress={reload}
+            accentColor={accentColor}
             testID="btn-workers-retry"
-            accessibilityRole="button"
-          >
-            <Text style={styles.retryText}>Reintentar</Text>
-          </TouchableOpacity>
+          />
         </View>
       ) : view === 'map' ? (
         <View style={styles.mapWrap} testID="workers-map-view">
@@ -392,7 +390,7 @@ export const WorkerSearchScreen: React.FC<WorkerSearchScreenProps> = ({
               </View>
             ) : workers.length === 0 ? (
               <View style={styles.empty} testID="workers-empty">
-                <Text style={styles.emptyIcon}>🔍</Text>
+                <Feather name="search" size={40} color={colors.textMuted} accessible={false} />
                 <Text style={styles.emptyTitle}>Sin trabajadores cerca</Text>
                 <Text style={styles.emptyText}>
                   Probá cambiando la categoría o volvé a intentar más tarde.
@@ -400,19 +398,17 @@ export const WorkerSearchScreen: React.FC<WorkerSearchScreenProps> = ({
               </View>
             ) : visibleWorkers.length === 0 ? (
               <View style={styles.empty} testID="workers-no-matches">
-                <Text style={styles.emptyIcon}>🔎</Text>
+                <Feather name="search" size={40} color={colors.textMuted} accessible={false} />
                 <Text style={styles.emptyTitle}>Sin coincidencias</Text>
                 <Text style={styles.emptyText}>
                   No hay trabajadores que coincidan con la búsqueda o la calificación mínima.
                 </Text>
-                <TouchableOpacity
-                  style={[styles.retryButton, { backgroundColor: accentColor }]}
+                <SecondaryButton
+                  title="Limpiar filtros"
                   onPress={clearListFilters}
+                  accentColor={accentColor}
                   testID="btn-worker-list-reset"
-                  accessibilityRole="button"
-                >
-                  <Text style={styles.retryText}>Limpiar filtros</Text>
-                </TouchableOpacity>
+                />
               </View>
             ) : (
               <>
@@ -511,16 +507,6 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSizes.md,
     textAlign: 'center',
     marginBottom: spacing.sm,
-  },
-  retryButton: {
-    borderRadius: borderRadius.md,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.lg,
-  },
-  retryText: {
-    color: colors.onPrimary,
-    fontSize: typography.fontSizes.md,
-    fontWeight: typography.fontWeights.semibold,
   },
   mapWrap: {
     flex: 1,
@@ -649,7 +635,6 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.xxl,
     gap: spacing.sm,
   },
-  emptyIcon: { fontSize: 40 },
   emptyTitle: {
     color: colors.textPrimary,
     fontSize: typography.fontSizes.md,

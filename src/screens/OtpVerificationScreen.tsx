@@ -17,7 +17,10 @@ import { OtpVerificationScreenProps } from '../types/auth';
 import { useOtpVerification } from '../hooks/useOtpVerification';
 import { OtpDigitInput } from '../components/otp/OtpDigitInput';
 import { OtpTimer } from '../components/otp/OtpTimer';
+import { PrimaryButton, ErrorBanner } from '../components/base';
 import { colors, spacing, borderRadius, typography, shadows } from '../theme/tokens';
+
+const ACCENT_COLOR = colors.clientAccent;
 
 export const OtpVerificationScreen: React.FC<OtpVerificationScreenProps> = ({
   contact,
@@ -38,17 +41,14 @@ export const OtpVerificationScreen: React.FC<OtpVerificationScreenProps> = ({
     inputRefs,
   } = useOtpVerification({ contact, onVerificationSuccess });
 
-  // TextInput refs for imperative focus management
   const textInputRefs = useRef<Array<TextInputInstance | null>>(Array(6).fill(null));
 
-  // Wire TextInput refs into the hook's focus controller
   useEffect(() => {
     inputRefs.current = textInputRefs.current.map((ref) =>
       ref ? { focus: () => ref.focus() } : null
     );
   }, [inputRefs]);
 
-  // Auto-focus first digit on mount
   useEffect(() => {
     const timer = setTimeout(() => textInputRefs.current[0]?.focus(), 300);
     return () => clearTimeout(timer);
@@ -60,7 +60,6 @@ export const OtpVerificationScreen: React.FC<OtpVerificationScreenProps> = ({
   const codeComplete = code.every((d) => d !== '');
   const hasError = !!errorMessage;
 
-  // Mask contact for privacy: show only first 3 chars + asterisks
   const maskedContact =
     contact.length > 6
       ? `${contact.slice(0, 3)}${'*'.repeat(contact.length - 6)}${contact.slice(-3)}`
@@ -78,7 +77,6 @@ export const OtpVerificationScreen: React.FC<OtpVerificationScreenProps> = ({
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* ── Header ── */}
           <View style={styles.header}>
             <TouchableOpacity
               onPress={onNavigateBackToRegister}
@@ -87,11 +85,11 @@ export const OtpVerificationScreen: React.FC<OtpVerificationScreenProps> = ({
               accessibilityLabel="Volver al registro"
               accessibilityRole="button"
             >
-              <Feather name="arrow-left" size={24} color={colors.textPrimary} accessible={false} />
+              <Feather name="arrow-left" size={24} color={ACCENT_COLOR} accessible={false} />
             </TouchableOpacity>
 
             <View style={styles.iconBadge}>
-              <Feather name="lock" size={32} color={colors.primary} accessible={false} />
+              <Feather name="lock" size={32} color={ACCENT_COLOR} accessible={false} />
             </View>
 
             <Text style={styles.title}>Verificar tu identidad</Text>
@@ -101,12 +99,10 @@ export const OtpVerificationScreen: React.FC<OtpVerificationScreenProps> = ({
             </Text>
           </View>
 
-          {/* ── Timer ── */}
           <View style={styles.timerRow}>
             <OtpTimer secondsRemaining={secondsRemaining} />
           </View>
 
-          {/* ── 6-Digit Input Row ── */}
           <View style={styles.digitRow} testID="otp-digit-row">
             {code.map((digit, index) => (
               <OtpDigitInput
@@ -123,33 +119,21 @@ export const OtpVerificationScreen: React.FC<OtpVerificationScreenProps> = ({
             ))}
           </View>
 
-          {/* ── Error Banner ── */}
           {errorMessage && (
-            <View style={styles.errorBanner} testID="otp-error-banner">
-              <Text style={styles.errorText}>{errorMessage}</Text>
-            </View>
+            <ErrorBanner message={errorMessage} testID="otp-error-banner" />
           )}
 
-          {/* ── Verify Button ── */}
-          <TouchableOpacity
-            style={[
-              styles.verifyButton,
-              (!codeComplete || isVerifying || isLocked) && styles.verifyButtonDisabled,
-            ]}
+          <PrimaryButton
+            title={isVerifying ? 'Verificando...' : 'Verificar'}
             onPress={handleVerify}
             disabled={!codeComplete || isVerifying || isLocked}
+            loading={isVerifying}
+            loadingTestID="otp-loading-spinner"
+            accentColor={ACCENT_COLOR}
             testID="btn-otp-verify"
-            accessibilityRole="button"
             accessibilityLabel="Verificar código"
-          >
-            {isVerifying ? (
-              <ActivityIndicator color={colors.onPrimary} testID="otp-loading-spinner" />
-            ) : (
-              <Text style={styles.verifyButtonText}>Verificar</Text>
-            )}
-          </TouchableOpacity>
+          />
 
-          {/* ── Resend Row ── */}
           <View style={styles.resendRow}>
             {canResend ? (
               <TouchableOpacity
@@ -161,7 +145,7 @@ export const OtpVerificationScreen: React.FC<OtpVerificationScreenProps> = ({
                 {isResending ? (
                   <ActivityIndicator
                     size="small"
-                    color={colors.primary}
+                    color={ACCENT_COLOR}
                     testID="resend-loading-spinner"
                   />
                 ) : (
@@ -177,7 +161,6 @@ export const OtpVerificationScreen: React.FC<OtpVerificationScreenProps> = ({
             )}
           </View>
 
-          {/* ── Change Contact Link ── */}
           <TouchableOpacity
             style={styles.changeContactRow}
             onPress={onNavigateBackToRegister}
@@ -199,11 +182,10 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.xxl,
+    paddingBottom: spacing.xxl * 2,
     paddingTop: spacing.md,
   },
 
-  // Header
   header: { alignItems: 'center', marginBottom: spacing.lg },
   backButton: {
     alignSelf: 'flex-start',
@@ -224,33 +206,30 @@ const styles = StyleSheet.create({
   },
   title: {
     color: colors.textPrimary,
-    fontSize: typography.fontSizes.xl,
-    fontWeight: '700',
+    fontSize: typography.fontSizes.xxl,
+    fontWeight: typography.fontWeights.bold,
     textAlign: 'center',
     marginBottom: spacing.xs,
   },
   subtitle: {
     color: colors.textSecondary,
-    fontSize: typography.fontSizes.sm,
+    fontSize: typography.fontSizes.md,
     textAlign: 'center',
-    lineHeight: 20,
+    lineHeight: 24,
   },
   contactHighlight: {
-    color: colors.primary,
+    color: ACCENT_COLOR,
     fontWeight: '600',
   },
 
-  // Timer
   timerRow: { alignItems: 'center', marginBottom: spacing.lg },
 
-  // Digit inputs
   digitRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: spacing.md,
   },
 
-  // Error
   errorBanner: {
     backgroundColor: colors.errorContainer,
     borderColor: colors.error,
@@ -265,31 +244,13 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 
-  // Verify button
-  verifyButton: {
-    backgroundColor: colors.primary,
-    height: 52,
-    borderRadius: borderRadius.md,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: spacing.md,
-    ...shadows.button,
-  },
-  verifyButtonDisabled: { opacity: 0.45 },
-  verifyButtonText: {
-    color: colors.onPrimary,
-    fontSize: typography.fontSizes.md,
-    fontWeight: '700',
-  },
-
-  // Resend
   resendRow: {
     alignItems: 'center',
     marginBottom: spacing.sm,
     minHeight: 24,
   },
   resendActive: {
-    color: colors.primary,
+    color: ACCENT_COLOR,
     fontSize: typography.fontSizes.sm,
     fontWeight: '700',
     textDecorationLine: 'underline',
@@ -299,7 +260,6 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSizes.sm,
   },
 
-  // Change contact
   changeContactRow: { alignItems: 'center', paddingVertical: spacing.xs },
   changeContactText: {
     color: colors.textMuted,
@@ -307,5 +267,3 @@ const styles = StyleSheet.create({
     textDecorationLine: 'underline',
   },
 });
-
-export default OtpVerificationScreen;

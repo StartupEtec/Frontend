@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { Feather } from '@expo/vector-icons';
 import { colors, spacing, borderRadius, typography } from '../theme/tokens';
+import { SecondaryButton } from '../components/base';
 import { quoteService } from '../services/quoteService';
 import { QuoteData, QuoteRequestData } from '../types/chat';
 
@@ -197,9 +198,12 @@ export const QuoteViewScreen: React.FC<QuoteViewScreenProps> = ({
             </Text>
           </TouchableOpacity>
         )}
-        <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-          <Text style={styles.closeButtonText}>Volver al chat</Text>
-        </TouchableOpacity>
+        <SecondaryButton
+          title="Volver al chat"
+          onPress={onClose}
+          accentColor={colors.primary}
+          testID="btn-quote-view-close"
+        />
       </View>
     </SafeAreaView>
   );
@@ -310,11 +314,6 @@ const styles = StyleSheet.create({
     borderTopColor: colors.border,
     backgroundColor: colors.surfaceContainerLow,
   },
-  closeButtonText: {
-    color: colors.primary,
-    fontSize: typography.fontSizes.sm,
-    fontWeight: typography.fontWeights.semibold,
-  },
   deleteButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -325,9 +324,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.error,
     backgroundColor: colors.errorContainer,
-  },
-  deleteButtonDisabled: {
-    opacity: 0.6,
   },
   deleteButtonText: {
     color: colors.error,

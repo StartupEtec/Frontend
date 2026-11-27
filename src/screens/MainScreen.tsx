@@ -2,7 +2,9 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
+import { Feather } from '@expo/vector-icons';
 import { UserRole } from '../types/role';
+import { PrimaryButton, SecondaryButton } from '../components/base';
 import { colors, spacing, borderRadius, typography, shadows } from '../theme/tokens';
 
 export interface MainScreenProps {
@@ -38,42 +40,42 @@ export const MainScreen: React.FC<MainScreenProps> = ({
           accessibilityLabel="Mi Perfil"
           accessibilityRole="button"
         >
-          <Text style={styles.profileButtonIcon}>👤</Text>
+          <Feather name="user" size={20} color={accentColor} accessible={false} />
         </TouchableOpacity>
       </View>
 
       <View style={styles.centerContainer}>
-        <Text style={styles.welcomeText}>🏠 Pantalla Principal</Text>
+        <Text style={styles.welcomeText}>Pantalla Principal</Text>
         <Text style={[styles.roleLabel, { color: accentColor }]}>
           {isClient ? 'Modo Cliente' : 'Modo Trabajador'}
         </Text>
 
         {!justCompletedProfile && !profileCompleted && (
-          <TouchableOpacity
-            style={styles.completeProfileButton}
+          <PrimaryButton
+            title="Terminar de completar perfil ahora"
             onPress={onNavigateToCompleteProfile}
+            accentColor={accentColor}
             testID="btn-complete-profile"
-          >
-            <Text style={styles.completeProfileText}>Terminar de completar perfil ahora</Text>
-          </TouchableOpacity>
+          />
         )}
 
         {profileCompleted && (
-          <TouchableOpacity
-            style={styles.devEditButton}
+          <SecondaryButton
+            title="Editar Perfil (Dev)"
             onPress={onNavigateToCompleteProfile}
+            accentColor={accentColor}
             testID="btn-dev-complete-profile"
-          >
-            <Text style={styles.devEditText}>✏️ Editar Perfil (Dev)</Text>
-          </TouchableOpacity>
+          />
         )}
 
         <TouchableOpacity
           style={styles.resetButton}
           onPress={onResetOnboarding}
           testID="btn-reset-onboarding"
+          activeOpacity={0.8}
         >
-          <Text style={styles.resetText}>🔄 Resetear Onboarding (Dev)</Text>
+          <Feather name="refresh-cw" size={16} color={colors.textMuted} accessible={false} />
+          <Text style={styles.resetText}>Resetear Onboarding (Dev)</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -98,19 +100,18 @@ const styles = StyleSheet.create({
   topBarTitle: {
     color: colors.textPrimary,
     fontSize: typography.fontSizes.lg,
-    fontWeight: '700',
+    fontWeight: typography.fontWeights.bold,
   },
   profileButton: {
     width: 38,
     height: 38,
-    borderRadius: 19,
+    borderRadius: borderRadius.pill / 2,
     backgroundColor: colors.cardBackground,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1.5,
     borderColor: colors.border,
   },
-  profileButtonIcon: { fontSize: 18 },
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -128,33 +129,10 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSizes.md,
     fontWeight: typography.fontWeights.bold,
   },
-  completeProfileButton: {
-    marginTop: spacing.md,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    backgroundColor: colors.primary,
-    borderRadius: borderRadius.md,
-    ...shadows.button,
-  },
-  completeProfileText: {
-    color: '#FFFFFF',
-    fontSize: typography.fontSizes.sm,
-    fontWeight: '600',
-  },
-  devEditButton: {
-    marginTop: spacing.sm,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    backgroundColor: 'rgba(30, 41, 59, 0.5)',
-    borderRadius: borderRadius.sm,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  devEditText: {
-    color: colors.textMuted,
-    fontSize: typography.fontSizes.xs,
-  },
   resetButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
     marginTop: spacing.sm,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
@@ -168,5 +146,3 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSizes.xs,
   },
 });
-
-export default MainScreen;

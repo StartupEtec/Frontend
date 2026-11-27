@@ -7,38 +7,28 @@ import {
   StyleSheet,
   ActivityIndicator,
   KeyboardAvoidingView,
-  Modal,
   Platform,
-  TextInput,
   FlatList,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { Feather } from '@expo/vector-icons';
 import { UserRole } from '../types/role';
-import { useEditProfile, EditProfileField } from '../hooks/useEditProfile';
-import { ProfileInfoRow } from '../components/profile/ProfileInfoRow';
+import { useEditProfile } from '../hooks/useEditProfile';
 import { AvatarEditor } from '../components/profile/AvatarEditor';
+import { ProfileInfoRow } from '../components/profile/ProfileInfoRow';
 import { SuccessToast } from '../components/SuccessToast';
+import {
+  BaseField,
+  PrimaryButton,
+  ErrorBanner,
+  Chip,
+  BaseModal,
+} from '../components/base';
 import { colors, spacing, borderRadius, typography, shadows, roleAccent } from '../theme/tokens';
-
-export interface EditProfileScreenProps {
-  role: UserRole;
-  onGoBack: () => void;
-}
 
 const MAX_DESCRIPTION_LENGTH = 500;
 
-/**
- * "Editar Perfil".
- * - Foto editable (cámara/galería) con compresión y máximo de 5 MB.
- * - Nombre y apellido: solo lectura (se corroboran con la foto del DNI).
- * - Descripción: editable con auto-ajuste de altura y contador de caracteres.
- * - Categorías: selección múltiple con agregar/quitar.
- * - Teléfono y mail son solo lectura (cambiarlos requiere verificación OTP).
- * - Un único botón "Guardar cambios"; la flecha de volver descarta lo no
- *   guardado.
- */
 export const EditProfileScreen: React.FC<EditProfileScreenProps> = ({ role, onGoBack }) => {
   const {
     data,
@@ -68,7 +58,6 @@ export const EditProfileScreen: React.FC<EditProfileScreenProps> = ({ role, onGo
   const accentColor = roleAccent(role);
 
   const [categoryModalVisible, setCategoryModalVisible] = useState(false);
-  /** Altura dinámica del TextInput de descripción para auto-ajuste. */
   const [_descriptionHeight, setDescriptionHeight] = useState(100);
 
   const handleAvatarChange = (uri: string) => {
@@ -76,7 +65,6 @@ export const EditProfileScreen: React.FC<EditProfileScreenProps> = ({ role, onGo
   };
 
   const handleGoBack = () => {
-    // La flecha descarta los cambios no guardados al navegar de vuelta.
     resetForm();
     onGoBack();
   };
@@ -86,63 +74,6 @@ export const EditProfileScreen: React.FC<EditProfileScreenProps> = ({ role, onGo
   };
 
   const isDescriptionAtLimit = form.description.length >= MAX_DESCRIPTION_LENGTH;
-
-  const renderField = (
-    field: EditProfileField,
-    label: string,
-    options: {
-      placeholder?: string;
-      multiline?: boolean;
-      maxLength?: number;
-      keyboardType?: 'default' | 'email-address';
-      editable?: boolean;
-    } = {}
-  ) => {
-    const showError = touched[field] && errors[field];
-    const isMultiline = options.multiline ?? false;
-    return (
-      <View style={styles.field}>
-        <Text style={styles.fieldLabel}>{label}</Text>
-        <TextInput
-          style={[
-            styles.input,
-            isMultiline && styles.inputMultiline,
-            showError && styles.inputError,
-            field === 'description' && isDescriptionAtLimit && styles.inputError,
-          ]}
-          value={String(form[field])}
-          onChangeText={(value) => setField(field, value)}
-          onBlur={() => markTouched(field)}
-          placeholder={options.placeholder}
-          placeholderTextColor={colors.textMuted}
-          multiline={isMultiline}
-          numberOfLines={isMultiline ? undefined : 1}
-          maxLength={options.maxLength}
-          keyboardType={options.keyboardType ?? 'default'}
-          textAlignVertical={isMultiline ? 'top' : 'center'}
-          editable={options.editable ?? true}
-          testID={`input-${field}`}
-          accessibilityLabel={label}
-          onContentSizeChange={
-            isMultiline
-              ? ({ nativeEvent }: { nativeEvent: { contentSize: { height: number } } }) =>
-                  setDescriptionHeight(nativeEvent.contentSize.height)
-              : undefined
-          }
-        />
-        {isMultiline && (
-          <Text style={[styles.charCount, isDescriptionAtLimit && styles.charCountAtLimit]}>
-            {form.description.length}/{MAX_DESCRIPTION_LENGTH}
-          </Text>
-        )}
-        {showError && (
-          <Text style={styles.fieldError} testID={`error-${field}`}>
-            {errors[field]}
-          </Text>
-        )}
-      </View>
-    );
-  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -155,7 +86,7 @@ export const EditProfileScreen: React.FC<EditProfileScreenProps> = ({ role, onGo
           accessibilityLabel="Volver"
           accessibilityRole="button"
         >
-          <Feather name="arrow-left" size={24} color={accentColor} />
+          <Feather name="arrow-left" size={24} color={accentColor} accessible={false} />
         </TouchableOpacity>
         <Text style={styles.title}>Editar Perfil</Text>
         <View style={styles.headerSpacer} />
@@ -170,20 +101,16 @@ export const EditProfileScreen: React.FC<EditProfileScreenProps> = ({ role, onGo
 
       {status === 'error' && (
         <View style={styles.center}>
-          <Text style={styles.errorText} testID="edit-profile-error">
-            {error}
-          </Text>
-          <TouchableOpacity
-            style={[styles.retryButton, { backgroundColor: accentColor }]}
+          <ErrorBanner message={error || 'Error cargando el perfil'} testID="edit-profile-error" />
+          <PrimaryButton
+            title="Reintentar"
             onPress={() => {
               clearSaveError();
               void reload();
             }}
+            accentColor={accentColor}
             testID="btn-edit-profile-retry"
-            accessibilityRole="button"
-          >
-            <Text style={styles.retryText}>Reintentar</Text>
-          </TouchableOpacity>
+          />
         </View>
       )}
 
@@ -193,211 +120,191 @@ export const EditProfileScreen: React.FC<EditProfileScreenProps> = ({ role, onGo
             style={styles.flex}
             behavior={Platform.OS === 'ios' ? 'padding' : undefined}
           >
-            <ScrollView
-              contentContainerStyle={styles.scrollContent}
-              showsVerticalScrollIndicator={false}
-              keyboardShouldPersistTaps="handled"
-            >
-              <View style={styles.avatarSection}>
-                <AvatarEditor
-                  uri={data.avatarUrl}
-                  onChange={handleAvatarChange}
-                  saving={avatarSaving}
-                  accentColor={accentColor}
-                  size={160}
-                />
-              </View>
+          <ScrollView
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+          >
+            <View style={styles.avatarSection}>
+              <AvatarEditor
+                uri={data.avatarUrl}
+                onChange={handleAvatarChange}
+                saving={avatarSaving}
+                accentColor={accentColor}
+                size={160}
+              />
+            </View>
 
-              {saveError && (
-                <View style={styles.saveErrorBanner}>
-                  <Text style={styles.saveErrorText} testID="edit-profile-save-error">
-                    {saveError}
-                  </Text>
-                </View>
-              )}
+            {saveError && (
+              <ErrorBanner message={saveError} testID="edit-profile-save-error" />
+            )}
 
-              <View style={styles.card}>
-                {/* Nombre y apellido: solo lectura, se corroboran con el DNI. */}
-                <ProfileInfoRow
-                  label="Nombre"
-                  value={data.firstName}
-                  testID="edit-profile-first-name"
-                  last={false}
-                  accentColor={accentColor}
-                />
-                <ProfileInfoRow
-                  label="Apellido"
-                  value={data.lastName}
-                  testID="edit-profile-last-name"
-                  last
-                  accentColor={accentColor}
-                />
-              </View>
+            <View style={styles.card}>
+              <ProfileInfoRow
+                label="Nombre"
+                value={data.firstName}
+                testID="edit-profile-first-name"
+                last={false}
+                accentColor={accentColor}
+              />
+              <ProfileInfoRow
+                label="Apellido"
+                value={data.lastName}
+                testID="edit-profile-last-name"
+                last
+                accentColor={accentColor}
+              />
+            </View>
 
-              <View style={styles.card}>
-                <ProfileInfoRow
-                  label="Teléfono"
-                  value={data.phone}
-                  testID="edit-profile-phone"
-                  last={false}
-                  accentColor={accentColor}
-                />
-                <ProfileInfoRow
-                  label="Mail"
-                  value={data.email}
-                  testID="edit-profile-email"
-                  last
-                  accentColor={accentColor}
-                />
-              </View>
+            <View style={styles.card}>
+              <ProfileInfoRow
+                label="Teléfono"
+                value={data.phone}
+                testID="edit-profile-phone"
+                last={false}
+                accentColor={accentColor}
+              />
+              <ProfileInfoRow
+                label="Mail"
+                value={data.email}
+                testID="edit-profile-email"
+                last
+                accentColor={accentColor}
+              />
               <Text style={styles.note}>
                 Para cambiar tu teléfono o mail tenés que verificarlos con un código.
               </Text>
-
-              {role === 'worker' && (
-                <View style={styles.card}>
-                  {renderField('description', 'Descripción', {
-                    placeholder: 'Contá qué servicios ofrecés...',
-                    multiline: true,
-                    maxLength: MAX_DESCRIPTION_LENGTH,
-                  })}
-
-                  <View style={styles.categoriesContainer}>
-                    <Text style={styles.fieldLabel}>Categorías</Text>
-                    <View style={styles.chipsWrapper}>
-                      {form.categoryIds.map((categoryId) => {
-                        const category = categories.find((c) => c.id === categoryId);
-                        if (!category) return null;
-                        return (
-                          <TouchableOpacity
-                            key={categoryId}
-                            style={styles.chip}
-                            onPress={() => removeCategory(categoryId)}
-                            testID={`chip-category-${categoryId}`}
-                            accessibilityRole="button"
-                            accessibilityLabel={`Quitar categoría ${category.name}`}
-                          >
-                            <Text style={styles.chipText}>{category.name}</Text>
-                            <Feather
-                              name="x"
-                              size={14}
-                              color={colors.textSecondary}
-                              style={styles.chipX}
-                              accessible={false}
-                            />
-                          </TouchableOpacity>
-                        );
-                      })}
-                      {form.categoryIds.length > 0 && (
-                        <TouchableOpacity
-                          style={styles.chip}
-                          onPress={() => setCategoryModalVisible(true)}
-                          testID="btn-add-category-chip"
-                          accessibilityRole="button"
-                          accessibilityLabel="Agregar categoría"
-                        >
-                          <Text style={styles.chipText}>+ Agregar</Text>
-                        </TouchableOpacity>
-                      )}
-                      {form.categoryIds.length === 0 && (
-                        <TouchableOpacity
-                          style={styles.chip}
-                          onPress={() => setCategoryModalVisible(true)}
-                          testID="btn-add-category-chip"
-                          accessibilityRole="button"
-                          accessibilityLabel="Agregar categoría"
-                        >
-                          <Text style={styles.chipPlaceholderText}>Agregar categoría</Text>
-                        </TouchableOpacity>
-                      )}
-                    </View>
-                    {touched.categoryIds && errors.categoryIds ? (
-                      <Text style={styles.fieldError} testID="error-categoryIds">
-                        {errors.categoryIds}
-                      </Text>
-                    ) : null}
-                  </View>
-                </View>
-              )}
-
-              <TouchableOpacity
-                style={[
-                  styles.saveButton,
-                  { backgroundColor: accentColor },
-                  !canSave && styles.saveButtonDisabled,
-                ]}
-                onPress={handleSave}
-                disabled={!canSave}
-                testID="btn-edit-profile-save"
-                accessibilityRole="button"
-                accessibilityState={{ disabled: !canSave }}
-              >
-                {isSaving ? (
-                  <ActivityIndicator color={colors.onPrimary} />
-                ) : (
-                  <Text style={styles.saveButtonText}>Guardar cambios</Text>
-                )}
-              </TouchableOpacity>
-            </ScrollView>
-          </KeyboardAvoidingView>
-
-          <SuccessToast
-            visible={saveSuccess}
-            message="¡Cambios guardados!"
-            onFinish={clearSaveSuccess}
-            testID="edit-profile-save-toast"
-          />
-
-          <Modal visible={categoryModalVisible} transparent animationType="slide">
-            <View style={styles.modalOverlay}>
-              <View style={styles.modalCard}>
-                <Text style={styles.modalTitle}>Elegí categorías</Text>
-                {categoriesLoading ? (
-                  <ActivityIndicator color={accentColor} />
-                ) : (
-                  <FlatList
-                    data={categories}
-                    keyExtractor={(item) => item.id}
-                    style={styles.categoryList}
-                    renderItem={({ item }) => {
-                      const isSelected = form.categoryIds.includes(item.id);
-                      return (
-                        <TouchableOpacity
-                          style={[
-                            styles.categoryOption,
-                            isSelected && styles.categoryOptionSelected,
-                          ]}
-                          onPress={() => {
-                            if (isSelected) {
-                              removeCategory(item.id);
-                            } else {
-                              addCategory(item.id, item.name);
-                            }
-                          }}
-                          testID={`category-option-${item.id}`}
-                          accessibilityRole="button"
-                        >
-                          <Text style={styles.categoryOptionText}>{item.name}</Text>
-                          {isSelected && <Feather name="check" size={18} color={accentColor} />}
-                        </TouchableOpacity>
-                      );
-                    }}
-                    ListEmptyComponent={
-                      <Text style={styles.emptyCategories}>No hay categorías disponibles.</Text>
-                    }
-                  />
-                )}
-                <TouchableOpacity
-                  style={styles.modalClose}
-                  onPress={() => setCategoryModalVisible(false)}
-                  testID="btn-category-cancel"
-                  accessibilityRole="button"
-                >
-                  <Text style={styles.modalCloseText}>Listo</Text>
-                </TouchableOpacity>
-              </View>
             </View>
-          </Modal>
+
+            {role === 'worker' && (
+              <View style={styles.card}>
+                <BaseField
+                  label="Descripción"
+                  value={form.description}
+                  onChangeText={(value) => setField('description', value)}
+                  onBlur={() => markTouched('description')}
+                  error={touched.description ? errors.description : undefined}
+                  placeholder="Contá qué servicios ofrecés..."
+                  multiline
+                  maxLength={MAX_DESCRIPTION_LENGTH}
+                  testID="input-description"
+                  errorTestID="error-description"
+                  required
+                  accentColor={accentColor}
+                />
+                {isDescriptionAtLimit && (
+                  <Text style={styles.charCountAtLimit}>
+                    {form.description.length}/{MAX_DESCRIPTION_LENGTH}
+                  </Text>
+                )}
+
+                <View style={styles.categoriesContainer}>
+                  <Text style={styles.fieldLabel}>Categorías</Text>
+                  <View style={styles.chipsWrapper}>
+                    {form.categoryIds.map((categoryId) => {
+                      const category = categories.find((c) => c.id === categoryId);
+                      if (!category) return null;
+                      return (
+                        <Chip
+                          key={categoryId}
+                          label={category.name}
+                          backgroundColor={colors.primaryFixedDim}
+                          textColor={colors.primary}
+                          testID={`chip-category-${categoryId}`}
+                        />
+                      );
+                    })}
+                    <TouchableOpacity
+                      style={styles.addChip}
+                      onPress={() => setCategoryModalVisible(true)}
+                      testID="btn-add-category-chip"
+                      accessibilityRole="button"
+                      accessibilityLabel="Agregar categoría"
+                    >
+                      <Text style={styles.addChipText}>+ Agregar categoría</Text>
+                    </TouchableOpacity>
+                  </View>
+                  {touched.categoryIds && errors.categoryIds ? (
+                    <Text style={styles.fieldError} testID="error-categoryIds">
+                      {errors.categoryIds}
+                    </Text>
+                  ) : null}
+                </View>
+              </View>
+            )}
+
+            <PrimaryButton
+              title={isSaving ? 'Guardando...' : 'Guardar cambios'}
+              onPress={handleSave}
+              disabled={!canSave}
+              loading={isSaving}
+              accentColor={accentColor}
+              testID="btn-edit-profile-save"
+            />
+          </ScrollView>
+        </KeyboardAvoidingView>
+
+        <SuccessToast
+          visible={saveSuccess}
+          message="¡Cambios guardados!"
+          onFinish={clearSaveSuccess}
+          testID="edit-profile-save-toast"
+        />
+
+        <BaseModal
+          visible={categoryModalVisible}
+          onRequestClose={() => setCategoryModalVisible(false)}
+          testID="category-modal"
+        >
+          <View style={styles.modalCard}>
+            <Text style={styles.modalTitle}>Elegí categorías</Text>
+            {categoriesLoading ? (
+              <ActivityIndicator color={accentColor} />
+            ) : (
+              <FlatList
+                data={categories}
+                keyExtractor={(item) => item.id}
+                style={styles.categoryList}
+                renderItem={({ item }) => {
+                  const isSelected = form.categoryIds.includes(item.id);
+                  return (
+                    <TouchableOpacity
+                      style={[
+                        styles.categoryOption,
+                        isSelected && styles.categoryOptionSelected,
+                      ]}
+                      onPress={() => {
+                        if (isSelected) {
+                          removeCategory(item.id);
+                        } else {
+                          addCategory(item.id, item.name);
+                        }
+                      }}
+                      testID={`category-option-${item.id}`}
+                      accessibilityRole="button"
+                    >
+                      <Text style={styles.categoryOptionText}>{item.name}</Text>
+                      {isSelected && (
+                        <Feather name="check" size={18} color={accentColor} />
+                      )}
+                    </TouchableOpacity>
+                  );
+                }}
+                ListEmptyComponent={
+                  <Text style={styles.emptyCategories}>No hay categorías disponibles.</Text>
+                }
+              />
+            )}
+            <TouchableOpacity
+              style={styles.modalClose}
+              onPress={() => setCategoryModalVisible(false)}
+              testID="btn-category-cancel"
+              accessibilityRole="button"
+            >
+              <Text style={styles.modalCloseText}>Listo</Text>
+            </TouchableOpacity>
+          </View>
+        </BaseModal>
         </>
       )}
     </SafeAreaView>
@@ -438,40 +345,13 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     fontSize: typography.fontSizes.sm,
   },
-  errorText: {
-    color: colors.error,
-    fontSize: typography.fontSizes.md,
-    textAlign: 'center',
-    marginBottom: spacing.sm,
-  },
-  retryButton: {
-    borderRadius: borderRadius.md,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.lg,
-  },
-  retryText: {
-    color: colors.onPrimary,
-    fontSize: typography.fontSizes.md,
-    fontWeight: typography.fontWeights.semibold,
-  },
   scrollContent: {
-    padding: spacing.md,
+    padding: spacing.lg,
     paddingBottom: spacing.xxl,
   },
   avatarSection: {
     alignItems: 'center',
     paddingVertical: spacing.xl,
-  },
-  saveErrorBanner: {
-    backgroundColor: colors.errorContainer,
-    borderRadius: borderRadius.md,
-    padding: spacing.sm,
-    marginBottom: spacing.md,
-  },
-  saveErrorText: {
-    color: colors.onErrorContainer,
-    fontSize: typography.fontSizes.sm,
-    textAlign: 'center',
   },
   card: {
     backgroundColor: colors.cardBackground,
@@ -481,7 +361,20 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
     ...shadows.card,
   },
-  field: {
+  note: {
+    color: colors.textSecondary,
+    fontSize: typography.fontSizes.xs,
+    textAlign: 'center',
+    marginTop: spacing.xs,
+    marginBottom: spacing.md,
+  },
+  charCountAtLimit: {
+    color: colors.error,
+    fontSize: typography.fontSizes.xs,
+    textAlign: 'right',
+    marginTop: spacing.xs,
+  },
+  categoriesContainer: {
     marginVertical: spacing.sm,
   },
   fieldLabel: {
@@ -491,39 +384,10 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs,
     textTransform: 'uppercase',
   },
-  input: {
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: borderRadius.md,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    color: colors.textPrimary,
-    fontSize: typography.fontSizes.md,
-    backgroundColor: colors.surfaceContainerLow,
-  },
-  inputMultiline: {
-    minHeight: 100,
-    textAlignVertical: 'top',
-  },
-  inputError: {
-    borderColor: colors.error,
-  },
   fieldError: {
     color: colors.error,
     fontSize: typography.fontSizes.xs,
     marginTop: spacing.xs,
-  },
-  charCount: {
-    color: colors.textMuted,
-    fontSize: typography.fontSizes.xs,
-    textAlign: 'right',
-    marginTop: spacing.xs,
-  },
-  charCountAtLimit: {
-    color: colors.error,
-  },
-  categoriesContainer: {
-    marginVertical: spacing.sm,
   },
   chipsWrapper: {
     flexDirection: 'row',
@@ -531,62 +395,26 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
     marginBottom: spacing.xs,
   },
-  chip: {
+  addChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.surfaceContainerLow,
+    backgroundColor: colors.primaryFixedDim,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.primary,
     borderRadius: borderRadius.pill,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs,
   },
-  chipText: {
-    color: colors.textPrimary,
+  addChipText: {
+    color: colors.primary,
     fontSize: typography.fontSizes.md,
-    marginRight: spacing.xs,
-  },
-  chipX: {
-    marginLeft: spacing.xs,
-  },
-  chipPlaceholderText: {
-    color: colors.textMuted,
-    fontSize: typography.fontSizes.md,
-  },
-  note: {
-    color: colors.textSecondary,
-    fontSize: typography.fontSizes.xs,
-    textAlign: 'center',
-    marginTop: spacing.xs,
-    marginBottom: spacing.md,
-  },
-  saveButton: {
-    borderRadius: borderRadius.md,
-    paddingVertical: spacing.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: spacing.sm,
-    minHeight: 52,
-  },
-  saveButtonDisabled: {
-    opacity: 0.5,
-  },
-  saveButtonText: {
-    color: colors.onPrimary,
-    fontSize: typography.fontSizes.md,
-    fontWeight: typography.fontWeights.semibold,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: colors.overlayBackground,
-    justifyContent: 'center',
-    padding: spacing.md,
   },
   modalCard: {
     backgroundColor: colors.cardBackground,
     borderRadius: borderRadius.lg,
     padding: spacing.lg,
     ...shadows.card,
+    maxHeight: '90%',
   },
   modalTitle: {
     color: colors.textPrimary,
@@ -631,5 +459,3 @@ const styles = StyleSheet.create({
     fontWeight: typography.fontWeights.medium,
   },
 });
-
-export default EditProfileScreen;

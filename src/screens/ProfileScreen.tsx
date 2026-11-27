@@ -2,7 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
+import { Feather } from '@expo/vector-icons';
 import { UserRole } from '../types/role';
+import { PrimaryButton, SecondaryButton } from '../components/base';
 import { RoleSwitchModal } from '../components/RoleSwitchModal';
 import { SuccessToast } from '../components/SuccessToast';
 import { useRoleSwitch } from '../hooks/useRoleSwitch';
@@ -32,9 +34,6 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
   const { isSubmitting, error, warning, handleSwitchRole, clearError, clearWarning } =
     useRoleSwitch(currentRole, (newRole, newToken) => {
       setModalVisible(false);
-      // Actualización optimista: el modo cambia ya mismo; el toast es solo
-      // confirmación visual y no bloquea la UI (antes esperaba ~3s a que
-      // terminara la animación para avisar al navegador).
       onRoleChanged(newRole, newToken);
       const label = newRole === 'client' ? 'Cliente' : 'Trabajador';
       setSuccessMessage(`Cambiaste a rol de ${label}`);
@@ -62,7 +61,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
             accessibilityLabel="Volver"
             accessibilityRole="button"
           >
-            <Text style={styles.backArrow}>←</Text>
+            <Feather name="arrow-left" size={24} color={accentColor} accessible={false} />
           </TouchableOpacity>
           <Text style={styles.title}>Mi Perfil</Text>
           <View style={styles.headerSpacer} />
@@ -74,7 +73,12 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
         >
           <View style={styles.avatarSection}>
             <View style={[styles.avatarCircle, { borderColor: accentColor }]}>
-              <Text style={styles.avatarIcon}>{isClient ? '🔍' : '🛠️'}</Text>
+              <Feather
+                name={isClient ? 'search' : 'tool'}
+                size={36}
+                color={accentColor}
+                accessible={false}
+              />
             </View>
             <Text style={styles.greeting}>Hola,</Text>
             <Text style={styles.currentRoleLabel}>
@@ -94,14 +98,11 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
               accessibilityLabel="Cambiar rol"
             >
               <View style={styles.menuItemLeft}>
-                <Text style={styles.menuItemIcon}>🔄</Text>
+                <Feather name="refresh-cw" size={20} color={accentColor} accessible={false} />
                 <View>
                   <Text style={styles.menuItemTitle}>Cambiar Rol</Text>
                   <Text style={styles.menuItemSubtitle}>Alternar entre Cliente y Trabajador</Text>
                 </View>
-              </View>
-              <View style={[styles.roleBadge, { backgroundColor: accentColor }]}>
-                <Text style={styles.roleBadgeText}>{isClient ? 'Cliente' : 'Trabajador'}</Text>
               </View>
             </TouchableOpacity>
 
@@ -113,13 +114,13 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
               accessibilityLabel="Editar perfil"
             >
               <View style={styles.menuItemLeft}>
-                <Text style={styles.menuItemIcon}>👤</Text>
+                <Feather name="user" size={20} color={accentColor} accessible={false} />
                 <View>
                   <Text style={styles.menuItemTitle}>Editar Perfil</Text>
                   <Text style={styles.menuItemSubtitle}>Actualizá tu información personal</Text>
                 </View>
               </View>
-              <Text style={styles.menuItemChevron}>›</Text>
+              <Feather name="chevron-right" size={18} color={colors.textMuted} accessible={false} />
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -130,13 +131,13 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
               accessibilityLabel="Mis ubicaciones"
             >
               <View style={styles.menuItemLeft}>
-                <Text style={styles.menuItemIcon}>📍</Text>
+                <Feather name="map-pin" size={20} color={accentColor} accessible={false} />
                 <View>
                   <Text style={styles.menuItemTitle}>Mis Ubicaciones</Text>
                   <Text style={styles.menuItemSubtitle}>Administrá tus direcciones guardadas</Text>
                 </View>
               </View>
-              <Text style={styles.menuItemChevron}>›</Text>
+              <Feather name="chevron-right" size={18} color={colors.textMuted} accessible={false} />
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -145,25 +146,24 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
               accessibilityRole="button"
             >
               <View style={styles.menuItemLeft}>
-                <Text style={styles.menuItemIcon}>⚙️</Text>
+                <Feather name="settings" size={20} color={accentColor} accessible={false} />
                 <View>
                   <Text style={styles.menuItemTitle}>Configuración</Text>
                   <Text style={styles.menuItemSubtitle}>Notificaciones, idioma y más</Text>
                 </View>
               </View>
-              <Text style={styles.menuItemChevron}>›</Text>
+              <Feather name="chevron-right" size={18} color={colors.textMuted} accessible={false} />
             </TouchableOpacity>
           </View>
 
           <View style={styles.logoutSection}>
-            <TouchableOpacity
-              style={styles.logoutButton}
+            <SecondaryButton
+              title="Cerrar Sesión"
               onPress={onLogout}
+              accentColor={colors.error}
               testID="btn-logout"
-              accessibilityRole="button"
-            >
-              <Text style={styles.logoutText}>Cerrar Sesión</Text>
-            </TouchableOpacity>
+              accessibilityLabel="Cerrar sesión"
+            />
           </View>
         </ScrollView>
 
@@ -211,7 +211,6 @@ const styles = StyleSheet.create({
     paddingRight: spacing.sm,
     paddingVertical: spacing.xs,
   },
-  backArrow: { color: colors.textPrimary, fontSize: 24, fontWeight: 'bold' },
   title: {
     color: colors.textPrimary,
     fontSize: typography.fontSizes.lg,
@@ -238,7 +237,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: spacing.xs,
   },
-  avatarIcon: { fontSize: 36 },
   greeting: {
     color: colors.textSecondary,
     fontSize: typography.fontSizes.sm,
@@ -261,17 +259,12 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     ...shadows.card,
   },
-  roleMenuItem: {
-    borderLeftWidth: 3,
-    borderLeftColor: colors.primary,
-  },
   menuItemLeft: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
     flex: 1,
   },
-  menuItemIcon: { fontSize: 22 },
   menuItemTitle: {
     color: colors.textPrimary,
     fontSize: typography.fontSizes.md,
@@ -282,36 +275,7 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSizes.xs,
     marginTop: 2,
   },
-  roleBadge: {
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderRadius: borderRadius.pill,
-  },
-  roleBadgeText: {
-    color: colors.textPrimary,
-    fontSize: typography.fontSizes.xs,
-    fontWeight: '700',
-  },
-  menuItemChevron: {
-    color: colors.textMuted,
-    fontSize: 24,
-    fontWeight: '300',
-  },
   logoutSection: {
     marginTop: spacing.md,
   },
-  logoutButton: {
-    borderWidth: 1,
-    borderColor: colors.error,
-    borderRadius: borderRadius.md,
-    paddingVertical: spacing.md,
-    alignItems: 'center',
-  },
-  logoutText: {
-    color: colors.error,
-    fontSize: typography.fontSizes.md,
-    fontWeight: '600',
-  },
 });
-
-export default ProfileScreen;

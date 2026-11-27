@@ -54,6 +54,7 @@ export const onboardingUIStrings = {
   skip: 'Omitir',
   prev: 'Anterior',
   next: 'Siguiente',
+  start: 'Comenzar',
   register: 'Registrarse',
   login: 'Iniciar Sesión',
   accessibility: {

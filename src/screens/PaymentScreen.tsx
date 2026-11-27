@@ -5,6 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 import { Feather } from '@expo/vector-icons';
 import { apiClient } from '../services/api';
 import { colors, spacing, borderRadius, typography } from '../theme/tokens';
+import { PrimaryButton } from '../components/base';
 import { SuccessToast } from '../components/SuccessToast';
 
 export interface PaymentScreenProps {
@@ -101,17 +102,15 @@ export const PaymentScreen: React.FC<PaymentScreenProps> = ({
 
       {/* Pie */}
       <View style={styles.footer}>
-        <TouchableOpacity
-          style={[styles.payButton, isProcessing && styles.payButtonDisabled]}
+        <PrimaryButton
+          title={isProcessing ? 'Procesando...' : 'Continuar'}
           onPress={handlePay}
           disabled={isProcessing || toastVisible}
-        >
-          {isProcessing ? (
-            <Text style={styles.payButtonText}>Procesando...</Text>
-          ) : (
-            <Text style={styles.payButtonText}>Continuar</Text>
-          )}
-        </TouchableOpacity>
+          loading={isProcessing}
+          loadingTestID="payment-loading-spinner"
+          accentColor={colors.primary}
+          testID="btn-payment-continue"
+        />
       </View>
 
       {/* Toast de confirmación de pago */}
@@ -191,22 +190,6 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: colors.border,
     backgroundColor: colors.surfaceContainerLow,
-  },
-  payButton: {
-    backgroundColor: colors.primary,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderRadius: borderRadius.md,
-    minWidth: 160,
-    alignItems: 'center',
-  },
-  payButtonDisabled: {
-    backgroundColor: colors.textMuted,
-  },
-  payButtonText: {
-    color: colors.onPrimary,
-    fontSize: typography.fontSizes.sm,
-    fontWeight: typography.fontWeights.semibold,
   },
 });
 
