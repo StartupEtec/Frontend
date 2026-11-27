@@ -93,11 +93,11 @@ export const useLoginForm = (onNavigateToOtp: (contact?: string) => void) => {
 
     const value = formData.emailOrPhone.trim();
     const isEmail = EMAIL_REGEX.test(value);
-    PHONE_REGEX.test(value.replace(/\s+/g, ''));
+    PHONE_REGEX.test(value.replace(/[\s\-().]/g, ''));
 
     const payload = {
       password: formData.password,
-      ...(isEmail ? { email: value } : { phone: value.replace(/\s+/g, '') }),
+      ...(isEmail ? { email: value } : { phone: value.replace(/[\s\-().]/g, '') }),
     };
 
     try {

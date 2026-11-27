@@ -20,6 +20,7 @@ import { LocationFormModal } from '../components/location/LocationFormModal';
 import { ConfirmDialog } from '../components/location/ConfirmDialog';
 import { CreateLocationPayload, MAX_LOCATIONS_PER_USER, SavedLocation } from '../types/location';
 import { colors, spacing, borderRadius, typography, roleAccent } from '../theme/tokens';
+import { PrimaryButton, SecondaryButton, ErrorBanner } from '../components/base';
 
 export interface LocationsScreenProps {
   role: UserRole;
@@ -119,7 +120,7 @@ export const LocationsScreen: React.FC<LocationsScreenProps> = ({
           accessibilityLabel="Volver"
           accessibilityRole="button"
         >
-          <Text style={[styles.backArrow, { color: accentColor }]}>←</Text>
+          <Feather name="arrow-left" size={24} color={accentColor} accessible={false} />
         </TouchableOpacity>
         <Text style={styles.title}>Mis Ubicaciones</Text>
         <View style={styles.headerSpacer} />
@@ -134,17 +135,13 @@ export const LocationsScreen: React.FC<LocationsScreenProps> = ({
 
       {status === 'error' && (
         <View style={styles.center}>
-          <Text style={styles.errorText} testID="locations-error">
-            {error}
-          </Text>
-          <TouchableOpacity
-            style={[styles.retryButton, { backgroundColor: accentColor }]}
+          <ErrorBanner message={error} testID="locations-error" />
+          <PrimaryButton
+            title="Reintentar"
             onPress={reload}
+            accentColor={accentColor}
             testID="btn-locations-retry"
-            accessibilityRole="button"
-          >
-            <Text style={styles.retryText}>Reintentar</Text>
-          </TouchableOpacity>
+          />
         </View>
       )}
 
@@ -196,7 +193,7 @@ export const LocationsScreen: React.FC<LocationsScreenProps> = ({
 
             {locations.length === 0 ? (
               <View style={styles.empty} testID="locations-empty">
-                <Text style={styles.emptyIcon}>📍</Text>
+                <Feather name="map-pin" size={40} color={colors.textMuted} accessible={false} />
                 <Text style={styles.emptyTitle}>No tenés ubicaciones guardadas</Text>
                 <Text style={styles.emptyText}>
                   Agregá una dirección para usarla en tus órdenes.
@@ -239,16 +236,13 @@ export const LocationsScreen: React.FC<LocationsScreenProps> = ({
                 Llegaste al máximo de {MAX_LOCATIONS_PER_USER} ubicaciones.
               </Text>
             ) : (
-              <TouchableOpacity
-                style={[styles.addButton, { backgroundColor: accentColor }]}
+              <PrimaryButton
+                title="+ Agregar Ubicación"
                 onPress={openCreate}
                 disabled={saving}
+                accentColor={accentColor}
                 testID="btn-add-location"
-                accessibilityRole="button"
-                accessibilityLabel="Agregar ubicación"
-              >
-                <Text style={styles.addButtonText}>+ Agregar Ubicación</Text>
-              </TouchableOpacity>
+              />
             )}
           </ScrollView>
 
@@ -300,7 +294,6 @@ const styles = StyleSheet.create({
     paddingRight: spacing.sm,
     paddingVertical: spacing.xs,
   },
-  backArrow: { fontSize: 24, fontWeight: 'bold' },
   title: {
     color: colors.textPrimary,
     fontSize: typography.fontSizes.lg,
@@ -324,16 +317,6 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSizes.md,
     textAlign: 'center',
     marginBottom: spacing.sm,
-  },
-  retryButton: {
-    borderRadius: borderRadius.md,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.lg,
-  },
-  retryText: {
-    color: colors.onPrimary,
-    fontSize: typography.fontSizes.md,
-    fontWeight: typography.fontWeights.semibold,
   },
   scrollContent: {
     padding: spacing.md,
@@ -374,7 +357,6 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.xxl,
     gap: spacing.sm,
   },
-  emptyIcon: { fontSize: 40 },
   emptyTitle: {
     color: colors.textPrimary,
     fontSize: typography.fontSizes.md,
@@ -394,17 +376,6 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSizes.sm,
     textAlign: 'center',
     marginTop: spacing.md,
-  },
-  addButton: {
-    marginTop: spacing.lg,
-    paddingVertical: spacing.md,
-    borderRadius: borderRadius.md,
-    alignItems: 'center',
-  },
-  addButtonText: {
-    color: colors.onPrimary,
-    fontSize: typography.fontSizes.md,
-    fontWeight: typography.fontWeights.semibold,
   },
 });
 

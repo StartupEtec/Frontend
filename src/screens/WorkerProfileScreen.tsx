@@ -9,12 +9,14 @@ import {
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
+import { Feather } from '@expo/vector-icons';
 import { UserRole } from '../types/role';
 import { NearbyWorker } from '../types/worker';
 import { SavedLocation } from '../types/location';
 import { ApiError } from '../services/api';
 import { distanceKmBetween, formatDistance } from '../utils/map';
 import { colors, spacing, borderRadius, typography, shadows, roleAccent } from '../theme/tokens';
+import { PrimaryButton, SecondaryButton, ErrorBanner } from '../components/base';
 import { WorkerProfileHeader } from '../components/worker/WorkerProfileHeader';
 import { WorkerRatingSummary } from '../components/worker/WorkerRatingSummary';
 import { WorkerReviewCard } from '../components/worker/WorkerReviewCard';
@@ -119,7 +121,7 @@ export const WorkerProfileScreen: React.FC<WorkerProfileScreenProps> = ({
           accessibilityRole="button"
           accessibilityLabel="Volver"
         >
-          <Text style={[styles.backArrow, { color: accentColor }]}>←</Text>
+          <Feather name="arrow-left" size={24} color={accentColor} accessible={false} />
         </TouchableOpacity>
         <Text style={styles.title}>Perfil del Trabajador</Text>
         <View style={styles.headerSpacer} />
@@ -127,181 +129,178 @@ export const WorkerProfileScreen: React.FC<WorkerProfileScreenProps> = ({
 
       {showErrorScreen ? (
         <View style={styles.center}>
-          <Text style={styles.errorText} testID="profile-error">
-            {notFound
-              ? 'Trabajador no encontrado.'
-              : (error ?? messageFor(null, 'No pudimos cargar el perfil.'))}
-          </Text>
-          <TouchableOpacity
-            style={[styles.retryButton, { backgroundColor: accentColor }]}
+          <ErrorBanner
+            message={
+              notFound
+                ? 'Trabajador no encontrado.'
+                : error ?? messageFor(null, 'No pudimos cargar el perfil.')
+            }
+            testID="profile-error"
+          />
+          <PrimaryButton
+            title="Reintentar"
             onPress={handleRetry}
+            accentColor={accentColor}
             testID="btn-profile-retry"
-            accessibilityRole="button"
-          >
-            <Text style={styles.retryText}>Reintentar</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.backButton}
+          />
+          <SecondaryButton
+            title="Volver"
             onPress={onGoBack}
+            accentColor={accentColor}
             testID="btn-profile-back-from-error"
-            accessibilityRole="button"
-            accessibilityLabel="Volver"
-          >
-            <Text style={[styles.backArrow, { color: accentColor }]}>← Volver</Text>
-          </TouchableOpacity>
+          />
         </View>
       ) : (
         <>
-          <ScrollView contentContainerStyle={styles.content}>
-            <WorkerProfileHeader worker={worker} profileName={profileName} />
+          <ScrollView
+            contentContainerStyle={styles.content}
+          >
+              <WorkerProfileHeader worker={worker} profileName={profileName} />
 
-            <View style={styles.statsCard}>
-              <View style={styles.stat}>
-                <WorkerRatingSummary
-                  rating={rating}
-                  totalReviews={totalReviews}
-                  accentColor={accentColor}
-                />
-              </View>
-              <View style={styles.statDivider} />
-              <View style={styles.stat}>
-                <Text style={styles.statValue}>{formatDistance(distanceKm * 1000) || '—'}</Text>
-                <Text style={styles.statLabel}>Distancia</Text>
-              </View>
-            </View>
-
-            {/* Sección: Acerca de */}
-            <View style={styles.sectionContainer}>
-              <TouchableOpacity
-                onPress={() => toggleSection('about')}
-                style={styles.sectionTitleRow}
-                testID="section-about-header"
-                accessibilityRole="button"
-                accessibilityLabel={`Acerca de ${aboutExpanded ? 'cerrado' : 'abierto'}`}
-              >
-                <Text style={[styles.sectionTitle, { color: accentColor }]}>Acerca de</Text>
-                <Text style={[styles.sectionChevron]}>{aboutExpanded ? '▲' : '▼'}</Text>
-              </TouchableOpacity>
-              {aboutExpanded && (
-                <View style={styles.sectionContent}>
-                  {status === 'loading' ? (
-                    <View style={styles.bioLoading}>
-                      <ActivityIndicator size="small" color={accentColor} />
-                      <Text style={styles.bioLoadingText}>Cargando perfil...</Text>
-                    </View>
-                  ) : (
-                    <Text style={styles.bio} testID="profile-bio">
-                      {bio ? bio : 'Este trabajador aún no agregó una biografía.'}
-                    </Text>
-                  )}
+              <View style={styles.statsCard}>
+                <View style={styles.stat}>
+                  <WorkerRatingSummary
+                    rating={rating}
+                    totalReviews={totalReviews}
+                    accentColor={accentColor}
+                  />
                 </View>
-              )}
-            </View>
-
-            {/* Sección: Galería */}
-            <View style={styles.sectionContainer}>
-              <TouchableOpacity
-                onPress={() => toggleSection('gallery')}
-                style={styles.sectionTitleRow}
-                testID="section-gallery-header"
-                accessibilityRole="button"
-                accessibilityLabel={`Galería ${galleryExpanded ? 'cerrada' : 'abierta'}`}
-              >
-                <Text style={[styles.sectionTitle, { color: accentColor }]}>Galería</Text>
-                <Text style={[styles.sectionChevron]}>{galleryExpanded ? '▲' : '▼'}</Text>
-              </TouchableOpacity>
-              {galleryExpanded && (
-                <View style={styles.sectionContent}>
-                  <WorkerPortfolioGallery portfolio={portfolio} accentColor={accentColor} />
+                <View style={styles.statDivider} />
+                <View style={styles.stat}>
+                  <Text style={styles.statValue}>{formatDistance(distanceKm * 1000) || '—'}</Text>
+                  <Text style={styles.statLabel}>Distancia</Text>
                 </View>
-              )}
-            </View>
+              </View>
 
-            {/* Sección: Reseñas */}
-            <View style={styles.sectionContainer}>
-              <TouchableOpacity
-                onPress={() => toggleSection('reviews')}
-                style={styles.sectionTitleRow}
-                testID="section-reviews-header"
-                accessibilityRole="button"
-                accessibilityLabel={`Reseñas ${reviewsExpanded ? 'cerradas' : 'abiertas'}`}
-              >
-                <Text style={[styles.sectionTitle, { color: accentColor }]}>
-                  Reseñas ({totalReviews})
-                </Text>
-                <Text style={[styles.sectionChevron]}>{reviewsExpanded ? '▲' : '▼'}</Text>
-              </TouchableOpacity>
-              {reviewsExpanded && (
-                <View style={styles.sectionContent}>
-                  {reviewsStatus === 'loading' ? (
-                    <View style={styles.reviewsLoading}>
-                      <ActivityIndicator size="small" color={accentColor} />
-                      <Text style={styles.reviewsLoadingText}>Cargando reseñas...</Text>
-                    </View>
-                  ) : reviewsStatus === 'error' ? (
-                    <View style={styles.reviewsError}>
-                      <Text style={styles.reviewsErrorText} testID="profile-reviews-error">
-                        {reviewsError ?? 'No pudimos cargar las reseñas.'}
+              {/* Sección: Acerca de */}
+              <View style={styles.sectionContainer}>
+                <TouchableOpacity
+                  onPress={() => toggleSection('about')}
+                  style={styles.sectionTitleRow}
+                  testID="section-about-header"
+                  accessibilityRole="button"
+                  accessibilityLabel={`Acerca de ${aboutExpanded ? 'cerrado' : 'abierto'}`}
+                >
+                  <Text style={[styles.sectionTitle, { color: accentColor }]}>Acerca de</Text>
+                  <Feather name={aboutExpanded ? 'chevron-up' : 'chevron-down'} size={16} color={accentColor} accessible={false} />
+                </TouchableOpacity>
+                {aboutExpanded && (
+                  <View style={styles.sectionContent}>
+                    {status === 'loading' ? (
+                      <View style={styles.bioLoading}>
+                        <ActivityIndicator size="small" color={accentColor} />
+                        <Text style={styles.bioLoadingText}>Cargando perfil...</Text>
+                      </View>
+                    ) : (
+                      <Text style={styles.bio} testID="profile-bio">
+                        {bio ? bio : 'Este trabajador aún no agregó una biografía.'}
                       </Text>
-                      <TouchableOpacity
-                        style={[styles.retryButton, { backgroundColor: accentColor }]}
-                        onPress={handleRetry}
-                        testID="btn-profile-reviews-retry"
-                        accessibilityRole="button"
-                      >
-                        <Text style={styles.retryText}>Reintentar reseñas</Text>
-                      </TouchableOpacity>
-                    </View>
-                  ) : reviews.length === 0 ? (
-                    <View style={styles.reviewsEmpty}>
-                      <Text style={styles.reviewsEmptyIcon}>☆</Text>
-                      <Text style={styles.reviewsEmptyText}>
-                        Este trabajador aún no tiene reseñas.
-                      </Text>
-                    </View>
-                  ) : (
-                    <>
-                      {reviews.map((review) => (
-                        <WorkerReviewCard
-                          key={review.id}
-                          review={review}
-                          accentColor={accentColor}
-                        />
-                      ))}
-                      {hasMore && (
+                    )}
+                  </View>
+                )}
+              </View>
+
+              {/* Sección: Galería */}
+              <View style={styles.sectionContainer}>
+                <TouchableOpacity
+                  onPress={() => toggleSection('gallery')}
+                  style={styles.sectionTitleRow}
+                  testID="section-gallery-header"
+                  accessibilityRole="button"
+                  accessibilityLabel={`Galería ${galleryExpanded ? 'cerrada' : 'abierta'}`}
+                >
+                  <Text style={[styles.sectionTitle, { color: accentColor }]}>Galería</Text>
+                  <Feather name={galleryExpanded ? 'chevron-up' : 'chevron-down'} size={16} color={accentColor} accessible={false} />
+                </TouchableOpacity>
+                {galleryExpanded && (
+                  <View style={styles.sectionContent}>
+                    <WorkerPortfolioGallery portfolio={portfolio} accentColor={accentColor} />
+                  </View>
+                )}
+              </View>
+
+              {/* Sección: Reseñas */}
+              <View style={styles.sectionContainer}>
+                <TouchableOpacity
+                  onPress={() => toggleSection('reviews')}
+                  style={styles.sectionTitleRow}
+                  testID="section-reviews-header"
+                  accessibilityRole="button"
+                  accessibilityLabel={`Reseñas ${reviewsExpanded ? 'cerradas' : 'abiertas'}`}
+                >
+                  <Text style={[styles.sectionTitle, { color: accentColor }]}>
+                    Reseñas ({totalReviews})
+                  </Text>
+                  <Feather name={reviewsExpanded ? 'chevron-up' : 'chevron-down'} size={16} color={accentColor} accessible={false} />
+                </TouchableOpacity>
+                {reviewsExpanded && (
+                  <View style={styles.sectionContent}>
+                    {reviewsStatus === 'loading' ? (
+                      <View style={styles.reviewsLoading}>
+                        <ActivityIndicator size="small" color={accentColor} />
+                        <Text style={styles.reviewsLoadingText}>Cargando reseñas...</Text>
+                      </View>
+                    ) : reviewsStatus === 'error' ? (
+                      <View style={styles.reviewsError}>
+                        <Text style={styles.reviewsErrorText} testID="profile-reviews-error">
+                          {reviewsError ?? 'No pudimos cargar las reseñas.'}
+                        </Text>
                         <TouchableOpacity
-                          style={styles.loadMoreButton}
-                          onPress={loadMore}
-                          testID="btn-profile-reviews-load-more"
+                          style={[styles.retryButton, { backgroundColor: accentColor }]}
+                          onPress={handleRetry}
+                          testID="btn-profile-reviews-retry"
                           accessibilityRole="button"
-                          accessibilityLabel="Ver más reseñas"
                         >
-                          <Text style={styles.loadMoreText}>Ver más reseñas</Text>
-                          {loadMoreError && (
-                            <Text style={styles.loadMoreErrorText}>{loadMoreError}</Text>
-                          )}
+                          <Text style={styles.retryText}>Reintentar reseñas</Text>
                         </TouchableOpacity>
-                      )}
-                    </>
-                  )}
-                </View>
-              )}
-            </View>
-          </ScrollView>
+                      </View>
+                    ) : reviews.length === 0 ? (
+                      <View style={styles.reviewsEmpty}>
+                        <Feather name="star" size={32} color={colors.textMuted} accessible={false} />
+                        <Text style={styles.reviewsEmptyText}>
+                          Este trabajador aún no tiene reseñas.
+                        </Text>
+                      </View>
+                    ) : (
+                      <>
+                        {reviews.map((review) => (
+                          <WorkerReviewCard
+                            key={review.id}
+                            review={review}
+                            accentColor={accentColor}
+                          />
+                        ))}
+                        {hasMore && (
+                          <TouchableOpacity
+                            style={styles.loadMoreButton}
+                            onPress={loadMore}
+                            testID="btn-profile-reviews-load-more"
+                            accessibilityRole="button"
+                            accessibilityLabel="Ver más reseñas"
+                          >
+                            <Text style={styles.loadMoreText}>Ver más reseñas</Text>
+                            {loadMoreError && (
+                              <Text style={styles.loadMoreErrorText}>{loadMoreError}</Text>
+                            )}
+                          </TouchableOpacity>
+                        )}
+                      </>
+                    )}
+                  </View>
+                )}
+              </View>
+            </ScrollView>
 
-          {/* Botón fijo abajo, siempre visible */}
-          <SafeAreaView edges={['bottom']} style={styles.requestButtonContainer}>
-            <TouchableOpacity
-              style={[styles.requestButton, { backgroundColor: accentColor }]}
-              onPress={handleRequestService}
-              testID="btn-profile-request"
-              accessibilityRole="button"
-              accessibilityLabel="Solicitar servicio"
-            >
-              <Text style={styles.requestButtonText}>Solicitar Servicio</Text>
-            </TouchableOpacity>
-          </SafeAreaView>
-        </>
+            {/* Botón fijo abajo, siempre visible */}
+            <View style={styles.requestButtonContainer}>
+              <PrimaryButton
+                title="Solicitar Servicio"
+                onPress={handleRequestService}
+                accentColor={accentColor}
+                testID="btn-profile-request"
+              />
+            </View>
+          </>
       )}
     </SafeAreaView>
   );
@@ -322,7 +321,6 @@ const styles = StyleSheet.create({
     paddingRight: spacing.sm,
     paddingVertical: spacing.xs,
   },
-  backArrow: { fontSize: 24, fontWeight: 'bold' },
   title: {
     color: colors.textPrimary,
     fontSize: typography.fontSizes.lg,
@@ -342,17 +340,6 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSizes.md,
     textAlign: 'center',
     marginBottom: spacing.sm,
-  },
-  retryButton: {
-    borderRadius: borderRadius.md,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.lg,
-    alignItems: 'center',
-  },
-  retryText: {
-    color: colors.onPrimary,
-    fontSize: typography.fontSizes.md,
-    fontWeight: typography.fontWeights.semibold,
   },
   content: {
     padding: spacing.md,
@@ -403,10 +390,6 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSizes.md,
     fontWeight: typography.fontWeights.semibold,
   },
-  sectionChevron: {
-    color: colors.textPrimary,
-    fontSize: typography.fontSizes.md,
-  },
   sectionContent: {
     marginTop: spacing.sm,
     gap: spacing.sm,
@@ -447,10 +430,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.sm,
     paddingVertical: spacing.md,
-  },
-  reviewsEmptyIcon: {
-    fontSize: 32,
-    color: colors.textMuted,
   },
   reviewsEmptyText: {
     color: colors.textMuted,

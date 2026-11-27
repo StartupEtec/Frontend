@@ -3,8 +3,11 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { Feather } from '@expo/vector-icons';
+import { PrimaryButton, SecondaryButton } from '../components/base';
 import { AuthWelcomeScreenProps } from '../types/auth';
-import { colors, spacing, borderRadius, typography, shadows } from '../theme/tokens';
+import { colors, spacing, borderRadius, typography } from '../theme/tokens';
+
+const ACCENT_COLOR = colors.clientAccent;
 
 export const AuthWelcomeScreen: React.FC<AuthWelcomeScreenProps> = ({
   onNavigateToRegister,
@@ -16,9 +19,8 @@ export const AuthWelcomeScreen: React.FC<AuthWelcomeScreenProps> = ({
       <StatusBar style="dark" />
 
       <View style={styles.container}>
-        {/* Branding Icon / Logo Placeholder */}
         <View style={styles.logoBadge}>
-          <Feather name="link" size={36} color={colors.primary} />
+          <Feather name="link" size={36} color={ACCENT_COLOR} />
         </View>
 
         <Text style={styles.title}>Te Damos la Bienvenida</Text>
@@ -27,23 +29,18 @@ export const AuthWelcomeScreen: React.FC<AuthWelcomeScreenProps> = ({
         </Text>
 
         <View style={styles.actionsContainer}>
-          <TouchableOpacity
-            style={[styles.button, styles.primaryButton]}
+          <PrimaryButton
+            title="Registrarse"
             onPress={onNavigateToRegister}
+            accentColor={ACCENT_COLOR}
             testID="btn-auth-register"
-            activeOpacity={0.8}
-          >
-            <Text style={styles.primaryButtonText}>Registrarse</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.button, styles.secondaryButton]}
+          />
+          <SecondaryButton
+            title="Iniciar Sesión"
             onPress={onNavigateToLogin}
+            accentColor={ACCENT_COLOR}
             testID="btn-auth-login"
-            activeOpacity={0.8}
-          >
-            <Text style={styles.secondaryButtonText}>Iniciar Sesión</Text>
-          </TouchableOpacity>
+          />
         </View>
 
         <TouchableOpacity
@@ -103,32 +100,6 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     marginBottom: spacing.xl,
   },
-  button: {
-    height: 52,
-    borderRadius: borderRadius.md,
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '100%',
-  },
-  primaryButton: {
-    backgroundColor: colors.primary,
-    ...shadows.button,
-  },
-  primaryButtonText: {
-    color: colors.onPrimary,
-    fontSize: typography.fontSizes.md,
-    fontWeight: typography.fontWeights.bold,
-  },
-  secondaryButton: {
-    backgroundColor: colors.surfaceContainerLow,
-    borderWidth: 1,
-    borderColor: colors.outline,
-  },
-  secondaryButtonText: {
-    color: colors.primary,
-    fontSize: typography.fontSizes.md,
-    fontWeight: typography.fontWeights.semibold,
-  },
   replayButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -143,5 +114,3 @@ const styles = StyleSheet.create({
     textDecorationLine: 'underline',
   },
 });
-
-export default AuthWelcomeScreen;

@@ -8,6 +8,7 @@ import {
   StyleSheet,
   Animated,
 } from 'react-native';
+import { Feather } from '@expo/vector-icons';
 import { UserRole } from '../types/role';
 import { colors, spacing, borderRadius, typography, shadows } from '../theme/tokens';
 
@@ -82,7 +83,7 @@ export const RoleSwitchModal: React.FC<RoleSwitchModalProps> = ({
               accessibilityRole="radio"
               accessibilityState={{ checked: isClient }}
             >
-              <Text style={styles.roleIcon}>🔍</Text>
+              <Feather name="search" size={28} color={colors.clientAccent} accessible={false} />
               <View style={styles.roleInfo}>
                 <Text style={[styles.roleTitle, { color: colors.clientAccent }]}>Cliente</Text>
                 <Text style={styles.roleDescription}>
@@ -90,8 +91,8 @@ export const RoleSwitchModal: React.FC<RoleSwitchModalProps> = ({
                 </Text>
               </View>
               {isClient && (
-                <View style={styles.activeIndicator}>
-                  <Text style={styles.activeCheck}>✓</Text>
+                <View style={[styles.activeIndicator, { backgroundColor: colors.clientAccent }]}>
+                  <Feather name="check" size={16} color={colors.onPrimary} accessible={false} />
                 </View>
               )}
             </TouchableOpacity>
@@ -111,14 +112,14 @@ export const RoleSwitchModal: React.FC<RoleSwitchModalProps> = ({
               accessibilityRole="radio"
               accessibilityState={{ checked: !isClient }}
             >
-              <Text style={styles.roleIcon}>🛠️</Text>
+              <Feather name="tool" size={28} color={colors.workerAccent} accessible={false} />
               <View style={styles.roleInfo}>
                 <Text style={[styles.roleTitle, { color: colors.workerAccent }]}>Trabajador</Text>
                 <Text style={styles.roleDescription}>Ofrecé tus servicios y ganá dinero</Text>
               </View>
               {!isClient && (
                 <View style={[styles.activeIndicator, { backgroundColor: colors.workerAccent }]}>
-                  <Text style={styles.activeCheck}>✓</Text>
+                  <Feather name="check" size={16} color={colors.onPrimary} accessible={false} />
                 </View>
               )}
             </TouchableOpacity>
@@ -221,14 +222,8 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: colors.clientAccent,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  activeCheck: {
-    color: colors.textPrimary,
-    fontSize: typography.fontSizes.sm,
-    fontWeight: typography.fontWeights.bold,
   },
   errorBox: {
     backgroundColor: 'rgba(239, 68, 68, 0.15)',

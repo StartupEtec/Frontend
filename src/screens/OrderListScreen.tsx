@@ -12,7 +12,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { Feather } from '@expo/vector-icons';
 import { useRoleContext } from '../context/RoleContext';
-import { colors, spacing, borderRadius, typography } from '../theme/tokens';
+import { colors, spacing, borderRadius, typography, roleAccent } from '../theme/tokens';
+import { PrimaryButton, ErrorBanner } from '../components/base';
 import { orderService, ORDERS_PAGE_SIZE } from '../services/orderService';
 import type { Order, OrderTab, OrderStatus } from '../types/order';
 import { TAB_STATUSES } from '../types/order';
@@ -47,6 +48,7 @@ export const OrderListScreen: React.FC<OrderListScreenProps> = ({
 }) => {
   const { currentRole } = useRoleContext();
   const userRole = currentRole ?? 'client';
+  const accentColor = roleAccent(currentRole);
 
   const [tab, setTab] = useState<OrderTab>('pendientes');
   const [orders, setOrders] = useState<Order[]>([]);
@@ -254,22 +256,30 @@ export const OrderListScreen: React.FC<OrderListScreenProps> = ({
       {/* Pestañas */}
       <View style={styles.tabsContainer}>
         <TouchableOpacity
-          style={[styles.tabButton, tab === 'pendientes' && styles.tabActive]}
+          style={[
+            styles.tabButton,
+            tab === 'pendientes' && styles.tabActive,
+            tab === 'pendientes' && { borderBottomColor: accentColor },
+          ]}
           onPress={() => handleTabChange('pendientes')}
           accessibilityLabel="Pendientes"
           accessibilityRole="tab"
         >
-          <Text style={[styles.tabText, tab === 'pendientes' && styles.tabTextActive]}>
+          <Text style={[styles.tabText, tab === 'pendientes' && styles.tabTextActive, { color: tab === 'pendientes' ? accentColor : colors.textMuted }]}>
             Pendientes
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.tabButton, tab === 'realizados' && styles.tabActive]}
+          style={[
+            styles.tabButton,
+            tab === 'realizados' && styles.tabActive,
+            tab === 'realizados' && { borderBottomColor: accentColor },
+          ]}
           onPress={() => handleTabChange('realizados')}
           accessibilityLabel="Realizados"
           accessibilityRole="tab"
         >
-          <Text style={[styles.tabText, tab === 'realizados' && styles.tabTextActive]}>
+          <Text style={[styles.tabText, tab === 'realizados' && styles.tabTextActive, { color: tab === 'realizados' ? accentColor : colors.textMuted }]}>
             Realizados
           </Text>
         </TouchableOpacity>
@@ -279,20 +289,31 @@ export const OrderListScreen: React.FC<OrderListScreenProps> = ({
       <View style={styles.listContainer}>
         {isLoading ? (
           <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color={colors.primary} />
+            <ActivityIndicator size="large" color={accentColor} />
             <Text style={styles.loadingText}>Cargando tus pedidos...</Text>
           </View>
         ) : isEmpty ? (
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>{emptyMessage}</Text>
-            {isError && (
-              <TouchableOpacity
-                style={styles.retryButton}
-                onPress={handleRetry}
-                testID="btn-orders-retry"
-              >
-                <Text style={styles.retryText}>Reintentar</Text>
-              </TouchableOpacity>
+            {isError ? (
+              <>
+                <ErrorBanner message={error ?? 'No se pudieron cargar los pedidos'} testID="orders-error" />
+                <PrimaryButton
+                  title="Reintentar"
+                  onPress={handleRetry}
+                  accentColor={accentColor}
+                  testID="btn-orders-retry"
+                />
+              </>
+            ) : (
+              <>
+                <Feather
+                  name={tab === 'pendientes' ? 'package' : 'archive'}
+                  size={48}
+                  color={colors.textMuted}
+                  accessible={false}
+                />
+                <Text style={styles.emptyText}>{emptyMessage}</Text>
+              </>
             )}
           </View>
         ) : (
@@ -383,7 +404,6 @@ const styles = StyleSheet.create({
   },
   tabActive: {
     borderBottomWidth: 2,
-    borderBottomColor: colors.primary,
   },
   tabText: {
     color: colors.textMuted,

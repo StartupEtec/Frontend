@@ -31,12 +31,11 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
   otherUser,
   onGoBack,
   accentColor = colors.primary,
-  insetsTop = 0,
 }) => {
   const avatarUri = otherUser.avatar_url ? toDisplayUri(otherUser.avatar_url) : null;
 
   return (
-    <View style={[styles.root, { paddingTop: spacing.sm + insetsTop }]}>
+    <View style={styles.root}>
       <View style={styles.row}>
         <TouchableOpacity
           onPress={onGoBack}

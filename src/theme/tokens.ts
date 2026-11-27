@@ -70,6 +70,9 @@ export const colors = {
   // Gris: pin del trabajador muy lejos del área (o sin área definida).
   workerOut: '#9e9e9e',
 
+  // Highlight color for required field asterisks (*)
+  highlight: '#ea580c',
+
   // App-level aliases (backwards compatible UI API)
   cardBackground: '#ffffff',
   textPrimary: '#1a1c1c',
@@ -110,7 +113,7 @@ export const spacing = {
 export const borderRadius = {
   sm: 4,
   DEFAULT: 8,
-  md: 8,
+  md: 12,
   lg: 16,
   xl: 24,
   pill: 9999,

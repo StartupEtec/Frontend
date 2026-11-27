@@ -13,9 +13,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { Feather } from '@expo/vector-icons';
 import { useLoginForm } from '../hooks/useLoginForm';
-import { RegisterFormInput } from '../components/register/RegisterFormInput';
+import { BaseField, PrimaryButton, ErrorBanner } from '../components/base';
 import { LoginScreenProps } from '../types/auth';
 import { colors, spacing, borderRadius, typography, shadows } from '../theme/tokens';
+
+const ACCENT_COLOR = colors.clientAccent;
 
 export const LoginScreen: React.FC<LoginScreenProps> = ({
   onNavigateToOtp,
@@ -62,7 +64,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
                 <Feather
                   name="arrow-left"
                   size={24}
-                  color={colors.textPrimary}
+                  color={ACCENT_COLOR}
                   accessible={false}
                 />
               </TouchableOpacity>
@@ -72,12 +74,10 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
           </View>
 
           {serverError && (
-            <View style={styles.serverErrorBox} testID="server-error-banner">
-              <Text style={styles.serverErrorText}>{serverError}</Text>
-            </View>
+            <ErrorBanner message={serverError} testID="server-error-banner" />
           )}
 
-          <RegisterFormInput
+          <BaseField
             label="Correo Electrónico o Teléfono"
             value={formData.emailOrPhone}
             onChangeText={(t) => handleChange('emailOrPhone', t)}
@@ -87,9 +87,11 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
             keyboardType="email-address"
             autoCapitalize="none"
             testID="input-email-phone"
+            required
+            accentColor={ACCENT_COLOR}
           />
 
-          <RegisterFormInput
+          <BaseField
             label="Contraseña"
             value={formData.password}
             onChangeText={(t) => handleChange('password', t)}
@@ -99,6 +101,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
             secureTextEntry={!showPassword}
             onToggleSecureTextEntry={toggleShowPassword}
             testID="input-password"
+            required
+            accentColor={ACCENT_COLOR}
           />
 
           <View style={styles.optionsRow}>
@@ -126,21 +130,14 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
             </TouchableOpacity>
           </View>
 
-          <TouchableOpacity
-            style={[
-              styles.submitButton,
-              (!isFormValid || isSubmitting) && styles.submitButtonDisabled,
-            ]}
+          <PrimaryButton
+            title={isSubmitting ? 'Ingresando...' : 'Iniciar Sesión'}
             onPress={handleSubmit}
             disabled={!isFormValid || isSubmitting}
+            loading={isSubmitting}
+            accentColor={ACCENT_COLOR}
             testID="btn-login-submit"
-          >
-            {isSubmitting ? (
-              <ActivityIndicator color={colors.onPrimary} testID="loading-spinner" />
-            ) : (
-              <Text style={styles.submitButtonText}>Iniciar Sesión</Text>
-            )}
-          </TouchableOpacity>
+          />
 
           <View style={styles.registerRow}>
             <Text style={styles.registerQuestion}>¿No tenés cuenta? </Text>
@@ -157,7 +154,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: colors.background },
   container: { flex: 1 },
-  scrollContent: { padding: spacing.md, paddingBottom: spacing.xxl },
+  scrollContent: { padding: spacing.lg, paddingBottom: spacing.xxl * 2 },
   header: { marginBottom: spacing.lg },
   titleRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   backButton: {
@@ -166,25 +163,14 @@ const styles = StyleSheet.create({
   },
   title: {
     color: colors.textPrimary,
-    fontSize: typography.fontSizes.xl,
-    fontWeight: '700',
+    fontSize: typography.fontSizes.xxl,
+    fontWeight: typography.fontWeights.bold,
   },
   subtitle: {
     color: colors.textSecondary,
-    fontSize: typography.fontSizes.sm,
+    fontSize: typography.fontSizes.md,
     marginTop: spacing.xs,
-  },
-  serverErrorBox: {
-    backgroundColor: colors.errorContainer,
-    borderColor: colors.error,
-    borderWidth: 1,
-    padding: spacing.md,
-    borderRadius: borderRadius.md,
-    marginBottom: spacing.md,
-  },
-  serverErrorText: {
-    color: colors.onErrorContainer,
-    fontSize: typography.fontSizes.sm,
+    lineHeight: typography.fontSizes.md * 1.5,
   },
   optionsRow: {
     flexDirection: 'row',
@@ -208,32 +194,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   checkboxChecked: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
+    backgroundColor: ACCENT_COLOR,
+    borderColor: ACCENT_COLOR,
   },
   rememberText: {
     color: colors.textSecondary,
     fontSize: typography.fontSizes.xs,
   },
   forgotText: {
-    color: colors.primary,
+    color: ACCENT_COLOR,
     fontSize: typography.fontSizes.xs,
     fontWeight: '600',
-  },
-  submitButton: {
-    backgroundColor: colors.primary,
-    height: 50,
-    borderRadius: borderRadius.md,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: spacing.md,
-    ...shadows.button,
-  },
-  submitButtonDisabled: { opacity: 0.5 },
-  submitButtonText: {
-    color: colors.onPrimary,
-    fontSize: typography.fontSizes.md,
-    fontWeight: '700',
   },
   registerRow: {
     flexDirection: 'row',
@@ -245,10 +216,8 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSizes.sm,
   },
   registerLink: {
-    color: colors.primary,
+    color: ACCENT_COLOR,
     fontSize: typography.fontSizes.sm,
     fontWeight: '700',
   },
 });
-
-export default LoginScreen;

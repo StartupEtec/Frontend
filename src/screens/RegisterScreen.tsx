@@ -13,12 +13,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { Feather } from '@expo/vector-icons';
 import { useRegisterForm } from '../hooks/useRegisterForm';
-import { RegisterFormInput } from '../components/register/RegisterFormInput';
+import { BaseField, PrimaryButton, ErrorBanner } from '../components/base';
 import { PasswordRequirements } from '../components/register/PasswordRequirements';
 import { RegisterTermsRow } from '../components/register/RegisterTermsRow';
 import { TermsModal } from '../components/register/TermsModal';
 import { RegisterScreenProps } from '../types/auth';
 import { colors, spacing, borderRadius, typography, shadows } from '../theme/tokens';
+
+const ACCENT_COLOR = colors.clientAccent;
 
 export const RegisterScreen: React.FC<RegisterScreenProps> = ({
   onNavigateToOtp,
@@ -68,7 +70,7 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
                 <Feather
                   name="arrow-left"
                   size={24}
-                  color={colors.textPrimary}
+                  color={ACCENT_COLOR}
                   accessible={false}
                 />
               </TouchableOpacity>
@@ -80,12 +82,10 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
           </View>
 
           {serverError && (
-            <View style={styles.serverErrorBox} testID="server-error-banner">
-              <Text style={styles.serverErrorText}>{serverError}</Text>
-            </View>
+            <ErrorBanner message={serverError} testID="server-error-banner" />
           )}
 
-          <RegisterFormInput
+          <BaseField
             label="Nombre"
             value={formData.firstName}
             onChangeText={(t) => handleChange('firstName', t)}
@@ -94,9 +94,11 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
             placeholder="Ej. Juan"
             autoCapitalize="words"
             testID="input-first-name"
+            required
+            accentColor={ACCENT_COLOR}
           />
 
-          <RegisterFormInput
+          <BaseField
             label="Apellido"
             value={formData.lastName}
             onChangeText={(t) => handleChange('lastName', t)}
@@ -105,9 +107,11 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
             placeholder="Ej. Pérez"
             autoCapitalize="words"
             testID="input-last-name"
+            required
+            accentColor={ACCENT_COLOR}
           />
 
-          <RegisterFormInput
+          <BaseField
             label="Correo Electrónico"
             value={formData.email}
             onChangeText={(t) => handleChange('email', t)}
@@ -117,9 +121,11 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
             keyboardType="email-address"
             autoCapitalize="none"
             testID="input-email"
+            required
+            accentColor={ACCENT_COLOR}
           />
 
-          <RegisterFormInput
+          <BaseField
             label="Teléfono Móvil"
             value={formData.phone}
             onChangeText={(t) => handleChange('phone', t)}
@@ -128,9 +134,11 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
             placeholder="+5491122334455"
             keyboardType="phone-pad"
             testID="input-phone"
+            required
+            accentColor={ACCENT_COLOR}
           />
 
-          <RegisterFormInput
+          <BaseField
             label="Contraseña"
             value={formData.password}
             onChangeText={(t) => handleChange('password', t)}
@@ -140,11 +148,13 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
             secureTextEntry={!showPassword}
             onToggleSecureTextEntry={toggleShowPassword}
             testID="input-password"
+            required
+            accentColor={ACCENT_COLOR}
           />
 
           <PasswordRequirements status={passwordCriteria} />
 
-          <RegisterFormInput
+          <BaseField
             label="Confirmar Contraseña"
             value={formData.confirmPassword}
             onChangeText={(t) => handleChange('confirmPassword', t)}
@@ -154,6 +164,8 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
             secureTextEntry={!showConfirmPassword}
             onToggleSecureTextEntry={toggleShowConfirmPassword}
             testID="input-confirm-password"
+            required
+            accentColor={ACCENT_COLOR}
           />
 
           <RegisterTermsRow
@@ -164,21 +176,14 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
             error={errors.acceptedTerms}
           />
 
-          <TouchableOpacity
-            style={[
-              styles.submitButton,
-              (!isFormValid || isSubmitting) && styles.submitButtonDisabled,
-            ]}
+          <PrimaryButton
+            title={isSubmitting ? 'Registrando...' : 'Registrarse'}
             onPress={handleSubmit}
             disabled={!isFormValid || isSubmitting}
+            loading={isSubmitting}
+            accentColor={ACCENT_COLOR}
             testID="btn-register-submit"
-          >
-            {isSubmitting ? (
-              <ActivityIndicator color={colors.onPrimary} testID="loading-spinner" />
-            ) : (
-              <Text style={styles.submitButtonText}>Registrarse</Text>
-            )}
-          </TouchableOpacity>
+          />
 
           <View style={styles.loginRow}>
             <Text style={styles.loginQuestion}>¿Ya tenés cuenta? </Text>
@@ -201,7 +206,7 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: colors.background },
   container: { flex: 1 },
-  scrollContent: { padding: spacing.md, paddingBottom: spacing.xxl },
+  scrollContent: { padding: spacing.lg, paddingBottom: spacing.xxl * 2 },
   header: { marginBottom: spacing.lg },
   titleRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   backButton: {
@@ -210,13 +215,14 @@ const styles = StyleSheet.create({
   },
   title: {
     color: colors.textPrimary,
-    fontSize: typography.fontSizes.xl,
-    fontWeight: '700',
+    fontSize: typography.fontSizes.xxl,
+    fontWeight: typography.fontWeights.bold,
   },
   subtitle: {
     color: colors.textSecondary,
-    fontSize: typography.fontSizes.sm,
+    fontSize: typography.fontSizes.md,
     marginTop: spacing.xs,
+    lineHeight: typography.fontSizes.md * 1.5,
   },
   serverErrorBox: {
     backgroundColor: colors.errorContainer,
@@ -230,21 +236,6 @@ const styles = StyleSheet.create({
     color: colors.onErrorContainer,
     fontSize: typography.fontSizes.sm,
   },
-  submitButton: {
-    backgroundColor: colors.primary,
-    height: 50,
-    borderRadius: borderRadius.md,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: spacing.md,
-    ...shadows.button,
-  },
-  submitButtonDisabled: { opacity: 0.5 },
-  submitButtonText: {
-    color: colors.onPrimary,
-    fontSize: typography.fontSizes.md,
-    fontWeight: '700',
-  },
   loginRow: {
     flexDirection: 'row',
     justifyContent: 'center',
@@ -255,10 +246,8 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSizes.sm,
   },
   loginLink: {
-    color: colors.primary,
+    color: ACCENT_COLOR,
     fontSize: typography.fontSizes.sm,
     fontWeight: '700',
   },
 });
-
-export default RegisterScreen;

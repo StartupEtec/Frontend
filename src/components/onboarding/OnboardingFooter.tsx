@@ -1,9 +1,10 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { OnboardingFooterProps } from '../../types/onboarding';
 import { PaginationDots } from './PaginationDots';
+import { PrimaryButton, SecondaryButton } from '../base';
 import { onboardingUIStrings } from '../../i18n/onboardingContent';
-import { colors, spacing, borderRadius, typography, shadows } from '../../theme/tokens';
+import { colors, spacing, borderRadius, typography } from '../../theme/tokens';
 
 export const OnboardingFooter: React.FC<OnboardingFooterProps> = ({
   currentIndex,
@@ -21,17 +22,12 @@ export const OnboardingFooter: React.FC<OnboardingFooterProps> = ({
         <PaginationDots total={totalSlides} currentIndex={currentIndex} />
 
         <View style={styles.ctaContainer}>
-          <TouchableOpacity
+          <PrimaryButton
+            title={onboardingUIStrings.start}
             onPress={onStart}
-            activeOpacity={0.8}
-            accessibilityRole="button"
-            accessibilityLabel="Comenzar"
-            accessibilityHint="Completa la presentación e inicia en la aplicación"
-            style={[styles.button, styles.primaryButton]}
+            accentColor={colors.primary}
             testID="btn-onboarding-start"
-          >
-            <Text style={styles.primaryButtonText}>Comenzar</Text>
-          </TouchableOpacity>
+          />
         </View>
       </View>
     );
@@ -43,30 +39,22 @@ export const OnboardingFooter: React.FC<OnboardingFooterProps> = ({
 
       <View style={styles.navRow}>
         {!isFirstSlide ? (
-          <TouchableOpacity
+          <SecondaryButton
+            title={onboardingUIStrings.prev}
             onPress={onPrev}
-            activeOpacity={0.7}
-            accessibilityRole="button"
-            accessibilityLabel={onboardingUIStrings.prev}
-            accessibilityHint={onboardingUIStrings.accessibility.prevHint}
-            style={[styles.navButton, styles.prevButton]}
-          >
-            <Text style={styles.prevButtonText}>{onboardingUIStrings.prev}</Text>
-          </TouchableOpacity>
+            accentColor={colors.primary}
+            testID="btn-onboarding-prev"
+          />
         ) : (
           <View style={styles.navButtonPlaceholder} />
         )}
 
-        <TouchableOpacity
+        <PrimaryButton
+          title={onboardingUIStrings.next}
           onPress={onNext}
-          activeOpacity={0.8}
-          accessibilityRole="button"
-          accessibilityLabel={onboardingUIStrings.next}
-          accessibilityHint={onboardingUIStrings.accessibility.nextHint}
-          style={[styles.navButton, styles.nextButton]}
-        >
-          <Text style={styles.nextButtonText}>{onboardingUIStrings.next}</Text>
-        </TouchableOpacity>
+          accentColor={colors.primary}
+          testID="btn-onboarding-next"
+        />
       </View>
     </View>
   );
@@ -87,49 +75,7 @@ const styles = StyleSheet.create({
   navButtonPlaceholder: {
     width: 90,
   },
-  navButton: {
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.lg,
-    borderRadius: borderRadius.md,
-    minWidth: 100,
-    alignItems: 'center',
-  },
-  prevButton: {
-    backgroundColor: colors.surfaceContainerLow,
-    borderWidth: 1,
-    borderColor: colors.outline,
-  },
-  prevButtonText: {
-    color: colors.onSurfaceVariant,
-    fontSize: typography.fontSizes.sm,
-    fontWeight: typography.fontWeights.semibold,
-  },
-  nextButton: {
-    backgroundColor: colors.primary,
-    ...shadows.button,
-  },
-  nextButtonText: {
-    color: colors.onPrimary,
-    fontSize: typography.fontSizes.sm,
-    fontWeight: typography.fontWeights.bold,
-  },
   ctaContainer: {
     marginTop: spacing.sm,
-  },
-  button: {
-    paddingVertical: spacing.md,
-    borderRadius: borderRadius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '100%',
-  },
-  primaryButton: {
-    backgroundColor: colors.primary,
-    ...shadows.button,
-  },
-  primaryButtonText: {
-    color: colors.onPrimary,
-    fontSize: typography.fontSizes.md,
-    fontWeight: typography.fontWeights.bold,
   },
 });

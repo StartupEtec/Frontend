@@ -95,7 +95,7 @@ export const useRegisterForm = (
       errs.email = 'Formato de correo electrónico inválido';
     }
 
-    const cleanPhone = formData.phone.replace(/\s+/g, '');
+    const cleanPhone = formData.phone.replace(/[\s\-().]/g, '');
     if (!cleanPhone) {
       errs.phone = 'El teléfono es obligatorio';
     } else if (!PHONE_REGEX.test(cleanPhone)) {
@@ -171,7 +171,7 @@ export const useRegisterForm = (
       await authService.register({
         full_name: `${formData.firstName.trim()} ${formData.lastName.trim()}`.trim(),
         email: formData.email.trim(),
-        phone: formData.phone.replace(/\s+/g, ''),
+        phone: formData.phone.replace(/[\s\-().]/g, ''),
         password: formData.password,
       });
 

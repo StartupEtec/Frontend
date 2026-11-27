@@ -12,6 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { Feather } from '@expo/vector-icons';
 import { colors, spacing, borderRadius, typography, shadows } from '../theme/tokens';
+import { PrimaryButton, SecondaryButton, ErrorBanner } from '../components/base';
 import { useQuoteRequest } from '../hooks/useQuoteRequest';
 import { categoryService } from '../services/categoryService';
 import { Category } from '../types/category';
@@ -222,31 +223,26 @@ export const QuoteRequestScreen: React.FC<QuoteRequestScreenProps> = ({
           </Text>
         </View>
 
-        {error && (
-          <View style={styles.errorRow}>
-            <Feather name="alert-circle" size={16} color={colors.error} accessible={false} />
-            <Text style={styles.errorText}>{error}</Text>
-          </View>
-        )}
+        {error && <ErrorBanner message={error} testID="quote-request-error" />}
       </ScrollView>
 
       {/* Pie con botones */}
       <View style={styles.modalFooter}>
-        <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
-          <Text style={styles.cancelButtonText}>Cancelar</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.submitButton, isSending && styles.submitButtonDisabled]}
+        <SecondaryButton
+          title="Cancelar"
+          onPress={onClose}
+          accentColor={colors.primary}
+          testID="btn-quote-request-cancel"
+        />
+        <PrimaryButton
+          title={isSending ? 'Confirmando...' : 'Confirmar'}
           onPress={handleSubmit}
           disabled={isSending}
+          loading={isSending}
+          loadingTestID="quote-request-loading-spinner"
+          accentColor={colors.primary}
           testID="btn-submit-quote-request"
-        >
-          {isSending ? (
-            <Text style={styles.submitButtonText}>Confirmando...</Text>
-          ) : (
-            <Text style={styles.submitButtonText}>Confirmar</Text>
-          )}
-        </TouchableOpacity>
+        />
       </View>
 
       {/* Desplegable de categorías (se estira hacia abajo) */}
@@ -266,8 +262,10 @@ export const QuoteRequestScreen: React.FC<QuoteRequestScreenProps> = ({
             >
               <Text style={styles.categoryOptionText}>
                 {category.name}
-                {selectedCategoryId === category.id && ' ✓'}
               </Text>
+              {selectedCategoryId === category.id && (
+                <Feather name="check" size={14} color={colors.primary} accessible={false} />
+              )}
             </TouchableOpacity>
           ))}
         </View>
@@ -400,16 +398,6 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top',
     minHeight: spacing.md * 4,
   },
-  errorRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: spacing.xs,
-  },
-  errorText: {
-    color: colors.error,
-    fontSize: typography.fontSizes.xs,
-    marginLeft: spacing.xs,
-  },
   modalFooter: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
@@ -418,29 +406,6 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: colors.border,
     backgroundColor: colors.surfaceContainerLow,
-  },
-  cancelButton: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-  },
-  cancelButtonText: {
-    color: colors.textSecondary,
-    fontSize: typography.fontSizes.sm,
-    fontWeight: typography.fontWeights.medium,
-  },
-  submitButton: {
-    backgroundColor: colors.primary,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderRadius: borderRadius.md,
-  },
-  submitButtonDisabled: {
-    backgroundColor: colors.textMuted,
-  },
-  submitButtonText: {
-    color: colors.onPrimary,
-    fontSize: typography.fontSizes.sm,
-    fontWeight: typography.fontWeights.semibold,
   },
   descriptionCounter: {
     color: colors.textMuted,

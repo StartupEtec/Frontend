@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { Feather } from '@expo/vector-icons';
 import { colors, spacing, borderRadius, typography } from '../theme/tokens';
+import { PrimaryButton, SecondaryButton } from '../components/base';
 import { quoteService } from '../services/quoteService';
 import { chatService } from '../services/chatService';
 import { QuoteData, QuoteRequestData } from '../types/chat';
@@ -293,43 +294,41 @@ export const AcceptQuoteScreen: React.FC<AcceptQuoteScreenProps> = ({
       <View style={styles.footer}>
         {page === 1 ? (
           <>
-            <TouchableOpacity
-              style={styles.secondaryButton}
+            <SecondaryButton
+              title="Cancelar"
               onPress={onClose}
               disabled={isCreating}
-            >
-              <Text style={styles.secondaryButtonText}>Cancelar</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.primaryButton,
-                hasRejections ? styles.primaryButtonRejected : null,
-                isCreating ? styles.primaryButtonDisabled : null,
-              ]}
+              accentColor={colors.primary}
+              testID="btn-accept-quote-cancel"
+            />
+            <PrimaryButton
+              title={hasRejections ? 'Rechazar' : 'Siguiente'}
               onPress={handlePage1Next}
               disabled={isCreating}
-            >
-              <Text style={styles.primaryButtonText}>
-                {hasRejections ? 'Rechazar' : 'Siguiente'}
-              </Text>
-            </TouchableOpacity>
+              loading={isCreating}
+              loadingTestID="accept-quote-loading-spinner"
+              accentColor={hasRejections ? colors.error : colors.primary}
+              testID="btn-accept-quote-next"
+            />
           </>
         ) : (
           <>
-            <TouchableOpacity
-              style={styles.secondaryButton}
+            <SecondaryButton
+              title="Volver"
               onPress={() => setPage(1)}
               disabled={isCreating}
-            >
-              <Text style={styles.secondaryButtonText}>Volver</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.primaryButton, isCreating ? styles.primaryButtonDisabled : null]}
+              accentColor={colors.primary}
+              testID="btn-accept-quote-back"
+            />
+            <PrimaryButton
+              title={isCreating ? 'Procesando...' : 'Pagar'}
               onPress={handlePage2Pay}
               disabled={isCreating}
-            >
-              <Text style={styles.primaryButtonText}>{isCreating ? 'Procesando...' : 'Pagar'}</Text>
-            </TouchableOpacity>
+              loading={isCreating}
+              loadingTestID="accept-quote-pay-spinner"
+              accentColor={colors.primary}
+              testID="btn-accept-quote-pay"
+            />
           </>
         )}
       </View>
@@ -461,38 +460,6 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: colors.border,
     backgroundColor: colors.surfaceContainerLow,
-  },
-  secondaryButton: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderRadius: borderRadius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surfaceContainerLow,
-  },
-  secondaryButtonText: {
-    color: colors.textSecondary,
-    fontSize: typography.fontSizes.sm,
-    fontWeight: typography.fontWeights.medium,
-  },
-  primaryButton: {
-    backgroundColor: colors.primary,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
-    borderRadius: borderRadius.md,
-    minWidth: 120,
-    alignItems: 'center',
-  },
-  primaryButtonRejected: {
-    backgroundColor: colors.error,
-  },
-  primaryButtonDisabled: {
-    backgroundColor: colors.textMuted,
-  },
-  primaryButtonText: {
-    color: colors.onPrimary,
-    fontSize: typography.fontSizes.sm,
-    fontWeight: typography.fontWeights.semibold,
   },
 });
 

@@ -23,7 +23,7 @@ describe("MainScreen", () => {
       />,
     );
 
-    expect(getByText("🏠 Pantalla Principal")).toBeTruthy();
+    expect(getByText("Pantalla Principal")).toBeTruthy();
     expect(getByText("Modo Cliente")).toBeTruthy();
   });
 
